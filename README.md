@@ -1,10 +1,9 @@
 Neo4j Relationship Count Cache
-==============================
+------------------------------
 
 [![Build Status](https://travis-ci.org/graphaware/neo4j-relcount.png)](https://travis-ci.org/graphaware/neo4j-relcount)
 
-Introduction
-------------
+### Introduction
 
 In some Neo4j applications, it is useful to know how many relationships of a given type, perhaps with different properties,
 are present on a node. Naive on-demand relationship counting quickly becomes inefficient with large numbers of relationships
@@ -12,8 +11,8 @@ per node.
 
 The aim of this GraphAware module is to provide an easy-to-use, transparent cache for relationship counts on nodes.
 
-Usage
------
+### Usage
+
 
 Once set up (read below), it is very simple to use the API. To count `OUTGOING` relationships of type `FRIEND_OF` with property
  `level` equal to 2, write:
@@ -26,7 +25,7 @@ Once set up (read below), it is very simple to use the API. To count `OUTGOING` 
     int count = counter.count(node); //DONE!
 ```
 
-### Embedded Mode
+#### Embedded Mode
 
 When using Neo4j in _embedded_ mode, you need to register the component that does all the caching as a transaction event
 handler on the database right after it has been created, like this:
@@ -38,23 +37,22 @@ database.registerTransactionEventHandler(new RelationshipCountTransactionEventHa
 
 That's it!
 
-### Server Mode
+#### Server Mode
 
 Stay tuned, coming very soon!
 
-How does it work?
------------------
+### How does it work?
 
 There is no magic. The transaction event handler intercept all transactions before they are committed to the database
 and analyzes them for any created, deleted, or modified relationships.
 
 It caches the relationship counts as properties on each node, both for incoming and outgoing relationships. In order not
 to pollute nodes with meaningless properties, a `RelationshipCountCompactor`, as the name suggests, compacts the cached
- information.
+information.
 
 Let's illustrate that on an example. Suppose that a node has no relationships to start with. When we create the first outgoing
- relationship of type FRIEND_OF with properties `level` equal to `2` and `timestamp` equal to `1368206683579`, the following property
- is automatically written to the node:
+relationship of type FRIEND_OF with properties `level` equal to `2` and `timestamp` equal to `1368206683579`, the following property
+is automatically written to the node:
 
     _GA_REL_FRIEND_OF#OUTGOING#level#2#timestamp#1368206683579 = 1
 
@@ -105,8 +103,7 @@ on a node with the following cache counts
 
 the result will be... you guessed it... 36.
 
-Advanced Usage
---------------
+### Advanced Usage
 
 There are a number of things that can be tweaked here. First of all, in order to change the compaction threshold,
 just pass an integer parameter into the `RelationshipCountTransactionEventHandlerFactory` `create` method.
@@ -145,15 +142,14 @@ and pass it on to the factory as well. You will need to implement a single metho
 As you can see, this gives you access to the "other" node participating in the relationship. This gives you an opportunity
 to implement requirements like "would like to count outgoing relationships based on the end node's type".
 
-Known Issues
-------------
+### Known Issues
+
 * Check whether a relationship is GraphAware internal should be removed from inclusion strategy
 * Create a method that rebuilds cached counts for the entire database
 * Test that relationship inclusion and property extraction strategies are properly honored
 * Measure and improve performance (always! :-))
 
-License
--------
+### License
 
 Copyright (c) 2013 GraphAware
 
