@@ -15,7 +15,7 @@ The aim of this GraphAware module is to provide an easy-to-use, transparent cach
 
 
 Once set up (read below), it is very simple to use the API. To count `OUTGOING` relationships of type `FRIEND_OF` with property
- `level` equal to 2, write:
+ `level` equal to `2`, write:
 
 ```java
     Node node =... //find a node somewhere, perhaps in an index
@@ -43,7 +43,7 @@ Stay tuned, coming very soon!
 
 ### How does it work?
 
-There is no magic. The transaction event handler intercept all transactions before they are committed to the database
+There is no magic. The transaction event handler intercepts all transactions before they are committed to the database
 and analyzes them for any created, deleted, or modified relationships.
 
 It caches the relationship counts as properties on each node, both for incoming and outgoing relationships. In order not
@@ -51,7 +51,7 @@ to pollute nodes with meaningless properties, a `RelationshipCountCompactor`, as
 information.
 
 Let's illustrate that on an example. Suppose that a node has no relationships to start with. When we create the first outgoing
-relationship of type FRIEND_OF with properties `level` equal to `2` and `timestamp` equal to `1368206683579`, the following property
+relationship of type `FRIEND_OF` with properties `level` equal to `2` and `timestamp` equal to `1368206683579`, the following property
 is automatically written to the node:
 
     _GA_REL_FRIEND_OF#OUTGOING#level#2#timestamp#1368206683579 = 1
@@ -78,20 +78,20 @@ So the compactor will try dropping the timestamp and generates a representation 
 
      _GA_REL_FRIEND_OF#OUTGOING#level#2
 
-Then it counts how many cached relationship counts match that representation. In our example, it is all of them (11). If
-this number is above a compaction threshold (which is set to 10 by default), the compaction happens, resulting in
+Then it looks at how many cached relationship counts match that representation. In our example, it is all of them (11). If
+this number is above a *compaction threshold* (which is set to 10 by default), the compaction happens, resulting in
 
      _GA_REL_FRIEND_OF#OUTGOING#level#2 = 11
 
-After that, there will be another 11 friendships cached with the timestamp, before another compaction.
+After that, 11 more friendships will get cached with the timestamp, before another compaction.
 
 So that's how it works on a high level. Of course relationships with different levels of generality are supported
-(for example, creating a FRIEND_OF relationship without a timestamp will work just fine). Of course, when issuing a query
+(for example, creating a `FRIEND_OF` relationship without a timestamp will work just fine). When issuing a query
  like this
 
  ```java
     RelationshipCounter counter = new RelationshipCounterImpl(FRIEND_OF, OUTGOING);
-    int count = counter.count(node); //DONE!
+    int count = counter.count(node);
  ```
 
 on a node with the following cache counts
@@ -107,6 +107,12 @@ the result will be... you guessed it... 36.
 
 There are a number of things that can be tweaked here. First of all, in order to change the compaction threshold,
 just pass an integer parameter into the `RelationshipCountTransactionEventHandlerFactory` `create` method.
+
+```java
+int threshold = 20;
+database = new GraphDatabaseFactory().newEmbeddedDatabase("/path/to/db");
+database.registerTransactionEventHandler(new RelationshipCountTransactionEventHandlerFactory().create(threshold));
+```
 
 To exclude certain relationships from the count caching process altogether, create a strategy that implements the
 `RelationshipInclusionStrategy` interface and implement the following method:
