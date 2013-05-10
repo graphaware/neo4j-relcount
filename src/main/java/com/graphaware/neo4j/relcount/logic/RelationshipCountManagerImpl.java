@@ -118,7 +118,7 @@ public class RelationshipCountManagerImpl implements RelationshipCountManager {
             }
         }
 
-        return false; //should never make it all the way here
+        return false;
     }
 
     /**
