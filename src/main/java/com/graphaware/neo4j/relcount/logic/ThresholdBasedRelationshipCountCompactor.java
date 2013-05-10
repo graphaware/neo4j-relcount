@@ -64,11 +64,11 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
     @Override
     public void compactRelationshipCounts(ComparableRelationship trigger, Node node) {
 
-        Set<Map.Entry<ComparableRelationship, Integer>> cachedCounts = countManager.getRelationshipCounts(node).entrySet();
+        Map<ComparableRelationship, Integer> cachedCounts = countManager.getRelationshipCounts(node);
 
         for (ComparableRelationship generalization : trigger.generateOneMoreGeneral()) {
             Map<ComparableRelationship, Integer> compactionCandidates = new HashMap<ComparableRelationship, Integer>();
-            for (Map.Entry<ComparableRelationship, Integer> compactionCandidate : cachedCounts) {
+            for (Map.Entry<ComparableRelationship, Integer> compactionCandidate : cachedCounts.entrySet()) {
                 if (generalization.isStrictlyMoreGeneralThan(compactionCandidate.getKey())) {
                     compactionCandidates.put(compactionCandidate.getKey(), compactionCandidate.getValue());
                 }
