@@ -54,39 +54,67 @@ Let's illustrate that on an example. Suppose that a node has no relationships to
 relationship of type `FRIEND_OF` with properties `level` equal to `2` and `timestamp` equal to `1368206683579`, the following property
 is automatically written to the node:
 
-    _GA_REL_FRIEND_OF#OUTGOING#level#2#timestamp#1368206683579 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#2#timestamp#1368206683579 = 1
 
-At some point, after the node makes more friends, the situation will look something like this:
+Let's break it down:
+* `_GA_REL_` is a prefix for GraphAware internal metadata.
+* `FRIEND_OF` is the relationship type
+* `#` is a separator GraphAware uses internally.
+* `_LITERAL_` indicates this is literally what has been created, rather than a compacted representation (more about compaction later).
+* `level` is the key of the first property
+* `2` is the value of the first property (level)
+* `timestamp` is the key of the second property
+* `1368206683579` is the value of the second property (timestamp)
+* `1` is the cached number of relationships matching this representation (stored as a value of a property)
 
-    _GA_REL_FRIEND_OF#OUTGOING#level#2#timestamp#1368206683579 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#level#2#timestamp#1368206668364 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#level#2#timestamp#1368206623759 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#level#2#timestamp#1368924528927 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#level#2#timestamp#1368092348239 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#level#2#timestamp#1368547772839 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#level#2#timestamp#1368542321123 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#level#2#timestamp#1368254232452 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#level#2#timestamp#1368546532344 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#level#2#timestamp#1363234542345 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#level#2#timestamp#1363234511676 = 1
+*NOTE:* None of the application level nodes or relationships should have names, types, labels, property keys or values containing the following Strings:
+* `_GA_REL_`
+* `_LITERAL_`
+* `#`
+That includes user input written into properties of nodes and relationship. Please check for this in your application and
+encode it somehow.
 
-At that point, the compactor looks at the situation and tries to generalize the cached relationships. One such generalization
-might involve dropping the timestamp altogether, because it is unlikely we will ever want to count relationships with a specific
-timestamp value for a single node (the probability of making 2 friendships within the same millisecond is close to 0).
+Right, at some point, after the node makes more friends, the situation will look something like this:
 
-So the compactor will try dropping the timestamp and generates a representation like this:
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#2#timestamp#1368206683579 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#1#timestamp#1368206668364 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#2#timestamp#1368206623759 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#2#timestamp#1368924528927 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#0#timestamp#1368092348239 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#2#timestamp#1368547772839 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#1#timestamp#1368542321123 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#2#timestamp#1368254232452 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#1#timestamp#1368546532344 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#0#timestamp#1363234542345 = 1
 
-     _GA_REL_FRIEND_OF#OUTGOING#level#2
+At that point, the compactor looks at the situation finds out there are too many cached relationship counts. More specifically,
+there is a threshold called the _compaction threshold_ which by default is set to 20. We will illustrate with 10.
 
-Then it looks at how many cached relationship counts match that representation. In our example, it is all of them (11). If
-this number is above a *compaction threshold* (which is set to 10 by default), the compaction happens, resulting in
+The compactor thus tries to generalize the cached relationships. One such generalization
+might involve dropping the timestamp, generating representations like this:
 
-     _GA_REL_FRIEND_OF#OUTGOING#level#2 = 11
+    _GA_REL_FRIEND_OF#OUTGOING#level#0
+    _GA_REL_FRIEND_OF#OUTGOING#level#1
+    _GA_REL_FRIEND_OF#OUTGOING#level#2
 
-After that, 11 more friendships will get cached with the timestamp, before another compaction.
+Then it compacts the cached relationship counts that match these representations. In our example, it results in this:
+
+     _GA_REL_FRIEND_OF#OUTGOING#level#0 = 2
+     _GA_REL_FRIEND_OF#OUTGOING#level#1 = 3
+     _GA_REL_FRIEND_OF#OUTGOING#level#2 = 5
+
+After that, timestamp will always be ignored for these relationships, so if the next created relationships is
+
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#0#timestamp#1363266542345
+
+it will result in
+
+    _GA_REL_FRIEND_OF#OUTGOING#level#0 = 3
+    _GA_REL_FRIEND_OF#OUTGOING#level#1 = 3
+    _GA_REL_FRIEND_OF#OUTGOING#level#2 = 5
 
 So that's how it works on a high level. Of course relationships with different levels of generality are supported
-(for example, creating a `FRIEND_OF` relationship without a timestamp will work just fine). When issuing a query
+(for example, creating a `FRIEND_OF` relationship without a level will work just fine). When issuing a query
  like this
 
  ```java
@@ -96,10 +124,10 @@ So that's how it works on a high level. Of course relationships with different l
 
 on a node with the following cache counts
 
-      _GA_REL_FRIEND_OF#OUTGOING#level#2#timestamp#1368206683579 = 1
+      _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#3#timestamp#1368206683579 = 1
       _GA_REL_FRIEND_OF#OUTGOING#level#2 = 10
       _GA_REL_FRIEND_OF#OUTGOING#level#1 = 20
-      _GA_REL_FRIEND_OF#OUTGOING = 5
+      _GA_REL_FRIEND_OF#OUTGOING#_LITERAL = 5
 
 the result will be... you guessed it... 36.
 
@@ -109,7 +137,7 @@ There are a number of things that can be tweaked here. First of all, in order to
 just pass an integer parameter into the `RelationshipCountTransactionEventHandlerFactory` `create` method.
 
 ```java
-int threshold = 20;
+int threshold = 30;
 database = new GraphDatabaseFactory().newEmbeddedDatabase("/path/to/db");
 database.registerTransactionEventHandler(new RelationshipCountTransactionEventHandlerFactory().create(threshold));
 ```
@@ -137,7 +165,7 @@ and pass it on to the factory as well. You will need to implement a single metho
     /**
      * Extract properties from a relationship for the purposes of caching the relationship's count on a node (a.k.a. "this node").
      *
-     * @param properties attached to the relationship.
+     * @param properties attached to the relationship. Don't modify these (you'll get an exception), create a new map instead.
      * @param otherNode  the other node participating in the relationship. By "other", we mean NOT the node on which
      *                   the relationship counts for this relationship are being updated as a part of this call.
      * @return extracted properties for count caching.
@@ -145,10 +173,10 @@ and pass it on to the factory as well. You will need to implement a single metho
     Map<String, String> extractProperties(Map<String, String> properties, Node otherNode);
 ```
 
-As you can see, this gives you access to the "other" node participating in the relationship. This gives you an opportunity
+As you can see, this gives you access to the "other" node participating in the relationship, which gives you an opportunity
 to implement requirements like "would like to count outgoing relationships based on the end node's type".
 
-### Known Issues
+### TODO
 
 * Create a method that rebuilds cached counts for the entire database
 * Do we need to explicitly lock nodes?

@@ -32,7 +32,7 @@ public interface PropertyExtractionStrategy {
     /**
      * Extract properties from a relationship for the purposes of caching the relationship's count on a node (a.k.a. "this node").
      *
-     * @param properties attached to the relationship.
+     * @param properties attached to the relationship. Don't modify these (you'll get an exception), create a new map instead.
      * @param otherNode  the other node participating in the relationship. By "other", we mean NOT the node on which
      *                   the relationship counts for this relationship are being updated as a part of this call.
      * @return extracted properties for count caching.
