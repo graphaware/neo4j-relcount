@@ -22,13 +22,13 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static com.graphaware.neo4j.relcount.representation.UndefinedIsValueComparableProperties.LITERAL;
+import static com.graphaware.neo4j.relcount.representation.LiteralComparableProperties.LITERAL;
 import static junit.framework.Assert.*;
 
 /**
  * Unit test for {@link ComparableProperties}.
  */
-public class UndefinedIsValueComparablePropertiesTest {
+public class LiteralComparablePropertiesTest {
 
     @Test
     public void shouldCorrectlyJudgeMoreGeneral() {
@@ -235,7 +235,7 @@ public class UndefinedIsValueComparablePropertiesTest {
      * just for readability
      */
     private ComparableProperties lprops(String s) {
-        return new UndefinedIsValueComparableProperties(LITERAL + s);
+        return new LiteralComparableProperties(LITERAL + s);
     }
 
     private ComparableProperties cprops(String s) {

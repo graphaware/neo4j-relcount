@@ -24,27 +24,54 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- *
+ * An extension of {@link ComparableProperties} in which a missing property is treated as a concrete value ({@link #UNDEF}) as opposed
+ * to "any". This is for situations where a relationship is explicitly created without some property that other relationships
+ * of the same type might have. In such case, this relationship should not be treated as more general than the others.
  */
-public class UndefinedIsValueComparableProperties extends ComparableProperties {
+public class LiteralComparableProperties extends ComparableProperties {
 
+    /**
+     * This string will be inserted before the String representation of these properties to indicate that they are meant literally.
+     */
     public static final String LITERAL = "_LITERAL_";
-    private static final String UNDEF = "UNDEF";
 
-    public UndefinedIsValueComparableProperties(PropertyContainer propertyContainer) {
+    /**
+     * Value of undefined keys. It is not printed anywhere, but it is used internally for comparisons.
+     */
+    private static final String UNDEF = "_UNDEF_";
+
+    /**
+     * Construct a representation of properties from a {@link org.neo4j.graphdb.PropertyContainer}.
+     *
+     * @param propertyContainer to take (copy) properties from.
+     */
+    public LiteralComparableProperties(PropertyContainer propertyContainer) {
         super(propertyContainer);
     }
 
-    public UndefinedIsValueComparableProperties(Map<String, String> properties) {
+    /**
+     * Construct a representation of properties from a {@link java.util.Map}.
+     *
+     * @param properties to take (copy).
+     */
+    public LiteralComparableProperties(Map<String, String> properties) {
         super(properties);
     }
 
-    public UndefinedIsValueComparableProperties(String string) {
+    /**
+     * Construct a representation of properties from a {@link String}.
+     *
+     * @param string to construct properties from. Must be of the form _LITERAL_key1#value1#key2#value2 (assuming the default
+     *               {@link com.graphaware.neo4j.utils.Constants#SEPARATOR} and {@link #LITERAL}).
+     */
+    public LiteralComparableProperties(String string) {
         super(string.substring(LITERAL.length()));
     }
 
     /**
      * {@inheritDoc}
+     *
+     * @return always true.
      */
     @Override
     public boolean containsKey(String key) {
@@ -53,6 +80,8 @@ public class UndefinedIsValueComparableProperties extends ComparableProperties {
 
     /**
      * {@inheritDoc}
+     *
+     * @return the actual value or {@link #UNDEF} if the underlying properties do not contain the key.
      */
     @Override
     public String get(String key) {
@@ -66,6 +95,8 @@ public class UndefinedIsValueComparableProperties extends ComparableProperties {
 
     /**
      * {@inheritDoc}
+     *
+     * @return a single more general instance, which is {@link ComparableProperties} with exactly the same properties.
      */
     @Override
     public Set<ComparableProperties> generateOneMoreGeneral() {

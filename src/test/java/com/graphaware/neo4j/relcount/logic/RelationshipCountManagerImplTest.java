@@ -48,17 +48,6 @@ public class RelationshipCountManagerImplTest {
         txExecutor = new SimpleTransactionExecutor(database);
     }
 
-//    @Test
-//    public void shouldIgnoreInternalGraphAwareRelationships() {
-//        Relationship r1 = mock(Relationship.class);
-//        Relationship r2 = mock(Relationship.class);
-//        when(r1.getType()).thenReturn(withName(GA_REL_PREFIX + "test"));
-//        when(r2.getType()).thenReturn(withName("test"));
-//
-//        assertTrue(mgr.isIgnored(r1));
-//        assertFalse(mgr.isIgnored(r2));
-//    }
-
     @Test
     public void shouldCorrectlyReportBasicRelationshipCounts() {
         setUpBasicRelationshipCounts();

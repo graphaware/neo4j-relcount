@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static com.graphaware.neo4j.relcount.representation.UndefinedIsValueComparableProperties.LITERAL;
+import static com.graphaware.neo4j.relcount.representation.LiteralComparableProperties.LITERAL;
 import static com.graphaware.neo4j.utils.Constants.GA_REL_PREFIX;
 import static junit.framework.Assert.*;
 
@@ -37,21 +37,21 @@ public class ComparableRelationshipTest {
     public void propertiesShouldBeCorrectlyConstructed() {
         ComparableRelationship relationship = crel("test#INCOMING#" + LITERAL + "key1#value1#key2#value2");
 
-        assertTrue(relationship.getProperties() instanceof UndefinedIsValueComparableProperties);
+        assertTrue(relationship.getProperties() instanceof LiteralComparableProperties);
         assertTrue(relationship.getProperties().containsKey("key1"));
         assertTrue(relationship.getProperties().containsKey("key2"));
         assertEquals(2, relationship.getProperties().size());
 
         relationship = crel("test#INCOMING#key1#value1#key2#value2");
 
-        assertFalse(relationship.getProperties() instanceof UndefinedIsValueComparableProperties);
+        assertFalse(relationship.getProperties() instanceof LiteralComparableProperties);
         assertTrue(relationship.getProperties().containsKey("key1"));
         assertTrue(relationship.getProperties().containsKey("key2"));
         assertEquals(2, relationship.getProperties().size());
 
         relationship = crel("test#INCOMING#" + LITERAL);
 
-        assertTrue(relationship.getProperties() instanceof UndefinedIsValueComparableProperties);
+        assertTrue(relationship.getProperties() instanceof LiteralComparableProperties);
         assertEquals(0, relationship.getProperties().size());
     }
 

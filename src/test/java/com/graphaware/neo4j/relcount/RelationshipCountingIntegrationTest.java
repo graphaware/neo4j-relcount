@@ -21,7 +21,7 @@ import com.graphaware.neo4j.relcount.logic.PropertyExtractionStrategy;
 import com.graphaware.neo4j.relcount.logic.RelationshipCountManagerImpl;
 import com.graphaware.neo4j.relcount.logic.RelationshipInclusionStrategy;
 import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
-import com.graphaware.neo4j.relcount.representation.UndefinedIsValueComparableProperties;
+import com.graphaware.neo4j.relcount.representation.LiteralComparableProperties;
 import com.graphaware.neo4j.utils.Constants;
 import com.graphaware.neo4j.utils.test.TestDataBuilder;
 import com.graphaware.neo4j.utils.tx.single.SimpleTransactionExecutor;
@@ -200,7 +200,7 @@ public class RelationshipCountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                database.getNodeById(2).removeProperty(new ComparableRelationship(withName("test2"), OUTGOING, new UndefinedIsValueComparableProperties(Collections.singletonMap("key1", "value3"))).toString());
+                database.getNodeById(2).removeProperty(new ComparableRelationship(withName("test2"), OUTGOING, new LiteralComparableProperties(Collections.singletonMap("key1", "value3"))).toString());
                 return null;
             }
         });
