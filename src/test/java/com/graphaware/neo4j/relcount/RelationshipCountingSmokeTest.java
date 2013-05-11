@@ -21,6 +21,7 @@ import com.graphaware.neo4j.relcount.api.RelationshipCounterImpl;
 import com.graphaware.neo4j.utils.test.TestUtils;
 import org.apache.log4j.Logger;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -35,6 +36,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 /**
  * Smoke test for relationship count consistency, checking with lots of random data.
  */
+@Ignore
 public class RelationshipCountingSmokeTest {
     private static final Logger LOGGER = Logger.getLogger(RelationshipCountingSmokeTest.class);
 

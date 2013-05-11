@@ -36,7 +36,7 @@ import java.util.TreeSet;
 public class ThresholdBasedRelationshipCountCompactor implements RelationshipCountCompactor {
     private static final Logger LOG = Logger.getLogger(ThresholdBasedRelationshipCountCompactor.class);
 
-    private static final int DEFAULT_COMPACTION_THRESHOLD = 10;
+    private static final int DEFAULT_COMPACTION_THRESHOLD = 20;
 
     private final int compactionThreshold;
     private final RelationshipCountManager countManager;
