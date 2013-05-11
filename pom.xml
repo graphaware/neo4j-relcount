@@ -89,7 +89,7 @@
         <java.version>1.6</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <neo4j.version>1.9.RC2</neo4j.version>
-        <graphaware.utils.version>0.3-SNAPSHOT</graphaware.utils.version>
+        <graphaware.utils.version>0.3</graphaware.utils.version>
     </properties>
 
     <dependencies>
