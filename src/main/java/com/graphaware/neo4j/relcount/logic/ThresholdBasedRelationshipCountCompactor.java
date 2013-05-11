@@ -17,10 +17,13 @@
 package com.graphaware.neo4j.relcount.logic;
 
 import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
+import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Node;
 
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Default production implementation of {@link RelationshipCountCompactor} which compacts relationship counts based
@@ -31,6 +34,7 @@ import java.util.Map;
  * general form.
  */
 public class ThresholdBasedRelationshipCountCompactor implements RelationshipCountCompactor {
+    private static final Logger LOG = Logger.getLogger(ThresholdBasedRelationshipCountCompactor.class);
 
     private static final int DEFAULT_COMPACTION_THRESHOLD = 10;
 
@@ -61,33 +65,60 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
      * {@inheritDoc}
      */
     @Override
-    public void compactRelationshipCounts(ComparableRelationship trigger, Node node) {
+    public void compactRelationshipCounts(Node node) {
+        if (!performCompaction(node)) {
+            LOG.warn("Compactor could not reach the desired threshold (" + compactionThreshold + ") " +
+                    "on node " + node.getId() + ". This is potentially due to the fact that there are more than " + compactionThreshold +
+                    " distinct relationship type - direction pairs being cached for the node. If that's what's desired," +
+                    " increase the threshold. If not, implement a RelationshipInclusionStrategy and that does not include" +
+                    " the unwanted relationships.");
+        }
+    }
 
+    private boolean performCompaction(Node node) {
         Map<ComparableRelationship, Integer> cachedCounts = countManager.getRelationshipCounts(node);
 
-        //if this is not the most concrete relationship, perform no compaction
-        for (ComparableRelationship cachedCount : cachedCounts.keySet()) {
-            if (cachedCount.isStrictlyMoreSpecificThan(trigger)) {
-                return;
-            }
+        //Not above the threshold => no need for compaction
+        if (cachedCounts.size() < compactionThreshold) {
+            return true;
         }
 
-        for (ComparableRelationship generalization : trigger.generateOneMoreGeneral()) {
-            Map<ComparableRelationship, Integer> compactionCandidates = new HashMap<ComparableRelationship, Integer>();
-            for (Map.Entry<ComparableRelationship, Integer> compactionCandidate : cachedCounts.entrySet()) {
-                if (generalization.isStrictlyMoreGeneralThan(compactionCandidate.getKey())) {
-                    compactionCandidates.put(compactionCandidate.getKey(), compactionCandidate.getValue());
+        //Generate all possible generalizations
+        Set<ComparableRelationship> generalizations = new TreeSet<ComparableRelationship>();
+        for (ComparableRelationship cached : cachedCounts.keySet()) {
+            generalizations.addAll(cached.generateAllMoreGeneral());
+        }
+
+        //Find the most specific generalization that has a chance to result in some compaction
+        for (ComparableRelationship generalization : generalizations) {
+            Set<ComparableRelationship> candidates = new HashSet<ComparableRelationship>();
+            for (ComparableRelationship potentialCandidate : cachedCounts.keySet()) {
+                if (generalization.isMoreGeneralThan(potentialCandidate)) {
+                    candidates.add(potentialCandidate);
                 }
             }
 
-            if (compactionCandidates.size() > compactionThreshold) {
-                for (Map.Entry<ComparableRelationship, Integer> soonToBeGone : compactionCandidates.entrySet()) {
-                    countManager.incrementCount(generalization, node, soonToBeGone.getValue());
-                    countManager.deleteCount(soonToBeGone.getKey(), node);
+            //See if the generalization will result in compaction
+            if (candidates.size() > 1) {
+
+                //It will, do it!
+                int candidateCachedCount = 0;
+                for (ComparableRelationship candidate : candidates) {
+                    candidateCachedCount += cachedCounts.get(candidate);
+                    countManager.deleteCount(candidate, node);
                 }
 
-                compactRelationshipCounts(generalization, node);
+                countManager.incrementCount(generalization, node, candidateCachedCount);
+
+                //After the compaction, see if more is needed using a recursive call
+                performCompaction(node);
+
+                //Break the for loop, other generalizations (if needed) will be found using recursion above.
+                break;
             }
         }
+
+        //If we reached this point and haven't compacted enough, we can't!
+        return countManager.getRelationshipCounts(node).size() < compactionThreshold;
     }
 }

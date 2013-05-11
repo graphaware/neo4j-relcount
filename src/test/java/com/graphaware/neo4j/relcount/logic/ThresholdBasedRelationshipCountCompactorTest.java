@@ -17,15 +17,17 @@
 package com.graphaware.neo4j.relcount.logic;
 
 import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
+import com.graphaware.neo4j.utils.tx.single.SimpleTransactionExecutor;
+import com.graphaware.neo4j.utils.tx.single.TransactionCallback;
+import com.graphaware.neo4j.utils.tx.single.TransactionExecutor;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-
-import java.util.Map;
-import java.util.TreeMap;
+import org.neo4j.test.TestGraphDatabaseFactory;
 
 import static com.graphaware.neo4j.utils.Constants.GA_REL_PREFIX;
-import static org.mockito.Mockito.*;
+import static junit.framework.Assert.assertEquals;
 
 /**
  * Unit tests for {@link com.graphaware.neo4j.relcount.logic.ThresholdBasedRelationshipCountCompactor}
@@ -33,151 +35,191 @@ import static org.mockito.Mockito.*;
 public class ThresholdBasedRelationshipCountCompactorTest {
 
     private RelationshipCountCompactor compactor;
-    private RelationshipCountManager mockManager;
-    private Node mockNode;
+    private RelationshipCountManager manager;
+    private GraphDatabaseService database;
+    private TransactionExecutor executor;
 
     @Before
     public void setUp() {
-        mockManager = mock(RelationshipCountManager.class);
+        database = new TestGraphDatabaseFactory().newImpermanentDatabase();
+        executor = new SimpleTransactionExecutor(database);
+        executor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                database.createNode();
+                return null;
+            }
+        });
 
-        mockNode = mock(Node.class);
-    }
-
-    private Map<ComparableRelationship, Integer> generateCachedCounts() {
-        Map<ComparableRelationship, Integer> cachedCounts = new TreeMap<ComparableRelationship, Integer>();
-        cachedCounts.put(rel("test#OUTGOING#k1#v1#k2#v1"), 1);
-        cachedCounts.put(rel("test#OUTGOING#k1#v1#k2#v2"), 1);
-        cachedCounts.put(rel("test#OUTGOING#k1#v1#k2#v3"), 2);
-        cachedCounts.put(rel("test#OUTGOING#k1#v1#k2#v4"), 1);
-        cachedCounts.put(rel("test#OUTGOING#k1#v1#k2#v5"), 1);
-        cachedCounts.put(rel("test#OUTGOING#k1#v1#k2#v6"), 1);
-        cachedCounts.put(rel("test#OUTGOING#k1#v1#k2#v7"), 1);
-        cachedCounts.put(rel("test#OUTGOING#k1#v1#k2#v8"), 1);
-        cachedCounts.put(rel("test#OUTGOING#k1#v1"), 5);
-
-        cachedCounts.put(rel("test#OUTGOING#k2#v1"), 1);
-        cachedCounts.put(rel("test#OUTGOING#k2#v2"), 2);
-        cachedCounts.put(rel("test#OUTGOING#k2#v3"), 3);
-        cachedCounts.put(rel("test#OUTGOING#k2#v4"), 1);
-        cachedCounts.put(rel("test#OUTGOING#k2#v5"), 1);
-
-        cachedCounts.put(rel("test#OUTGOING#k3#v3"), 100);
-        return cachedCounts;
-    }
-
-    private Map<ComparableRelationship, Integer> generateCompactedCachedCounts() {
-        Map<ComparableRelationship, Integer> cachedCounts = new TreeMap<ComparableRelationship, Integer>();
-        cachedCounts.put(rel("test#OUTGOING#k1#v1"), 14);
-
-        cachedCounts.put(rel("test#OUTGOING#k2#v1"), 1);
-        cachedCounts.put(rel("test#OUTGOING#k2#v2"), 2);
-        cachedCounts.put(rel("test#OUTGOING#k2#v3"), 3);
-        cachedCounts.put(rel("test#OUTGOING#k2#v4"), 1);
-        cachedCounts.put(rel("test#OUTGOING#k2#v5"), 1);
-
-        cachedCounts.put(rel("test#OUTGOING#k3#v3"), 100);
-        return cachedCounts;
-    }
-
-    private Map<ComparableRelationship, Integer> generateMoreCompactedCachedCounts() {
-        Map<ComparableRelationship, Integer> cachedCounts = new TreeMap<ComparableRelationship, Integer>();
-        cachedCounts.put(rel("test#OUTGOING"), 122);
-        return cachedCounts;
+        manager = new RelationshipCountManagerImpl();
     }
 
     @Test
     public void nothingShouldBeCompactedBeforeThresholdIsReached() {
-        when(mockManager.getRelationshipCounts(mockNode)).thenReturn(generateCachedCounts());
+        executor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                Node root = database.getNodeById(0);
+                root.setProperty(rel("test#OUTGOING#k1#v1").toString(), 14);
+                root.setProperty(rel("test#OUTGOING#k1#v2").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k1#v3").toString(), 2);
+                root.setProperty(rel("test#OUTGOING#k1#v4").toString(), 3);
+                return null;
+            }
+        });
 
-        compactor = new ThresholdBasedRelationshipCountCompactor(8, mockManager);
+        compactor = new ThresholdBasedRelationshipCountCompactor(5, manager);
 
-        compactor.compactRelationshipCounts(rel("test#OUTGOING#k1#v1#k2#v6"), mockNode);
+        executor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                compactor.compactRelationshipCounts(database.getNodeById(0));
+                return null;
+            }
+        });
 
-        verify(mockManager).getRelationshipCounts(mockNode);
-        verifyNoMoreInteractions(mockManager, mockNode);
+        assertEquals(4, manager.getRelationshipCounts(database.getNodeById(0)).size());
+        assertEquals(14, manager.getRelationshipCount(rel("test#OUTGOING#k1#v1"), database.getNodeById(0)));
+        assertEquals(1, manager.getRelationshipCount(rel("test#OUTGOING#k1#v2"), database.getNodeById(0)));
+        assertEquals(2, manager.getRelationshipCount(rel("test#OUTGOING#k1#v3"), database.getNodeById(0)));
+        assertEquals(3, manager.getRelationshipCount(rel("test#OUTGOING#k1#v4"), database.getNodeById(0)));
+        assertEquals(20, manager.getRelationshipCount(rel("test#OUTGOING#"), database.getNodeById(0)));
     }
 
     @Test
-    public void nothingShouldBeCompactedBeforeThresholdIsReached2() {
-        when(mockManager.getRelationshipCounts(mockNode))
-                .thenReturn(generateCachedCounts())
-                .thenThrow(new RuntimeException("Too many invocations")); //to prevent infinite loop
+    public void countShouldBeCompactedWhenThresholdIsReached() {
+        executor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                Node root = database.getNodeById(0);
+                root.setProperty(rel("test#OUTGOING#k1#v1").toString(), 14);
+                root.setProperty(rel("test#OUTGOING#k1#v2").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k1#v3").toString(), 2);
+                root.setProperty(rel("test#OUTGOING#k1#v4").toString(), 3);
+                root.setProperty(rel("test#OUTGOING#k1#v5").toString(), 4);
+                return null;
+            }
+        });
 
-        compactor = new ThresholdBasedRelationshipCountCompactor(8, mockManager);
+        compactor = new ThresholdBasedRelationshipCountCompactor(5, manager);
 
-        compactor.compactRelationshipCounts(rel("test#OUTGOING#k1#v1"), mockNode);
+        executor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                compactor.compactRelationshipCounts(database.getNodeById(0));
+                return null;
+            }
+        });
 
-        verify(mockManager).getRelationshipCounts(mockNode);
-        verifyNoMoreInteractions(mockManager, mockNode);
+        assertEquals(1, manager.getRelationshipCounts(database.getNodeById(0)).size());
+        assertEquals(0, manager.getRelationshipCount(rel("test#OUTGOING#k1#v1"), database.getNodeById(0)));
+        assertEquals(0, manager.getRelationshipCount(rel("test#OUTGOING#k1#v2"), database.getNodeById(0)));
+        assertEquals(0, manager.getRelationshipCount(rel("test#OUTGOING#k1#v3"), database.getNodeById(0)));
+        assertEquals(0, manager.getRelationshipCount(rel("test#OUTGOING#k1#v4"), database.getNodeById(0)));
+        assertEquals(24, manager.getRelationshipCount(rel("test#OUTGOING#"), database.getNodeById(0)));
     }
 
     @Test
-    public void verifyCompaction() {
-        when(mockManager.getRelationshipCounts(mockNode))
-                .thenReturn(generateCachedCounts())
-                .thenReturn(generateCompactedCachedCounts());
+    public void verifyMultipleCompactions() {
+        executor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                Node root = database.getNodeById(0);
+                root.setProperty(rel("test#OUTGOING#k1#v1#k2#v1").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k1#v1#k2#v2").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k1#v1#k2#v3").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k1#v1#k2#v4").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k1#v2#k2#v1").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k1#v2#k2#v2").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k1#v2#k2#v3").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k1#v2#k2#v4").toString(), 1);
+                return null;
+            }
+        });
 
-        compactor = new ThresholdBasedRelationshipCountCompactor(7, mockManager);
+        compactor = new ThresholdBasedRelationshipCountCompactor(5, manager);
 
-        compactor.compactRelationshipCounts(rel("test#OUTGOING#k1#v1#k2#v6"), mockNode);
+        executor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                compactor.compactRelationshipCounts(database.getNodeById(0));
+                return null;
+            }
+        });
 
-        verify(mockManager, times(2)).getRelationshipCounts(mockNode);
-
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k1#v1#k2#v1"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k1#v1#k2#v2"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k1#v1#k2#v3"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k1#v1#k2#v4"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k1#v1#k2#v5"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k1#v1#k2#v6"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k1#v1#k2#v7"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k1#v1#k2#v8"), mockNode);
-
-        verify(mockManager, times(7)).incrementCount(rel("test#OUTGOING#k1#v1"), mockNode, 1);
-        verify(mockManager, times(1)).incrementCount(rel("test#OUTGOING#k1#v1"), mockNode, 2);
-
-        verifyNoMoreInteractions(mockManager, mockNode);
+        assertEquals(2, manager.getRelationshipCounts(database.getNodeById(0)).size());
+        assertEquals(4, manager.getRelationshipCount(rel("test#OUTGOING#k1#v1"), database.getNodeById(0)));
+        assertEquals(4, manager.getRelationshipCount(rel("test#OUTGOING#k1#v2"), database.getNodeById(0)));
+        assertEquals(8, manager.getRelationshipCount(rel("test#OUTGOING#"), database.getNodeById(0)));
     }
 
     @Test
-    public void verifyCompaction2() {
-        when(mockManager.getRelationshipCounts(mockNode))
-                .thenReturn(generateCachedCounts())
-                .thenReturn(generateCompactedCachedCounts())
-                .thenReturn(generateMoreCompactedCachedCounts());
+    public void verifyMultiLevelCompaction() {
+        executor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                Node root = database.getNodeById(0);
+                root.setProperty(rel("test#OUTGOING#k1#v1#k2#v1#k3#v1").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k1#v1#k2#v2#k3#v2").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k1#v1#k2#v3#k3#v3").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k1#v1#k2#v4#k3#v4").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k1#v1#k2#v5#k3#v5").toString(), 1);
+                return null;
+            }
+        });
 
-        compactor = new ThresholdBasedRelationshipCountCompactor(6, mockManager);
+        compactor = new ThresholdBasedRelationshipCountCompactor(5, manager);
 
-        compactor.compactRelationshipCounts(rel("test#OUTGOING#k1#v1#k2#v6"), mockNode);
+        executor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                compactor.compactRelationshipCounts(database.getNodeById(0));
+                return null;
+            }
+        });
 
-        verify(mockManager, times(3)).getRelationshipCounts(mockNode);
+        assertEquals(1, manager.getRelationshipCounts(database.getNodeById(0)).size());
+        assertEquals(5, manager.getRelationshipCount(rel("test#OUTGOING#k1#v1"), database.getNodeById(0)));
+        assertEquals(5, manager.getRelationshipCount(rel("test#OUTGOING#"), database.getNodeById(0)));
+    }
 
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k1#v1#k2#v1"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k1#v1#k2#v2"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k1#v1#k2#v3"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k1#v1#k2#v4"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k1#v1#k2#v5"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k1#v1#k2#v6"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k1#v1#k2#v7"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k1#v1#k2#v8"), mockNode);
+    @Test
+    public void verifyImpossibleCompaction() {
+        executor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                Node root = database.getNodeById(0);
+                root.setProperty(rel("test#OUTGOING#k1#v1#k2#v1#k3#v1").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k1#v1#k2#v2#k3#v2").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k1#v1#k2#v3#k3#v3").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k1#v1#k2#v4#k3#v4").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k1#v1#k2#v5#k3#v5").toString(), 1);
+                root.setProperty(rel("test#OUTGOING#k2#v2").toString(), 1);
+                root.setProperty(rel("test2#OUTGOING#k2#v2").toString(), 1);
+                root.setProperty(rel("test3#OUTGOING#k2#v2").toString(), 1);
+                root.setProperty(rel("test4#OUTGOING#k2#v2").toString(), 1);
+                root.setProperty(rel("test5#OUTGOING#k2#v2").toString(), 1);
+                return null;
+            }
+        });
 
-        verify(mockManager, times(7)).incrementCount(rel("test#OUTGOING#k1#v1"), mockNode, 1);
-        verify(mockManager, times(1)).incrementCount(rel("test#OUTGOING#k1#v1"), mockNode, 2);
+        compactor = new ThresholdBasedRelationshipCountCompactor(5, manager);
 
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k1#v1"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k2#v1"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k2#v2"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k2#v3"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k2#v4"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k2#v5"), mockNode);
-        verify(mockManager).deleteCount(rel("test#OUTGOING#k3#v3"), mockNode);
+        executor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                compactor.compactRelationshipCounts(database.getNodeById(0));
+                return null;
+            }
+        });
 
-        verify(mockManager).incrementCount(rel("test#OUTGOING"), mockNode, 14);
-        verify(mockManager).incrementCount(rel("test#OUTGOING"), mockNode, 2);
-        verify(mockManager).incrementCount(rel("test#OUTGOING"), mockNode, 3);
-        verify(mockManager).incrementCount(rel("test#OUTGOING"), mockNode, 100);
-        verify(mockManager, times(3)).incrementCount(rel("test#OUTGOING"), mockNode, 1);
-
-        verifyNoMoreInteractions(mockManager, mockNode);
+        assertEquals(5, manager.getRelationshipCounts(database.getNodeById(0)).size());
+        assertEquals(0, manager.getRelationshipCount(rel("test#OUTGOING#k1#v1"), database.getNodeById(0)));
+        assertEquals(6, manager.getRelationshipCount(rel("test#OUTGOING#"), database.getNodeById(0)));
+        assertEquals(1, manager.getRelationshipCount(rel("test2#OUTGOING#"), database.getNodeById(0)));
+        assertEquals(1, manager.getRelationshipCount(rel("test3#OUTGOING#"), database.getNodeById(0)));
+        assertEquals(1, manager.getRelationshipCount(rel("test4#OUTGOING#"), database.getNodeById(0)));
+        assertEquals(1, manager.getRelationshipCount(rel("test5#OUTGOING#"), database.getNodeById(0)));
     }
 
     /**

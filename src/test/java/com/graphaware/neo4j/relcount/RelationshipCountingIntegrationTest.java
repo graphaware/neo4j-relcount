@@ -18,6 +18,7 @@ package com.graphaware.neo4j.relcount;
 
 import com.graphaware.neo4j.relcount.api.RelationshipCounterImpl;
 import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
+import com.graphaware.neo4j.relcount.representation.UndefinedIsValueComparableProperties;
 import com.graphaware.neo4j.utils.test.TestDataBuilder;
 import com.graphaware.neo4j.utils.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.utils.tx.single.TransactionCallback;
@@ -28,6 +29,8 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.test.TestGraphDatabaseFactory;
+
+import java.util.Collections;
 
 import static com.graphaware.neo4j.utils.tx.mutate.DeleteUtils.deleteNodeAndRelationships;
 import static java.lang.String.valueOf;
@@ -74,6 +77,7 @@ public class RelationshipCountingIntegrationTest {
         assertEquals(0, new RelationshipCounterImpl(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
         assertEquals(4, new RelationshipCounterImpl(withName("test"), OUTGOING).count(database.getNodeById(1)));
         assertEquals(1, new RelationshipCounterImpl(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(1, new RelationshipCounterImpl(withName("test"), INCOMING).with("key2", "value1").count(database.getNodeById(1)));
     }
 
     @Test
@@ -181,7 +185,7 @@ public class RelationshipCountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                database.getNodeById(1).removeProperty(new ComparableRelationship(withName("test"), OUTGOING).with("key1", "value1").toString());
+                database.getNodeById(2).createRelationshipTo(database.getNodeById(10), withName("test2")).setProperty("key1", "value3");
                 return null;
             }
         });
@@ -189,21 +193,25 @@ public class RelationshipCountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                for (Relationship relationship : database.getNodeById(1).getRelationships(withName("test"), OUTGOING)) {
-                    if (relationship.getEndNode().getId() == 2) {
-                        relationship.delete();
-                        break;
-                    }
-                }
+                database.getNodeById(2).removeProperty(new ComparableRelationship(withName("test2"), OUTGOING, new UndefinedIsValueComparableProperties(Collections.singletonMap("key1", "value3"))).toString());
                 return null;
             }
         });
 
-        assertEquals(0, new RelationshipCounterImpl(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        txExecutor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                database.getNodeById(2).getSingleRelationship(withName("test2"), OUTGOING).delete();
+                return null;
+            }
+        });
+
+        assertEquals(1, new RelationshipCounterImpl(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
         assertEquals(2, new RelationshipCounterImpl(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
         assertEquals(0, new RelationshipCounterImpl(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
-        assertEquals(2, new RelationshipCounterImpl(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(4, new RelationshipCounterImpl(withName("test"), OUTGOING).count(database.getNodeById(1)));
         assertEquals(1, new RelationshipCounterImpl(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(1, new RelationshipCounterImpl(withName("test"), INCOMING).with("key2", "value1").count(database.getNodeById(1)));
     }
 
     @Test
@@ -228,7 +236,7 @@ public class RelationshipCountingIntegrationTest {
     }
 
     @Test
-    public void changingRelationshipsWorksCorrectly() {
+    public void changingRelationshipsWithNoActualChangeWorksCorrectly() {
         createNodes();
         createFirstRelationships();
 
@@ -253,7 +261,7 @@ public class RelationshipCountingIntegrationTest {
     }
 
     @Test
-    public void changingRelationshipsWorksCorrectly2() {
+    public void changingRelationshipsWorksWhenNotYetCompacted() {
         createNodes();
         createFirstRelationships();
 
@@ -278,7 +286,7 @@ public class RelationshipCountingIntegrationTest {
     }
 
     @Test
-    public void changingRelationshipsWorksCorrectly3() {
+    public void changingRelationshipsWithNoActualChangeWorksWhenAlreadyCompacted() {
         createNodes();
         createFirstRelationships();
         createSecondRelationships();
@@ -304,7 +312,7 @@ public class RelationshipCountingIntegrationTest {
     }
 
     @Test
-    public void changingRelationshipsWorksCorrectly4() {
+    public void changingRelationshipsWorksCorrectlyWhenAlreadyCompacted() {
         createNodes();
         createFirstRelationships();
         createSecondRelationships();
@@ -322,7 +330,7 @@ public class RelationshipCountingIntegrationTest {
             }
         });
 
-        assertEquals(1, new RelationshipCounterImpl(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        assertEquals(0, new RelationshipCounterImpl(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
         assertEquals(0, new RelationshipCounterImpl(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
         assertEquals(0, new RelationshipCounterImpl(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
         assertEquals(8, new RelationshipCounterImpl(withName("test"), OUTGOING).count(database.getNodeById(1)));
@@ -330,7 +338,7 @@ public class RelationshipCountingIntegrationTest {
     }
 
     @Test
-    public void cascadedCompaction() {
+    public void scenario() {
         TestDataBuilder builder = new TestDataBuilder(database);
 
         builder.node().setProp("name", "node1")
@@ -363,14 +371,14 @@ public class RelationshipCountingIntegrationTest {
         builder.relationshipTo(3, "FRIEND_OF").setProp("level", "6").setProp("timestamp", valueOf(currentTimeMillis()));
         builder.relationshipTo(4, "FRIEND_OF").setProp("level", "7").setProp("timestamp", valueOf(currentTimeMillis()));
 
-        assertEquals(5, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "1").count(database.getNodeById(10)));
-        assertEquals(3, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "2").count(database.getNodeById(10)));
-        assertEquals(1, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "3").count(database.getNodeById(10)));
-        assertEquals(1, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "4").count(database.getNodeById(10)));
-        assertEquals(1, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "5").count(database.getNodeById(10)));
-        assertEquals(1, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "6").count(database.getNodeById(10)));
-        assertEquals(1, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "7").count(database.getNodeById(10)));
-        assertEquals(14, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).count(database.getNodeById(10)));
+        assertEquals(0, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "1").count(database.getNodeById(10)));
+        assertEquals(0, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "2").count(database.getNodeById(10)));
+        assertEquals(0, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "3").count(database.getNodeById(10)));
+        assertEquals(0, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "4").count(database.getNodeById(10)));
+        assertEquals(0, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "5").count(database.getNodeById(10)));
+        assertEquals(0, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "6").count(database.getNodeById(10)));
+        assertEquals(0, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "7").count(database.getNodeById(10)));
+        assertEquals(13, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).count(database.getNodeById(10)));
     }
 
     private void createFirstRelationships() {
@@ -388,7 +396,7 @@ public class RelationshipCountingIntegrationTest {
                 node1.createRelationshipTo(node3, withName("test")).setProperty("key1", "value2");
                 node1.createRelationshipTo(node4, withName("test"));
                 node1.createRelationshipTo(node5, withName("test")).setProperty("key1", "value2");
-                node6.createRelationshipTo(node1, withName("test"));
+                node6.createRelationshipTo(node1, withName("test")).setProperty("key2", "value1");
 
                 return null;
             }

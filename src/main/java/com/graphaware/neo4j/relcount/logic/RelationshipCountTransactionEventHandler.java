@@ -16,8 +16,8 @@
 
 package com.graphaware.neo4j.relcount.logic;
 
-import com.graphaware.neo4j.relcount.representation.ComparableProperties;
 import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
+import com.graphaware.neo4j.relcount.representation.UndefinedIsValueComparableProperties;
 import com.graphaware.neo4j.representation.property.SimpleProperties;
 import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Node;
@@ -124,18 +124,18 @@ public class RelationshipCountTransactionEventHandler extends TransactionEventHa
         Map<String, String> realProperties = new SimpleProperties(relationship).getProperties();
         Map<String, String> extractedProperties = extractionStrategy.extractProperties(realProperties, otherNode);
 
-        ComparableRelationship createdRelationship = new ComparableRelationship(relationship, pointOfView, new ComparableProperties(extractedProperties));
+        ComparableRelationship createdRelationship = new ComparableRelationship(relationship, pointOfView, new UndefinedIsValueComparableProperties(extractedProperties));
 
         if (countManager.incrementCount(createdRelationship, pointOfView)) {
-            countCompactor.compactRelationshipCounts(createdRelationship, pointOfView);
+            countCompactor.compactRelationshipCounts(pointOfView);
         }
     }
 
     private void handleDeletedRelationship(Relationship relationship, Node pointOfView) {
-        ComparableRelationship deletedRelationship = new ComparableRelationship(relationship, pointOfView, new ComparableProperties(relationship));
+        ComparableRelationship deletedRelationship = new ComparableRelationship(relationship, pointOfView, new UndefinedIsValueComparableProperties(relationship));
 
         if (!countManager.decrementCount(deletedRelationship, pointOfView)) {
-            LOG.warn(relationship.toString() + " was out of sync on node " + pointOfView.getId());
+            LOG.warn(deletedRelationship.toString() + " was out of sync on node " + pointOfView.getId());
         }
     }
 

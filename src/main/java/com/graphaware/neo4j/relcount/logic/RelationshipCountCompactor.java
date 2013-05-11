@@ -16,7 +16,6 @@
 
 package com.graphaware.neo4j.relcount.logic;
 
-import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
 import org.neo4j.graphdb.Node;
 
 /**
@@ -34,11 +33,10 @@ public interface RelationshipCountCompactor {
 
     /**
      * Compact relationship counts if needed.
-     *
+     * <p/>
      * Note: assumes a transaction is running.
      *
-     * @param trigger the relationship that triggered the potential need for compaction.
-     * @param node    to compact cached relationship counts on.
+     * @param node to compact cached relationship counts on.
      */
-    void compactRelationshipCounts(ComparableRelationship trigger, Node node);
+    void compactRelationshipCounts(Node node);
 }

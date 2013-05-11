@@ -50,7 +50,7 @@ public class RelationshipCountingSmokeTest {
         registerShutdownHook(database);
 
 //        database = new TestGraphDatabaseFactory().newImpermanentDatabase();
-        database.registerTransactionEventHandler(new RelationshipCountTransactionEventHandlerFactory().create());
+        database.registerTransactionEventHandler(new RelationshipCountTransactionEventHandlerFactory().create(20));
     }
 
     @Test
@@ -59,6 +59,7 @@ public class RelationshipCountingSmokeTest {
             @Override
             public void time() {
                 AnotherRandomUsageSimulator simulator = new AnotherRandomUsageSimulator(database);
+//                RandomUsageSimulator simulator = new RandomUsageSimulator(database);
                 simulator.batchSimulate(STEPS);
             }
         });
