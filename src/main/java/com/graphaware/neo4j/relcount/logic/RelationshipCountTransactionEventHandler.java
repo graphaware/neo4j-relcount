@@ -28,6 +28,7 @@ import org.neo4j.graphdb.event.TransactionEventHandler;
 import java.util.Collection;
 import java.util.Map;
 
+import static com.graphaware.neo4j.utils.Constants.GA_REL_PREFIX;
 import static com.graphaware.neo4j.utils.iterable.IterableUtils.contains;
 import static com.graphaware.neo4j.utils.tx.mutate.ChangeUtils.extractChangedRelationships;
 import static com.graphaware.neo4j.utils.tx.mutate.DeleteUtils.extractDeletedRelationships;
@@ -140,6 +141,10 @@ public class RelationshipCountTransactionEventHandler extends TransactionEventHa
     }
 
     private boolean include(Relationship relationship) {
+        if (relationship.getType().name().startsWith(GA_REL_PREFIX)) {
+            return false;
+        }
+
         return inclusionStrategy.include(relationship);
     }
 

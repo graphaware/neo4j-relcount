@@ -17,8 +17,12 @@
 package com.graphaware.neo4j.relcount;
 
 import com.graphaware.neo4j.relcount.api.RelationshipCounterImpl;
+import com.graphaware.neo4j.relcount.logic.PropertyExtractionStrategy;
+import com.graphaware.neo4j.relcount.logic.RelationshipCountManagerImpl;
+import com.graphaware.neo4j.relcount.logic.RelationshipInclusionStrategy;
 import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
 import com.graphaware.neo4j.relcount.representation.UndefinedIsValueComparableProperties;
+import com.graphaware.neo4j.utils.Constants;
 import com.graphaware.neo4j.utils.test.TestDataBuilder;
 import com.graphaware.neo4j.utils.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.utils.tx.single.TransactionCallback;
@@ -31,11 +35,14 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.graphaware.neo4j.utils.tx.mutate.DeleteUtils.deleteNodeAndRelationships;
 import static java.lang.String.valueOf;
 import static java.lang.System.currentTimeMillis;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
@@ -336,6 +343,109 @@ public class RelationshipCountingIntegrationTest {
         assertEquals(8, new RelationshipCounterImpl(withName("test"), OUTGOING).count(database.getNodeById(1)));
         assertEquals(1, new RelationshipCounterImpl(withName("test"), INCOMING).count(database.getNodeById(1)));
     }
+
+    @Test
+    public void internalRelationshipsAreIgnored() {
+        createNodes();
+
+        txExecutor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                database.getNodeById(0).createRelationshipTo(database.getNodeById(1), withName(Constants.GA_REL_PREFIX + "IGNORED")).setProperty("key1", "value1");
+                return null;
+            }
+        });
+
+        assertTrue(new RelationshipCountManagerImpl().getRelationshipCounts(database.getNodeById(0)).isEmpty());
+
+    }
+
+    @Test
+    public void inclusionStrategyIsHonored() {
+        database = new TestGraphDatabaseFactory().newImpermanentDatabase();
+        txExecutor = new SimpleTransactionExecutor(database);
+        database.registerTransactionEventHandler(new RelationshipCountTransactionEventHandlerFactory().create(5, new RelationshipInclusionStrategy() {
+            @Override
+            public boolean include(Relationship relationship) {
+                return false;
+            }
+        }));
+
+        createNodes();
+
+        txExecutor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                database.getNodeById(0).createRelationshipTo(database.getNodeById(1), withName("test")).setProperty("key1", "value1");
+                return null;
+            }
+        });
+
+        assertTrue(new RelationshipCountManagerImpl().getRelationshipCounts(database.getNodeById(0)).isEmpty());
+    }
+
+    @Test
+    public void extractionStrategyIsHonored() {
+        database = new TestGraphDatabaseFactory().newImpermanentDatabase();
+        txExecutor = new SimpleTransactionExecutor(database);
+        database.registerTransactionEventHandler(new RelationshipCountTransactionEventHandlerFactory().create(5, new PropertyExtractionStrategy() {
+            @Override
+            public Map<String, String> extractProperties(Map<String, String> properties, Node otherNode) {
+                Map<String, String> result = new HashMap<String, String>();
+                for (String key : properties.keySet()) {
+                    if (!"test".equals(key)) {
+                        result.put(key, properties.get(key));
+                    }
+                }
+                return result;
+            }
+        }));
+
+        createNodes();
+
+        txExecutor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                database.getNodeById(0).createRelationshipTo(database.getNodeById(1), withName("test")).setProperty("test", "value1");
+                database.getNodeById(0).createRelationshipTo(database.getNodeById(1), withName("test")).setProperty("key1", "value1");
+                return null;
+            }
+        });
+
+        assertEquals(0, new RelationshipCounterImpl(withName("test"), OUTGOING).with("test", "value1").count(database.getNodeById(0)));
+        assertEquals(1, new RelationshipCounterImpl(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(0)));
+        assertEquals(2, new RelationshipCounterImpl(withName("test"), OUTGOING).count(database.getNodeById(0)));
+    }
+
+    @Test
+    public void extractionStrategyCanAccessOtherNode() {
+        database = new TestGraphDatabaseFactory().newImpermanentDatabase();
+        txExecutor = new SimpleTransactionExecutor(database);
+        database.registerTransactionEventHandler(new RelationshipCountTransactionEventHandlerFactory().create(5, new PropertyExtractionStrategy() {
+            @Override
+            public Map<String, String> extractProperties(Map<String, String> properties, Node otherNode) {
+                Map<String, String> result = new HashMap<String, String>();
+                result.putAll(properties);
+                result.put("otherNodeName", otherNode.getProperty("name", "default").toString());
+                return result;
+            }
+        }));
+
+        createNodes();
+
+        txExecutor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                database.getNodeById(0).createRelationshipTo(database.getNodeById(1), withName("test")).setProperty("key1", "value1");
+                return null;
+            }
+        });
+
+        assertEquals(1, new RelationshipCounterImpl(withName("test"), OUTGOING).with("key1", "value1").with("otherNodeName", "node 1").count(database.getNodeById(0)));
+        assertEquals(1, new RelationshipCounterImpl(withName("test"), INCOMING).with("key1", "value1").with("otherNodeName", "default").count(database.getNodeById(1)));
+        assertEquals(1, new RelationshipCounterImpl(withName("test"), OUTGOING).count(database.getNodeById(0)));
+    }
+
 
     @Test
     public void scenario() {

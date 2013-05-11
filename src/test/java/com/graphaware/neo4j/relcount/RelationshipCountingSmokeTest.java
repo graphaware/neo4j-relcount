@@ -16,8 +16,8 @@
 
 package com.graphaware.neo4j.relcount;
 
+import com.graphaware.neo4j.AnotherRandomUsageSimulator;
 import com.graphaware.neo4j.relcount.api.RelationshipCounterImpl;
-import com.graphaware.neo4j.utils.test.AnotherRandomUsageSimulator;
 import com.graphaware.neo4j.utils.test.TestUtils;
 import org.apache.log4j.Logger;
 import org.junit.Before;
@@ -27,8 +27,8 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.tooling.GlobalGraphOperations;
 
+import static com.graphaware.neo4j.AnotherRandomUsageSimulator.FRIEND_OF;
 import static com.graphaware.neo4j.utils.iterable.IterableUtils.count;
-import static com.graphaware.neo4j.utils.test.RandomUsageSimulator.FRIEND_OF;
 import static org.junit.Assert.assertEquals;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 

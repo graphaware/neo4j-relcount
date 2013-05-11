@@ -150,10 +150,8 @@ to implement requirements like "would like to count outgoing relationships based
 
 ### Known Issues
 
-* Check whether a relationship is GraphAware internal should be removed from inclusion strategy
 * Create a method that rebuilds cached counts for the entire database
-* Test that relationship inclusion and property extraction strategies are properly honored
-* Do I need to explicitly lock nodes?
+* Do we need to explicitly lock nodes?
 * Measure and improve performance (always! :-))
 
 ### License

@@ -19,10 +19,8 @@ package com.graphaware.neo4j.relcount.logic;
 
 import org.neo4j.graphdb.Relationship;
 
-import static com.graphaware.neo4j.utils.Constants.GA_REL_PREFIX;
-
 /**
- * Strategy that includes all application level (i.e. not GraphAware internal) relationships.
+ * Strategy that includes all relationships.
  */
 public class IncludeAllRelationshipsStrategy implements RelationshipInclusionStrategy {
 
@@ -31,6 +29,6 @@ public class IncludeAllRelationshipsStrategy implements RelationshipInclusionStr
      */
     @Override
     public boolean include(Relationship relationship) {
-        return !relationship.getType().name().startsWith(GA_REL_PREFIX);
+        return true;
     }
 }
