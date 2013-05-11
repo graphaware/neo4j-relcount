@@ -16,7 +16,6 @@
 
 package com.graphaware.neo4j.relcount.representation;
 
-import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
 import com.graphaware.neo4j.representation.relationship.Relationship;
 import com.graphaware.neo4j.representation.relationship.SimpleRelationship;
 import org.junit.Test;
@@ -25,6 +24,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static com.graphaware.neo4j.relcount.representation.UndefinedIsValueComparableProperties.LITERAL;
 import static com.graphaware.neo4j.utils.Constants.GA_REL_PREFIX;
 import static junit.framework.Assert.*;
 
@@ -34,88 +34,146 @@ import static junit.framework.Assert.*;
 public class ComparableRelationshipTest {
 
     @Test
+    public void propertiesShouldBeCorrectlyConstructed() {
+        ComparableRelationship relationship = crel("test#INCOMING#" + LITERAL + "key1#value1#key2#value2");
+
+        assertTrue(relationship.getProperties() instanceof UndefinedIsValueComparableProperties);
+        assertTrue(relationship.getProperties().containsKey("key1"));
+        assertTrue(relationship.getProperties().containsKey("key2"));
+        assertEquals(2, relationship.getProperties().size());
+
+        relationship = crel("test#INCOMING#key1#value1#key2#value2");
+
+        assertFalse(relationship.getProperties() instanceof UndefinedIsValueComparableProperties);
+        assertTrue(relationship.getProperties().containsKey("key1"));
+        assertTrue(relationship.getProperties().containsKey("key2"));
+        assertEquals(2, relationship.getProperties().size());
+
+        relationship = crel("test#INCOMING#" + LITERAL);
+
+        assertTrue(relationship.getProperties() instanceof UndefinedIsValueComparableProperties);
+        assertEquals(0, relationship.getProperties().size());
+    }
+
+    @Test
     public void shouldCorrectlyJudgeMoreGeneral() {
-        assertTrue(rel("test#INCOMING#key1#value1#key2#value2").isMoreGeneralThan(rel2("test#INCOMING#key1#value1#key2#value2")));
-        assertFalse(rel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreGeneralThan(rel2("test#INCOMING#key1#value1#key2#value2")));
+        assertTrue(crel("test#INCOMING#key1#value1#key2#value2").isMoreGeneralThan(srel("test#INCOMING#key1#value1#key2#value2")));
+        assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreGeneralThan(srel("test#INCOMING#key1#value1#key2#value2")));
 
-        assertTrue(rel("test#INCOMING#key2#value2").isMoreGeneralThan(rel2("test#INCOMING#key1#value1#key2#value2")));
-        assertTrue(rel("test#INCOMING#key2#value2").isStrictlyMoreGeneralThan(rel2("test#INCOMING#key1#value1#key2#value2")));
+        assertTrue(lrel("test#INCOMING#","key1#value1#key2#value2").isMoreGeneralThan(srel("test#INCOMING#key1#value1#key2#value2")));
+        assertFalse(lrel("test#INCOMING#", "key1#value1#key2#value2").isStrictlyMoreGeneralThan(srel("test#INCOMING#key1#value1#key2#value2")));
 
-        assertTrue(rel("test#INCOMING").isMoreGeneralThan(rel("test#INCOMING#key1#value1#key2#value2")));
-        assertTrue(rel("test#INCOMING").isStrictlyMoreGeneralThan(rel("test#INCOMING#key1#value1#key2#value2")));
+        assertTrue(crel("test#INCOMING#key2#value2").isMoreGeneralThan(srel("test#INCOMING#key1#value1#key2#value2")));
+        assertTrue(crel("test#INCOMING#key2#value2").isStrictlyMoreGeneralThan(srel("test#INCOMING#key1#value1#key2#value2")));
 
-        assertFalse(rel("test#INCOMING#key2#value3").isMoreGeneralThan(rel2("test#INCOMING#key1#value1#key2#value2")));
-        assertFalse(rel("test#INCOMING#key2#value3").isStrictlyMoreGeneralThan(rel2("test#INCOMING#key1#value1#key2#value2")));
+        assertFalse(lrel("test#INCOMING#", "key2#value2").isMoreGeneralThan(srel("test#INCOMING#key1#value1#key2#value2")));
+        assertFalse(lrel("test#INCOMING#", "key2#value2").isStrictlyMoreGeneralThan(srel("test#INCOMING#key1#value1#key2#value2")));
 
-        assertFalse(rel("test#INCOMING#key1#value1#key2#value2").isMoreGeneralThan(rel2("test#OUTGOING#key1#value1#key2#value2")));
-        assertFalse(rel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreGeneralThan(rel2("test#OUTGOING#key1#value1#key2#value2")));
+        assertTrue(crel("test#INCOMING").isMoreGeneralThan(crel("test#INCOMING#key1#value1#key2#value2")));
+        assertTrue(crel("test#INCOMING").isStrictlyMoreGeneralThan(crel("test#INCOMING#key1#value1#key2#value2")));
 
-        assertFalse(rel("test#INCOMING#key1#value1#key2#value2").isMoreGeneralThan(rel2("test2#INCOMING#key1#value1#key2#value2")));
-        assertFalse(rel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreGeneralThan(rel2("test2#INCOMING#key1#value1#key2#value2")));
+        assertFalse(lrel("test#INCOMING#","").isMoreGeneralThan(crel("test#INCOMING#key1#value1#key2#value2")));
+        assertFalse(lrel("test#INCOMING#","").isStrictlyMoreGeneralThan(crel("test#INCOMING#key1#value1#key2#value2")));
+
+        assertFalse(crel("test#INCOMING#key2#value3").isMoreGeneralThan(srel("test#INCOMING#key1#value1#key2#value2")));
+        assertFalse(crel("test#INCOMING#key2#value3").isStrictlyMoreGeneralThan(srel("test#INCOMING#key1#value1#key2#value2")));
+
+        assertFalse(lrel("test#INCOMING#","key2#value3").isMoreGeneralThan(srel("test#INCOMING#key1#value1#key2#value2")));
+        assertFalse(lrel("test#INCOMING#","key2#value3").isStrictlyMoreGeneralThan(srel("test#INCOMING#key1#value1#key2#value2")));
+
+        assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isMoreGeneralThan(srel("test#OUTGOING#key1#value1#key2#value2")));
+        assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreGeneralThan(srel("test#OUTGOING#key1#value1#key2#value2")));
+
+        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isMoreGeneralThan(srel("test#OUTGOING#key1#value1#key2#value2")));
+        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isStrictlyMoreGeneralThan(srel("test#OUTGOING#key1#value1#key2#value2")));
+
+        assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isMoreGeneralThan(srel("test2#INCOMING#key1#value1#key2#value2")));
+        assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreGeneralThan(srel("test2#INCOMING#key1#value1#key2#value2")));
+
+        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isMoreGeneralThan(srel("test2#INCOMING#key1#value1#key2#value2")));
+        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isStrictlyMoreGeneralThan(srel("test2#INCOMING#key1#value1#key2#value2")));
     }
 
     @Test
     public void shouldCorrectlyJudgeMoreSpecific() {
-        assertTrue(rel("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(rel2("test#INCOMING#key1#value1#key2#value2")));
-        assertFalse(rel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreSpecificThan(rel2("test#INCOMING#key1#value1#key2#value2")));
+        assertTrue(crel("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(srel("test#INCOMING#key1#value1#key2#value2")));
+        assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreSpecificThan(srel("test#INCOMING#key1#value1#key2#value2")));
 
-        assertTrue(rel("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(rel2("test#INCOMING#key2#value2")));
-        assertTrue(rel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreSpecificThan(rel2("test#INCOMING#key2#value2")));
+        assertTrue(lrel("test#INCOMING#","key1#value1#key2#value2").isMoreSpecificThan(srel("test#INCOMING#key1#value1#key2#value2")));
+        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isStrictlyMoreSpecificThan(srel("test#INCOMING#key1#value1#key2#value2")));
 
-        assertTrue(rel("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(rel("test#INCOMING")));
-        assertTrue(rel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreSpecificThan(rel("test#INCOMING")));
+        assertTrue(crel("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(srel("test#INCOMING#key2#value2")));
+        assertTrue(crel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreSpecificThan(srel("test#INCOMING#key2#value2")));
 
-        assertFalse(rel("test#INCOMING#key2#value2").isMoreSpecificThan(rel2("test#INCOMING#key2#value3")));
-        assertFalse(rel("test#INCOMING#key2#value2").isStrictlyMoreSpecificThan(rel2("test#INCOMING#key2#value3")));
+        assertTrue(lrel("test#INCOMING#","key1#value1#key2#value2").isMoreSpecificThan(srel("test#INCOMING#key2#value2")));
+        assertTrue(lrel("test#INCOMING#","key1#value1#key2#value2").isStrictlyMoreSpecificThan(srel("test#INCOMING#key2#value2")));
 
-        assertFalse(rel("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(rel2("test#OUTGOING#key1#value1#key2#value2")));
-        assertFalse(rel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreSpecificThan(rel2("test#OUTGOING#key1#value1#key2#value2")));
+        assertTrue(crel("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(crel("test#INCOMING")));
+        assertTrue(crel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreSpecificThan(crel("test#INCOMING")));
 
-        assertFalse(rel("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(rel2("test2#INCOMING#key1#value1#key2#value2")));
-        assertFalse(rel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreSpecificThan(rel2("test2#INCOMING#key1#value1#key2#value2")));
+        assertTrue(lrel("test#INCOMING#","key1#value1#key2#value2").isMoreSpecificThan(crel("test#INCOMING")));
+        assertTrue(lrel("test#INCOMING#","key1#value1#key2#value2").isStrictlyMoreSpecificThan(crel("test#INCOMING")));
+
+        assertFalse(crel("test#INCOMING#key2#value2").isMoreSpecificThan(srel("test#INCOMING#key2#value3")));
+        assertFalse(crel("test#INCOMING#key2#value2").isStrictlyMoreSpecificThan(srel("test#INCOMING#key2#value3")));
+
+        assertFalse(lrel("test#INCOMING#","key2#value2").isMoreSpecificThan(srel("test#INCOMING#key2#value3")));
+        assertFalse(lrel("test#INCOMING#","key2#value2").isStrictlyMoreSpecificThan(srel("test#INCOMING#key2#value3")));
+
+        assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(srel("test#OUTGOING#key1#value1#key2#value2")));
+        assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreSpecificThan(srel("test#OUTGOING#key1#value1#key2#value2")));
+
+        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isMoreSpecificThan(srel("test#OUTGOING#key1#value1#key2#value2")));
+        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isStrictlyMoreSpecificThan(srel("test#OUTGOING#key1#value1#key2#value2")));
+
+        assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(srel("test2#INCOMING#key1#value1#key2#value2")));
+        assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreSpecificThan(srel("test2#INCOMING#key1#value1#key2#value2")));
+
+        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isMoreSpecificThan(srel("test2#INCOMING#key1#value1#key2#value2")));
+        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isStrictlyMoreSpecificThan(srel("test2#INCOMING#key1#value1#key2#value2")));
     }
 
     @Test
     public void shouldGenerateAllMoreGeneral() {
-        Set<ComparableRelationship> result = rel("test#INCOMING#key1#value1#key2#value2").generateAllMoreGeneral();
+        Set<ComparableRelationship> result = crel("test#INCOMING#key1#value1#key2#value2").generateAllMoreGeneral();
 
         assertEquals(4, result.size());
         Iterator<ComparableRelationship> iterator = result.iterator();
-        assertEquals(iterator.next(), rel("test#INCOMING#key1#value1#key2#value2"));
-        assertEquals(iterator.next(), rel("test#INCOMING#key1#value1"));
-        assertEquals(iterator.next(), rel("test#INCOMING#key2#value2"));
-        assertEquals(iterator.next(), rel("test#INCOMING"));
+        assertEquals(iterator.next(), crel("test#INCOMING#key1#value1#key2#value2"));
+        assertEquals(iterator.next(), crel("test#INCOMING#key1#value1"));
+        assertEquals(iterator.next(), crel("test#INCOMING#key2#value2"));
+        assertEquals(iterator.next(), crel("test#INCOMING"));
     }
 
     @Test
     public void shouldGenerateOneMoreGeneral() {
-        Set<ComparableRelationship> result = rel("test#INCOMING#key1#value1#key2#value2").generateOneMoreGeneral();
+        Set<ComparableRelationship> result = crel("test#INCOMING#key1#value1#key2#value2").generateOneMoreGeneral();
 
         assertEquals(3, result.size());
         Iterator<ComparableRelationship> iterator = result.iterator();
-        assertEquals(iterator.next(), rel("test#INCOMING#key1#value1#key2#value2"));
-        assertEquals(iterator.next(), rel("test#INCOMING#key1#value1"));
-        assertEquals(iterator.next(), rel("test#INCOMING#key2#value2"));
+        assertEquals(iterator.next(), crel("test#INCOMING#key1#value1#key2#value2"));
+        assertEquals(iterator.next(), crel("test#INCOMING#key1#value1"));
+        assertEquals(iterator.next(), crel("test#INCOMING#key2#value2"));
     }
 
     @Test
     public void shouldAchieveSpecificToGeneralOrderingForRelationships() {
         Set<ComparableRelationship> properties = new TreeSet<ComparableRelationship>();
 
-        properties.add(rel("test#INCOMING"));
-        properties.add(rel("test#INCOMING#key1#value1#key2#value2"));
-        properties.add(rel("test#INCOMING#key2#value2"));
-        properties.add(rel("test#INCOMING#key2#value2"));
-        properties.add(rel("test#INCOMING#key2#value2"));
-        properties.add(rel("xx#INCOMING#key2#value2"));
-        properties.add(rel("test#OUTGOING#key2#value2"));
+        properties.add(crel("test#INCOMING"));
+        properties.add(crel("test#INCOMING#key1#value1#key2#value2"));
+        properties.add(crel("test#INCOMING#key2#value2"));
+        properties.add(crel("test#INCOMING#key2#value2"));
+        properties.add(crel("test#INCOMING#key2#value2"));
+        properties.add(crel("xx#INCOMING#key2#value2"));
+        properties.add(crel("test#OUTGOING#key2#value2"));
 
         Iterator<ComparableRelationship> iterator = properties.iterator();
-        assertEquals(rel("test#INCOMING#key1#value1#key2#value2"), iterator.next());
-        assertEquals(rel("test#INCOMING#key2#value2"), iterator.next());
-        assertEquals(rel("test#INCOMING"), iterator.next());
-        assertEquals(rel("test#OUTGOING#key2#value2"), iterator.next());
-        assertEquals(rel("xx#INCOMING#key2#value2"), iterator.next());
+        assertEquals(crel("test#INCOMING#key1#value1#key2#value2"), iterator.next());
+        assertEquals(crel("test#INCOMING#key2#value2"), iterator.next());
+        assertEquals(crel("test#INCOMING"), iterator.next());
+        assertEquals(crel("test#OUTGOING#key2#value2"), iterator.next());
+        assertEquals(crel("xx#INCOMING#key2#value2"), iterator.next());
         assertFalse(iterator.hasNext());
     }
 
@@ -123,28 +181,29 @@ public class ComparableRelationshipTest {
     public void relationshipsShouldBehaveProperlyInTreeSets() {
         Set<ComparableRelationship> properties = new TreeSet<ComparableRelationship>();
 
-        properties.add(rel("test#INCOMING"));
-        properties.add(rel("test#INCOMING#key1#value1#key2#value2"));
-        properties.add(rel("test#INCOMING#key2#value2"));
-        properties.add(rel("test#INCOMING#key1#value2"));
-        properties.add(rel("test#INCOMING#key2#value1"));
+        properties.add(crel("test#INCOMING"));
+        properties.add(crel("test#INCOMING#key1#value1#key2#value2"));
+        properties.add(crel("test#INCOMING#key2#value2"));
+        properties.add(crel("test#INCOMING#key1#value2"));
+        properties.add(crel("test#INCOMING#key2#value1"));
 
-        assertTrue(properties.contains(rel("test#INCOMING")));
-        assertTrue(properties.contains(rel("test#INCOMING#key1#value1#key2#value2")));
-        assertTrue(properties.contains(rel("test#INCOMING#key2#value2")));
-        assertTrue(properties.contains(rel("test#INCOMING#key1#value2")));
-        assertTrue(properties.contains(rel("test#INCOMING#key2#value1")));
-        assertFalse(properties.contains(rel("test#INCOMING#key1#value1")));
+        assertTrue(properties.contains(crel("test#INCOMING")));
+        assertTrue(properties.contains(crel("test#INCOMING#key1#value1#key2#value2")));
+        assertTrue(properties.contains(crel("test#INCOMING#key2#value2")));
+        assertTrue(properties.contains(crel("test#INCOMING#key1#value2")));
+        assertTrue(properties.contains(crel("test#INCOMING#key2#value1")));
+        assertFalse(properties.contains(crel("test#INCOMING#key1#value1")));
     }
 
-    /**
-     * just for readability
-     */
-    private ComparableRelationship rel(String s) {
+    private ComparableRelationship crel(String s) {
         return new ComparableRelationship(GA_REL_PREFIX + s);
     }
 
-    private Relationship rel2(String s) {
+    private Relationship srel(String s) {
         return new SimpleRelationship(GA_REL_PREFIX + s);
     }
+    private ComparableRelationship lrel(String rel, String props) {
+        return new ComparableRelationship(GA_REL_PREFIX + rel + LITERAL +props);
+    }
+
 }

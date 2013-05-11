@@ -21,7 +21,6 @@ import org.neo4j.graphdb.Node;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Default production implementation of {@link RelationshipCountCompactor} which compacts relationship counts based
@@ -65,6 +64,13 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
     public void compactRelationshipCounts(ComparableRelationship trigger, Node node) {
 
         Map<ComparableRelationship, Integer> cachedCounts = countManager.getRelationshipCounts(node);
+
+        //if this is not the most concrete relationship, perform no compaction
+        for (ComparableRelationship cachedCount : cachedCounts.keySet()) {
+            if (cachedCount.isStrictlyMoreSpecificThan(trigger)) {
+                return;
+            }
+        }
 
         for (ComparableRelationship generalization : trigger.generateOneMoreGeneral()) {
             Map<ComparableRelationship, Integer> compactionCandidates = new HashMap<ComparableRelationship, Integer>();

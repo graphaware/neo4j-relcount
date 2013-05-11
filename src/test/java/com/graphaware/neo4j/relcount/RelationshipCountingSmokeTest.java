@@ -16,16 +16,15 @@
 
 package com.graphaware.neo4j.relcount;
 
-import com.graphaware.neo4j.relcount.api.RelationshipCounter;
 import com.graphaware.neo4j.relcount.api.RelationshipCounterImpl;
-import com.graphaware.neo4j.utils.test.RandomUsageSimulator;
+import com.graphaware.neo4j.utils.test.AnotherRandomUsageSimulator;
 import com.graphaware.neo4j.utils.test.TestUtils;
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.test.TestGraphDatabaseFactory;
 import org.neo4j.tooling.GlobalGraphOperations;
 
 import static com.graphaware.neo4j.utils.iterable.IterableUtils.count;
@@ -37,15 +36,21 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
  * Smoke test for relationship count consistency, checking with lots of random data.
  */
 public class RelationshipCountingSmokeTest {
+    private static final Logger LOGGER = Logger.getLogger(RelationshipCountingSmokeTest.class);
 
     private GraphDatabaseService database;
     private static final int STEPS = 1000;
 
     @Before
     public void setUp() {
-        database = new TestGraphDatabaseFactory().newImpermanentDatabase();
+        database = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("/tmp/relcount2")
+                .loadPropertiesFromFile("/Users/bachmanm/DEV/graphaware/neo4j-relcount/src/test/resources/neo4j.properties")
+                .newGraphDatabase();
+
+        registerShutdownHook(database);
+
+//        database = new TestGraphDatabaseFactory().newImpermanentDatabase();
         database.registerTransactionEventHandler(new RelationshipCountTransactionEventHandlerFactory().create());
-        System.out.println(System.currentTimeMillis());
     }
 
     @Test
@@ -53,12 +58,12 @@ public class RelationshipCountingSmokeTest {
         long load = TestUtils.time(new TestUtils.Timed() {
             @Override
             public void time() {
-                RandomUsageSimulator simulator = new RandomUsageSimulator(database);
-                simulator.simulate(STEPS);
+                AnotherRandomUsageSimulator simulator = new AnotherRandomUsageSimulator(database);
+                simulator.batchSimulate(STEPS);
             }
         });
 
-        System.out.println("Took " + load / 1000 + "s to simulate usage");
+        LOGGER.info("Took " + load / 1000 + "s to simulate usage");
 
         int fakeCount = count(GlobalGraphOperations.at(database).getAllRelationships());
 
@@ -71,7 +76,15 @@ public class RelationshipCountingSmokeTest {
         assertEquals(fakeCount, realCount);
     }
 
-    private void demo() {
-
+    private static void registerShutdownHook(final GraphDatabaseService graphDb) {
+        // Registers a shutdown hook for the Neo4j instance so that it
+        // shuts down nicely when the VM exits (even if you "Ctrl-C" the
+        // running example before it's completed)
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                graphDb.shutdown();
+            }
+        });
     }
 }

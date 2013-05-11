@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static com.graphaware.neo4j.relcount.representation.UndefinedIsValueComparableProperties.LITERAL;
+
 /**
  * A {@link com.graphaware.neo4j.representation.relationship.Relationship} {@link PartiallyComparableByGenerality}.
  * <p/>
@@ -121,6 +123,9 @@ public class ComparableRelationship extends CopyMakingRelationship<ComparablePro
      */
     @Override
     protected ComparableProperties newProperties(String string) {
+        if (string.startsWith(LITERAL)) {
+            return new UndefinedIsValueComparableProperties(string);
+        }
         return new ComparableProperties(string);
     }
 

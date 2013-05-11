@@ -18,10 +18,10 @@ package com.graphaware.neo4j.relcount;
 
 import com.graphaware.neo4j.relcount.api.RelationshipCounterImpl;
 import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
+import com.graphaware.neo4j.utils.test.TestDataBuilder;
 import com.graphaware.neo4j.utils.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.utils.tx.single.TransactionCallback;
 import com.graphaware.neo4j.utils.tx.single.TransactionExecutor;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -30,7 +30,9 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
 import static com.graphaware.neo4j.utils.tx.mutate.DeleteUtils.deleteNodeAndRelationships;
-import static org.junit.Assert.*;
+import static java.lang.String.valueOf;
+import static java.lang.System.currentTimeMillis;
+import static org.junit.Assert.assertEquals;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
@@ -325,6 +327,50 @@ public class RelationshipCountingIntegrationTest {
         assertEquals(0, new RelationshipCounterImpl(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
         assertEquals(8, new RelationshipCounterImpl(withName("test"), OUTGOING).count(database.getNodeById(1)));
         assertEquals(1, new RelationshipCounterImpl(withName("test"), INCOMING).count(database.getNodeById(1)));
+    }
+
+    @Test
+    public void cascadedCompaction() {
+        TestDataBuilder builder = new TestDataBuilder(database);
+
+        builder.node().setProp("name", "node1")
+                .node().setProp("name", "node2")
+                .node().setProp("name", "node3")
+                .node().setProp("name", "node4")
+                .node().setProp("name", "node5")
+                .node().setProp("name", "node6")
+                .node().setProp("name", "node7")
+                .node().setProp("name", "node8")
+                .node().setProp("name", "node9")
+                .node().setProp("name", "node10")
+                .relationshipTo(1, "FRIEND_OF").setProp("level", "1").setProp("timestamp", valueOf(currentTimeMillis()))
+                .relationshipTo(2, "FRIEND_OF").setProp("level", "2").setProp("timestamp", valueOf(currentTimeMillis()))
+                .relationshipTo(3, "FRIEND_OF").setProp("level", "3").setProp("timestamp", valueOf(currentTimeMillis()))
+                .relationshipTo(4, "FRIEND_OF").setProp("level", "1").setProp("timestamp", valueOf(currentTimeMillis()))
+                .relationshipTo(5, "FRIEND_OF").setProp("level", "1").setProp("timestamp", valueOf(currentTimeMillis()))
+                .relationshipTo(6, "FRIEND_OF").setProp("level", "1").setProp("timestamp", valueOf(currentTimeMillis()))
+                .relationshipTo(7, "FRIEND_OF").setProp("level", "1").setProp("timestamp", valueOf(currentTimeMillis()))
+                .relationshipTo(8, "FRIEND_OF").setProp("level", "2").setProp("timestamp", valueOf(currentTimeMillis()))
+                .relationshipTo(9, "FRIEND_OF").setProp("level", "2").setProp("timestamp", valueOf(currentTimeMillis()));
+
+        assertEquals(5, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "1").count(database.getNodeById(10)));
+        assertEquals(3, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "2").count(database.getNodeById(10)));
+        assertEquals(1, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "3").count(database.getNodeById(10)));
+        assertEquals(9, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).count(database.getNodeById(10)));
+
+        builder.relationshipTo(1, "FRIEND_OF").setProp("level", "4").setProp("timestamp", valueOf(currentTimeMillis()));
+        builder.relationshipTo(2, "FRIEND_OF").setProp("level", "5").setProp("timestamp", valueOf(currentTimeMillis()));
+        builder.relationshipTo(3, "FRIEND_OF").setProp("level", "6").setProp("timestamp", valueOf(currentTimeMillis()));
+        builder.relationshipTo(4, "FRIEND_OF").setProp("level", "7").setProp("timestamp", valueOf(currentTimeMillis()));
+
+        assertEquals(5, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "1").count(database.getNodeById(10)));
+        assertEquals(3, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "2").count(database.getNodeById(10)));
+        assertEquals(1, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "3").count(database.getNodeById(10)));
+        assertEquals(1, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "4").count(database.getNodeById(10)));
+        assertEquals(1, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "5").count(database.getNodeById(10)));
+        assertEquals(1, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "6").count(database.getNodeById(10)));
+        assertEquals(1, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).with("level", "7").count(database.getNodeById(10)));
+        assertEquals(14, new RelationshipCounterImpl(withName("FRIEND_OF"), OUTGOING).count(database.getNodeById(10)));
     }
 
     private void createFirstRelationships() {

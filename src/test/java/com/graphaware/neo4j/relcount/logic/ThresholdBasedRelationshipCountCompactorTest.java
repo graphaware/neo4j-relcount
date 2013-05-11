@@ -16,7 +16,6 @@
 
 package com.graphaware.neo4j.relcount.logic;
 
-import com.graphaware.neo4j.relcount.logic.ThresholdBasedRelationshipCountCompactor;
 import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,6 +92,20 @@ public class ThresholdBasedRelationshipCountCompactorTest {
         compactor = new ThresholdBasedRelationshipCountCompactor(8, mockManager);
 
         compactor.compactRelationshipCounts(rel("test#OUTGOING#k1#v1#k2#v6"), mockNode);
+
+        verify(mockManager).getRelationshipCounts(mockNode);
+        verifyNoMoreInteractions(mockManager, mockNode);
+    }
+
+    @Test
+    public void nothingShouldBeCompactedBeforeThresholdIsReached2() {
+        when(mockManager.getRelationshipCounts(mockNode))
+                .thenReturn(generateCachedCounts())
+                .thenThrow(new RuntimeException("Too many invocations")); //to prevent infinite loop
+
+        compactor = new ThresholdBasedRelationshipCountCompactor(8, mockManager);
+
+        compactor.compactRelationshipCounts(rel("test#OUTGOING#k1#v1"), mockNode);
 
         verify(mockManager).getRelationshipCounts(mockNode);
         verifyNoMoreInteractions(mockManager, mockNode);

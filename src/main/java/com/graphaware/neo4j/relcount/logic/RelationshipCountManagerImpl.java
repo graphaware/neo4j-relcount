@@ -73,7 +73,6 @@ public class RelationshipCountManagerImpl implements RelationshipCountManager {
     public boolean incrementCount(ComparableRelationship relationship, Node node, int delta) {
         boolean created = false;
 
-        //Create property that keeps track of these kinds of relationships if it does not exist
         if (!getRelationshipCounts(node).containsKey(relationship)) {
             node.setProperty(relationship.toString(), 0);
             created = true;

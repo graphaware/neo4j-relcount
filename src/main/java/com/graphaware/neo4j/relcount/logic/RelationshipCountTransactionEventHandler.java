@@ -112,8 +112,8 @@ public class RelationshipCountTransactionEventHandler extends TransactionEventHa
             }
 
             if (include(newRelationship)) {
-                handleCreatedRelationship(newRelationship, oldRelationship.getStartNode());
-                handleCreatedRelationship(newRelationship, oldRelationship.getEndNode());
+                handleCreatedRelationship(newRelationship, newRelationship.getStartNode());
+                handleCreatedRelationship(newRelationship, newRelationship.getEndNode());
             }
         }
     }

@@ -99,7 +99,22 @@ public class ComparableProperties extends CopyMakingProperties<ComparablePropert
      */
     @Override
     public boolean isMoreGeneralThan(Properties properties) {
-        return isMoreGeneralThan(properties.getProperties());
+        for (String thisKey : keySet()) {
+            if (!properties.containsKey(thisKey)) {
+                return false;
+            }
+            if (!get(thisKey).equals(properties.get(thisKey))) {
+                return false;
+            }
+        }
+
+        for (String thatKey : properties.keySet()) {
+            if (containsKey(thatKey) && !get(thatKey).equals(properties.get(thatKey))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -110,25 +125,27 @@ public class ComparableProperties extends CopyMakingProperties<ComparablePropert
         return isMoreGeneralThan(properties) && !isMoreSpecificThan(properties);
     }
 
-    private boolean isMoreGeneralThan(Map<String, String> properties) {
-        for (String thisKey : getProperties().keySet()) {
-            if (!properties.containsKey(thisKey)) {
-                return false;
-            }
-            if (!getProperties().get(thisKey).equals(properties.get(thisKey))) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
     public boolean isMoreSpecificThan(Properties properties) {
-        return isMoreSpecificThan(properties.getProperties());
+        for (String thatKey : properties.keySet()) {
+            if (!containsKey(thatKey)) {
+                return false;
+            }
+            if (!get(thatKey).equals(properties.get(thatKey))) {
+                return false;
+            }
+        }
+
+        for (String thisKey : keySet()) {
+            if (properties.containsKey(thisKey) && !properties.get(thisKey).equals(get(thisKey))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -136,20 +153,7 @@ public class ComparableProperties extends CopyMakingProperties<ComparablePropert
      */
     @Override
     public boolean isStrictlyMoreSpecificThan(Properties properties) {
-        return isMoreSpecificThan(properties.getProperties()) && !isMoreGeneralThan(properties.getProperties());
-    }
-
-    private boolean isMoreSpecificThan(Map<String, String> properties) {
-        for (String thatKey : properties.keySet()) {
-            if (!getProperties().containsKey(thatKey)) {
-                return false;
-            }
-            if (!getProperties().get(thatKey).equals(properties.get(thatKey))) {
-                return false;
-            }
-        }
-
-        return true;
+        return isMoreSpecificThan(properties) && !isMoreGeneralThan(properties);
     }
 
     /**
@@ -159,7 +163,7 @@ public class ComparableProperties extends CopyMakingProperties<ComparablePropert
     public Set<ComparableProperties> generateOneMoreGeneral() {
         Set<ComparableProperties> result = new TreeSet<ComparableProperties>();
         result.add(this);
-        for (String key : getProperties().keySet()) {
+        for (String key : keySet()) {
             result.add(without(key));
         }
         return result;
@@ -173,15 +177,15 @@ public class ComparableProperties extends CopyMakingProperties<ComparablePropert
         return generateAllMoreGeneral(this);
     }
 
-    private Set<ComparableProperties> generateAllMoreGeneral(ComparableProperties propertiesRepresentation) {
+    protected Set<ComparableProperties> generateAllMoreGeneral(ComparableProperties propertiesRepresentation) {
         //base case
-        if (propertiesRepresentation.getProperties().isEmpty()) {
+        if (propertiesRepresentation.isEmpty()) {
             return Collections.singleton(propertiesRepresentation);
         }
 
         //recursion
         Set<ComparableProperties> result = new TreeSet<ComparableProperties>();
-        Map.Entry<String, String> next = propertiesRepresentation.getProperties().entrySet().iterator().next();
+        Map.Entry<String, String> next = propertiesRepresentation.entrySet().iterator().next();
         for (ComparableProperties properties : generateAllMoreGeneral(propertiesRepresentation.without(next.getKey()))) {
             result.add(properties);
             result.add(properties.with(next.getKey(), next.getValue()));
