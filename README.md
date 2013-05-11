@@ -11,8 +11,7 @@ per node.
 
 The aim of this GraphAware module is to provide an easy-to-use, transparent cache for relationship counts on nodes.
 
-Download
---------
+### Download
 
 Releases are synced to Maven Central repository. In order to use the latest release, include the following snippet
 in your pom.xml:
@@ -143,7 +142,7 @@ on a node with the following cache counts
       _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#3#timestamp#1368206683579 = 1
       _GA_REL_FRIEND_OF#OUTGOING#level#2 = 10
       _GA_REL_FRIEND_OF#OUTGOING#level#1 = 20
-      _GA_REL_FRIEND_OF#OUTGOING#_LITERAL = 5
+      _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_ = 5
 
 the result will be... you guessed it... 36.
 
