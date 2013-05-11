@@ -71,22 +71,18 @@ public class RelationshipCountManagerImpl implements RelationshipCountManager {
      */
     @Override
     public boolean incrementCount(ComparableRelationship relationship, Node node, int delta) {
-        boolean created = false;
-
-        if (!getRelationshipCounts(node).containsKey(relationship)) {
-            node.setProperty(relationship.toString(), 0);
-            created = true;
-        }
 
         //Increment count for the most specific match of the new relationship
         for (ComparableRelationship cachedRelationship : getRelationshipCounts(node).keySet()) {
             if (cachedRelationship.isMoreGeneralThan(relationship)) {
                 node.setProperty(cachedRelationship.toString(), (Integer) node.getProperty(cachedRelationship.toString()) + delta);
-                break;
+                return false;
             }
         }
 
-        return created;
+        node.setProperty(relationship.toString(), delta);
+        return true;
+
     }
 
     /**
