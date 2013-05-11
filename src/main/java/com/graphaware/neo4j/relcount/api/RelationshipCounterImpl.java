@@ -19,7 +19,10 @@ package com.graphaware.neo4j.relcount.api;
 import com.graphaware.neo4j.relcount.logic.RelationshipCountManagerImpl;
 import com.graphaware.neo4j.representation.property.SimpleCopyMakingProperties;
 import com.graphaware.neo4j.representation.relationship.StringConvertibleRelationship;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.PropertyContainer;
+import org.neo4j.graphdb.RelationshipType;
 
 import java.util.Map;
 
@@ -36,16 +39,6 @@ public class RelationshipCounterImpl extends StringConvertibleRelationship<Simpl
      */
     public RelationshipCounterImpl(RelationshipType type, Direction direction) {
         super(type, direction);
-    }
-
-    /**
-     * Construct a new relationship counter.
-     *
-     * @param relationship specifying type and properties to count.
-     * @param pointOfView  node serving as a point of view to resolve direction.
-     */
-    public RelationshipCounterImpl(Relationship relationship, Node pointOfView) {
-        super(relationship, pointOfView);
     }
 
     /**
