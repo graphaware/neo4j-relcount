@@ -11,6 +11,22 @@ per node.
 
 The aim of this GraphAware module is to provide an easy-to-use, transparent cache for relationship counts on nodes.
 
+Download
+--------
+
+Releases are synced to Maven Central repository. In order to use the latest release, include the following snippet
+in your pom.xml:
+
+    <dependencies>
+        ...
+        <dependency>
+            <groupId>com.graphaware</groupId>
+            <artifactId>neo4j-relcount</artifactId>
+            <version>1.0</version>
+        </dependency>
+        ...
+     </dependencies>
+
 ### Usage
 
 
