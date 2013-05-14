@@ -29,9 +29,9 @@ import java.util.TreeSet;
  * Default production implementation of {@link RelationshipCountCompactor} which compacts relationship counts based
  * on a threshold.
  * <p/>
- * More specifically, if there is a single more general relationship representation (see {@link com.graphaware.neo4j.relcount.representation.PartiallyComparableByGenerality} for more info)
- * that would cover more than {@link #DEFAULT_COMPACTION_THRESHOLD} cached relationship counts, these relationship counts are compacted into the
- * general form.
+ * More specifically, if there are more than {@link #compactionThreshold} distinct cached relationship counts,
+ * least general generalizations (or equivalently most specific generalizations) are created until the number of cached
+ * relationship counts is below the threshold again. If unable to reach such state, a meaningful message is logged.
  */
 public class ThresholdBasedRelationshipCountCompactor implements RelationshipCountCompactor {
     private static final Logger LOG = Logger.getLogger(ThresholdBasedRelationshipCountCompactor.class);
