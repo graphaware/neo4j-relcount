@@ -16,10 +16,10 @@
 
 package com.graphaware.neo4j.relcount.representation;
 
-import com.graphaware.neo4j.representation.property.CopyMakingProperties;
-import com.graphaware.neo4j.representation.property.MakesCopyWithProperty;
-import com.graphaware.neo4j.representation.property.MakesCopyWithoutProperty;
-import com.graphaware.neo4j.representation.property.Properties;
+import com.graphaware.neo4j.dto.property.immutable.AbstractCopyMakingSerializableProperties;
+import com.graphaware.neo4j.dto.property.immutable.Properties;
+import com.graphaware.neo4j.dto.property.immutable.WithPropertyCopyMakingProperties;
+import com.graphaware.neo4j.dto.property.immutable.WithoutPropertyCopyMakingProperties;
 import org.neo4j.graphdb.PropertyContainer;
 
 import java.util.Collections;
@@ -28,17 +28,17 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * {@link com.graphaware.neo4j.representation.property.Properties} {@link PartiallyComparableByGenerality}.
+ * {@link Properties} {@link PartiallyComparableByGenerality}.
  * <p/>
- * {@link com.graphaware.neo4j.representation.property.Properties} X is more general than Y iff Y contains at least X's properties and they have identical values.
- * {@link com.graphaware.neo4j.representation.property.Properties} X is more specific than Y iff X contains at least Y's properties and they have identical values.
+ * {@link Properties} X is more general than Y iff Y contains at least X's properties and they have identical values.
+ * {@link Properties} X is more specific than Y iff X contains at least Y's properties and they have identical values.
  * <p/>
  * This class is also capable of generating all more general representations than itself.
  */
-public class ComparableProperties extends CopyMakingProperties<ComparableProperties> implements
+public class ComparableProperties extends AbstractCopyMakingSerializableProperties<ComparableProperties> implements
         Properties,
-        MakesCopyWithProperty<ComparableProperties>,
-        MakesCopyWithoutProperty<ComparableProperties>,
+        WithPropertyCopyMakingProperties<ComparableProperties>,
+        WithoutPropertyCopyMakingProperties<ComparableProperties>,
         TotallyComparableByGenerality<Properties, ComparableProperties>,
         GeneratesMoreGeneral<ComparableProperties> {
 
@@ -64,7 +64,7 @@ public class ComparableProperties extends CopyMakingProperties<ComparablePropert
      * Construct a representation of properties from a {@link String}.
      *
      * @param string to construct properties from. Must be of the form key1#value1#key2#value2 (assuming the default
-     *               {@link com.graphaware.neo4j.utils.Constants#SEPARATOR}.
+     *               {@link com.graphaware.neo4j.common.Constants#SEPARATOR}.
      */
     public ComparableProperties(String string) {
         super(string);

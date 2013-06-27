@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static com.graphaware.neo4j.common.Constants.SEPARATOR;
+
 /**
  * An extension of {@link ComparableProperties} in which a missing property is treated as a concrete value ({@link #UNDEF}) as opposed
  * to "any". This is for situations where a relationship is explicitly created without some property that other relationships
@@ -31,9 +33,9 @@ import java.util.TreeSet;
 public class LiteralComparableProperties extends ComparableProperties {
 
     /**
-     * This string will be inserted before the String representation of these properties to indicate that they are meant literally.
+     * This string will be used as an extra "marker" property to indicate that they are meant literally.
      */
-    public static final String LITERAL = "_LITERAL_";
+    private static final String LITERAL = "_LITERAL_";
 
     /**
      * Value of undefined keys. It is not printed anywhere, but it is used internally for comparisons.
@@ -59,13 +61,37 @@ public class LiteralComparableProperties extends ComparableProperties {
     }
 
     /**
+     * Remove the literal marker from the properties.
+     *
+     * @param properties from which to remove a marker property.
+     * @return properties without the "literal" marker.
+     */
+    public static Map<String, String> withoutLiteral(Map<String, String> properties) {
+        if (properties.remove(LITERAL) == null) {
+            throw new IllegalArgumentException("Constructed properties are not literal properties");
+        }
+        return properties;
+    }
+
+    /**
+     * Check whether the map of properties qualifies as "literal" properties. This method checks for the presence of
+     * a special marker property with the key {@link LiteralComparableProperties#LITERAL}.
+     *
+     * @param properties to check.
+     * @return true iff these properties qualify as "literal" properties.
+     */
+    public static boolean shouldBeLiteral(Map<String, String> properties) {
+        return properties.containsKey(LITERAL);
+    }
+
+    /**
      * Construct a representation of properties from a {@link String}.
      *
      * @param string to construct properties from. Must be of the form _LITERAL_key1#value1#key2#value2 (assuming the default
-     *               {@link com.graphaware.neo4j.utils.Constants#SEPARATOR} and {@link #LITERAL}).
+     *               {@link com.graphaware.neo4j.common.Constants#SEPARATOR} and {@link #LITERAL}).
      */
     public LiteralComparableProperties(String string) {
-        super(string.substring(LITERAL.length()));
+        super(string);
     }
 
     /**
@@ -119,6 +145,6 @@ public class LiteralComparableProperties extends ComparableProperties {
      */
     @Override
     public String toString() {
-        return LITERAL + super.toString();
+        return LITERAL + SEPARATOR + "true" + SEPARATOR + super.toString();
     }
 }

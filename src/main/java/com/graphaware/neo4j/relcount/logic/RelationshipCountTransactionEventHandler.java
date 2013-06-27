@@ -16,22 +16,22 @@
 
 package com.graphaware.neo4j.relcount.logic;
 
+import com.graphaware.neo4j.common.Change;
 import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
 import com.graphaware.neo4j.relcount.representation.LiteralComparableProperties;
-import com.graphaware.neo4j.representation.property.SimpleProperties;
+import com.graphaware.neo4j.tx.event.api.FilteredLazyTransactionData;
+import com.graphaware.neo4j.tx.event.api.ImprovedTransactionData;
+import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
+import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertiesExtractionStrategy;
 import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.event.TransactionData;
 import org.neo4j.graphdb.event.TransactionEventHandler;
 
-import java.util.Collection;
 import java.util.Map;
 
-import static com.graphaware.neo4j.utils.Constants.GA_REL_PREFIX;
-import static com.graphaware.neo4j.utils.iterable.IterableUtils.contains;
-import static com.graphaware.neo4j.utils.tx.mutate.ChangeUtils.extractChangedRelationships;
-import static com.graphaware.neo4j.utils.tx.mutate.DeleteUtils.extractDeletedRelationships;
+import static com.graphaware.neo4j.common.Constants.GA_REL_PREFIX;
 
 /**
  * {@link org.neo4j.graphdb.event.TransactionEventHandler} responsible for caching relationship counts on nodes.
@@ -42,7 +42,7 @@ public class RelationshipCountTransactionEventHandler extends TransactionEventHa
     private final RelationshipCountManager countManager;
     private final RelationshipCountCompactor countCompactor;
     private final RelationshipInclusionStrategy inclusionStrategy;
-    private final PropertyExtractionStrategy extractionStrategy;
+    private final RelationshipPropertiesExtractionStrategy extractionStrategy;
 
     /**
      * Construct a new event handler.
@@ -52,7 +52,7 @@ public class RelationshipCountTransactionEventHandler extends TransactionEventHa
      * @param inclusionStrategy  strategy for selecting relationships to care about.
      * @param extractionStrategy strategy for representing relationships.
      */
-    public RelationshipCountTransactionEventHandler(RelationshipCountManager countManager, RelationshipCountCompactor countCompactor, RelationshipInclusionStrategy inclusionStrategy, PropertyExtractionStrategy extractionStrategy) {
+    public RelationshipCountTransactionEventHandler(RelationshipCountManager countManager, RelationshipCountCompactor countCompactor, RelationshipInclusionStrategy inclusionStrategy, RelationshipPropertiesExtractionStrategy extractionStrategy) {
         this.countManager = countManager;
         this.countCompactor = countCompactor;
         this.inclusionStrategy = inclusionStrategy;
@@ -66,15 +66,18 @@ public class RelationshipCountTransactionEventHandler extends TransactionEventHa
     public Void beforeCommit(TransactionData data) throws Exception {
         super.beforeCommit(data);
 
-        handleCreatedRelationships(data);
-        handleDeletedRelationships(data);
-        handleChangedRelationships(data);
+        FilteredLazyTransactionData transactionData = new FilteredLazyTransactionData(data);
+        transactionData.addRelationshipInclusionStrategy(inclusionStrategy);
+
+        handleCreatedRelationships(transactionData);
+        handleDeletedRelationships(transactionData);
+        handleChangedRelationships(transactionData);
 
         return null;
     }
 
-    private void handleCreatedRelationships(TransactionData data) {
-        for (Relationship createdRelationship : data.createdRelationships()) {
+    private void handleCreatedRelationships(ImprovedTransactionData data) {
+        for (Relationship createdRelationship : data.getAllCreatedRelationships()) {
             if (include(createdRelationship)) {
                 handleCreatedRelationship(createdRelationship, createdRelationship.getStartNode());
                 handleCreatedRelationship(createdRelationship, createdRelationship.getEndNode());
@@ -82,39 +85,35 @@ public class RelationshipCountTransactionEventHandler extends TransactionEventHa
         }
     }
 
-    private void handleDeletedRelationships(TransactionData data) {
-        Collection<Relationship> deletedRelationships = extractDeletedRelationships(data);
-
-        for (Relationship deletedRelationship : deletedRelationships) {
+    private void handleDeletedRelationships(ImprovedTransactionData data) {
+        for (Relationship deletedRelationship : data.getAllDeletedRelationships()) {
             if (include(deletedRelationship)) {
                 Node startNode = deletedRelationship.getStartNode();
-                if (!hasBeenDeleted(startNode, data)) {
+                if (!data.hasBeenDeleted(startNode)) {
                     handleDeletedRelationship(deletedRelationship, startNode);
                 }
 
                 Node endNode = deletedRelationship.getEndNode();
-                if (!hasBeenDeleted(endNode, data)) {
+                if (!data.hasBeenDeleted(endNode)) {
                     handleDeletedRelationship(deletedRelationship, endNode);
                 }
             }
         }
     }
 
-    private void handleChangedRelationships(TransactionData data) {
-        Map<Relationship, Relationship> changedRelationships = extractChangedRelationships(data);
+    private void handleChangedRelationships(ImprovedTransactionData data) {
+        for (Change<Relationship> changedRelationship : data.getAllChangedRelationships()) {
+            Relationship current = changedRelationship.getCurrent();
+            Relationship previous = changedRelationship.getPrevious();
 
-        for (Map.Entry<Relationship, Relationship> changedRelationship : changedRelationships.entrySet()) {
-            Relationship newRelationship = changedRelationship.getKey();
-            Relationship oldRelationship = changedRelationship.getValue();
-
-            if (include(oldRelationship)) {
-                handleDeletedRelationship(oldRelationship, oldRelationship.getStartNode());
-                handleDeletedRelationship(oldRelationship, oldRelationship.getEndNode());
+            if (include(previous)) {
+                handleDeletedRelationship(previous, previous.getStartNode());
+                handleDeletedRelationship(previous, previous.getEndNode());
             }
 
-            if (include(newRelationship)) {
-                handleCreatedRelationship(newRelationship, newRelationship.getStartNode());
-                handleCreatedRelationship(newRelationship, newRelationship.getEndNode());
+            if (include(current)) {
+                handleCreatedRelationship(current, current.getStartNode());
+                handleCreatedRelationship(current, current.getEndNode());
             }
         }
     }
@@ -122,8 +121,7 @@ public class RelationshipCountTransactionEventHandler extends TransactionEventHa
     private void handleCreatedRelationship(Relationship relationship, Node pointOfView) {
         Node otherNode = relationship.getOtherNode(pointOfView);
 
-        Map<String, String> realProperties = new SimpleProperties(relationship).getProperties();
-        Map<String, String> extractedProperties = extractionStrategy.extractProperties(realProperties, otherNode);
+        Map<String, String> extractedProperties = extractionStrategy.extractProperties(relationship, otherNode);
 
         ComparableRelationship createdRelationship = new ComparableRelationship(relationship, pointOfView, new LiteralComparableProperties(extractedProperties));
 
@@ -141,14 +139,8 @@ public class RelationshipCountTransactionEventHandler extends TransactionEventHa
     }
 
     private boolean include(Relationship relationship) {
-        if (relationship.getType().name().startsWith(GA_REL_PREFIX)) {
-            return false;
-        }
+        return !relationship.getType().name().startsWith(GA_REL_PREFIX);
 
-        return inclusionStrategy.include(relationship);
     }
 
-    private boolean hasBeenDeleted(Node node, TransactionData data) {
-        return contains(data.deletedNodes(), node);
-    }
 }

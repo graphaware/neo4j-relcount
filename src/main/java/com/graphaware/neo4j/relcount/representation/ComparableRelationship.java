@@ -16,10 +16,10 @@
 
 package com.graphaware.neo4j.relcount.representation;
 
-import com.graphaware.neo4j.representation.property.MakesCopyWithProperty;
-import com.graphaware.neo4j.representation.property.MakesCopyWithoutProperty;
-import com.graphaware.neo4j.representation.relationship.CopyMakingRelationship;
-import com.graphaware.neo4j.representation.relationship.Relationship;
+import com.graphaware.neo4j.dto.MakesCopyWithProperty;
+import com.graphaware.neo4j.dto.MakesCopyWithoutProperty;
+import com.graphaware.neo4j.dto.relationship.immutable.CopyMakingDirectedSerializableRelationship;
+import com.graphaware.neo4j.dto.relationship.immutable.DirectedRelationship;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.PropertyContainer;
@@ -29,21 +29,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static com.graphaware.neo4j.relcount.representation.LiteralComparableProperties.LITERAL;
+import static com.graphaware.neo4j.relcount.representation.LiteralComparableProperties.shouldBeLiteral;
+import static com.graphaware.neo4j.relcount.representation.LiteralComparableProperties.withoutLiteral;
 
 /**
- * A {@link com.graphaware.neo4j.representation.relationship.Relationship} {@link PartiallyComparableByGenerality}.
+ * A {@link com.graphaware.neo4j.dto.relationship.immutable.ImmutableRelationship} {@link PartiallyComparableByGenerality}.
  * <p/>
- * {@link com.graphaware.neo4j.representation.relationship.Relationship} X is more general than Y iff they are both of the same type and direction
+ * {@link com.graphaware.neo4j.dto.relationship.immutable.ImmutableRelationship} X is more general than Y iff they are both of the same type and direction
  * and the properties of X are more general than properties of Y.
- * {@link com.graphaware.neo4j.representation.relationship.Relationship} X is more general than Y iff they are both of the same type and direction
+ * {@link com.graphaware.neo4j.dto.relationship.immutable.ImmutableRelationship} X is more general than Y iff they are both of the same type and direction
  * and the properties of X are more specific than properties of Y.
  */
-public class ComparableRelationship extends CopyMakingRelationship<ComparableProperties, ComparableRelationship> implements
-        Relationship<ComparableProperties>,
+public class ComparableRelationship extends CopyMakingDirectedSerializableRelationship<ComparableProperties, ComparableRelationship> implements
+        DirectedRelationship<ComparableProperties>,
         MakesCopyWithProperty<ComparableRelationship>,
         MakesCopyWithoutProperty<ComparableRelationship>,
-        TotallyComparableByGenerality<Relationship, ComparableRelationship>,
+        TotallyComparableByGenerality<DirectedRelationship<ComparableProperties>, ComparableRelationship>,
         GeneratesMoreGeneral<ComparableRelationship> {
 
     /**
@@ -104,7 +105,7 @@ public class ComparableRelationship extends CopyMakingRelationship<ComparablePro
      * Construct a relationship representation from a string.
      *
      * @param string string to construct relationship from. Must be of the form type#direction#key1#value1#key2#value2...
-     *               (assuming the default {@link com.graphaware.neo4j.utils.Constants#SEPARATOR}.
+     *               (assuming the default {@link com.graphaware.neo4j.common.Constants#SEPARATOR}.
      */
     public ComparableRelationship(String string) {
         super(string);
@@ -122,17 +123,6 @@ public class ComparableRelationship extends CopyMakingRelationship<ComparablePro
      * {@inheritDoc}
      */
     @Override
-    protected ComparableProperties newProperties(String string) {
-        if (string.startsWith(LITERAL)) {
-            return new LiteralComparableProperties(string);
-        }
-        return new ComparableProperties(string);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected ComparableProperties newProperties(PropertyContainer propertyContainer) {
         return new ComparableProperties(propertyContainer);
     }
@@ -142,6 +132,9 @@ public class ComparableRelationship extends CopyMakingRelationship<ComparablePro
      */
     @Override
     protected ComparableProperties newProperties(Map<String, String> properties) {
+        if (shouldBeLiteral(properties)) {
+            return new LiteralComparableProperties(withoutLiteral(properties));
+        }
         return new ComparableProperties(properties);
     }
 
@@ -165,7 +158,7 @@ public class ComparableRelationship extends CopyMakingRelationship<ComparablePro
      * {@inheritDoc}
      */
     @Override
-    public boolean isMoreGeneralThan(Relationship relationship) {
+    public boolean isMoreGeneralThan(DirectedRelationship relationship) {
         return typeAndDirectionSameAs(relationship)
                 && getProperties().isMoreGeneralThan(relationship.getProperties());
     }
@@ -174,7 +167,7 @@ public class ComparableRelationship extends CopyMakingRelationship<ComparablePro
      * {@inheritDoc}
      */
     @Override
-    public boolean isStrictlyMoreGeneralThan(Relationship relationship) {
+    public boolean isStrictlyMoreGeneralThan(DirectedRelationship relationship) {
         return typeAndDirectionSameAs(relationship)
                 && getProperties().isStrictlyMoreGeneralThan(relationship.getProperties());
     }
@@ -183,7 +176,7 @@ public class ComparableRelationship extends CopyMakingRelationship<ComparablePro
      * {@inheritDoc}
      */
     @Override
-    public boolean isMoreSpecificThan(Relationship relationship) {
+    public boolean isMoreSpecificThan(DirectedRelationship relationship) {
         return typeAndDirectionSameAs(relationship)
                 && getProperties().isMoreSpecificThan(relationship.getProperties());
     }
@@ -192,7 +185,7 @@ public class ComparableRelationship extends CopyMakingRelationship<ComparablePro
      * {@inheritDoc}
      */
     @Override
-    public boolean isStrictlyMoreSpecificThan(Relationship relationship) {
+    public boolean isStrictlyMoreSpecificThan(DirectedRelationship relationship) {
         return typeAndDirectionSameAs(relationship)
                 && getProperties().isStrictlyMoreSpecificThan(relationship.getProperties());
     }
@@ -203,7 +196,7 @@ public class ComparableRelationship extends CopyMakingRelationship<ComparablePro
      * @param relationship to check.
      * @return true iff both type and direction are the same.
      */
-    public boolean typeAndDirectionSameAs(Relationship relationship) {
+    public boolean typeAndDirectionSameAs(DirectedRelationship relationship) {
         return getType().name().equals(relationship.getType().name())
                 && getDirection().equals(relationship.getDirection());
     }

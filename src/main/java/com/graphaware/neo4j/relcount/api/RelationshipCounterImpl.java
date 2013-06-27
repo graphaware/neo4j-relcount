@@ -16,9 +16,9 @@
 
 package com.graphaware.neo4j.relcount.api;
 
+import com.graphaware.neo4j.dto.property.immutable.CopyMakingSerializableProperties;
+import com.graphaware.neo4j.dto.relationship.immutable.CopyMakingDirectedSerializableRelationship;
 import com.graphaware.neo4j.relcount.logic.RelationshipCountManagerImpl;
-import com.graphaware.neo4j.representation.property.SimpleCopyMakingProperties;
-import com.graphaware.neo4j.representation.relationship.StringConvertibleRelationship;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.PropertyContainer;
@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * Default production implementation of {@link RelationshipCounter}.
  */
-public class RelationshipCounterImpl extends StringConvertibleRelationship<SimpleCopyMakingProperties> implements RelationshipCounter {
+public class RelationshipCounterImpl extends CopyMakingDirectedSerializableRelationship<CopyMakingSerializableProperties, RelationshipCounter> implements RelationshipCounter {
 
     /**
      * Construct a new relationship counter.
@@ -48,7 +48,7 @@ public class RelationshipCounterImpl extends StringConvertibleRelationship<Simpl
      * @param direction  direction.
      * @param properties props.
      */
-    protected RelationshipCounterImpl(RelationshipType type, Direction direction, SimpleCopyMakingProperties properties) {
+    protected RelationshipCounterImpl(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties) {
         super(type, direction, properties);
     }
 
@@ -56,24 +56,24 @@ public class RelationshipCounterImpl extends StringConvertibleRelationship<Simpl
      * {@inheritDoc}
      */
     @Override
-    protected SimpleCopyMakingProperties newProperties(String string) {
-        return new SimpleCopyMakingProperties(string);
+    protected RelationshipCounterImpl newRelationship(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties) {
+        return new RelationshipCounterImpl(type, direction, properties);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected SimpleCopyMakingProperties newProperties(PropertyContainer propertyContainer) {
-        return new SimpleCopyMakingProperties(propertyContainer);
+    protected CopyMakingSerializableProperties newProperties(PropertyContainer propertyContainer) {
+        return new CopyMakingSerializableProperties(propertyContainer);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected SimpleCopyMakingProperties newProperties(Map<String, String> properties) {
-        return new SimpleCopyMakingProperties(properties);
+    protected CopyMakingSerializableProperties newProperties(Map<String, String> properties) {
+        return new CopyMakingSerializableProperties(properties);
     }
 
     /**

@@ -17,28 +17,30 @@
 package com.graphaware.neo4j.relcount;
 
 import com.graphaware.neo4j.relcount.api.RelationshipCounterImpl;
-import com.graphaware.neo4j.relcount.logic.PropertyExtractionStrategy;
 import com.graphaware.neo4j.relcount.logic.RelationshipCountManagerImpl;
-import com.graphaware.neo4j.relcount.logic.RelationshipInclusionStrategy;
 import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
 import com.graphaware.neo4j.relcount.representation.LiteralComparableProperties;
-import com.graphaware.neo4j.utils.Constants;
-import com.graphaware.neo4j.utils.test.TestDataBuilder;
-import com.graphaware.neo4j.utils.tx.single.SimpleTransactionExecutor;
-import com.graphaware.neo4j.utils.tx.single.TransactionCallback;
-import com.graphaware.neo4j.utils.tx.single.TransactionExecutor;
+import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
+import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertiesExtractionStrategy;
+import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
+import com.graphaware.neo4j.tx.single.TransactionCallback;
+import com.graphaware.neo4j.tx.single.TransactionExecutor;
+import com.graphaware.neo4j.utils.TestDataBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.graphaware.neo4j.utils.tx.mutate.DeleteUtils.deleteNodeAndRelationships;
+import static com.graphaware.neo4j.common.Constants.GA_REL_PREFIX;
+import static com.graphaware.neo4j.utils.DeleteUtils.deleteNodeAndRelationships;
+import static com.graphaware.neo4j.utils.PropertyContainerUtils.*;
 import static java.lang.String.valueOf;
 import static java.lang.System.currentTimeMillis;
 import static org.junit.Assert.assertEquals;
@@ -159,7 +161,7 @@ public class RelationshipCountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                database.getNodeById(1).setProperty(new ComparableRelationship(withName("test"), OUTGOING).with("key1", "value1").toString(), 0);
+                database.getNodeById(1).setProperty(new ComparableRelationship(withName("test"), OUTGOING, MapUtil.stringMap("key1", "value1", "_LITERAL_", "true")).toString(), 0);
                 return null;
             }
         });
@@ -351,7 +353,7 @@ public class RelationshipCountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                database.getNodeById(0).createRelationshipTo(database.getNodeById(1), withName(Constants.GA_REL_PREFIX + "IGNORED")).setProperty("key1", "value1");
+                database.getNodeById(0).createRelationshipTo(database.getNodeById(1), withName(GA_REL_PREFIX + "IGNORED")).setProperty("key1", "value1");
                 return null;
             }
         });
@@ -388,13 +390,13 @@ public class RelationshipCountingIntegrationTest {
     public void extractionStrategyIsHonored() {
         database = new TestGraphDatabaseFactory().newImpermanentDatabase();
         txExecutor = new SimpleTransactionExecutor(database);
-        database.registerTransactionEventHandler(new RelationshipCountTransactionEventHandlerFactory().create(5, new PropertyExtractionStrategy() {
+        database.registerTransactionEventHandler(new RelationshipCountTransactionEventHandlerFactory().create(5, new RelationshipPropertiesExtractionStrategy() {
             @Override
-            public Map<String, String> extractProperties(Map<String, String> properties, Node otherNode) {
+            public Map<String, String> extractProperties(Relationship relationship, Node otherNode) {
                 Map<String, String> result = new HashMap<String, String>();
-                for (String key : properties.keySet()) {
+                for (String key : relationship.getPropertyKeys()) {
                     if (!"test".equals(key)) {
-                        result.put(key, properties.get(key));
+                        result.put(cleanKey(key), valueToString(relationship.getProperty(key)));
                     }
                 }
                 return result;
@@ -421,11 +423,11 @@ public class RelationshipCountingIntegrationTest {
     public void extractionStrategyCanAccessOtherNode() {
         database = new TestGraphDatabaseFactory().newImpermanentDatabase();
         txExecutor = new SimpleTransactionExecutor(database);
-        database.registerTransactionEventHandler(new RelationshipCountTransactionEventHandlerFactory().create(5, new PropertyExtractionStrategy() {
+        database.registerTransactionEventHandler(new RelationshipCountTransactionEventHandlerFactory().create(5, new RelationshipPropertiesExtractionStrategy() {
             @Override
-            public Map<String, String> extractProperties(Map<String, String> properties, Node otherNode) {
+            public Map<String, String> extractProperties(Relationship relationship, Node otherNode) {
                 Map<String, String> result = new HashMap<String, String>();
-                result.putAll(properties);
+                result.putAll(propertiesToMap(relationship));
                 result.put("otherNodeName", otherNode.getProperty("name", "default").toString());
                 return result;
             }

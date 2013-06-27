@@ -16,9 +16,8 @@
 
 package com.graphaware.neo4j.relcount.representation;
 
-import com.graphaware.neo4j.relcount.representation.ComparableProperties;
-import com.graphaware.neo4j.representation.property.Properties;
-import com.graphaware.neo4j.representation.property.SimpleProperties;
+import com.graphaware.neo4j.dto.property.immutable.Properties;
+import com.graphaware.neo4j.dto.property.immutable.SerializableProperties;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -178,6 +177,6 @@ public class ComparablePropertiesTest {
     }
 
     private Properties props2(String s) {
-        return new SimpleProperties(s);
+        return new SerializableProperties(s);
     }
 }

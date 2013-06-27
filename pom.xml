@@ -88,16 +88,27 @@
         <java.version>1.6</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <neo4j.version>1.9.RC2</neo4j.version>
-        <graphaware.utils.version>0.3</graphaware.utils.version>
+        <graphaware.dto.version>0.1-SNAPSHOT</graphaware.dto.version>
+        <graphaware.tx-event-api.version>0.1-SNAPSHOT</graphaware.tx-event-api.version>
     </properties>
 
     <dependencies>
 
         <!-- GraphAware -->
+        <!--<dependency>-->
+            <!--<groupId>com.graphaware</groupId>-->
+            <!--<artifactId>neo4j-utils</artifactId>-->
+            <!--<version>${graphaware.utils.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>com.graphaware</groupId>
-            <artifactId>neo4j-utils</artifactId>
-            <version>${graphaware.utils.version}</version>
+            <artifactId>neo4j-dto</artifactId>
+            <version>${graphaware.dto.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.graphaware</groupId>
+            <artifactId>neo4j-tx-event-api</artifactId>
+            <version>${graphaware.tx-event-api.version}</version>
         </dependency>
 
         <!-- Neo4j -->

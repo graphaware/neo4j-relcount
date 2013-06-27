@@ -18,6 +18,10 @@ package com.graphaware.neo4j.relcount;
 
 
 import com.graphaware.neo4j.relcount.logic.*;
+import com.graphaware.neo4j.tx.event.strategy.ExtractAllRelationshipProperties;
+import com.graphaware.neo4j.tx.event.strategy.IncludeAllRelationships;
+import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
+import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertiesExtractionStrategy;
 
 /**
  * Factory for configuring and creating {@link com.graphaware.neo4j.relcount.logic.RelationshipCountTransactionEventHandler}.
@@ -33,7 +37,7 @@ public class RelationshipCountTransactionEventHandlerFactory {
         RelationshipCountManager countManager = defaultRelationshipCountManager();
         RelationshipCountCompactor countCompactor = defaultRelationshipCountCompactor(countManager);
         RelationshipInclusionStrategy relationshipInclusionStrategy = defaultIncludeAllRelationshipsStrategy();
-        PropertyExtractionStrategy propertyExtractionStrategy = defaultPropertiesExtractionStrategy();
+        RelationshipPropertiesExtractionStrategy propertyExtractionStrategy = defaultPropertiesExtractionStrategy();
 
         return new RelationshipCountTransactionEventHandler(countManager, countCompactor, relationshipInclusionStrategy, propertyExtractionStrategy);
     }
@@ -48,7 +52,7 @@ public class RelationshipCountTransactionEventHandlerFactory {
         RelationshipCountManager countManager = defaultRelationshipCountManager();
         RelationshipCountCompactor countCompactor = defaultThresholdBasedRelationshipCountCompactor(threshold, countManager);
         RelationshipInclusionStrategy relationshipInclusionStrategy = defaultIncludeAllRelationshipsStrategy();
-        PropertyExtractionStrategy propertyExtractionStrategy = defaultPropertiesExtractionStrategy();
+        RelationshipPropertiesExtractionStrategy propertyExtractionStrategy = defaultPropertiesExtractionStrategy();
 
         return new RelationshipCountTransactionEventHandler(countManager, countCompactor, relationshipInclusionStrategy, propertyExtractionStrategy);
     }
@@ -63,7 +67,7 @@ public class RelationshipCountTransactionEventHandlerFactory {
     public RelationshipCountTransactionEventHandler create(RelationshipInclusionStrategy relationshipInclusionStrategy) {
         RelationshipCountManager countManager = defaultRelationshipCountManager();
         RelationshipCountCompactor countCompactor = defaultRelationshipCountCompactor(countManager);
-        PropertyExtractionStrategy propertyExtractionStrategy = defaultPropertiesExtractionStrategy();
+        RelationshipPropertiesExtractionStrategy propertyExtractionStrategy = defaultPropertiesExtractionStrategy();
 
         return new RelationshipCountTransactionEventHandler(countManager, countCompactor, relationshipInclusionStrategy, propertyExtractionStrategy);
     }
@@ -74,7 +78,7 @@ public class RelationshipCountTransactionEventHandlerFactory {
      * @param propertyExtractionStrategy strategy.
      * @return product.
      */
-    public RelationshipCountTransactionEventHandler create(PropertyExtractionStrategy propertyExtractionStrategy) {
+    public RelationshipCountTransactionEventHandler create(RelationshipPropertiesExtractionStrategy propertyExtractionStrategy) {
         RelationshipCountManager countManager = defaultRelationshipCountManager();
         RelationshipCountCompactor countCompactor = defaultRelationshipCountCompactor(countManager);
         RelationshipInclusionStrategy relationshipInclusionStrategy = defaultIncludeAllRelationshipsStrategy();
@@ -97,7 +101,7 @@ public class RelationshipCountTransactionEventHandlerFactory {
     public RelationshipCountTransactionEventHandler create(int threshold, RelationshipInclusionStrategy relationshipInclusionStrategy) {
         RelationshipCountManager countManager = defaultRelationshipCountManager();
         RelationshipCountCompactor countCompactor = defaultThresholdBasedRelationshipCountCompactor(threshold, countManager);
-        PropertyExtractionStrategy propertyExtractionStrategy = defaultPropertiesExtractionStrategy();
+        RelationshipPropertiesExtractionStrategy propertyExtractionStrategy = defaultPropertiesExtractionStrategy();
 
         return new RelationshipCountTransactionEventHandler(countManager, countCompactor, relationshipInclusionStrategy, propertyExtractionStrategy);
     }
@@ -110,7 +114,7 @@ public class RelationshipCountTransactionEventHandlerFactory {
      * @param propertyExtractionStrategy strategy.
      * @return product.
      */
-    public RelationshipCountTransactionEventHandler create(int threshold, PropertyExtractionStrategy propertyExtractionStrategy) {
+    public RelationshipCountTransactionEventHandler create(int threshold, RelationshipPropertiesExtractionStrategy propertyExtractionStrategy) {
         RelationshipCountManager countManager = defaultRelationshipCountManager();
         RelationshipCountCompactor countCompactor = defaultThresholdBasedRelationshipCountCompactor(threshold, countManager);
         RelationshipInclusionStrategy relationshipInclusionStrategy = defaultIncludeAllRelationshipsStrategy();
@@ -126,7 +130,7 @@ public class RelationshipCountTransactionEventHandlerFactory {
      * @param propertyExtractionStrategy    strategy.
      * @return product.
      */
-    public RelationshipCountTransactionEventHandler create(RelationshipInclusionStrategy relationshipInclusionStrategy, PropertyExtractionStrategy propertyExtractionStrategy) {
+    public RelationshipCountTransactionEventHandler create(RelationshipInclusionStrategy relationshipInclusionStrategy, RelationshipPropertiesExtractionStrategy propertyExtractionStrategy) {
         RelationshipCountManager countManager = defaultRelationshipCountManager();
         RelationshipCountCompactor countCompactor = defaultRelationshipCountCompactor(countManager);
 
@@ -142,7 +146,7 @@ public class RelationshipCountTransactionEventHandlerFactory {
      * @param propertyExtractionStrategy    strategy.
      * @return product.
      */
-    public RelationshipCountTransactionEventHandler create(int threshold, RelationshipInclusionStrategy relationshipInclusionStrategy, PropertyExtractionStrategy propertyExtractionStrategy) {
+    public RelationshipCountTransactionEventHandler create(int threshold, RelationshipInclusionStrategy relationshipInclusionStrategy, RelationshipPropertiesExtractionStrategy propertyExtractionStrategy) {
         RelationshipCountManager countManager = defaultRelationshipCountManager();
         RelationshipCountCompactor countCompactor = defaultThresholdBasedRelationshipCountCompactor(threshold, countManager);
 
@@ -155,12 +159,12 @@ public class RelationshipCountTransactionEventHandlerFactory {
         return new ThresholdBasedRelationshipCountCompactor(threshold, countManager);
     }
 
-    private PropertyExtractionStrategy defaultPropertiesExtractionStrategy() {
-        return new AllPropertiesExtractionStrategy();
+    private RelationshipPropertiesExtractionStrategy defaultPropertiesExtractionStrategy() {
+        return ExtractAllRelationshipProperties.getInstance();
     }
 
     private RelationshipInclusionStrategy defaultIncludeAllRelationshipsStrategy() {
-        return new IncludeAllRelationshipsStrategy();
+        return IncludeAllRelationships.getInstance();
     }
 
     private RelationshipCountManager defaultRelationshipCountManager() {

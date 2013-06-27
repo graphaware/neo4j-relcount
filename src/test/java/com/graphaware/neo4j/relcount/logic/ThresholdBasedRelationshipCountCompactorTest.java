@@ -17,16 +17,16 @@
 package com.graphaware.neo4j.relcount.logic;
 
 import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
-import com.graphaware.neo4j.utils.tx.single.SimpleTransactionExecutor;
-import com.graphaware.neo4j.utils.tx.single.TransactionCallback;
-import com.graphaware.neo4j.utils.tx.single.TransactionExecutor;
+import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
+import com.graphaware.neo4j.tx.single.TransactionCallback;
+import com.graphaware.neo4j.tx.single.TransactionExecutor;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
-import static com.graphaware.neo4j.utils.Constants.GA_REL_PREFIX;
+import static com.graphaware.neo4j.common.Constants.GA_REL_PREFIX;
 import static junit.framework.Assert.assertEquals;
 
 /**

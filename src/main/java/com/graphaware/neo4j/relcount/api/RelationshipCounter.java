@@ -16,9 +16,9 @@
 
 package com.graphaware.neo4j.relcount.api;
 
-import com.graphaware.neo4j.representation.property.MakesCopyWithProperty;
-import com.graphaware.neo4j.representation.property.MakesCopyWithPropertyProperties;
-import com.graphaware.neo4j.representation.relationship.Relationship;
+import com.graphaware.neo4j.dto.MakesCopyWithProperty;
+import com.graphaware.neo4j.dto.property.immutable.CopyMakingSerializableProperties;
+import com.graphaware.neo4j.dto.relationship.immutable.DirectedRelationship;
 import org.neo4j.graphdb.Node;
 
 /**
@@ -28,7 +28,7 @@ import org.neo4j.graphdb.Node;
  * <p/>
  * If the relationship description doesn't correspond to any cached relationship count, 0 will be returned.
  */
-public interface RelationshipCounter extends Relationship<MakesCopyWithPropertyProperties>, MakesCopyWithProperty<RelationshipCounter> {
+public interface RelationshipCounter extends DirectedRelationship<CopyMakingSerializableProperties>, MakesCopyWithProperty<RelationshipCounter> {
 
     /**
      * Count relationships described by this counter on the given node.

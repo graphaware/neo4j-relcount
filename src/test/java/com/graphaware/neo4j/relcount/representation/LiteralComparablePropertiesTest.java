@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static com.graphaware.neo4j.relcount.representation.LiteralComparableProperties.LITERAL;
 import static junit.framework.Assert.*;
 
 /**
@@ -235,7 +234,7 @@ public class LiteralComparablePropertiesTest {
      * just for readability
      */
     private ComparableProperties lprops(String s) {
-        return new LiteralComparableProperties(LITERAL + s);
+        return new LiteralComparableProperties(s);
     }
 
     private ComparableProperties cprops(String s) {
