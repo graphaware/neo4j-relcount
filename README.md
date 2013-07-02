@@ -173,20 +173,25 @@ To exclude certain relationships from the count caching process altogether, crea
 Then just pass your new strategy to the `RelationshipCountTransactionEventHandlerFactory` `create` method.
 
 Excluding specific properties on relationships should rarely be necessary. However, should you desire to do so,
-or even create your own "derived" properties on relationships to be cached, implement the `PropertyExtractionStrategy`
+or even create your own "derived" properties on relationships to be cached, implement the `RelationshipPropertiesExtractionStrategy`
 and pass it on to the factory as well. You will need to implement a single method:
 
 ```java
-    /**
-     * Extract properties from a relationship for the purposes of caching the relationship's count on a node (a.k.a. "this node").
-     *
-     * @param properties attached to the relationship. Don't modify these (you'll get an exception), create a new map instead.
-     * @param otherNode  the other node participating in the relationship. By "other", we mean NOT the node on which
-     *                   the relationship counts for this relationship are being updated as a part of this call.
-     * @return extracted properties for count caching.
-     */
-    Map<String, String> extractProperties(Map<String, String> properties, Node otherNode);
+        /**
+         * Extract properties from a {@link org.neo4j.graphdb.Relationship}.
+         *
+         * @param relationship from which to extract properties.
+         * @param pointOfView  {@link org.neo4j.graphdb.Node} from whose point of view the relationships is being looked at. This is intended
+         *                     to be used for deriving relationship properties from participating nodes' properties and
+         *                     labels. Can be <code>null</code> if the strategy doesn't use participating nodes.
+         * @return read-only map of extracted properties.
+         */
+        Map<String, String> extractProperties(Relationship relationship, Node pointOfView);
 ```
+
+Alternatively, extend one of the built-in adapters: `RelationshipPropertiesExtractionStrategy.SimpleAdapter` for exclusion
+of some properties and `RelationshipPropertiesExtractionStrategy.OtherNodeIncludingAdapter` if you wish to derive properties
+ from the other node participating in the relationship.
 
 As you can see, this gives you access to the "other" node participating in the relationship, which gives you an opportunity
 to implement requirements like "would like to count outgoing relationships based on the end node's type".
