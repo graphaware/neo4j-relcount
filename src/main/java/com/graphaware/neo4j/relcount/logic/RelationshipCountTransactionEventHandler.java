@@ -121,9 +121,7 @@ public class RelationshipCountTransactionEventHandler extends TransactionEventHa
     }
 
     private void handleCreatedRelationship(Relationship relationship, Node pointOfView) {
-        Node otherNode = relationship.getOtherNode(pointOfView);
-
-        Map<String, String> extractedProperties = extractionStrategy.extractProperties(relationship, otherNode);
+        Map<String, String> extractedProperties = extractionStrategy.extractProperties(relationship, pointOfView);
 
         ComparableRelationship createdRelationship = new ComparableRelationship(relationship, pointOfView, new LiteralComparableProperties(extractedProperties));
 
