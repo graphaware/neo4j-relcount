@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.representation;
+package com.graphaware.neo4j.relcount.dto;
 
 import com.graphaware.neo4j.dto.relationship.immutable.DirectedRelationship;
 import com.graphaware.neo4j.dto.relationship.immutable.SerializableDirectedRelationship;
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit test for {@link com.graphaware.neo4j.relcount.representation.ComparableRelationship}.
+ * Unit test for {@link com.graphaware.neo4j.relcount.dto.ComparableRelationship}.
  */
 public class ComparableRelationshipTest {
 

@@ -21,7 +21,7 @@ in your pom.xml:
         <dependency>
             <groupId>com.graphaware</groupId>
             <artifactId>neo4j-relcount</artifactId>
-            <version>1.0</version>
+            <version>1.1</version>
         </dependency>
         ...
      </dependencies>

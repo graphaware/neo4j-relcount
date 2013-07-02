@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.representation;
+package com.graphaware.neo4j.relcount.dto;
 
 import com.graphaware.neo4j.dto.MakesCopyWithProperty;
 import com.graphaware.neo4j.dto.MakesCopyWithoutProperty;
@@ -28,9 +28,6 @@ import org.neo4j.graphdb.RelationshipType;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
-import static com.graphaware.neo4j.relcount.representation.LiteralComparableProperties.shouldBeLiteral;
-import static com.graphaware.neo4j.relcount.representation.LiteralComparableProperties.withoutLiteral;
 
 /**
  * A {@link com.graphaware.neo4j.dto.relationship.immutable.ImmutableRelationship} {@link PartiallyComparableByGenerality}.
@@ -132,8 +129,8 @@ public class ComparableRelationship extends CopyMakingDirectedSerializableRelati
      */
     @Override
     protected ComparableProperties newProperties(Map<String, String> properties) {
-        if (shouldBeLiteral(properties)) {
-            return new LiteralComparableProperties(withoutLiteral(properties));
+        if (LiteralComparableProperties.shouldBeLiteral(properties)) {
+            return new LiteralComparableProperties(LiteralComparableProperties.withoutLiteral(properties));
         }
         return new ComparableProperties(properties);
     }

@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.representation;
+package com.graphaware.neo4j.relcount.dto;
 
 import org.neo4j.graphdb.PropertyContainer;
 

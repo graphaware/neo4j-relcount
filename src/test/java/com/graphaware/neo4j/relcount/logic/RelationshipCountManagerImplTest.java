@@ -16,7 +16,7 @@
 
 package com.graphaware.neo4j.relcount.logic;
 
-import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
+import com.graphaware.neo4j.relcount.dto.ComparableRelationship;
 import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.tx.single.TransactionCallback;
 import com.graphaware.neo4j.tx.single.TransactionExecutor;

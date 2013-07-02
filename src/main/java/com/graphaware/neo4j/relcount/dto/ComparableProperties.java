@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.representation;
+package com.graphaware.neo4j.relcount.dto;
 
 import com.graphaware.neo4j.dto.property.immutable.AbstractCopyMakingSerializableProperties;
 import com.graphaware.neo4j.dto.property.immutable.Properties;

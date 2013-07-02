@@ -17,7 +17,7 @@
 package com.graphaware.neo4j.relcount.logic;
 
 import com.graphaware.neo4j.dto.relationship.immutable.DirectedRelationship;
-import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
+import com.graphaware.neo4j.relcount.dto.ComparableRelationship;
 import org.neo4j.graphdb.Node;
 
 import java.util.Map;
@@ -41,7 +41,7 @@ public interface RelationshipCountManager {
 
     /**
      * Get all relationship counts cached on a node. No aggregation is performed, this is the raw data as stored
-     * (as opposed to {@link #getRelationshipCount(com.graphaware.neo4j.representation.relationship.Relationship, org.neo4j.graphdb.Node)}).
+     * (as opposed to {@link #getRelationshipCount(com.graphaware.neo4j.dto.relationship.immutable.DirectedRelationship, org.neo4j.graphdb.Node)}).
      *
      * @param node from which to get cached relationship counts.
      * @return cached relationship counts (key = relationship representation, value = count). The map is sorted

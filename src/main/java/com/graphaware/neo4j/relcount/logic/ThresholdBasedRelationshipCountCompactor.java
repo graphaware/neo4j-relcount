@@ -16,7 +16,7 @@
 
 package com.graphaware.neo4j.relcount.logic;
 
-import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
+import com.graphaware.neo4j.relcount.dto.ComparableRelationship;
 import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Node;
 

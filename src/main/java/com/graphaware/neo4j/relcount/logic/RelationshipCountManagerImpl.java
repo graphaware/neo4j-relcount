@@ -17,7 +17,7 @@
 package com.graphaware.neo4j.relcount.logic;
 
 import com.graphaware.neo4j.dto.relationship.immutable.DirectedRelationship;
-import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
+import com.graphaware.neo4j.relcount.dto.ComparableRelationship;
 import org.neo4j.graphdb.Node;
 
 import java.util.Map;
@@ -49,7 +49,7 @@ public class RelationshipCountManagerImpl implements RelationshipCountManager {
      */
     @Override
     public Map<ComparableRelationship, Integer> getRelationshipCounts(Node node) {
-        Map<ComparableRelationship, Integer> result = new TreeMap<ComparableRelationship, Integer>();
+        Map<ComparableRelationship, Integer> result = new TreeMap<>();
         for (String key : node.getPropertyKeys()) {
             if (key.startsWith(GA_REL_PREFIX)) {
                 result.put(new ComparableRelationship(key), (Integer) node.getProperty(key));

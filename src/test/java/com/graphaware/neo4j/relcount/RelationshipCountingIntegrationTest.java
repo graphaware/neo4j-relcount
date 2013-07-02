@@ -17,9 +17,9 @@
 package com.graphaware.neo4j.relcount;
 
 import com.graphaware.neo4j.relcount.api.RelationshipCounterImpl;
+import com.graphaware.neo4j.relcount.dto.ComparableRelationship;
+import com.graphaware.neo4j.relcount.dto.LiteralComparableProperties;
 import com.graphaware.neo4j.relcount.logic.RelationshipCountManagerImpl;
-import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
-import com.graphaware.neo4j.relcount.representation.LiteralComparableProperties;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertiesExtractionStrategy;
 import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;

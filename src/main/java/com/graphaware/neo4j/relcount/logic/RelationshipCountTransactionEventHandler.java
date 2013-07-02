@@ -17,10 +17,11 @@
 package com.graphaware.neo4j.relcount.logic;
 
 import com.graphaware.neo4j.common.Change;
-import com.graphaware.neo4j.relcount.representation.ComparableRelationship;
-import com.graphaware.neo4j.relcount.representation.LiteralComparableProperties;
+import com.graphaware.neo4j.relcount.dto.ComparableRelationship;
+import com.graphaware.neo4j.relcount.dto.LiteralComparableProperties;
 import com.graphaware.neo4j.tx.event.api.FilteredLazyTransactionData;
 import com.graphaware.neo4j.tx.event.api.ImprovedTransactionData;
+import com.graphaware.neo4j.tx.event.strategy.IncludeAllNodes;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertiesExtractionStrategy;
 import org.apache.log4j.Logger;
@@ -68,6 +69,7 @@ public class RelationshipCountTransactionEventHandler extends TransactionEventHa
 
         FilteredLazyTransactionData transactionData = new FilteredLazyTransactionData(data);
         transactionData.addRelationshipInclusionStrategy(inclusionStrategy);
+        transactionData.addNodeInclusionStrategy(IncludeAllNodes.getInstance());
 
         handleCreatedRelationships(transactionData);
         handleDeletedRelationships(transactionData);
@@ -140,7 +142,5 @@ public class RelationshipCountTransactionEventHandler extends TransactionEventHa
 
     private boolean include(Relationship relationship) {
         return !relationship.getType().name().startsWith(GA_REL_PREFIX);
-
     }
-
 }

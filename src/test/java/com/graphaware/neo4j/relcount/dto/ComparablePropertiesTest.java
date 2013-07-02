@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.representation;
+package com.graphaware.neo4j.relcount.dto;
 
 import com.graphaware.neo4j.dto.property.immutable.Properties;
 import com.graphaware.neo4j.dto.property.immutable.SerializableProperties;
@@ -27,7 +27,7 @@ import java.util.TreeSet;
 import static junit.framework.Assert.*;
 
 /**
- * Unit test for {@link com.graphaware.neo4j.relcount.representation.ComparableProperties}.
+ * Unit test for {@link com.graphaware.neo4j.relcount.dto.ComparableProperties}.
  */
 public class ComparablePropertiesTest {
 
