@@ -69,13 +69,13 @@ Let's illustrate that on an example. Suppose that a node has no relationships to
 relationship of type `FRIEND_OF` with properties `level` equal to `2` and `timestamp` equal to `1368206683579`, the following property
 is automatically written to the node:
 
-    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#2#timestamp#1368206683579 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_#true#level#2#timestamp#1368206683579 = 1
 
 Let's break it down:
 * `_GA_REL_` is a prefix for GraphAware internal metadata.
 * `FRIEND_OF` is the relationship type
 * `#` is a separator GraphAware uses internally.
-* `_LITERAL_` indicates this is literally what has been created, rather than a compacted representation (more about compaction later).
+* `_LITERAL_#true` indicates this is literally what has been created, rather than a compacted representation (more about compaction later).
 * `level` is the key of the first property
 * `2` is the value of the first property (level)
 * `timestamp` is the key of the second property
@@ -91,16 +91,16 @@ encode it somehow.
 
 Right, at some point, after the node makes more friends, the situation will look something like this:
 
-    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#2#timestamp#1368206683579 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#1#timestamp#1368206668364 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#2#timestamp#1368206623759 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#2#timestamp#1368924528927 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#0#timestamp#1368092348239 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#2#timestamp#1368547772839 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#1#timestamp#1368542321123 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#2#timestamp#1368254232452 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#1#timestamp#1368546532344 = 1
-    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#0#timestamp#1363234542345 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_#true#level#2#timestamp#1368206683579 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_#true#level#1#timestamp#1368206668364 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_#true#level#2#timestamp#1368206623759 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_#true#level#2#timestamp#1368924528927 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_#true#level#0#timestamp#1368092348239 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_#true#level#2#timestamp#1368547772839 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_#true#level#1#timestamp#1368542321123 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_#true#level#2#timestamp#1368254232452 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_#true#level#1#timestamp#1368546532344 = 1
+    _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_#true#level#0#timestamp#1363234542345 = 1
 
 At that point, the compactor looks at the situation finds out there are too many cached relationship counts. More specifically,
 there is a threshold called the _compaction threshold_ which by default is set to 20. We will illustrate with 10.
@@ -139,10 +139,10 @@ So that's how it works on a high level. Of course relationships with different l
 
 on a node with the following cache counts
 
-      _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_level#3#timestamp#1368206683579 = 1
+      _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_#true#level#3#timestamp#1368206683579 = 1
       _GA_REL_FRIEND_OF#OUTGOING#level#2 = 10
       _GA_REL_FRIEND_OF#OUTGOING#level#1 = 20
-      _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_ = 5
+      _GA_REL_FRIEND_OF#OUTGOING#_LITERAL_#true = 5
 
 the result will be... you guessed it... 36.
 
