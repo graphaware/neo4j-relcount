@@ -7,7 +7,7 @@ import org.neo4j.graphdb.Node;
  * Internal component responsible for counting relationships for a {@link Node}.
  *
  * @param <T> type of relationship representation that can be used to query relationship counts on nodes.
- */                                                   //todo remove type
+ */
 public interface RelationshipCountManager<T extends HasDirectionAndType> {
 
     /**

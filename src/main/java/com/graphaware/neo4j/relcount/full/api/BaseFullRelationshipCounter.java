@@ -16,7 +16,7 @@
 
 package com.graphaware.neo4j.relcount.full.api;
 
-import com.graphaware.neo4j.dto.common.relationship.HasDirectionAndType;
+import com.graphaware.neo4j.dto.common.relationship.DirectedRelationship;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.dto.string.relationship.CopyMakingDirectedSerializableRelationship;
 import com.graphaware.neo4j.relcount.common.manager.RelationshipCountManager;
@@ -101,5 +101,5 @@ public abstract class BaseFullRelationshipCounter extends CopyMakingDirectedSeri
      *
      * @return relationship count manager.
      */
-    protected abstract RelationshipCountManager<HasDirectionAndType> getRelationshipCountManager();
+    protected abstract RelationshipCountManager<DirectedRelationship> getRelationshipCountManager();
 }
