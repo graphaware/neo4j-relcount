@@ -14,9 +14,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.logic;
+package com.graphaware.neo4j.relcount.full.logic;
 
-import com.graphaware.neo4j.relcount.dto.ComparableRelationship;
+import com.graphaware.neo4j.relcount.full.dto.ComparableRelationship;
 import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Node;
 
@@ -39,14 +39,14 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
     private static final int DEFAULT_COMPACTION_THRESHOLD = 20;
 
     private final int compactionThreshold;
-    private final RelationshipCountManager countManager;
+    private final FullCachingRelationshipCountManager countManager;
 
     /**
      * Construct a new compactor with default compaction threshold.
      *
      * @param countManager manager.
      */
-    public ThresholdBasedRelationshipCountCompactor(RelationshipCountManager countManager) {
+    public ThresholdBasedRelationshipCountCompactor(FullCachingRelationshipCountManager countManager) {
         this(DEFAULT_COMPACTION_THRESHOLD, countManager);
     }
 
@@ -56,7 +56,7 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
      * @param compactionThreshold compaction threshold, see class javadoc.
      * @param countManager        manager.
      */
-    public ThresholdBasedRelationshipCountCompactor(int compactionThreshold, RelationshipCountManager countManager) {
+    public ThresholdBasedRelationshipCountCompactor(int compactionThreshold, FullCachingRelationshipCountManager countManager) {
         this.compactionThreshold = compactionThreshold;
         this.countManager = countManager;
     }

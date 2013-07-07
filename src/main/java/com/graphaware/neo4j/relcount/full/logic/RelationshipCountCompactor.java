@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.logic;
+package com.graphaware.neo4j.relcount.full.logic;
 
 import org.neo4j.graphdb.Node;
 

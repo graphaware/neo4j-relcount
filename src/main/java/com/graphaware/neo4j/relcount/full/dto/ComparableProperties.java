@@ -14,12 +14,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.dto;
+package com.graphaware.neo4j.relcount.full.dto;
 
-import com.graphaware.neo4j.dto.property.immutable.AbstractCopyMakingSerializableProperties;
-import com.graphaware.neo4j.dto.property.immutable.Properties;
-import com.graphaware.neo4j.dto.property.immutable.WithPropertyCopyMakingProperties;
-import com.graphaware.neo4j.dto.property.immutable.WithoutPropertyCopyMakingProperties;
+import com.graphaware.neo4j.dto.common.property.Properties;
+import com.graphaware.neo4j.dto.common.property.WithPropertyCopyMakingProperties;
+import com.graphaware.neo4j.dto.common.property.WithoutPropertyCopyMakingProperties;
+import com.graphaware.neo4j.dto.string.property.BaseCopyMakingSerializableProperties;
 import org.neo4j.graphdb.PropertyContainer;
 
 import java.util.Collections;
@@ -28,18 +28,18 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * {@link Properties} {@link PartiallyComparableByGenerality}.
+ * {@link Properties} with {@link String} values {@link PartiallyComparableByGenerality}.
  * <p/>
  * {@link Properties} X is more general than Y iff Y contains at least X's properties and they have identical values.
  * {@link Properties} X is more specific than Y iff X contains at least Y's properties and they have identical values.
  * <p/>
  * This class is also capable of generating all more general representations than itself.
  */
-public class ComparableProperties extends AbstractCopyMakingSerializableProperties<ComparableProperties> implements
-        Properties,
-        WithPropertyCopyMakingProperties<ComparableProperties>,
-        WithoutPropertyCopyMakingProperties<ComparableProperties>,
-        TotallyComparableByGenerality<Properties, ComparableProperties>,
+public class ComparableProperties extends BaseCopyMakingSerializableProperties<ComparableProperties> implements
+        Properties<String>,
+        WithPropertyCopyMakingProperties<String, ComparableProperties>,
+        WithoutPropertyCopyMakingProperties<String, ComparableProperties>,
+        TotallyComparableByGenerality<Properties<String>, ComparableProperties>,
         GeneratesMoreGeneral<ComparableProperties> {
 
     /**
@@ -98,7 +98,7 @@ public class ComparableProperties extends AbstractCopyMakingSerializableProperti
      * {@inheritDoc}
      */
     @Override
-    public boolean isMoreGeneralThan(Properties properties) {
+    public boolean isMoreGeneralThan(Properties<String> properties) {
         for (String thisKey : keySet()) {
             if (!properties.containsKey(thisKey)) {
                 return false;
@@ -121,7 +121,7 @@ public class ComparableProperties extends AbstractCopyMakingSerializableProperti
      * {@inheritDoc}
      */
     @Override
-    public boolean isStrictlyMoreGeneralThan(Properties properties) {
+    public boolean isStrictlyMoreGeneralThan(Properties<String> properties) {
         return isMoreGeneralThan(properties) && !isMoreSpecificThan(properties);
     }
 
@@ -129,7 +129,7 @@ public class ComparableProperties extends AbstractCopyMakingSerializableProperti
      * {@inheritDoc}
      */
     @Override
-    public boolean isMoreSpecificThan(Properties properties) {
+    public boolean isMoreSpecificThan(Properties<String> properties) {
         for (String thatKey : properties.keySet()) {
             if (!containsKey(thatKey)) {
                 return false;
@@ -152,7 +152,7 @@ public class ComparableProperties extends AbstractCopyMakingSerializableProperti
      * {@inheritDoc}
      */
     @Override
-    public boolean isStrictlyMoreSpecificThan(Properties properties) {
+    public boolean isStrictlyMoreSpecificThan(Properties<String> properties) {
         return isMoreSpecificThan(properties) && !isMoreGeneralThan(properties);
     }
 

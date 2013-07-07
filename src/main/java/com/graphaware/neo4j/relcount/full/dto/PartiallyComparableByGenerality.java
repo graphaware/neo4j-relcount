@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.dto;
+package com.graphaware.neo4j.relcount.full.dto;
 
 /**
  * Interface for types that can compare themselves to other types using a general to specific ordering.

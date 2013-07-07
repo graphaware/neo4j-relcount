@@ -101,8 +101,8 @@
     <properties>
         <java.version>1.7</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <neo4j.version>1.9</neo4j.version>
-        <graphaware.dto.version>0.1</graphaware.dto.version>
+        <neo4j.version>1.9.1</neo4j.version>
+        <graphaware.dto.version>0.2-SNAPSHOT</graphaware.dto.version>
         <graphaware.tx-event-api.version>0.1</graphaware.tx-event-api.version>
     </properties>
 

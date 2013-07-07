@@ -14,50 +14,34 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.logic;
+package com.graphaware.neo4j.relcount.common.handler;
 
 import com.graphaware.neo4j.common.Change;
-import com.graphaware.neo4j.relcount.dto.ComparableRelationship;
-import com.graphaware.neo4j.relcount.dto.LiteralComparableProperties;
 import com.graphaware.neo4j.tx.event.api.FilteredLazyTransactionData;
 import com.graphaware.neo4j.tx.event.api.ImprovedTransactionData;
 import com.graphaware.neo4j.tx.event.strategy.IncludeAllNodes;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
-import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertiesExtractionStrategy;
-import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.event.TransactionData;
 import org.neo4j.graphdb.event.TransactionEventHandler;
-
-import java.util.Map;
 
 import static com.graphaware.neo4j.common.Constants.GA_REL_PREFIX;
 
 /**
  * {@link org.neo4j.graphdb.event.TransactionEventHandler} responsible for caching relationship counts on nodes.
  */
-public class RelationshipCountTransactionEventHandler extends TransactionEventHandler.Adapter<Void> {
-    private static final Logger LOG = Logger.getLogger(RelationshipCountTransactionEventHandler.class);
+public abstract class RelationshipCountCachingTransactionEventHandler extends TransactionEventHandler.Adapter<Void> {
 
-    private final RelationshipCountManager countManager;
-    private final RelationshipCountCompactor countCompactor;
     private final RelationshipInclusionStrategy inclusionStrategy;
-    private final RelationshipPropertiesExtractionStrategy extractionStrategy;
 
     /**
      * Construct a new event handler.
      *
-     * @param countManager       count manager.
-     * @param countCompactor     cached count compactor.
-     * @param inclusionStrategy  strategy for selecting relationships to care about.
-     * @param extractionStrategy strategy for representing relationships.
+     * @param inclusionStrategy strategy for selecting relationships to care about.
      */
-    public RelationshipCountTransactionEventHandler(RelationshipCountManager countManager, RelationshipCountCompactor countCompactor, RelationshipInclusionStrategy inclusionStrategy, RelationshipPropertiesExtractionStrategy extractionStrategy) {
-        this.countManager = countManager;
-        this.countCompactor = countCompactor;
+    protected RelationshipCountCachingTransactionEventHandler(RelationshipInclusionStrategy inclusionStrategy) {
         this.inclusionStrategy = inclusionStrategy;
-        this.extractionStrategy = extractionStrategy;
     }
 
     /**
@@ -120,24 +104,25 @@ public class RelationshipCountTransactionEventHandler extends TransactionEventHa
         }
     }
 
-    private void handleCreatedRelationship(Relationship relationship, Node pointOfView) {
-        Map<String, String> extractedProperties = extractionStrategy.extractProperties(relationship, pointOfView);
+    /**
+     * Handle (i.e. cache) a created relationship.
+     *
+     * @param relationship the has been created.
+     * @param pointOfView  node whose point of view the created relationships is being handled, i.e. the one on which
+     *                     the relationship count should be cached.
+     */
+    protected abstract void handleCreatedRelationship(Relationship relationship, Node pointOfView);
 
-        ComparableRelationship createdRelationship = new ComparableRelationship(relationship, pointOfView, new LiteralComparableProperties(extractedProperties));
+    /**
+     * Handle (i.e. cache) a deleted relationship.
+     *
+     * @param relationship the has been deleted.
+     * @param pointOfView  node whose point of view the deleted relationships is being handled, i.e. the one on which
+     *                     the relationship count should be cached.
+     */
+    protected abstract void handleDeletedRelationship(Relationship relationship, Node pointOfView);
 
-        if (countManager.incrementCount(createdRelationship, pointOfView)) {
-            countCompactor.compactRelationshipCounts(pointOfView);
-        }
-    }
-
-    private void handleDeletedRelationship(Relationship relationship, Node pointOfView) {
-        ComparableRelationship deletedRelationship = new ComparableRelationship(relationship, pointOfView, new LiteralComparableProperties(relationship));
-
-        if (!countManager.decrementCount(deletedRelationship, pointOfView)) {
-            LOG.warn(deletedRelationship.toString() + " was out of sync on node " + pointOfView.getId());
-        }
-    }
-
+    //todo move away into some kind of AllBusinessRelationshipsStrategy
     private boolean include(Relationship relationship) {
         return !relationship.getType().name().startsWith(GA_REL_PREFIX);
     }

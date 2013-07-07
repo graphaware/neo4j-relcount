@@ -17,7 +17,8 @@
 package com.graphaware.neo4j.relcount;
 
 import com.graphaware.neo4j.AnotherRandomUsageSimulator;
-import com.graphaware.neo4j.relcount.api.RelationshipCounterImpl;
+import com.graphaware.neo4j.relcount.full.FullRelationshipCountTransactionEventHandlerFactory;
+import com.graphaware.neo4j.relcount.full.api.BaseFullRelationshipCounter;
 import com.graphaware.neo4j.utils.TestUtils;
 import org.apache.log4j.Logger;
 import org.junit.Before;
@@ -51,7 +52,7 @@ public class RelationshipCountingSmokeTest {
         registerShutdownHook(database);
 
 //        database = new TestGraphDatabaseFactory().newImpermanentDatabase();
-        database.registerTransactionEventHandler(new RelationshipCountTransactionEventHandlerFactory().create(20));
+        database.registerTransactionEventHandler(new FullRelationshipCountTransactionEventHandlerFactory().create(20));
     }
 
     @Test
@@ -70,7 +71,7 @@ public class RelationshipCountingSmokeTest {
         int fakeCount = count(GlobalGraphOperations.at(database).getAllRelationships());
 
         int realCount = 0;
-        RelationshipCounterImpl relationshipCounter = new RelationshipCounterImpl(FRIEND_OF, OUTGOING);
+        BaseFullRelationshipCounter relationshipCounter = new BaseFullRelationshipCounter(FRIEND_OF, OUTGOING);
         for (Node node : GlobalGraphOperations.at(database).getAllNodes()) {
             realCount += relationshipCounter.count(node);
         }

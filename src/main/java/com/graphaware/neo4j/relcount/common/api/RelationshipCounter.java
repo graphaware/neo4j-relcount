@@ -14,26 +14,21 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.dto;
+package com.graphaware.neo4j.relcount.common.api;
 
-import java.util.Set;
+import org.neo4j.graphdb.Node;
 
 /**
- * Interface for types that are able to generate more general versions of themselves.
+ * A node in/out-degree counter. Degree is the number of incoming/outgoing relationships that a node has. Implementations
+ * should provide a way to describe, which relationships should be counted (i.e. direction, type, properties).
  */
-public interface GeneratesMoreGeneral<T extends PartiallyComparableByGenerality> {
+public interface RelationshipCounter {
 
     /**
-     * Generate items one step more general than (or as general as) this instance.
+     * Count relationships described by this counter on the given node.
      *
-     * @return set of one-level more/equally general instances, ordered by decreasing generality.
+     * @param node on which to count relationships.
+     * @return number of relationships.
      */
-    Set<T> generateOneMoreGeneral();
-
-    /**
-     * Generate all items more general than (or as general as) this instance.
-     *
-     * @return set of all more/equally general instances, ordered by decreasing generality.
-     */
-    Set<T> generateAllMoreGeneral();
+    int count(Node node);
 }

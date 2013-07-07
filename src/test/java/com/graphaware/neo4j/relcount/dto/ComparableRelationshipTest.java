@@ -18,6 +18,8 @@ package com.graphaware.neo4j.relcount.dto;
 
 import com.graphaware.neo4j.dto.relationship.immutable.DirectedRelationship;
 import com.graphaware.neo4j.dto.relationship.immutable.SerializableDirectedRelationship;
+import com.graphaware.neo4j.relcount.full.dto.ComparableRelationship;
+import com.graphaware.neo4j.relcount.full.dto.LiteralComparableProperties;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -30,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit test for {@link com.graphaware.neo4j.relcount.dto.ComparableRelationship}.
+ * Unit test for {@link com.graphaware.neo4j.relcount.full.dto.ComparableRelationship}.
  */
 public class ComparableRelationshipTest {
 

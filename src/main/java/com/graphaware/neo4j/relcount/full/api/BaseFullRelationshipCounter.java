@@ -14,11 +14,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.api;
+package com.graphaware.neo4j.relcount.full.api;
 
-import com.graphaware.neo4j.dto.property.immutable.CopyMakingSerializableProperties;
-import com.graphaware.neo4j.dto.relationship.immutable.CopyMakingDirectedSerializableRelationship;
-import com.graphaware.neo4j.relcount.logic.RelationshipCountManagerImpl;
+import com.graphaware.neo4j.dto.common.relationship.HasDirectionAndType;
+import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
+import com.graphaware.neo4j.dto.string.relationship.CopyMakingDirectedSerializableRelationship;
+import com.graphaware.neo4j.relcount.common.manager.RelationshipCountManager;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.PropertyContainer;
@@ -27,9 +28,10 @@ import org.neo4j.graphdb.RelationshipType;
 import java.util.Map;
 
 /**
- * Default production implementation of {@link RelationshipCounter}.
+ * Base class for {@link FullRelationshipCounter} implementations, allowing subclasses to choose which
+ * {@link RelationshipCountManager} to use.
  */
-public class RelationshipCounterImpl extends CopyMakingDirectedSerializableRelationship<CopyMakingSerializableProperties, RelationshipCounter> implements RelationshipCounter {
+public abstract class BaseFullRelationshipCounter extends CopyMakingDirectedSerializableRelationship<CopyMakingSerializableProperties, FullRelationshipCounter> implements FullRelationshipCounter {
 
     /**
      * Construct a new relationship counter.
@@ -37,7 +39,7 @@ public class RelationshipCounterImpl extends CopyMakingDirectedSerializableRelat
      * @param type      type of the relationships to count.
      * @param direction direction of the relationships to count.
      */
-    public RelationshipCounterImpl(RelationshipType type, Direction direction) {
+    protected BaseFullRelationshipCounter(RelationshipType type, Direction direction) {
         super(type, direction);
     }
 
@@ -48,7 +50,7 @@ public class RelationshipCounterImpl extends CopyMakingDirectedSerializableRelat
      * @param direction  direction.
      * @param properties props.
      */
-    protected RelationshipCounterImpl(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties) {
+    protected BaseFullRelationshipCounter(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties) {
         super(type, direction, properties);
     }
 
@@ -56,9 +58,19 @@ public class RelationshipCounterImpl extends CopyMakingDirectedSerializableRelat
      * {@inheritDoc}
      */
     @Override
-    protected RelationshipCounterImpl newRelationship(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties) {
-        return new RelationshipCounterImpl(type, direction, properties);
+    protected FullRelationshipCounter newRelationship(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties) {
+        return newRelationshipCounter(type, direction, properties);
     }
+
+    /**
+     * Create a new instance of the concrete implementation.
+     *
+     * @param type       type.
+     * @param direction  direction.
+     * @param properties props.
+     * @return new instance.
+     */
+    protected abstract FullRelationshipCounter newRelationshipCounter(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties);
 
     /**
      * {@inheritDoc}
@@ -80,15 +92,14 @@ public class RelationshipCounterImpl extends CopyMakingDirectedSerializableRelat
      * {@inheritDoc}
      */
     @Override
-    public RelationshipCounter with(String key, String value) {
-        return new RelationshipCounterImpl(getType(), getDirection(), getProperties().with(key, value));
+    public int count(Node node) {
+        return getRelationshipCountManager().getRelationshipCount(this, node);
     }
 
     /**
-     * {@inheritDoc}
+     * Return the {@link RelationshipCountManager} used this implementation.
+     *
+     * @return relationship count manager.
      */
-    @Override
-    public int count(Node node) {
-        return new RelationshipCountManagerImpl().getRelationshipCount(this, node);
-    }
+    protected abstract RelationshipCountManager<HasDirectionAndType> getRelationshipCountManager();
 }

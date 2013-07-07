@@ -14,15 +14,26 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.dto;
+package com.graphaware.neo4j.relcount.full.dto;
+
+import java.util.Set;
 
 /**
- * Interface for types that can be compared with one another using a general to specific ordering, with a fallback to
- * total ordering using an alternative {@link Comparable} in case nothing can be said about the two compared objects'
- * relative generality.
- *
- * @param <R> type that this can be partially compared to.
- * @param <T> type that this can be mutually totally compared with.
+ * Interface for types that are able to generate more general versions of themselves.
  */
-public interface TotallyComparableByGenerality<R, T extends PartiallyComparableByGenerality<R>> extends PartiallyComparableByGenerality<R>, Comparable<T> {
+public interface GeneratesMoreGeneral<T extends PartiallyComparableByGenerality> {
+
+    /**
+     * Generate items one step more general than (or as general as) this instance.
+     *
+     * @return set of one-level more/equally general instances, ordered by decreasing generality.
+     */
+    Set<T> generateOneMoreGeneral();
+
+    /**
+     * Generate all items more general than (or as general as) this instance.
+     *
+     * @return set of all more/equally general instances, ordered by decreasing generality.
+     */
+    Set<T> generateAllMoreGeneral();
 }

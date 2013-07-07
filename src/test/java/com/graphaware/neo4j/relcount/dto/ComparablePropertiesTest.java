@@ -18,6 +18,7 @@ package com.graphaware.neo4j.relcount.dto;
 
 import com.graphaware.neo4j.dto.property.immutable.Properties;
 import com.graphaware.neo4j.dto.property.immutable.SerializableProperties;
+import com.graphaware.neo4j.relcount.full.dto.ComparableProperties;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -27,7 +28,7 @@ import java.util.TreeSet;
 import static junit.framework.Assert.*;
 
 /**
- * Unit test for {@link com.graphaware.neo4j.relcount.dto.ComparableProperties}.
+ * Unit test for {@link com.graphaware.neo4j.relcount.full.dto.ComparableProperties}.
  */
 public class ComparablePropertiesTest {
 

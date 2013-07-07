@@ -14,12 +14,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.dto;
+package com.graphaware.neo4j.relcount.full.dto;
 
-import com.graphaware.neo4j.dto.MakesCopyWithProperty;
-import com.graphaware.neo4j.dto.MakesCopyWithoutProperty;
-import com.graphaware.neo4j.dto.relationship.immutable.CopyMakingDirectedSerializableRelationship;
-import com.graphaware.neo4j.dto.relationship.immutable.DirectedRelationship;
+import com.graphaware.neo4j.dto.common.property.MakesCopyWithProperty;
+import com.graphaware.neo4j.dto.common.property.MakesCopyWithoutProperty;
+import com.graphaware.neo4j.dto.common.relationship.DirectedRelationship;
+import com.graphaware.neo4j.dto.string.relationship.CopyMakingDirectedSerializableRelationship;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.PropertyContainer;
@@ -30,18 +30,18 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * A {@link com.graphaware.neo4j.dto.relationship.immutable.ImmutableRelationship} {@link PartiallyComparableByGenerality}.
+ * A {@link com.graphaware.neo4j.dto.common.relationship.DirectedRelationship} {@link PartiallyComparableByGenerality}.
  * <p/>
- * {@link com.graphaware.neo4j.dto.relationship.immutable.ImmutableRelationship} X is more general than Y iff they are both of the same type and direction
+ * {@link com.graphaware.neo4j.dto.common.relationship.DirectedRelationship} X is more general than Y iff they are both of the same type and direction
  * and the properties of X are more general than properties of Y.
- * {@link com.graphaware.neo4j.dto.relationship.immutable.ImmutableRelationship} X is more general than Y iff they are both of the same type and direction
+ * {@link com.graphaware.neo4j.dto.common.relationship.DirectedRelationship} X is more general than Y iff they are both of the same type and direction
  * and the properties of X are more specific than properties of Y.
  */
 public class ComparableRelationship extends CopyMakingDirectedSerializableRelationship<ComparableProperties, ComparableRelationship> implements
-        DirectedRelationship<ComparableProperties>,
+        DirectedRelationship<String, ComparableProperties>,
         MakesCopyWithProperty<ComparableRelationship>,
         MakesCopyWithoutProperty<ComparableRelationship>,
-        TotallyComparableByGenerality<DirectedRelationship<ComparableProperties>, ComparableRelationship>,
+        TotallyComparableByGenerality<DirectedRelationship<String, ComparableProperties>, ComparableRelationship>,
         GeneratesMoreGeneral<ComparableRelationship> {
 
     /**

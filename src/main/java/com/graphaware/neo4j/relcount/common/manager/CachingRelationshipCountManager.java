@@ -14,40 +14,30 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.logic;
+package com.graphaware.neo4j.relcount.common.manager;
 
-import com.graphaware.neo4j.dto.relationship.immutable.DirectedRelationship;
-import com.graphaware.neo4j.relcount.dto.ComparableRelationship;
+import com.graphaware.neo4j.dto.common.relationship.HasDirectionAndType;
 import org.neo4j.graphdb.Node;
 
 import java.util.Map;
 
 /**
- * Component responsible for reading, writing, counting etc. of relationship counts cached as node properties.
- * <p/>
- * All mutating operations assume that a transaction is running.
+ * {@link RelationshipCountManager} that caches relationship counts as properties on {@link Node}s. The key of such
+ * property is a {@link String} representation of some kind of relationship. The value is the number of relationships
+ * of that kind the node has.
+ *
+ * @param <T> type of relationship representation that can be used to query relationship counts on nodes.
+ * @param <C> type of the (typically string-convertible) object representation of the cached relationship.
  */
-public interface RelationshipCountManager {
+public interface CachingRelationshipCountManager<T extends HasDirectionAndType, C extends T> extends RelationshipCountManager<T> {
 
     /**
-     * Get a relationship count cached on a node. The count is the aggregated sum of all the cached counts that match the
-     * given relationship representation, i.e. all more specific and equal relationships.
-     *
-     * @param relationship representation of the relationship for which to get count.
-     * @param node         from which to get cached relationship counts.
-     * @return cached count, 0 if there is none.
-     */
-    int getRelationshipCount(DirectedRelationship relationship, Node node);
-
-    /**
-     * Get all relationship counts cached on a node. No aggregation is performed, this is the raw data as stored
-     * (as opposed to {@link #getRelationshipCount(com.graphaware.neo4j.dto.relationship.immutable.DirectedRelationship, org.neo4j.graphdb.Node)}).
+     * Get all relationship counts cached on a node.
      *
      * @param node from which to get cached relationship counts.
-     * @return cached relationship counts (key = relationship representation, value = count). The map is sorted
-     *         so that it is iterated in a relationship specific to general order.
+     * @return cached relationship counts (key = relationship representation, value = count).
      */
-    Map<ComparableRelationship, Integer> getRelationshipCounts(Node node);
+    Map<C, Integer> getRelationshipCounts(Node node);
 
     /**
      * Increment the cached relationship count on the given node by 1.
@@ -56,7 +46,7 @@ public interface RelationshipCountManager {
      * @param node         on which to increment the cached relationship count.
      * @return true iff the cached value did not exist and had to be created.
      */
-    boolean incrementCount(ComparableRelationship relationship, Node node);
+    boolean incrementCount(C relationship, Node node);
 
     /**
      * Increment the cached relationship count on the given node by delta.
@@ -66,7 +56,7 @@ public interface RelationshipCountManager {
      * @param delta        increment.
      * @return true iff the cached value did not exist and had to be created.
      */
-    boolean incrementCount(ComparableRelationship relationship, Node node, int delta);
+    boolean incrementCount(C relationship, Node node, int delta);
 
     /**
      * Decrement the cached relationship count on the given node by 1.
@@ -76,7 +66,7 @@ public interface RelationshipCountManager {
      * @param node         on which to decrement the cached relationship count.
      * @return true iff the cached value existed and was >= 1.
      */
-    boolean decrementCount(ComparableRelationship relationship, Node node);
+    boolean decrementCount(C relationship, Node node);
 
     /**
      * Decrement the cached relationship count on the given node by delta.
@@ -87,7 +77,7 @@ public interface RelationshipCountManager {
      * @param delta        increment.
      * @return true iff the cached value existed and was >= delta.
      */
-    boolean decrementCount(ComparableRelationship relationship, Node node, int delta);
+    boolean decrementCount(C relationship, Node node, int delta);
 
     /**
      * Stop tracking relationship count for a node.
@@ -95,5 +85,5 @@ public interface RelationshipCountManager {
      * @param relationship representation of the relationship to stop tracking.
      * @param node         on which to stop tracking.
      */
-    void deleteCount(ComparableRelationship relationship, Node node);
+    void deleteCount(C relationship, Node node);
 }
