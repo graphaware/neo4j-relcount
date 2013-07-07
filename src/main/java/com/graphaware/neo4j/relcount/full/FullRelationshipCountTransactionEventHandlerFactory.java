@@ -17,7 +17,10 @@
 package com.graphaware.neo4j.relcount.full;
 
 
-import com.graphaware.neo4j.relcount.full.logic.*;
+import com.graphaware.neo4j.relcount.full.logic.FullCachingRelationshipCountManager;
+import com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountTransactionEventHandler;
+import com.graphaware.neo4j.relcount.full.logic.RelationshipCountCompactor;
+import com.graphaware.neo4j.relcount.full.logic.ThresholdBasedRelationshipCountCompactor;
 import com.graphaware.neo4j.tx.event.strategy.ExtractAllRelationshipProperties;
 import com.graphaware.neo4j.tx.event.strategy.IncludeAllRelationships;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
@@ -168,6 +171,6 @@ public class FullRelationshipCountTransactionEventHandlerFactory {
     }
 
     private FullCachingRelationshipCountManager defaultRelationshipCountManager() {
-        return new FullCachingRelationshipCountManagerImpl();
+        return new FullCachingRelationshipCountManager();
     }
 }

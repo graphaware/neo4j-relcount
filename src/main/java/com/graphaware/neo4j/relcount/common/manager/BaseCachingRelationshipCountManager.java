@@ -14,7 +14,7 @@ import static com.graphaware.neo4j.common.Constants.GA_REL_PREFIX;
  * @param <T> type of relationship representation that can be used to query relationship counts on nodes.
  * @param <C> type of the (typically string-convertible) object representation of the cached relationship.
  */
-public abstract class BaseCachingRelationshipCountManager<T extends HasDirectionAndType, C extends T> {
+public abstract class BaseCachingRelationshipCountManager<T extends HasDirectionAndType, C extends T> implements CachingRelationshipCountManager<T, C> {
 
     /**
      * Get a relationship count cached on a node. The count is the sum of all the cached counts that {@link #shouldBeUsedForLookup(com.graphaware.neo4j.dto.common.relationship.HasDirectionAndType, com.graphaware.neo4j.dto.common.relationship.HasDirectionAndType)},

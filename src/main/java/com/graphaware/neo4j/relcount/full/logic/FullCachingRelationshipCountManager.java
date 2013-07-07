@@ -17,8 +17,46 @@
 package com.graphaware.neo4j.relcount.full.logic;
 
 import com.graphaware.neo4j.dto.common.relationship.DirectedRelationship;
-import com.graphaware.neo4j.relcount.common.manager.CachingRelationshipCountManager;
+import com.graphaware.neo4j.relcount.common.manager.BaseCachingRelationshipCountManager;
 import com.graphaware.neo4j.relcount.full.dto.ComparableRelationship;
 
-public interface FullCachingRelationshipCountManager extends CachingRelationshipCountManager<DirectedRelationship, ComparableRelationship> {
+/**
+ * Default production implementation of {@link FullCachingRelationshipCountManager}.
+ */
+public class FullCachingRelationshipCountManager extends BaseCachingRelationshipCountManager<DirectedRelationship, ComparableRelationship> {
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean shouldBeUsedForLookup(ComparableRelationship cached, DirectedRelationship relationship) {
+        //use every more general match of the looked-up relationship
+        return cached.isMoreSpecificThan(relationship);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean continueAfterFirstLookupMatch() {
+        //need to continue, there might be other more general matches
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected ComparableRelationship newCachedRelationship(String key) {
+        return new ComparableRelationship(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean shouldBeUsedForCaching(ComparableRelationship cached, DirectedRelationship relationship) {
+        //use the most specific match of the about-to-be-cached relationship
+        return cached.isMoreGeneralThan(relationship);
+    }
 }
