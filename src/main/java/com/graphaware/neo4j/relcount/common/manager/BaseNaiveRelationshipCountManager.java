@@ -1,13 +1,13 @@
 package com.graphaware.neo4j.relcount.common.manager;
 
-import com.graphaware.neo4j.dto.common.relationship.HasDirectionAndType;
+import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 /**
  * Naive {@link RelationshipCountManager} that counts matching relationships by inspecting all {@link org.neo4j.graphdb.Node}'s {@link org.neo4j.graphdb.Relationship}s.
  */
-public abstract class BaseNaiveRelationshipCountManager<T extends HasDirectionAndType> implements RelationshipCountManager<T> {
+public abstract class BaseNaiveRelationshipCountManager<T extends HasTypeAndDirection> implements RelationshipCountManager<T> {
 
     /**
      * {@inheritDoc}

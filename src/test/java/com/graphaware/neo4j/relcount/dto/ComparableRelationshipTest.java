@@ -16,8 +16,8 @@
 
 package com.graphaware.neo4j.relcount.dto;
 
-import com.graphaware.neo4j.dto.relationship.immutable.DirectedRelationship;
-import com.graphaware.neo4j.dto.relationship.immutable.SerializableDirectedRelationship;
+import com.graphaware.neo4j.dto.common.relationship.DirectedRelationship;
+import com.graphaware.neo4j.dto.string.relationship.SerializableDirectedRelationship;
 import com.graphaware.neo4j.relcount.full.dto.ComparableRelationship;
 import com.graphaware.neo4j.relcount.full.dto.LiteralComparableProperties;
 import org.junit.Test;
@@ -161,7 +161,7 @@ public class ComparableRelationshipTest {
 
     @Test
     public void shouldAchieveSpecificToGeneralOrderingForRelationships() {
-        Set<ComparableRelationship> properties = new TreeSet<ComparableRelationship>();
+        Set<ComparableRelationship> properties = new TreeSet<>();
 
         properties.add(crel("test#INCOMING"));
         properties.add(crel("test#INCOMING#key1#value1#key2#value2"));
@@ -182,7 +182,7 @@ public class ComparableRelationshipTest {
 
     @Test
     public void relationshipsShouldBehaveProperlyInTreeSets() {
-        Set<ComparableRelationship> properties = new TreeSet<ComparableRelationship>();
+        Set<ComparableRelationship> properties = new TreeSet<>();
 
         properties.add(crel("test#INCOMING"));
         properties.add(crel("test#INCOMING#key1#value1#key2#value2"));

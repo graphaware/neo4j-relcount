@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.full.logic;
+package com.graphaware.neo4j.relcount.full.manager;
 
 import com.graphaware.neo4j.dto.common.relationship.DirectedRelationship;
 import com.graphaware.neo4j.relcount.common.manager.BaseCachingRelationshipCountManager;

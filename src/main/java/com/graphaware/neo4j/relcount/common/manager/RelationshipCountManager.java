@@ -1,6 +1,6 @@
 package com.graphaware.neo4j.relcount.common.manager;
 
-import com.graphaware.neo4j.dto.common.relationship.HasDirectionAndType;
+import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
 import org.neo4j.graphdb.Node;
 
 /**
@@ -8,7 +8,7 @@ import org.neo4j.graphdb.Node;
  *
  * @param <T> type of relationship representation that can be used to query relationship counts on nodes.
  */
-public interface RelationshipCountManager<T extends HasDirectionAndType> {
+public interface RelationshipCountManager<T extends HasTypeAndDirection> {
 
     /**
      * Get a relationship count for a node.

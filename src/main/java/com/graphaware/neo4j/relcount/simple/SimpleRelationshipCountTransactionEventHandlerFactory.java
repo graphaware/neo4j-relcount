@@ -17,19 +17,18 @@
 package com.graphaware.neo4j.relcount.simple;
 
 
-import com.graphaware.neo4j.relcount.simple.logic.SimpleCachingRelationshipCountManager;
-import com.graphaware.neo4j.relcount.simple.logic.SimpleCachingRelationshipCountManagerImpl;
-import com.graphaware.neo4j.relcount.simple.logic.SimpleRelationshipCountTransactionEventHandler;
+import com.graphaware.neo4j.relcount.simple.handler.SimpleRelationshipCountTransactionEventHandler;
+import com.graphaware.neo4j.relcount.simple.manager.SimpleCachingRelationshipCountManager;
 import com.graphaware.neo4j.tx.event.strategy.IncludeAllRelationships;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
 
 /**
- * Factory for configuring and creating {@link com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountTransactionEventHandler}.
+ * Factory for configuring and creating {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler}.
  */
 public class SimpleRelationshipCountTransactionEventHandlerFactory {
 
     /**
-     * Create a {@link com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountTransactionEventHandler} with default configuration.
+     * Create a {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler} with default configuration.
      *
      * @return product.
      */
@@ -41,7 +40,7 @@ public class SimpleRelationshipCountTransactionEventHandlerFactory {
     }
 
     /**
-     * Create a {@link com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountTransactionEventHandler} with specific strategy for selecting which relationships
+     * Create a {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler} with specific strategy for selecting which relationships
      * will be counted.
      *
      * @param relationshipInclusionStrategy strategy.
@@ -60,6 +59,6 @@ public class SimpleRelationshipCountTransactionEventHandlerFactory {
     }
 
     private SimpleCachingRelationshipCountManager defaultRelationshipCountManager() {
-        return new SimpleCachingRelationshipCountManagerImpl();
+        return new SimpleCachingRelationshipCountManager();
     }
 }

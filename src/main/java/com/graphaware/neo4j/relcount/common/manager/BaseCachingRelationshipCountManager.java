@@ -1,6 +1,6 @@
 package com.graphaware.neo4j.relcount.common.manager;
 
-import com.graphaware.neo4j.dto.common.relationship.HasDirectionAndType;
+import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
 import org.neo4j.graphdb.Node;
 
 import java.util.Map;
@@ -14,10 +14,10 @@ import static com.graphaware.neo4j.common.Constants.GA_REL_PREFIX;
  * @param <T> type of relationship representation that can be used to query relationship counts on nodes.
  * @param <C> type of the (typically string-convertible) object representation of the cached relationship.
  */
-public abstract class BaseCachingRelationshipCountManager<T extends HasDirectionAndType, C extends T> implements CachingRelationshipCountManager<T, C> {
+public abstract class BaseCachingRelationshipCountManager<T extends HasTypeAndDirection, C extends T> implements CachingRelationshipCountManager<T, C> {
 
     /**
-     * Get a relationship count cached on a node. The count is the sum of all the cached counts that {@link #shouldBeUsedForLookup(com.graphaware.neo4j.dto.common.relationship.HasDirectionAndType, com.graphaware.neo4j.dto.common.relationship.HasDirectionAndType)},
+     * Get a relationship count cached on a node. The count is the sum of all the cached counts that {@link #shouldBeUsedForLookup(com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection, com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection)},
      * unless {@link #continueAfterFirstLookupMatch()} returns <code>false</code>, in which case it is just the first
      * matching value found.
      *
@@ -56,7 +56,7 @@ public abstract class BaseCachingRelationshipCountManager<T extends HasDirection
 
     /**
      * Get all relationship counts cached on a node. No aggregation is performed, this is the raw data as stored
-     * (as opposed to {@link #getRelationshipCount(com.graphaware.neo4j.dto.common.relationship.HasDirectionAndType, org.neo4j.graphdb.Node)}).
+     * (as opposed to {@link #getRelationshipCount(com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection, org.neo4j.graphdb.Node)}).
      *
      * @param node from which to get cached relationship counts.
      * @return cached relationship counts (key = relationship representation, value = count). The map is sorted

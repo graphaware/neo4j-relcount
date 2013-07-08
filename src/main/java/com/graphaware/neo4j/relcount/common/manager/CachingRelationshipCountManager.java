@@ -16,7 +16,7 @@
 
 package com.graphaware.neo4j.relcount.common.manager;
 
-import com.graphaware.neo4j.dto.common.relationship.HasDirectionAndType;
+import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
 import org.neo4j.graphdb.Node;
 
 import java.util.Map;
@@ -29,7 +29,7 @@ import java.util.Map;
  * @param <T> type of relationship representation that can be used to query relationship counts on nodes.
  * @param <C> type of the (typically string-convertible) object representation of the cached relationship.
  */
-public interface CachingRelationshipCountManager<T extends HasDirectionAndType, C extends T> extends RelationshipCountManager<T> {
+public interface CachingRelationshipCountManager<T extends HasTypeAndDirection, C extends T> extends RelationshipCountManager<T> {
 
     /**
      * Get all relationship counts cached on a node.

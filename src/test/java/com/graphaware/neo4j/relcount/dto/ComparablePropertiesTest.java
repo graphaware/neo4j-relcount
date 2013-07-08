@@ -16,8 +16,8 @@
 
 package com.graphaware.neo4j.relcount.dto;
 
-import com.graphaware.neo4j.dto.property.immutable.Properties;
-import com.graphaware.neo4j.dto.property.immutable.SerializableProperties;
+import com.graphaware.neo4j.dto.common.property.Properties;
+import com.graphaware.neo4j.dto.string.property.SerializableProperties;
 import com.graphaware.neo4j.relcount.full.dto.ComparableProperties;
 import org.junit.Test;
 
@@ -137,7 +137,7 @@ public class ComparablePropertiesTest {
 
     @Test
     public void shouldAchieveSpecificToGeneralOrderingForProperties() {
-        Set<ComparableProperties> properties = new TreeSet<ComparableProperties>();
+        Set<ComparableProperties> properties = new TreeSet<>();
 
         properties.add(props(""));
         properties.add(props("key1#value1#key2#value2"));
@@ -154,7 +154,7 @@ public class ComparablePropertiesTest {
 
     @Test
     public void propertiesShouldBehaveProperlyInTreeSets() {
-        Set<ComparableProperties> properties = new TreeSet<ComparableProperties>();
+        Set<ComparableProperties> properties = new TreeSet<>();
 
         properties.add(props(""));
         properties.add(props("key1#value1#key2#value2"));
@@ -177,7 +177,7 @@ public class ComparablePropertiesTest {
         return new ComparableProperties(s);
     }
 
-    private Properties props2(String s) {
+    private Properties<String> props2(String s) {
         return new SerializableProperties(s);
     }
 }

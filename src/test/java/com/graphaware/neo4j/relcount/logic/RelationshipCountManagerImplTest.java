@@ -17,8 +17,7 @@
 package com.graphaware.neo4j.relcount.logic;
 
 import com.graphaware.neo4j.relcount.full.dto.ComparableRelationship;
-import com.graphaware.neo4j.relcount.full.logic.FullCachingRelationshipCountManager;
-import com.graphaware.neo4j.relcount.full.logic.FullCachingRelationshipCountManagerImpl;
+import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;
 import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.tx.single.TransactionCallback;
 import com.graphaware.neo4j.tx.single.TransactionExecutor;
@@ -35,7 +34,7 @@ import static com.graphaware.neo4j.common.Constants.GA_REL_PREFIX;
 import static org.junit.Assert.*;
 
 /**
- * Unit tests for {@link com.graphaware.neo4j.relcount.full.logic.FullCachingRelationshipCountManagerImpl}.
+ * Unit tests for {@link FullCachingRelationshipCountManager}.
  */
 public class RelationshipCountManagerImplTest {
 
@@ -45,7 +44,7 @@ public class RelationshipCountManagerImplTest {
 
     @Before
     public void setUp() {
-        mgr = new FullCachingRelationshipCountManagerImpl();
+        mgr = new FullCachingRelationshipCountManager();
         database = new TestGraphDatabaseFactory().newImpermanentDatabase();
         txExecutor = new SimpleTransactionExecutor(database);
     }

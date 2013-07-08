@@ -17,22 +17,22 @@
 package com.graphaware.neo4j.relcount.full;
 
 
-import com.graphaware.neo4j.relcount.full.logic.FullCachingRelationshipCountManager;
-import com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountTransactionEventHandler;
-import com.graphaware.neo4j.relcount.full.logic.RelationshipCountCompactor;
-import com.graphaware.neo4j.relcount.full.logic.ThresholdBasedRelationshipCountCompactor;
+import com.graphaware.neo4j.relcount.full.compactor.RelationshipCountCompactor;
+import com.graphaware.neo4j.relcount.full.compactor.ThresholdBasedRelationshipCountCompactor;
+import com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler;
+import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;
 import com.graphaware.neo4j.tx.event.strategy.ExtractAllRelationshipProperties;
 import com.graphaware.neo4j.tx.event.strategy.IncludeAllRelationships;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertiesExtractionStrategy;
 
 /**
- * Factory for configuring and creating {@link com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountTransactionEventHandler}.
+ * Factory for configuring and creating {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler}.
  */
 public class FullRelationshipCountTransactionEventHandlerFactory {
 
     /**
-     * Create a {@link com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountTransactionEventHandler} with default configuration.
+     * Create a {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler} with default configuration.
      *
      * @return product.
      */
@@ -46,7 +46,7 @@ public class FullRelationshipCountTransactionEventHandlerFactory {
     }
 
     /**
-     * Create a {@link com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountTransactionEventHandler} with specific compaction threshold.
+     * Create a {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler} with specific compaction threshold.
      *
      * @param threshold threshold.
      * @return product.
@@ -61,7 +61,7 @@ public class FullRelationshipCountTransactionEventHandlerFactory {
     }
 
     /**
-     * Create a {@link com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountTransactionEventHandler} with specific strategy for selecting which relationships
+     * Create a {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler} with specific strategy for selecting which relationships
      * will be counted.
      *
      * @param relationshipInclusionStrategy strategy.
@@ -76,7 +76,7 @@ public class FullRelationshipCountTransactionEventHandlerFactory {
     }
 
     /**
-     * Create a {@link com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountTransactionEventHandler} with specific strategy for extracting properties.
+     * Create a {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler} with specific strategy for extracting properties.
      *
      * @param propertyExtractionStrategy strategy.
      * @return product.
@@ -94,7 +94,7 @@ public class FullRelationshipCountTransactionEventHandlerFactory {
     }
 
     /**
-     * Create a {@link com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountTransactionEventHandler} with specific compaction threshold
+     * Create a {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler} with specific compaction threshold
      * and specific strategy for property extraction.
      *
      * @param threshold                     threshold.
@@ -110,7 +110,7 @@ public class FullRelationshipCountTransactionEventHandlerFactory {
     }
 
     /**
-     * Create a {@link com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountTransactionEventHandler} with specific compaction threshold
+     * Create a {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler} with specific compaction threshold
      * and specific strategy for selecting which relationships will be counted.
      *
      * @param threshold                  threshold.
@@ -126,7 +126,7 @@ public class FullRelationshipCountTransactionEventHandlerFactory {
     }
 
     /**
-     * Create a {@link com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountTransactionEventHandler} with
+     * Create a {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler} with
      * specific strategy for selecting which relationships will be counted and specific strategy for property extraction.
      *
      * @param relationshipInclusionStrategy strategy.
@@ -141,7 +141,7 @@ public class FullRelationshipCountTransactionEventHandlerFactory {
     }
 
     /**
-     * Create a {@link com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountTransactionEventHandler} with with specific compaction threshold,
+     * Create a {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler} with with specific compaction threshold,
      * specific strategy for selecting which relationships will be counted, and specific strategy for property extraction.
      *
      * @param threshold                     threshold.

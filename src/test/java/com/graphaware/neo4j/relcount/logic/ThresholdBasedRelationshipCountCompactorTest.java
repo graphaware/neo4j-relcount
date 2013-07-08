@@ -16,11 +16,10 @@
 
 package com.graphaware.neo4j.relcount.logic;
 
+import com.graphaware.neo4j.relcount.full.compactor.RelationshipCountCompactor;
+import com.graphaware.neo4j.relcount.full.compactor.ThresholdBasedRelationshipCountCompactor;
 import com.graphaware.neo4j.relcount.full.dto.ComparableRelationship;
-import com.graphaware.neo4j.relcount.full.logic.FullCachingRelationshipCountManager;
-import com.graphaware.neo4j.relcount.full.logic.FullCachingRelationshipCountManagerImpl;
-import com.graphaware.neo4j.relcount.full.logic.RelationshipCountCompactor;
-import com.graphaware.neo4j.relcount.full.logic.ThresholdBasedRelationshipCountCompactor;
+import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;
 import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.tx.single.TransactionCallback;
 import com.graphaware.neo4j.tx.single.TransactionExecutor;
@@ -34,7 +33,7 @@ import static com.graphaware.neo4j.common.Constants.GA_REL_PREFIX;
 import static junit.framework.Assert.assertEquals;
 
 /**
- * Unit tests for {@link com.graphaware.neo4j.relcount.full.logic.ThresholdBasedRelationshipCountCompactor}
+ * Unit tests for {@link com.graphaware.neo4j.relcount.full.compactor.ThresholdBasedRelationshipCountCompactor}
  */
 public class ThresholdBasedRelationshipCountCompactorTest {
 
@@ -55,7 +54,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
             }
         });
 
-        manager = new FullCachingRelationshipCountManagerImpl();
+        manager = new FullCachingRelationshipCountManager();
     }
 
     @Test

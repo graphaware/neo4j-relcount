@@ -14,38 +14,44 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.simple.logic;
+package com.graphaware.neo4j.relcount.simple.manager;
 
-import com.graphaware.neo4j.dto.common.relationship.HasDirectionAndType;
-import com.graphaware.neo4j.dto.common.relationship.SerializableDirectionAndType;
+import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
+import com.graphaware.neo4j.dto.common.relationship.SerializableTypeAndDirection;
 import com.graphaware.neo4j.relcount.common.manager.BaseCachingRelationshipCountManager;
 
 /**
- * Default production implementation of {@link com.graphaware.neo4j.relcount.full.logic.FullCachingRelationshipCountManager}.
+ * Default production implementation of {@link com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager}.
  */
-public class SimpleCachingRelationshipCountManagerImpl extends BaseCachingRelationshipCountManager<HasDirectionAndType, SerializableDirectionAndType> implements SimpleCachingRelationshipCountManager {
+public class SimpleCachingRelationshipCountManager extends BaseCachingRelationshipCountManager<HasTypeAndDirection, SerializableTypeAndDirection> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean shouldBeUsedForLookup(SerializableDirectionAndType cached, HasDirectionAndType relationship) {
+    protected boolean shouldBeUsedForLookup(SerializableTypeAndDirection cached, HasTypeAndDirection relationship) {
         return cached.equals(relationship);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected SerializableDirectionAndType newCachedRelationship(String key) {
-        return new SerializableDirectionAndType(key);
+    protected boolean continueAfterFirstLookupMatch() {
+        //there is only one cached value per disjunt type => first match is all we need
+        return false;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean shouldBeUsedForCaching(SerializableDirectionAndType cached, HasDirectionAndType relationship) {
+    protected SerializableTypeAndDirection newCachedRelationship(String key) {
+        return new SerializableTypeAndDirection(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean shouldBeUsedForCaching(SerializableTypeAndDirection cached, HasTypeAndDirection relationship) {
         return cached.equals(relationship);
     }
 }

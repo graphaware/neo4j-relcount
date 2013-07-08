@@ -3,7 +3,7 @@ package com.graphaware.neo4j.relcount.full.api;
 import com.graphaware.neo4j.dto.common.relationship.DirectedRelationship;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.relcount.common.manager.RelationshipCountManager;
-import com.graphaware.neo4j.relcount.full.logic.FullCachingRelationshipCountManager;
+import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.RelationshipType;
 
