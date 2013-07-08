@@ -35,7 +35,7 @@ public class LiteralComparableProperties extends ComparableProperties {
     /**
      * This string will be used as an extra "marker" property to indicate that they are meant literally.
      */
-    private static final String LITERAL = "_LITERAL_";
+    public static final String LITERAL = "_LITERAL_";
 
     /**
      * Value of undefined keys. It is not printed anywhere, but it is used internally for comparisons.
@@ -58,30 +58,6 @@ public class LiteralComparableProperties extends ComparableProperties {
      */
     public LiteralComparableProperties(Map<String, String> properties) {
         super(properties);
-    }
-
-    /**
-     * Remove the literal marker from the properties.
-     *
-     * @param properties from which to remove a marker property.
-     * @return properties without the "literal" marker.
-     */
-    public static Map<String, String> withoutLiteral(Map<String, String> properties) {
-        if (properties.remove(LITERAL) == null) {
-            throw new IllegalArgumentException("Constructed properties are not literal properties");
-        }
-        return properties;
-    }
-
-    /**
-     * Check whether the map of properties qualifies as "literal" properties. This method checks for the presence of
-     * a special marker property with the key {@link LiteralComparableProperties#LITERAL}.
-     *
-     * @param properties to check.
-     * @return true iff these properties qualify as "literal" properties.
-     */
-    public static boolean shouldBeLiteral(Map<String, String> properties) {
-        return properties.containsKey(LITERAL);
     }
 
     /**

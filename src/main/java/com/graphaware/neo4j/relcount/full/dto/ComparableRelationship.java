@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static com.graphaware.neo4j.relcount.full.dto.LiteralComparableProperties.LITERAL;
+
 /**
  * A {@link com.graphaware.neo4j.dto.common.relationship.DirectedRelationship} {@link PartiallyComparableByGenerality}.
  * <p/>
@@ -129,10 +131,11 @@ public class ComparableRelationship extends CopyMakingDirectedSerializableRelati
      */
     @Override
     protected ComparableProperties newProperties(Map<String, String> properties) {
-        if (LiteralComparableProperties.shouldBeLiteral(properties)) {
-            return new LiteralComparableProperties(LiteralComparableProperties.withoutLiteral(properties));
+        ComparableProperties result = new ComparableProperties(properties);
+        if (result.containsKey(LITERAL)) {
+            result = new LiteralComparableProperties(result.without(LITERAL).getProperties());
         }
-        return new ComparableProperties(properties);
+        return result;
     }
 
     /**
