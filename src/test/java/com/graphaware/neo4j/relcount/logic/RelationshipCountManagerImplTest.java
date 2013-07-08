@@ -21,6 +21,7 @@ import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountMa
 import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.tx.single.TransactionCallback;
 import com.graphaware.neo4j.tx.single.TransactionExecutor;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -47,6 +48,11 @@ public class RelationshipCountManagerImplTest {
         mgr = new FullCachingRelationshipCountManager();
         database = new TestGraphDatabaseFactory().newImpermanentDatabase();
         txExecutor = new SimpleTransactionExecutor(database);
+    }
+
+    @After
+    public void tearDown() {
+        database.shutdown();
     }
 
     @Test

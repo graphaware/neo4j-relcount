@@ -26,8 +26,6 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.event.TransactionData;
 import org.neo4j.graphdb.event.TransactionEventHandler;
 
-import static com.graphaware.neo4j.common.Constants.GA_REL_PREFIX;
-
 /**
  * {@link org.neo4j.graphdb.event.TransactionEventHandler} responsible for caching relationship counts on nodes.
  */
@@ -64,25 +62,21 @@ public abstract class RelationshipCountCachingTransactionEventHandler extends Tr
 
     private void handleCreatedRelationships(ImprovedTransactionData data) {
         for (Relationship createdRelationship : data.getAllCreatedRelationships()) {
-            if (include(createdRelationship)) {
-                handleCreatedRelationship(createdRelationship, createdRelationship.getStartNode());
-                handleCreatedRelationship(createdRelationship, createdRelationship.getEndNode());
-            }
+            handleCreatedRelationship(createdRelationship, createdRelationship.getStartNode());
+            handleCreatedRelationship(createdRelationship, createdRelationship.getEndNode());
         }
     }
 
     private void handleDeletedRelationships(ImprovedTransactionData data) {
         for (Relationship deletedRelationship : data.getAllDeletedRelationships()) {
-            if (include(deletedRelationship)) {
-                Node startNode = deletedRelationship.getStartNode();
-                if (!data.hasBeenDeleted(startNode)) {
-                    handleDeletedRelationship(deletedRelationship, startNode);
-                }
+            Node startNode = deletedRelationship.getStartNode();
+            if (!data.hasBeenDeleted(startNode)) {
+                handleDeletedRelationship(deletedRelationship, startNode);
+            }
 
-                Node endNode = deletedRelationship.getEndNode();
-                if (!data.hasBeenDeleted(endNode)) {
-                    handleDeletedRelationship(deletedRelationship, endNode);
-                }
+            Node endNode = deletedRelationship.getEndNode();
+            if (!data.hasBeenDeleted(endNode)) {
+                handleDeletedRelationship(deletedRelationship, endNode);
             }
         }
     }
@@ -92,15 +86,11 @@ public abstract class RelationshipCountCachingTransactionEventHandler extends Tr
             Relationship current = changedRelationship.getCurrent();
             Relationship previous = changedRelationship.getPrevious();
 
-            if (include(previous)) {
-                handleDeletedRelationship(previous, previous.getStartNode());
-                handleDeletedRelationship(previous, previous.getEndNode());
-            }
+            handleDeletedRelationship(previous, previous.getStartNode());
+            handleDeletedRelationship(previous, previous.getEndNode());
 
-            if (include(current)) {
-                handleCreatedRelationship(current, current.getStartNode());
-                handleCreatedRelationship(current, current.getEndNode());
-            }
+            handleCreatedRelationship(current, current.getStartNode());
+            handleCreatedRelationship(current, current.getEndNode());
         }
     }
 
@@ -121,9 +111,4 @@ public abstract class RelationshipCountCachingTransactionEventHandler extends Tr
      *                     the relationship count should be cached.
      */
     protected abstract void handleDeletedRelationship(Relationship relationship, Node pointOfView);
-
-    //todo move away into some kind of AllBusinessRelationshipsStrategy
-    private boolean include(Relationship relationship) {
-        return !relationship.getType().name().startsWith(GA_REL_PREFIX);
-    }
 }
