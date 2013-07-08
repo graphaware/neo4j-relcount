@@ -158,7 +158,7 @@ public class ComparableRelationship extends CopyMakingDirectedSerializableRelati
      * {@inheritDoc}
      */
     @Override
-    public boolean isMoreGeneralThan(DirectedRelationship relationship) {
+    public boolean isMoreGeneralThan(DirectedRelationship<String, ComparableProperties> relationship) {
         return typeAndDirectionSameAs(relationship)
                 && getProperties().isMoreGeneralThan(relationship.getProperties());
     }
@@ -167,7 +167,7 @@ public class ComparableRelationship extends CopyMakingDirectedSerializableRelati
      * {@inheritDoc}
      */
     @Override
-    public boolean isStrictlyMoreGeneralThan(DirectedRelationship relationship) {
+    public boolean isStrictlyMoreGeneralThan(DirectedRelationship<String, ComparableProperties> relationship) {
         return typeAndDirectionSameAs(relationship)
                 && getProperties().isStrictlyMoreGeneralThan(relationship.getProperties());
     }
@@ -176,7 +176,7 @@ public class ComparableRelationship extends CopyMakingDirectedSerializableRelati
      * {@inheritDoc}
      */
     @Override
-    public boolean isMoreSpecificThan(DirectedRelationship relationship) {
+    public boolean isMoreSpecificThan(DirectedRelationship<String, ComparableProperties> relationship) {
         return typeAndDirectionSameAs(relationship)
                 && getProperties().isMoreSpecificThan(relationship.getProperties());
     }
@@ -185,7 +185,7 @@ public class ComparableRelationship extends CopyMakingDirectedSerializableRelati
      * {@inheritDoc}
      */
     @Override
-    public boolean isStrictlyMoreSpecificThan(DirectedRelationship relationship) {
+    public boolean isStrictlyMoreSpecificThan(DirectedRelationship<String, ComparableProperties> relationship) {
         return typeAndDirectionSameAs(relationship)
                 && getProperties().isStrictlyMoreSpecificThan(relationship.getProperties());
     }
@@ -196,7 +196,7 @@ public class ComparableRelationship extends CopyMakingDirectedSerializableRelati
      * @param relationship to check.
      * @return true iff both type and direction are the same.
      */
-    public boolean typeAndDirectionSameAs(DirectedRelationship relationship) {
+    private boolean typeAndDirectionSameAs(DirectedRelationship relationship) {
         return getType().name().equals(relationship.getType().name())
                 && getDirection().equals(relationship.getDirection());
     }
