@@ -14,26 +14,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.full.dto;
+package com.graphaware.neo4j.relcount.full.dto.property;
 
-import java.util.Set;
+import com.graphaware.neo4j.dto.string.property.SerializableProperties;
 
 /**
- * Interface for types that are able to generate more general versions of themselves.
+ *
  */
-public interface GeneratesMoreGeneral<T extends PartiallyComparableByGenerality> {
-
-    /**
-     * Generate items one step more general than (or as general as) this instance.
-     *
-     * @return set of one-level more/equally general instances, ordered by decreasing generality.
-     */
-    Set<T> generateOneMoreGeneral();
-
-    /**
-     * Generate all items more general than (or as general as) this instance.
-     *
-     * @return set of all more/equally general instances, ordered by decreasing generality.
-     */
-    Set<T> generateAllMoreGeneral();
+public interface CountableProperties extends SerializableProperties, TotallyComparableProperties, GeneralizingProperties<CountableProperties> {
 }

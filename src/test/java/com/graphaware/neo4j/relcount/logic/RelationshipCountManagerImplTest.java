@@ -16,7 +16,8 @@
 
 package com.graphaware.neo4j.relcount.logic;
 
-import com.graphaware.neo4j.relcount.full.dto.ComparableRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CountableRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.GenerallyCountableRelationship;
 import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;
 import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.tx.single.TransactionCallback;
@@ -97,12 +98,12 @@ public class RelationshipCountManagerImplTest {
 
         final Node root = database.getNodeById(0);
 
-        Map<ComparableRelationship,Integer> relationshipCounts = mgr.getRelationshipCounts(root);
-        Iterator<Map.Entry<ComparableRelationship,Integer>> iterator = relationshipCounts.entrySet().iterator();
+        Map<CountableRelationship,Integer> relationshipCounts = mgr.getRelationshipCounts(root);
+        Iterator<Map.Entry<CountableRelationship,Integer>> iterator = relationshipCounts.entrySet().iterator();
 
         //also testing order
 
-        Map.Entry<ComparableRelationship, Integer> next = iterator.next();
+        Map.Entry<CountableRelationship, Integer> next = iterator.next();
         assertEquals(rel("test#OUTGOING#key1#value1#key2#value2"), next.getKey());
         assertEquals(3, (int) next.getValue());
 
@@ -406,8 +407,8 @@ public class RelationshipCountManagerImplTest {
     /**
      * just for readability
      */
-    private ComparableRelationship rel(String s) {
-        return new ComparableRelationship(GA_REL_PREFIX + s);
+    private GenerallyCountableRelationship rel(String s) {
+        return new GenerallyCountableRelationship(GA_REL_PREFIX + s);
     }
 
 }

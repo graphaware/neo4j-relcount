@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.full.dto;
+package com.graphaware.neo4j.relcount.full.dto.common;
 
 /**
  * Interface for types that can compare themselves to other types using a general to specific ordering.
@@ -25,7 +25,7 @@ package com.graphaware.neo4j.relcount.full.dto;
  *
  * @param <T> type that this can be compared to.
  */
-public interface PartiallyComparableByGenerality<T> {
+public interface PartiallyComparable<T> {
 
     /**
      * Is this instance more general than (or at least as general as) the given instance?

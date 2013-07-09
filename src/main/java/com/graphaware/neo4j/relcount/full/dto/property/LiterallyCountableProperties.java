@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.full.dto;
+package com.graphaware.neo4j.relcount.full.dto.property;
 
 import org.neo4j.graphdb.PropertyContainer;
 
@@ -26,11 +26,11 @@ import java.util.TreeSet;
 import static com.graphaware.neo4j.common.Constants.SEPARATOR;
 
 /**
- * An extension of {@link ComparableProperties} in which a missing property is treated as a concrete value ({@link #UNDEF}) as opposed
+ * An extension of {@link GenerallyCountableProperties} in which a missing property is treated as a concrete value ({@link #UNDEF}) as opposed
  * to "any". This is for situations where a relationship is explicitly created without some property that other relationships
  * of the same type might have. In such case, this relationship should not be treated as more general than the others.
  */
-public class LiteralComparableProperties extends ComparableProperties {
+public class LiterallyCountableProperties extends GenerallyCountableProperties {
 
     /**
      * This string will be used as an extra "marker" property to indicate that they are meant literally.
@@ -47,7 +47,7 @@ public class LiteralComparableProperties extends ComparableProperties {
      *
      * @param propertyContainer to take (copy) properties from.
      */
-    public LiteralComparableProperties(PropertyContainer propertyContainer) {
+    public LiterallyCountableProperties(PropertyContainer propertyContainer) {
         super(propertyContainer);
     }
 
@@ -56,7 +56,7 @@ public class LiteralComparableProperties extends ComparableProperties {
      *
      * @param properties to take (copy).
      */
-    public LiteralComparableProperties(Map<String, String> properties) {
+    public LiterallyCountableProperties(Map<String, String> properties) {
         super(properties);
     }
 
@@ -66,7 +66,7 @@ public class LiteralComparableProperties extends ComparableProperties {
      * @param string to construct properties from. Must be of the form _LITERAL_key1#value1#key2#value2 (assuming the default
      *               {@link com.graphaware.neo4j.common.Constants#SEPARATOR} and {@link #LITERAL}).
      */
-    public LiteralComparableProperties(String string) {
+    public LiterallyCountableProperties(String string) {
         super(string);
     }
 
@@ -98,20 +98,20 @@ public class LiteralComparableProperties extends ComparableProperties {
     /**
      * {@inheritDoc}
      *
-     * @return a single more general instance, which is {@link ComparableProperties} with exactly the same properties.
+     * @return a single more general instance, which is {@link GenerallyCountableProperties} with exactly the same properties.
      */
     @Override
-    public Set<ComparableProperties> generateOneMoreGeneral() {
-        return Collections.singleton(new ComparableProperties(getProperties()));
+    public Set<CountableProperties> generateOneMoreGeneral() {
+        return Collections.<CountableProperties>singleton(new GenerallyCountableProperties(getProperties()));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Set<ComparableProperties> generateAllMoreGeneral() {
-        Set<ComparableProperties> result = new TreeSet<ComparableProperties>();
-        result.add(this);
+    public Set<CountableProperties> generateAllMoreGeneral() {
+        Set<CountableProperties> result = new TreeSet<>();
+        result.add(self());
         result.addAll(super.generateAllMoreGeneral(generateOneMoreGeneral().iterator().next()));
         return result;
     }
@@ -122,5 +122,13 @@ public class LiteralComparableProperties extends ComparableProperties {
     @Override
     public String toString() {
         return LITERAL + SEPARATOR + "true" + SEPARATOR + super.toString();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected CountableProperties self() {
+        return this;
     }
 }

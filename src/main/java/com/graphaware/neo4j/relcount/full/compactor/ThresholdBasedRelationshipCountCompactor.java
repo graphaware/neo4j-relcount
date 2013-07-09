@@ -16,7 +16,7 @@
 
 package com.graphaware.neo4j.relcount.full.compactor;
 
-import com.graphaware.neo4j.relcount.full.dto.ComparableRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CountableRelationship;
 import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;
 import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Node;
@@ -77,7 +77,7 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
     }
 
     private boolean performCompaction(Node node) {
-        Map<ComparableRelationship, Integer> cachedCounts = countManager.getRelationshipCounts(node);
+        Map<CountableRelationship, Integer> cachedCounts = countManager.getRelationshipCounts(node);
 
         //Not above the threshold => no need for compaction
         if (cachedCounts.size() < compactionThreshold) {
@@ -85,15 +85,15 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
         }
 
         //Generate all possible generalizations
-        Set<ComparableRelationship> generalizations = new TreeSet<ComparableRelationship>();
-        for (ComparableRelationship cached : cachedCounts.keySet()) {
+        Set<CountableRelationship> generalizations = new TreeSet<>();
+        for (CountableRelationship cached : cachedCounts.keySet()) {
             generalizations.addAll(cached.generateAllMoreGeneral());
         }
 
         //Find the most specific generalization that has a chance to result in some compaction
-        for (ComparableRelationship generalization : generalizations) {
-            Set<ComparableRelationship> candidates = new HashSet<ComparableRelationship>();
-            for (ComparableRelationship potentialCandidate : cachedCounts.keySet()) {
+        for (CountableRelationship generalization : generalizations) {
+            Set<CountableRelationship> candidates = new HashSet<>();
+            for (CountableRelationship potentialCandidate : cachedCounts.keySet()) {
                 if (generalization.isMoreGeneralThan(potentialCandidate)) {
                     candidates.add(potentialCandidate);
                 }
@@ -104,7 +104,7 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
 
                 //It will, do it!
                 int candidateCachedCount = 0;
-                for (ComparableRelationship candidate : candidates) {
+                for (CountableRelationship candidate : candidates) {
                     candidateCachedCount += cachedCounts.get(candidate);
                     countManager.deleteCount(candidate, node);
                 }

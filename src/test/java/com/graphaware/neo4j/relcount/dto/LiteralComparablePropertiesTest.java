@@ -16,8 +16,9 @@
 
 package com.graphaware.neo4j.relcount.dto;
 
-import com.graphaware.neo4j.relcount.full.dto.ComparableProperties;
-import com.graphaware.neo4j.relcount.full.dto.LiteralComparableProperties;
+import com.graphaware.neo4j.relcount.full.dto.property.CountableProperties;
+import com.graphaware.neo4j.relcount.full.dto.property.GenerallyCountableProperties;
+import com.graphaware.neo4j.relcount.full.dto.property.LiterallyCountableProperties;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -27,7 +28,7 @@ import java.util.TreeSet;
 import static junit.framework.Assert.*;
 
 /**
- * Unit test for {@link com.graphaware.neo4j.relcount.full.dto.ComparableProperties}.
+ * Unit test for {@link LiterallyCountableProperties}.
  */
 public class LiteralComparablePropertiesTest {
 
@@ -138,10 +139,10 @@ public class LiteralComparablePropertiesTest {
 
     @Test
     public void shouldGenerateMoreGeneralAllMoreGeneral() {
-        Set<ComparableProperties> result = lprops("key1#value1#key2#value2#key3#value3").generateAllMoreGeneral();
+        Set<CountableProperties> result = lprops("key1#value1#key2#value2#key3#value3").generateAllMoreGeneral();
 
         assertEquals(9, result.size());
-        Iterator<ComparableProperties> iterator = result.iterator();
+        Iterator<CountableProperties> iterator = result.iterator();
         assertEquals(iterator.next(), lprops("key1#value1#key2#value2#key3#value3"));
         assertEquals(iterator.next(), cprops("key1#value1#key2#value2#key3#value3"));
         assertEquals(iterator.next(), cprops("key1#value1#key2#value2"));
@@ -155,19 +156,19 @@ public class LiteralComparablePropertiesTest {
 
     @Test
     public void shouldGenerateMoreGeneralOneMoreGeneral() {
-        Set<ComparableProperties> result = lprops("key1#value1#key2#value2#key3#value3").generateOneMoreGeneral();
+        Set<CountableProperties> result = lprops("key1#value1#key2#value2#key3#value3").generateOneMoreGeneral();
 
         assertEquals(1, result.size());
-        Iterator<ComparableProperties> iterator = result.iterator();
+        Iterator<CountableProperties> iterator = result.iterator();
         assertEquals(iterator.next(), cprops("key1#value1#key2#value2#key3#value3"));
     }
 
     @Test
     public void shouldGenerateMoreGeneralOneMoreGeneral2() {
-        Set<ComparableProperties> result = lprops("key1#value1").generateOneMoreGeneral();
+        Set<CountableProperties> result = lprops("key1#value1").generateOneMoreGeneral();
 
         assertEquals(1, result.size());
-        Iterator<ComparableProperties> iterator = result.iterator();
+        Iterator<CountableProperties> iterator = result.iterator();
         assertEquals(iterator.next(), cprops("key1#value1"));
     }
 
@@ -180,7 +181,7 @@ public class LiteralComparablePropertiesTest {
 
     @Test
     public void shouldAchieveSpecificToGeneralOrderingForProperties() {
-        Set<ComparableProperties> properties = new TreeSet<ComparableProperties>();
+        Set<CountableProperties> properties = new TreeSet<>();
 
         properties.add(lprops(""));
         properties.add(lprops("key1#value1#key2#value2"));
@@ -193,7 +194,7 @@ public class LiteralComparablePropertiesTest {
         properties.add(cprops("key2#value2"));
         properties.add(cprops("key2#value2"));
 
-        Iterator<ComparableProperties> iterator = properties.iterator();
+        Iterator<CountableProperties> iterator = properties.iterator();
         assertEquals(lprops(""), iterator.next());
         assertEquals(lprops("key1#value1#key2#value2"), iterator.next());
         assertEquals(lprops("key2#value2"), iterator.next());
@@ -205,7 +206,7 @@ public class LiteralComparablePropertiesTest {
 
     @Test
     public void propertiesShouldBehaveProperlyInTreeSets() {
-        Set<ComparableProperties> properties = new TreeSet<ComparableProperties>();
+        Set<CountableProperties> properties = new TreeSet<>();
 
         properties.add(lprops(""));
         properties.add(lprops("key1#value1#key2#value2"));
@@ -235,11 +236,11 @@ public class LiteralComparablePropertiesTest {
     /**
      * just for readability
      */
-    private ComparableProperties lprops(String s) {
-        return new LiteralComparableProperties(s);
+    private CountableProperties lprops(String s) {
+        return new LiterallyCountableProperties(s);
     }
 
-    private ComparableProperties cprops(String s) {
-        return new ComparableProperties(s);
+    private CountableProperties cprops(String s) {
+        return new GenerallyCountableProperties(s);
     }
 }

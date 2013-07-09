@@ -16,22 +16,24 @@
 
 package com.graphaware.neo4j.relcount.full.manager;
 
-import com.graphaware.neo4j.dto.common.relationship.DirectedRelationship;
+import com.graphaware.neo4j.dto.common.property.ImmutableProperties;
+import com.graphaware.neo4j.dto.common.relationship.ImmutableDirectedRelationship;
 import com.graphaware.neo4j.relcount.common.manager.BaseCachingRelationshipCountManager;
-import com.graphaware.neo4j.relcount.full.dto.ComparableRelationship;
+import com.graphaware.neo4j.relcount.common.manager.CachingRelationshipCountManager;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CountableRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.GenerallyCountableRelationship;
 
 /**
  * Default production implementation of {@link FullCachingRelationshipCountManager}.
  */
-public class FullCachingRelationshipCountManager extends BaseCachingRelationshipCountManager<DirectedRelationship, ComparableRelationship> {
+public class FullCachingRelationshipCountManager extends BaseCachingRelationshipCountManager<ImmutableDirectedRelationship<String, ? extends ImmutableProperties<String>>, CountableRelationship> implements CachingRelationshipCountManager<ImmutableDirectedRelationship<String, ? extends ImmutableProperties<String>>, CountableRelationship> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean shouldBeUsedForLookup(ComparableRelationship cached, DirectedRelationship relationship) {
-        //use every more general match of the looked-up relationship
-        return cached.isMoreSpecificThan(relationship);
+    protected boolean candidateMatchesDescription(CountableRelationship candidate, ImmutableDirectedRelationship<String, ? extends ImmutableProperties<String>> description) {
+        return candidate.isMoreSpecificThan(description);
     }
 
     /**
@@ -47,16 +49,15 @@ public class FullCachingRelationshipCountManager extends BaseCachingRelationship
      * {@inheritDoc}
      */
     @Override
-    protected ComparableRelationship newCachedRelationship(String key) {
-        return new ComparableRelationship(key);
+    protected boolean cachedMatch(CountableRelationship cached, CountableRelationship relationship) {
+        return cached.isMoreGeneralThan(relationship);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean shouldBeUsedForCaching(ComparableRelationship cached, DirectedRelationship relationship) {
-        //use the most specific match of the about-to-be-cached relationship
-        return cached.isMoreGeneralThan(relationship);
+    protected GenerallyCountableRelationship newCachedRelationship(String string) {
+        return new GenerallyCountableRelationship(string);
     }
 }

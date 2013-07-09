@@ -18,8 +18,8 @@ package com.graphaware.neo4j.relcount.full.handler;
 
 import com.graphaware.neo4j.relcount.common.handler.RelationshipCountCachingTransactionEventHandler;
 import com.graphaware.neo4j.relcount.full.compactor.RelationshipCountCompactor;
-import com.graphaware.neo4j.relcount.full.dto.ComparableRelationship;
-import com.graphaware.neo4j.relcount.full.dto.LiteralComparableProperties;
+import com.graphaware.neo4j.relcount.full.dto.property.LiterallyCountableProperties;
+import com.graphaware.neo4j.relcount.full.dto.relationship.LiterallyCountableRelationship;
 import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertiesExtractionStrategy;
@@ -57,7 +57,7 @@ public class FullRelationshipCountTransactionEventHandler extends RelationshipCo
     protected void handleCreatedRelationship(Relationship relationship, Node pointOfView) {
         Map<String, String> extractedProperties = extractionStrategy.extractProperties(relationship, pointOfView);
 
-        ComparableRelationship createdRelationship = new ComparableRelationship(relationship, pointOfView, new LiteralComparableProperties(extractedProperties));
+        LiterallyCountableRelationship createdRelationship = new LiterallyCountableRelationship(relationship, pointOfView, new LiterallyCountableProperties(extractedProperties));
 
         if (countManager.incrementCount(createdRelationship, pointOfView)) {
             countCompactor.compactRelationshipCounts(pointOfView);
@@ -65,7 +65,7 @@ public class FullRelationshipCountTransactionEventHandler extends RelationshipCo
     }
 
     protected void handleDeletedRelationship(Relationship relationship, Node pointOfView) {
-        ComparableRelationship deletedRelationship = new ComparableRelationship(relationship, pointOfView, new LiteralComparableProperties(relationship));
+        LiterallyCountableRelationship deletedRelationship = new LiterallyCountableRelationship(relationship, pointOfView, new LiterallyCountableProperties(relationship));
 
         if (!countManager.decrementCount(deletedRelationship, pointOfView)) {
             LOG.warn(deletedRelationship.toString() + " was out of sync on node " + pointOfView.getId());

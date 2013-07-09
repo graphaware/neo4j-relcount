@@ -1,8 +1,6 @@
 package com.graphaware.neo4j.relcount.full.api;
 
-import com.graphaware.neo4j.dto.common.property.MakesCopyWithProperty;
-import com.graphaware.neo4j.dto.common.relationship.DirectedRelationship;
-import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
+import com.graphaware.neo4j.dto.common.propertycontainer.MakesCopyWithProperty;
 import com.graphaware.neo4j.relcount.common.api.RelationshipCounter;
 
 /**
@@ -13,5 +11,5 @@ import com.graphaware.neo4j.relcount.common.api.RelationshipCounter;
  * successively {@link #with(String, Object)} to add properties. Finally, by calling {@link #count(org.neo4j.graphdb.Node)},
  * relationship count for the specified relationship on the node is returned.
  */
-public interface FullRelationshipCounter extends RelationshipCounter, DirectedRelationship<String, CopyMakingSerializableProperties>, MakesCopyWithProperty<FullRelationshipCounter> {
+public interface FullRelationshipCounter extends RelationshipCounter, MakesCopyWithProperty<FullRelationshipCounter> {
 }

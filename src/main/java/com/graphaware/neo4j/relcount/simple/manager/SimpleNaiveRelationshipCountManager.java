@@ -17,20 +17,22 @@
 package com.graphaware.neo4j.relcount.simple.manager;
 
 import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
-import com.graphaware.neo4j.dto.common.relationship.SerializableTypeAndDirection;
-import com.graphaware.neo4j.relcount.common.manager.BaseCachingRelationshipCountManager;
-import com.graphaware.neo4j.relcount.common.manager.CachingRelationshipCountManager;
+import com.graphaware.neo4j.dto.common.relationship.TypeAndDirection;
+import com.graphaware.neo4j.relcount.common.manager.BaseNaiveRelationshipCountManager;
+import com.graphaware.neo4j.relcount.common.manager.RelationshipCountManager;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 
 /**
  * Default production implementation of {@link com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager}.
  */
-public class SimpleCachingRelationshipCountManager extends BaseCachingRelationshipCountManager<HasTypeAndDirection, SerializableTypeAndDirection> implements CachingRelationshipCountManager<HasTypeAndDirection, SerializableTypeAndDirection> {
+public class SimpleNaiveRelationshipCountManager extends BaseNaiveRelationshipCountManager<HasTypeAndDirection, HasTypeAndDirection> implements RelationshipCountManager<HasTypeAndDirection, HasTypeAndDirection> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean candidateMatchesDescription(SerializableTypeAndDirection candidate, HasTypeAndDirection description) {
+    protected boolean candidateMatchesDescription(HasTypeAndDirection candidate, HasTypeAndDirection description) {
         return candidate.matches(description);
     }
 
@@ -47,15 +49,7 @@ public class SimpleCachingRelationshipCountManager extends BaseCachingRelationsh
      * {@inheritDoc}
      */
     @Override
-    protected SerializableTypeAndDirection newCachedRelationship(String string) {
-        return new SerializableTypeAndDirection(string);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected boolean cachedMatch(SerializableTypeAndDirection cached, SerializableTypeAndDirection relationship) {
-        return cached.matches(relationship);
+    protected HasTypeAndDirection newCandidate(Relationship relationship, Node pointOfView) {
+        return new TypeAndDirection(relationship, pointOfView);
     }
 }

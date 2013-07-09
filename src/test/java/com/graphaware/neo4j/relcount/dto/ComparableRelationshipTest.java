@@ -16,10 +16,12 @@
 
 package com.graphaware.neo4j.relcount.dto;
 
-import com.graphaware.neo4j.dto.common.relationship.DirectedRelationship;
-import com.graphaware.neo4j.dto.string.relationship.SerializableDirectedRelationship;
-import com.graphaware.neo4j.relcount.full.dto.ComparableRelationship;
-import com.graphaware.neo4j.relcount.full.dto.LiteralComparableProperties;
+import com.graphaware.neo4j.dto.common.relationship.ImmutableDirectedRelationship;
+import com.graphaware.neo4j.dto.string.relationship.SerializableDirectedRelationshipImpl;
+import com.graphaware.neo4j.relcount.full.dto.property.LiterallyCountableProperties;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CountableRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.GenerallyCountableRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.LiterallyCountableRelationship;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -32,29 +34,29 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit test for {@link com.graphaware.neo4j.relcount.full.dto.ComparableRelationship}.
+ * Unit test for {@link }.
  */
 public class ComparableRelationshipTest {
 
     @Test
     public void propertiesShouldBeCorrectlyConstructed() {
-        ComparableRelationship relationship = crel("test#INCOMING#_LITERAL_#true#key1#value1#key2#value2");
+        CountableRelationship relationship = crel("test#INCOMING#_LITERAL_#true#key1#value1#key2#value2");
 
-        assertTrue(relationship.getProperties() instanceof LiteralComparableProperties);
+        assertTrue(relationship.getProperties() instanceof LiterallyCountableProperties);
         assertTrue(relationship.getProperties().containsKey("key1"));
         assertTrue(relationship.getProperties().containsKey("key2"));
         assertEquals(2, relationship.getProperties().size());
 
         relationship = crel("test#INCOMING#key1#value1#key2#value2");
 
-        assertFalse(relationship.getProperties() instanceof LiteralComparableProperties);
+        assertFalse(relationship.getProperties() instanceof LiterallyCountableProperties);
         assertTrue(relationship.getProperties().containsKey("key1"));
         assertTrue(relationship.getProperties().containsKey("key2"));
         assertEquals(2, relationship.getProperties().size());
 
         relationship = crel("test#INCOMING#_LITERAL_#true");
 
-        assertTrue(relationship.getProperties() instanceof LiteralComparableProperties);
+        assertTrue(relationship.getProperties() instanceof LiterallyCountableProperties);
         assertEquals(0, relationship.getProperties().size());
     }
 
@@ -138,10 +140,10 @@ public class ComparableRelationshipTest {
 
     @Test
     public void shouldGenerateAllMoreGeneral() {
-        Set<ComparableRelationship> result = crel("test#INCOMING#key1#value1#key2#value2").generateAllMoreGeneral();
+        Set<CountableRelationship> result = crel("test#INCOMING#key1#value1#key2#value2").generateAllMoreGeneral();
 
         assertEquals(4, result.size());
-        Iterator<ComparableRelationship> iterator = result.iterator();
+        Iterator<CountableRelationship> iterator = result.iterator();
         assertEquals(iterator.next(), crel("test#INCOMING#key1#value1#key2#value2"));
         assertEquals(iterator.next(), crel("test#INCOMING#key1#value1"));
         assertEquals(iterator.next(), crel("test#INCOMING#key2#value2"));
@@ -150,10 +152,10 @@ public class ComparableRelationshipTest {
 
     @Test
     public void shouldGenerateOneMoreGeneral() {
-        Set<ComparableRelationship> result = crel("test#INCOMING#key1#value1#key2#value2").generateOneMoreGeneral();
+        Set<CountableRelationship> result = crel("test#INCOMING#key1#value1#key2#value2").generateOneMoreGeneral();
 
         assertEquals(3, result.size());
-        Iterator<ComparableRelationship> iterator = result.iterator();
+        Iterator<CountableRelationship> iterator = result.iterator();
         assertEquals(iterator.next(), crel("test#INCOMING#key1#value1#key2#value2"));
         assertEquals(iterator.next(), crel("test#INCOMING#key1#value1"));
         assertEquals(iterator.next(), crel("test#INCOMING#key2#value2"));
@@ -161,7 +163,7 @@ public class ComparableRelationshipTest {
 
     @Test
     public void shouldAchieveSpecificToGeneralOrderingForRelationships() {
-        Set<ComparableRelationship> properties = new TreeSet<>();
+        Set<CountableRelationship> properties = new TreeSet<>();
 
         properties.add(crel("test#INCOMING"));
         properties.add(crel("test#INCOMING#key1#value1#key2#value2"));
@@ -171,7 +173,7 @@ public class ComparableRelationshipTest {
         properties.add(crel("xx#INCOMING#key2#value2"));
         properties.add(crel("test#OUTGOING#key2#value2"));
 
-        Iterator<ComparableRelationship> iterator = properties.iterator();
+        Iterator<CountableRelationship> iterator = properties.iterator();
         assertEquals(crel("test#INCOMING#key1#value1#key2#value2"), iterator.next());
         assertEquals(crel("test#INCOMING#key2#value2"), iterator.next());
         assertEquals(crel("test#INCOMING"), iterator.next());
@@ -182,7 +184,7 @@ public class ComparableRelationshipTest {
 
     @Test
     public void relationshipsShouldBehaveProperlyInTreeSets() {
-        Set<ComparableRelationship> properties = new TreeSet<>();
+        Set<CountableRelationship> properties = new TreeSet<>();
 
         properties.add(crel("test#INCOMING"));
         properties.add(crel("test#INCOMING#key1#value1#key2#value2"));
@@ -200,36 +202,36 @@ public class ComparableRelationshipTest {
 
     @Test
     public void shouldCorrectlyConvertToString() {
-        assertEquals(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2", new ComparableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2").toString());
-        assertEquals(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true", new ComparableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true").toString());
-        assertEquals(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true", new ComparableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#anything#").toString());
+        assertEquals(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2", new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2").toString());
+        assertEquals(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true", new LiterallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true").toString());
+        assertEquals(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true", new LiterallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#anything#").toString());
     }
 
     @Test
     public void sameRelationshipsShouldBeEqual() {
-        assertTrue(new ComparableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true").equals(new ComparableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true")));
-        assertTrue(new ComparableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2").equals(new ComparableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2")));
-        assertTrue(new ComparableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2").equals(new ComparableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#anything#key1#value1#key2#value2#")));
-        assertTrue(new ComparableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true#key1#value1#key2#").equals(new ComparableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true#key1#value1#key2")));
+        assertTrue(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true").equals(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true")));
+        assertTrue(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2").equals(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2")));
+        assertTrue(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2").equals(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#anything#key1#value1#key2#value2#")));
+        assertTrue(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true#key1#value1#key2#").equals(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true#key1#value1#key2")));
     }
 
     @Test
     public void differentRelationshipsShouldNotBeEqual() {
-        assertFalse(new ComparableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true").equals(new ComparableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true")));
-        assertFalse(new ComparableRelationship(GA_REL_PREFIX + "test2#OUTGOING#_LITERAL_#true#key1#value1#key2#value2").equals(new ComparableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2")));
-        assertFalse(new ComparableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key3#value1#key2#value2").equals(new ComparableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2#")));
+        assertFalse(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true").equals(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true")));
+        assertFalse(new LiterallyCountableRelationship(GA_REL_PREFIX + "test2#OUTGOING#_LITERAL_#true#key1#value1#key2#value2").equals(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2")));
+        assertFalse(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key3#value1#key2#value2").equals(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2#")));
     }
 
-    private ComparableRelationship crel(String s) {
-        return new ComparableRelationship(GA_REL_PREFIX + s);
+    private CountableRelationship crel(String s) {
+        return new GenerallyCountableRelationship(GA_REL_PREFIX + s);
     }
 
-    private DirectedRelationship drel(String s) {
-        return new SerializableDirectedRelationship(GA_REL_PREFIX + s);
+    private ImmutableDirectedRelationship<String, ?> drel(String s) {
+        return new SerializableDirectedRelationshipImpl(GA_REL_PREFIX + s);
     }
 
-    private ComparableRelationship lrel(String rel, String props) {
-        return new ComparableRelationship(GA_REL_PREFIX + rel + "_LITERAL_#true#" +props);
+    private CountableRelationship lrel(String rel, String props) {
+        return new LiterallyCountableRelationship(GA_REL_PREFIX + rel + "_LITERAL_#true#" +props);
     }
 
 }

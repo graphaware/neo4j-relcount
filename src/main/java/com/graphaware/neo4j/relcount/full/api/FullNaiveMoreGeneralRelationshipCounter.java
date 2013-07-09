@@ -16,23 +16,19 @@
 
 package com.graphaware.neo4j.relcount.full.api;
 
-import com.graphaware.neo4j.dto.common.relationship.BaseDirectedRelationship;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
-import com.graphaware.neo4j.dto.string.property.CopyMakingSerializablePropertiesImpl;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.PropertyContainer;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
 
-import java.util.Map;
-
 /**
- * A naive {@link com.graphaware.neo4j.relcount.full.api.FullRelationshipCounter} that counts matching relationships by inspecting all
+ * A naive {@link FullRelationshipCounter} that counts matching relationships by inspecting all
  * {@link org.neo4j.graphdb.Node}'s {@link org.neo4j.graphdb.Relationship}s. It delegates the work to {@link com.graphaware.neo4j.relcount.full.manager.FullNaiveRelationshipCountManager}.
  * <p/>
  * Because relationships are counted on the fly (no caching performed), this can be used without any {@link org.neo4j.graphdb.event.TransactionEventHandler}s
  * and on already existing graphs.
  */
-public abstract class BaseFullRelationshipCounter extends BaseDirectedRelationship<String, CopyMakingSerializableProperties<?>> {
+public class FullNaiveMoreGeneralRelationshipCounter extends BaseFullRelationshipCounter implements FullRelationshipCounter {
 
     /**
      * Construct a new relationship counter.
@@ -40,8 +36,24 @@ public abstract class BaseFullRelationshipCounter extends BaseDirectedRelationsh
      * @param type      type of the relationships to count.
      * @param direction direction of the relationships to count.
      */
-    protected BaseFullRelationshipCounter(RelationshipType type, Direction direction) {
+    public FullNaiveMoreGeneralRelationshipCounter(RelationshipType type, Direction direction) {
         super(type, direction);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int count(Node node) {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FullRelationshipCounter with(String key, Object value) {
+        return new FullNaiveMoreGeneralRelationshipCounter(getType(), getDirection(), getProperties().with(key, value));
     }
 
     /**
@@ -51,23 +63,7 @@ public abstract class BaseFullRelationshipCounter extends BaseDirectedRelationsh
      * @param direction  direction.
      * @param properties props.
      */
-    protected BaseFullRelationshipCounter(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties) {
+    protected FullNaiveMoreGeneralRelationshipCounter(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties) {
         super(type, direction, properties);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected CopyMakingSerializableProperties newProperties(PropertyContainer propertyContainer) {
-        return new CopyMakingSerializablePropertiesImpl(propertyContainer);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected CopyMakingSerializableProperties newProperties(Map<String, String> properties) {
-        return new CopyMakingSerializablePropertiesImpl(properties);
     }
 }

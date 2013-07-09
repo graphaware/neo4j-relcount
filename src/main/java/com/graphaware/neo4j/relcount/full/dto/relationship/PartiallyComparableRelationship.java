@@ -14,15 +14,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.full.dto;
+package com.graphaware.neo4j.relcount.full.dto.relationship;
 
-/**
- * Interface for types that can be compared with one another using a general to specific ordering, with a fallback to
- * total ordering using an alternative {@link Comparable} in case nothing can be said about the two compared objects'
- * relative generality.
- *
- * @param <R> type that this can be partially compared to.
- * @param <T> type that this can be mutually totally compared with.
- */
-public interface TotallyComparableByGenerality<R, T extends PartiallyComparableByGenerality<R>> extends PartiallyComparableByGenerality<R>, Comparable<T> {
+import com.graphaware.neo4j.dto.common.relationship.ImmutableDirectedRelationship;
+import com.graphaware.neo4j.relcount.full.dto.common.PartiallyComparable;
+import com.graphaware.neo4j.relcount.full.dto.property.PartiallyComparableProperties;
+
+public interface PartiallyComparableRelationship<P extends PartiallyComparableProperties> extends ImmutableDirectedRelationship<String, P>, PartiallyComparable<ImmutableDirectedRelationship<String, ?>> {
 }
