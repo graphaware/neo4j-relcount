@@ -23,12 +23,12 @@ import com.graphaware.neo4j.tx.event.strategy.IncludeAllRelationships;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
 
 /**
- * Factory for configuring and creating {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler}.
+ * Factory for configuring and creating {@link SimpleRelationshipCountTransactionEventHandler}.
  */
 public class SimpleRelationshipCountTransactionEventHandlerFactory {
 
     /**
-     * Create a {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler} with default configuration.
+     * Create a {@link SimpleRelationshipCountTransactionEventHandler} with default configuration.
      *
      * @return product.
      */
@@ -40,7 +40,7 @@ public class SimpleRelationshipCountTransactionEventHandlerFactory {
     }
 
     /**
-     * Create a {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler} with specific strategy for selecting which relationships
+     * Create a {@link SimpleRelationshipCountTransactionEventHandler} with specific strategy for selecting which relationships
      * will be counted.
      *
      * @param relationshipInclusionStrategy strategy.

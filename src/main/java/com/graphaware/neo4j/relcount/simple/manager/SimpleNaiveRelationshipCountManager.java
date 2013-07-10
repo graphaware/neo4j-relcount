@@ -24,7 +24,9 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 /**
- * Default production implementation of {@link com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager}.
+ * {@link RelationshipCountManager} that counts relationships by traversing them (performs no caching). It is simple in
+ * the sense that it only cares about {@link org.neo4j.graphdb.RelationshipType}s and {@link org.neo4j.graphdb.Direction};
+ * it completely ignores {@link Relationship} properties.
  */
 public class SimpleNaiveRelationshipCountManager extends BaseNaiveRelationshipCountManager<TypeAndDirectionDescription> implements RelationshipCountManager<TypeAndDirectionDescription> {
 
@@ -41,8 +43,7 @@ public class SimpleNaiveRelationshipCountManager extends BaseNaiveRelationshipCo
      */
     @Override
     protected boolean continueAfterFirstLookupMatch() {
-        //there is only one cached value per disjunt type => first match is all we need
-        return false;
+        return true; //it is naive => need to traverse all relationship to find all matches.
     }
 
     /**

@@ -20,12 +20,17 @@ import com.graphaware.neo4j.relcount.common.manager.BaseCachingRelationshipCount
 import com.graphaware.neo4j.relcount.common.manager.CachingRelationshipCountManager;
 import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescription;
 import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
+import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Node;
 
 /**
- * Default production implementation of {@link com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager}.
+ * A simple implementation of {@link CachingRelationshipCountManager}. It is simple in
+ * the sense that it only cares about {@link org.neo4j.graphdb.RelationshipType}s and {@link org.neo4j.graphdb.Direction};
+ * it completely ignores {@link org.neo4j.graphdb.Relationship} properties.
  */
 public class SimpleCachingRelationshipCountManager extends BaseCachingRelationshipCountManager<TypeAndDirectionDescription> implements CachingRelationshipCountManager<TypeAndDirectionDescription> {
+
+    private static final Logger LOG = Logger.getLogger(SimpleCachingRelationshipCountManager.class);
 
     /**
      * {@inheritDoc}
@@ -40,8 +45,7 @@ public class SimpleCachingRelationshipCountManager extends BaseCachingRelationsh
      */
     @Override
     protected boolean continueAfterFirstLookupMatch() {
-        //there is only one cached value per disjunt type => first match is all we need
-        return false;
+        return false; //there can only be one cached value per type-direction combination => first match is all we need
     }
 
     /**
@@ -65,6 +69,10 @@ public class SimpleCachingRelationshipCountManager extends BaseCachingRelationsh
      */
     @Override
     protected void handleZeroResult(TypeAndDirectionDescription description, Node node) {
-        //do nothing
+        LOG.debug("No relationships with description " + description.toString() + " have been found. This could mean that either" +
+                " there really are none, or that you are using a RelationshipInclusionStrategy that excludes relationships " +
+                " with this description, or that that database has been running without SimpleRelationshipCountTransactionEventHandler" +
+                " registered. If you're suspecting the last is the case, please register the handler and call the recalculate() " +
+                " method on it once.");
     }
 }

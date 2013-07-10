@@ -27,8 +27,11 @@ import org.neo4j.graphdb.Relationship;
 
 /**
  * {@link org.neo4j.graphdb.event.TransactionEventHandler} responsible for caching relationship counts on nodes.
+ * It is simple in the sense that it only cares about {@link org.neo4j.graphdb.RelationshipType}s and
+ * {@link org.neo4j.graphdb.Direction}; it completely ignores {@link Relationship} properties.
  */
 public class SimpleRelationshipCountTransactionEventHandler extends RelationshipCountCachingTransactionEventHandler {
+
     private static final Logger LOG = Logger.getLogger(SimpleRelationshipCountTransactionEventHandler.class);
 
     private final SimpleCachingRelationshipCountManager countManager;
@@ -36,20 +39,28 @@ public class SimpleRelationshipCountTransactionEventHandler extends Relationship
     /**
      * Construct a new event handler.
      *
-     * @param countManager       count manager.
-     * @param inclusionStrategy  strategy for selecting relationships to care about.
+     * @param countManager      count manager.
+     * @param inclusionStrategy strategy for selecting relationships to care about.
      */
     public SimpleRelationshipCountTransactionEventHandler(SimpleCachingRelationshipCountManager countManager, RelationshipInclusionStrategy inclusionStrategy) {
         super(inclusionStrategy);
         this.countManager = countManager;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected void handleCreatedRelationship(Relationship relationship, Node pointOfView) {
         TypeAndDirectionDescription createdRelationship = new TypeAndDirectionDescriptionImpl(relationship, pointOfView);
 
         countManager.incrementCount(createdRelationship, pointOfView);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected void handleDeletedRelationship(Relationship relationship, Node pointOfView) {
         TypeAndDirectionDescription deletedRelationship = new TypeAndDirectionDescriptionImpl(relationship, pointOfView);
 

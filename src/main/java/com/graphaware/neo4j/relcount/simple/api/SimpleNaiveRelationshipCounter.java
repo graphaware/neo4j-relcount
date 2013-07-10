@@ -17,13 +17,23 @@
 package com.graphaware.neo4j.relcount.simple.api;
 
 import com.graphaware.neo4j.dto.common.relationship.TypeAndDirection;
+import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
+import com.graphaware.neo4j.relcount.simple.manager.SimpleNaiveRelationshipCountManager;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
 
 /**
- * Base class for {@link com.graphaware.neo4j.relcount.simple.api.SimpleRelationshipCounter} implementations, allowing subclasses to choose which
- * {@link com.graphaware.neo4j.relcount.common.manager.RelationshipCountManager} to use.
+ * A naive {@link SimpleRelationshipCounter} that counts matching relationships by inspecting all {@link org.neo4j.graphdb.Node}'s {@link org.neo4j.graphdb.Relationship}s.
+ * <p/>
+ * <b>Simple</b> relationship counter means that it inspects relationship types and directions, but <b>not</b> properties.
+ * <p/>
+ * Matching relationships are all relationships that are exactly the same as the relationship description provided to this counter.
+ * <p/>
+ * Because relationships are counted on the fly (no caching performed), this can be used without any {@link org.neo4j.graphdb.event.TransactionEventHandler}s
+ * and on already existing graphs.
+ * <p/>
+ * This counter always returns a count, never throws {@link com.graphaware.neo4j.relcount.common.api.UnableToCountException}.
  */
 public class SimpleNaiveRelationshipCounter extends TypeAndDirection implements SimpleRelationshipCounter {
 
@@ -42,6 +52,6 @@ public class SimpleNaiveRelationshipCounter extends TypeAndDirection implements 
      */
     @Override
     public int count(Node node) {
-        return 0;//getRelationshipCountManager().getRelationshipCount(this, node);
+        return new SimpleNaiveRelationshipCountManager().getRelationshipCount(new TypeAndDirectionDescriptionImpl(this), node);
     }
 }

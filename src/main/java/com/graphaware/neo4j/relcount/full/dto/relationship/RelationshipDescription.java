@@ -25,7 +25,7 @@ import com.graphaware.neo4j.relcount.full.dto.property.PropertiesDescription;
  *
  */
 public interface RelationshipDescription extends
-        CopyMakingSerializableDirectedRelationship<RelationshipDescription, PropertiesDescription>,
+        CopyMakingSerializableDirectedRelationship<PropertiesDescription, RelationshipDescription>,
         PartiallyComparable<RelationshipDescription>, Comparable<RelationshipDescription>,
         Generalizing<RelationshipDescription> {
 }

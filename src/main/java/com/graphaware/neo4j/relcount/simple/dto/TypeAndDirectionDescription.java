@@ -19,7 +19,8 @@ package com.graphaware.neo4j.relcount.simple.dto;
 import com.graphaware.neo4j.dto.common.relationship.SerializableTypeAndDirection;
 
 /**
- *
+ * A description of a {@link org.neo4j.graphdb.Relationship}'s {@link org.neo4j.graphdb.RelationshipType} and {@link org.neo4j.graphdb.Direction}
+ * for the purposes of counting {@link org.neo4j.graphdb.Relationship}s with that description, caching such counts, etc.
  */
 public interface TypeAndDirectionDescription extends SerializableTypeAndDirection, Comparable<TypeAndDirectionDescription> {
 }
