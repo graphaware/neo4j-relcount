@@ -22,7 +22,9 @@ import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDe
 import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertiesExtractionStrategy;
+import com.graphaware.neo4j.utils.DirectionUtils;
 import org.apache.log4j.Logger;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -53,20 +55,28 @@ public class FullRelationshipCountTransactionEventHandler extends RelationshipCo
         this.extractionStrategy = extractionStrategy;
     }
 
-    protected void handleCreatedRelationship(Relationship relationship, Node pointOfView) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void handleCreatedRelationship(Relationship relationship, Node pointOfView, Direction defaultDirection) {
         Map<String, String> extractedProperties = extractionStrategy.extractProperties(relationship, pointOfView);
 
-        LiteralRelationshipDescription createdRelationship = new LiteralRelationshipDescription(relationship, pointOfView, extractedProperties);
+        LiteralRelationshipDescription createdRelationship = new LiteralRelationshipDescription(relationship.getType(), DirectionUtils.resolveDirection(relationship, pointOfView, defaultDirection), extractedProperties);
 
         if (countManager.incrementCount(createdRelationship, pointOfView)) {
             countCompactor.compactRelationshipCounts(pointOfView); //todo async
         }
     }
 
-    protected void handleDeletedRelationship(Relationship relationship, Node pointOfView) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void handleDeletedRelationship(Relationship relationship, Node pointOfView, Direction defaultDirection) {
         Map<String, String> extractedProperties = extractionStrategy.extractProperties(relationship, pointOfView);
 
-        LiteralRelationshipDescription deletedRelationship = new LiteralRelationshipDescription(relationship, pointOfView, extractedProperties);
+        LiteralRelationshipDescription deletedRelationship = new LiteralRelationshipDescription(relationship.getType(), DirectionUtils.resolveDirection(relationship, pointOfView, defaultDirection), extractedProperties);
 
         if (!countManager.decrementCount(deletedRelationship, pointOfView)) {
             LOG.warn(deletedRelationship.toString() + " was out of sync on node " + pointOfView.getId());

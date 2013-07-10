@@ -19,6 +19,7 @@ package com.graphaware.neo4j.relcount.full.api;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
 import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
+import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertiesExtractionStrategy;
 import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -46,18 +47,31 @@ import org.neo4j.graphdb.RelationshipType;
  * a {@link com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy} has been used that explicitly excludes
  * the relationships being counted (0 is returned). If you prefer exception to fallback, use {@link FullCachedLiteralRelationshipCounter}.
  */
-public class FullLiteralRelationshipCounter extends BaseFullRelationshipCounter implements FullRelationshipCounter {
+public class FullLiteralRelationshipCounter extends BasePossiblyNaiveRelationshipCounter implements FullRelationshipCounter {
 
     private static final Logger LOG = Logger.getLogger(FullLiteralRelationshipCounter.class);
 
     /**
      * Construct a new relationship counter.
+     * <p/>
+     * Properties are extracted using {@link com.graphaware.neo4j.tx.event.strategy.ExtractAllRelationshipProperties}.
      *
      * @param type      type of the relationships to count.
      * @param direction direction of the relationships to count.
      */
     public FullLiteralRelationshipCounter(RelationshipType type, Direction direction) {
         super(type, direction);
+    }
+
+    /**
+     * Construct a new relationship counter.
+     *
+     * @param type               type of the relationships to count.
+     * @param direction          direction of the relationships to count.
+     * @param extractionStrategy for extracting properties from relationships. Use the same one as for the {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler}.
+     */
+    public FullLiteralRelationshipCounter(RelationshipType type, Direction direction, RelationshipPropertiesExtractionStrategy extractionStrategy) {
+        super(type, direction, extractionStrategy);
     }
 
     /**
@@ -70,7 +84,7 @@ public class FullLiteralRelationshipCounter extends BaseFullRelationshipCounter 
         } catch (UnableToCountException e) {
             LOG.warn("Unable to count relationships with description: " + new LiteralRelationshipDescription(this).toString() +
                     " for node " + node.toString() + ". Falling back to naive approach");
-            return new FullNaiveLiteralRelationshipCounter(this).count(node);
+            return new FullNaiveLiteralRelationshipCounter(this, extractionStrategy).count(node);
         }
     }
 
@@ -79,17 +93,18 @@ public class FullLiteralRelationshipCounter extends BaseFullRelationshipCounter 
      */
     @Override
     public FullRelationshipCounter with(String key, Object value) {
-        return new FullLiteralRelationshipCounter(getType(), getDirection(), getProperties().with(key, value));
+        return new FullLiteralRelationshipCounter(getType(), getDirection(), getProperties().with(key, value), extractionStrategy);
     }
 
     /**
      * Construct a counter.
      *
-     * @param type       type.
-     * @param direction  direction.
-     * @param properties props.
+     * @param type               type.
+     * @param direction          direction.
+     * @param properties         props.
+     * @param extractionStrategy for extracting properties from relationships.
      */
-    protected FullLiteralRelationshipCounter(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties) {
-        super(type, direction, properties);
+    protected FullLiteralRelationshipCounter(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties, RelationshipPropertiesExtractionStrategy extractionStrategy) {
+        super(type, direction, properties, extractionStrategy);
     }
 }

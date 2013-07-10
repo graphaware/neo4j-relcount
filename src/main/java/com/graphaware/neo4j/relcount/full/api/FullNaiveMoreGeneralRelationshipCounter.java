@@ -22,6 +22,7 @@ import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDe
 import com.graphaware.neo4j.relcount.full.manager.FullNaiveRelationshipCountManager;
 import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
 import com.graphaware.neo4j.relcount.simple.manager.SimpleNaiveRelationshipCountManager;
+import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertiesExtractionStrategy;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
@@ -43,10 +44,12 @@ import org.neo4j.graphdb.RelationshipType;
  * <p/>
  * This counter always returns a count, never throws {@link com.graphaware.neo4j.relcount.common.api.UnableToCountException}.
  */
-public class FullNaiveMoreGeneralRelationshipCounter extends BaseFullRelationshipCounter implements FullRelationshipCounter {
+public class FullNaiveMoreGeneralRelationshipCounter extends BasePossiblyNaiveRelationshipCounter implements FullRelationshipCounter {
 
     /**
      * Construct a new relationship counter.
+     * <p/>
+     * Properties are extracted using {@link com.graphaware.neo4j.tx.event.strategy.ExtractAllRelationshipProperties}.
      *
      * @param type      type of the relationships to count.
      * @param direction direction of the relationships to count.
@@ -55,8 +58,26 @@ public class FullNaiveMoreGeneralRelationshipCounter extends BaseFullRelationshi
         super(type, direction);
     }
 
+    /**
+     * Construct a relationship representation from another one.
+     * <p/>
+     * Properties are extracted using {@link com.graphaware.neo4j.tx.event.strategy.ExtractAllRelationshipProperties}.
+     *
+     * @param relationship relationships representation.
+     */
     public FullNaiveMoreGeneralRelationshipCounter(HasTypeDirectionAndProperties<String, ?> relationship) {
         super(relationship);
+    }
+
+    /**
+     * Construct a new relationship counter.
+     *
+     * @param type               type of the relationships to count.
+     * @param direction          direction of the relationships to count.
+     * @param extractionStrategy for extracting properties from relationships.
+     */
+    public FullNaiveMoreGeneralRelationshipCounter(RelationshipType type, Direction direction, RelationshipPropertiesExtractionStrategy extractionStrategy) {
+        super(type, direction, extractionStrategy);
     }
 
     /**
@@ -68,7 +89,7 @@ public class FullNaiveMoreGeneralRelationshipCounter extends BaseFullRelationshi
             return new SimpleNaiveRelationshipCountManager().getRelationshipCount(new TypeAndDirectionDescriptionImpl(this), node);
         }
 
-        return new FullNaiveRelationshipCountManager().getRelationshipCount(new GeneralRelationshipDescription(this), node);
+        return new FullNaiveRelationshipCountManager(extractionStrategy).getRelationshipCount(new GeneralRelationshipDescription(this), node);
     }
 
     /**
@@ -76,7 +97,7 @@ public class FullNaiveMoreGeneralRelationshipCounter extends BaseFullRelationshi
      */
     @Override
     public FullRelationshipCounter with(String key, Object value) {
-        return new FullNaiveMoreGeneralRelationshipCounter(getType(), getDirection(), getProperties().with(key, value));
+        return new FullNaiveMoreGeneralRelationshipCounter(getType(), getDirection(), getProperties().with(key, value), extractionStrategy);
     }
 
     /**
@@ -86,7 +107,17 @@ public class FullNaiveMoreGeneralRelationshipCounter extends BaseFullRelationshi
      * @param direction  direction.
      * @param properties props.
      */
-    protected FullNaiveMoreGeneralRelationshipCounter(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties) {
-        super(type, direction, properties);
+    protected FullNaiveMoreGeneralRelationshipCounter(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties, RelationshipPropertiesExtractionStrategy extractionStrategy) {
+        super(type, direction, properties, extractionStrategy);
+    }
+
+    /**
+     * Construct a counter from another relationship representation.
+     *
+     * @param relationship       relationships representation.
+     * @param extractionStrategy for extracting properties from relationships.
+     */
+    protected FullNaiveMoreGeneralRelationshipCounter(HasTypeDirectionAndProperties<String, ?> relationship, RelationshipPropertiesExtractionStrategy extractionStrategy) {
+        super(relationship, extractionStrategy);
     }
 }

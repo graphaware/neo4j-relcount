@@ -17,6 +17,7 @@
 package com.graphaware.neo4j.relcount.full.manager;
 
 import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.dto.relationship.RelationshipDescription;
 import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.tx.single.TransactionCallback;
@@ -61,11 +62,16 @@ public class FullCachingRelationshipCountManagerTest {
 
         final Node root = database.getNodeById(0);
 
-        assertEquals(2, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value1"), root));
-        assertEquals(3, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value2"), root));
-        assertEquals(4, mgr.getRelationshipCount(rel("test#OUTGOING#key2#value2"), root));
-        assertEquals(0, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value3"), root));
-        assertEquals(0, mgr.getRelationshipCount(rel("test#INCOMING#key1#value1"), root));
+        assertEquals(2, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value1"), root));
+        assertEquals(2, mgr.getRelationshipCount(lit("test#OUTGOING#key1#value1"), root));
+        assertEquals(3, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value2"), root));
+        assertEquals(3, mgr.getRelationshipCount(lit("test#OUTGOING#key1#value2"), root));
+        assertEquals(4, mgr.getRelationshipCount(gen("test#OUTGOING#key2#value2"), root));
+        assertEquals(4, mgr.getRelationshipCount(lit("test#OUTGOING#key2#value2"), root));
+        assertEquals(0, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value3"), root));
+        assertEquals(0, mgr.getRelationshipCount(lit("test#OUTGOING#key1#value3"), root));
+        assertEquals(0, mgr.getRelationshipCount(gen("test#INCOMING#key1#value1"), root));
+        assertEquals(0, mgr.getRelationshipCount(lit("test#INCOMING#key1#value1"), root));
     }
 
     @Test
@@ -74,9 +80,9 @@ public class FullCachingRelationshipCountManagerTest {
 
         final Node root = database.getNodeById(0);
 
-        assertEquals(9, mgr.getRelationshipCount(rel("test#OUTGOING"), root));
-        assertEquals(0, mgr.getRelationshipCount(rel("wrong#OUTGOING"), root));
-        assertEquals(0, mgr.getRelationshipCount(rel("test#INCOMING"), root));
+        assertEquals(9, mgr.getRelationshipCount(gen("test#OUTGOING"), root));
+        assertEquals(0, mgr.getRelationshipCount(gen("wrong#OUTGOING"), root));
+        assertEquals(0, mgr.getRelationshipCount(gen("test#INCOMING"), root));
     }
 
     @Test
@@ -85,10 +91,10 @@ public class FullCachingRelationshipCountManagerTest {
 
         final Node root = database.getNodeById(0);
 
-        assertEquals(39, mgr.getRelationshipCount(rel("test#OUTGOING"), root));
-        assertEquals(11, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value2"), root));
-        assertEquals(15, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value1"), root));
-        assertEquals(3, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value1#key2#value2"), root));
+        assertEquals(39, mgr.getRelationshipCount(gen("test#OUTGOING"), root));
+        assertEquals(11, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value2"), root));
+        assertEquals(15, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value1"), root));
+        assertEquals(3, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value1#key2#value2"), root));
     }
 
     @Test
@@ -103,23 +109,23 @@ public class FullCachingRelationshipCountManagerTest {
         //also testing order
 
         Map.Entry<RelationshipDescription, Integer> next = iterator.next();
-        assertEquals(rel("test#OUTGOING#key1#value1#key2#value2"), next.getKey());
+        assertEquals(gen("test#OUTGOING#key1#value1#key2#value2"), next.getKey());
         assertEquals(3, (int) next.getValue());
 
         next = iterator.next();
-        assertEquals(rel("test#OUTGOING#key1#value1#key2#value3"), next.getKey());
+        assertEquals(gen("test#OUTGOING#key1#value1#key2#value3"), next.getKey());
         assertEquals(5, (int) next.getValue());
 
         next = iterator.next();
-        assertEquals(rel("test#OUTGOING#key1#value1"), next.getKey());
+        assertEquals(gen("test#OUTGOING#key1#value1"), next.getKey());
         assertEquals(7, (int) next.getValue());
 
         next = iterator.next();
-        assertEquals(rel("test#OUTGOING#key1#value2"), next.getKey());
+        assertEquals(gen("test#OUTGOING#key1#value2"), next.getKey());
         assertEquals(11, (int) next.getValue());
 
         next = iterator.next();
-        assertEquals(rel("test#OUTGOING"), next.getKey());
+        assertEquals(gen("test#OUTGOING"), next.getKey());
         assertEquals(13, (int) next.getValue());
 
         assertEquals(5, relationshipCounts.size());
@@ -134,12 +140,12 @@ public class FullCachingRelationshipCountManagerTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertTrue(mgr.incrementCount(rel("test#OUTGOING#key1#value3"), root));
+                assertTrue(mgr.incrementCount(gen("test#OUTGOING#key1#value3"), root));
                 return null;
             }
         });
 
-        assertEquals(1, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value3"), root));
+        assertEquals(1, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value3"), root));
     }
 
     @Test
@@ -151,12 +157,12 @@ public class FullCachingRelationshipCountManagerTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertTrue(mgr.incrementCount(rel("test#OUTGOING#key1#value3"), root, 5));
+                assertTrue(mgr.incrementCount(gen("test#OUTGOING#key1#value3"), root, 5));
                 return null;
             }
         });
 
-        assertEquals(5, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value3"), root));
+        assertEquals(5, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value3"), root));
     }
 
     @Test
@@ -168,12 +174,12 @@ public class FullCachingRelationshipCountManagerTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertFalse(mgr.incrementCount(rel("test#OUTGOING#key1#value2"), root));
+                assertFalse(mgr.incrementCount(gen("test#OUTGOING#key1#value2"), root));
                 return null;
             }
         });
 
-        assertEquals(4, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value2"), root));
+        assertEquals(4, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value2"), root));
     }
 
     @Test
@@ -185,12 +191,12 @@ public class FullCachingRelationshipCountManagerTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertFalse(mgr.incrementCount(rel("test#OUTGOING#key1#value1"), root, 5));
+                assertFalse(mgr.incrementCount(gen("test#OUTGOING#key1#value1"), root, 5));
                 return null;
             }
         });
 
-        assertEquals(7, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value1"), root));
+        assertEquals(7, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value1"), root));
     }
 
     @Test
@@ -202,13 +208,13 @@ public class FullCachingRelationshipCountManagerTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertFalse(mgr.incrementCount(rel("test#OUTGOING#key1#value1"), root, 5));
+                assertFalse(mgr.incrementCount(gen("test#OUTGOING#key1#value1"), root, 5));
                 return null;
             }
         });
 
-        assertEquals(12, (int) mgr.getRelationshipCounts(root).get(rel("test#OUTGOING#key1#value1")));
-        assertEquals(13, (int) mgr.getRelationshipCounts(root).get(rel("test#OUTGOING")));
+        assertEquals(12, (int) mgr.getRelationshipCounts(root).get(gen("test#OUTGOING#key1#value1")));
+        assertEquals(13, (int) mgr.getRelationshipCounts(root).get(gen("test#OUTGOING")));
     }
 
     @Test
@@ -220,14 +226,14 @@ public class FullCachingRelationshipCountManagerTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertFalse(mgr.decrementCount(rel("test#OUTGOING#key1#value3"), root));
+                assertFalse(mgr.decrementCount(gen("test#OUTGOING#key1#value3"), root));
                 return null;
             }
         });
 
-        assertEquals(2, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value1"), root));
-        assertEquals(3, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value2"), root));
-        assertEquals(4, mgr.getRelationshipCount(rel("test#OUTGOING#key2#value2"), root));
+        assertEquals(2, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value1"), root));
+        assertEquals(3, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value2"), root));
+        assertEquals(4, mgr.getRelationshipCount(gen("test#OUTGOING#key2#value2"), root));
     }
 
     @Test
@@ -239,14 +245,14 @@ public class FullCachingRelationshipCountManagerTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertFalse(mgr.decrementCount(rel("test#OUTGOING#key1#value3"), root, 2));
+                assertFalse(mgr.decrementCount(gen("test#OUTGOING#key1#value3"), root, 2));
                 return null;
             }
         });
 
-        assertEquals(2, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value1"), root));
-        assertEquals(3, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value2"), root));
-        assertEquals(4, mgr.getRelationshipCount(rel("test#OUTGOING#key2#value2"), root));
+        assertEquals(2, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value1"), root));
+        assertEquals(3, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value2"), root));
+        assertEquals(4, mgr.getRelationshipCount(gen("test#OUTGOING#key2#value2"), root));
     }
 
     @Test
@@ -258,12 +264,12 @@ public class FullCachingRelationshipCountManagerTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertTrue(mgr.decrementCount(rel("test#OUTGOING#key1#value2"), root));
+                assertTrue(mgr.decrementCount(gen("test#OUTGOING#key1#value2"), root));
                 return null;
             }
         });
 
-        assertEquals(2, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value2"), root));
+        assertEquals(2, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value2"), root));
     }
 
     @Test
@@ -275,12 +281,12 @@ public class FullCachingRelationshipCountManagerTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertTrue(mgr.decrementCount(rel("test#OUTGOING#key2#value2"), root, 2));
+                assertTrue(mgr.decrementCount(gen("test#OUTGOING#key2#value2"), root, 2));
                 return null;
             }
         });
 
-        assertEquals(2, mgr.getRelationshipCount(rel("test#OUTGOING#key2#value2"), root));
+        assertEquals(2, mgr.getRelationshipCount(gen("test#OUTGOING#key2#value2"), root));
     }
 
     @Test
@@ -292,13 +298,13 @@ public class FullCachingRelationshipCountManagerTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertTrue(mgr.decrementCount(rel("test#OUTGOING#key1#value1"), root, 5));
+                assertTrue(mgr.decrementCount(gen("test#OUTGOING#key1#value1"), root, 5));
                 return null;
             }
         });
 
-        assertEquals(2, (int) mgr.getRelationshipCounts(root).get(rel("test#OUTGOING#key1#value1")));
-        assertEquals(13, (int) mgr.getRelationshipCounts(root).get(rel("test#OUTGOING")));
+        assertEquals(2, (int) mgr.getRelationshipCounts(root).get(gen("test#OUTGOING#key1#value1")));
+        assertEquals(13, (int) mgr.getRelationshipCounts(root).get(gen("test#OUTGOING")));
     }
 
     @Test
@@ -310,14 +316,14 @@ public class FullCachingRelationshipCountManagerTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertFalse(mgr.decrementCount(rel("test#OUTGOING#key1#value1"), root, 8));
+                assertFalse(mgr.decrementCount(gen("test#OUTGOING#key1#value1"), root, 8));
                 return null;
             }
         });
 
-        assertFalse(mgr.getRelationshipCounts(root).containsKey(rel("test#OUTGOING#key1#value1")));
-        assertEquals(8, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value1"), root));
-        assertEquals(13, (int) mgr.getRelationshipCounts(root).get(rel("test#OUTGOING")));
+        assertFalse(mgr.getRelationshipCounts(root).containsKey(gen("test#OUTGOING#key1#value1")));
+        assertEquals(8, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value1"), root));
+        assertEquals(13, (int) mgr.getRelationshipCounts(root).get(gen("test#OUTGOING")));
     }
 
     @Test
@@ -329,14 +335,14 @@ public class FullCachingRelationshipCountManagerTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertTrue(mgr.decrementCount(rel("test#OUTGOING#key1#value1"), root, 7));
+                assertTrue(mgr.decrementCount(gen("test#OUTGOING#key1#value1"), root, 7));
                 return null;
             }
         });
 
-        assertFalse(mgr.getRelationshipCounts(root).containsKey(rel("test#OUTGOING#key1#value1")));
-        assertEquals(8, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value1"), root));
-        assertEquals(13, (int) mgr.getRelationshipCounts(root).get(rel("test#OUTGOING")));
+        assertFalse(mgr.getRelationshipCounts(root).containsKey(gen("test#OUTGOING#key1#value1")));
+        assertEquals(8, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value1"), root));
+        assertEquals(13, (int) mgr.getRelationshipCounts(root).get(gen("test#OUTGOING")));
     }
 
     @Test
@@ -348,31 +354,31 @@ public class FullCachingRelationshipCountManagerTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                mgr.deleteCount(rel("test#OUTGOING"), root);
+                mgr.deleteCount(gen("test#OUTGOING"), root);
                 return null;
             }
         });
 
-        assertEquals(26, mgr.getRelationshipCount(rel("test#OUTGOING"), root));
-        assertFalse(mgr.getRelationshipCounts(root).containsKey(rel("test#OUTGOING")));
+        assertEquals(26, mgr.getRelationshipCount(gen("test#OUTGOING"), root));
+        assertFalse(mgr.getRelationshipCounts(root).containsKey(gen("test#OUTGOING")));
 
-        assertEquals(11, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value2"), root));
-        assertEquals(15, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value1"), root));
-        assertEquals(3, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value1#key2#value2"), root));
+        assertEquals(11, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value2"), root));
+        assertEquals(15, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value1"), root));
+        assertEquals(3, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value1#key2#value2"), root));
 
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                mgr.deleteCount(rel("test#OUTGOING#key1#value2"), root);
+                mgr.deleteCount(gen("test#OUTGOING#key1#value2"), root);
                 return null;
             }
         });
 
-        assertFalse(mgr.getRelationshipCounts(root).containsKey(rel("test#OUTGOING")));
-        assertFalse(mgr.getRelationshipCounts(root).containsKey(rel("test#OUTGOING#key1#value2")));
+        assertFalse(mgr.getRelationshipCounts(root).containsKey(gen("test#OUTGOING")));
+        assertFalse(mgr.getRelationshipCounts(root).containsKey(gen("test#OUTGOING#key1#value2")));
 
-        assertEquals(15, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value1"), root));
-        assertEquals(3, mgr.getRelationshipCount(rel("test#OUTGOING#key1#value1#key2#value2"), root));
+        assertEquals(15, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value1"), root));
+        assertEquals(3, mgr.getRelationshipCount(gen("test#OUTGOING#key1#value1#key2#value2"), root));
     }
 
     private void setUpBasicRelationshipCounts() {
@@ -380,9 +386,9 @@ public class FullCachingRelationshipCountManagerTest {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
                 Node root = database.getNodeById(0);
-                root.setProperty(rel("test#OUTGOING#key1#value1").toString(), 2);
-                root.setProperty(rel("test#OUTGOING#key1#value2").toString(), 3);
-                root.setProperty(rel("test#OUTGOING#key2#value2").toString(), 4);
+                root.setProperty(lit("test#OUTGOING#key1#value1").toString(), 2);
+                root.setProperty(lit("test#OUTGOING#key1#value2").toString(), 3);
+                root.setProperty(lit("test#OUTGOING#key2#value2").toString(), 4);
                 return null;
             }
         });
@@ -393,11 +399,11 @@ public class FullCachingRelationshipCountManagerTest {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
                 Node root = database.getNodeById(0);
-                root.setProperty(rel("test#OUTGOING#key1#value1#key2#value2").toString(), 3);
-                root.setProperty(rel("test#OUTGOING#key1#value1#key2#value3").toString(), 5);
-                root.setProperty(rel("test#OUTGOING#key1#value1").toString(), 7);
-                root.setProperty(rel("test#OUTGOING#key1#value2").toString(), 11);
-                root.setProperty(rel("test#OUTGOING").toString(), 13);
+                root.setProperty(gen("test#OUTGOING#key1#value1#key2#value2").toString(), 3);
+                root.setProperty(gen("test#OUTGOING#key1#value1#key2#value3").toString(), 5);
+                root.setProperty(gen("test#OUTGOING#key1#value1").toString(), 7);
+                root.setProperty(gen("test#OUTGOING#key1#value2").toString(), 11);
+                root.setProperty(gen("test#OUTGOING").toString(), 13);
                 return null;
             }
         });
@@ -406,8 +412,12 @@ public class FullCachingRelationshipCountManagerTest {
     /**
      * just for readability
      */
-    private GeneralRelationshipDescription rel(String s) {
+    private RelationshipDescription gen(String s) {
         return new GeneralRelationshipDescription(GA_REL_PREFIX + s);
+    }
+
+    private RelationshipDescription lit(String s) {
+        return new LiteralRelationshipDescription(GA_REL_PREFIX + s);
     }
 
 }

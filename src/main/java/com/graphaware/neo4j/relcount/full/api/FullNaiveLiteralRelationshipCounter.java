@@ -22,6 +22,7 @@ import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDe
 import com.graphaware.neo4j.relcount.full.manager.FullNaiveRelationshipCountManager;
 import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
 import com.graphaware.neo4j.relcount.simple.manager.SimpleNaiveRelationshipCountManager;
+import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertiesExtractionStrategy;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
@@ -43,10 +44,12 @@ import org.neo4j.graphdb.RelationshipType;
  * <p/>
  * This counter always returns a count, never throws {@link com.graphaware.neo4j.relcount.common.api.UnableToCountException}.
  */
-public class FullNaiveLiteralRelationshipCounter extends BaseFullRelationshipCounter implements FullRelationshipCounter {
+public class FullNaiveLiteralRelationshipCounter extends BasePossiblyNaiveRelationshipCounter implements FullRelationshipCounter {
 
     /**
      * Construct a new relationship counter.
+     * <p/>
+     * Properties are extracted using {@link com.graphaware.neo4j.tx.event.strategy.ExtractAllRelationshipProperties}.
      *
      * @param type      type of the relationships to count.
      * @param direction direction of the relationships to count.
@@ -57,11 +60,36 @@ public class FullNaiveLiteralRelationshipCounter extends BaseFullRelationshipCou
 
     /**
      * Construct a relationship representation from another one.
+     * <p/>
+     * Properties are extracted using {@link com.graphaware.neo4j.tx.event.strategy.ExtractAllRelationshipProperties}.
      *
      * @param relationship relationships representation.
      */
     protected FullNaiveLiteralRelationshipCounter(HasTypeDirectionAndProperties<String, ?> relationship) {
         super(relationship);
+    }
+
+    /**
+     * Construct a new relationship counter.
+     *
+     * @param type               type of the relationships to count.
+     * @param direction          direction of the relationships to count.
+     * @param extractionStrategy for extracting properties from relationships.
+     */
+    public FullNaiveLiteralRelationshipCounter(RelationshipType type, Direction direction, RelationshipPropertiesExtractionStrategy extractionStrategy) {
+        super(type, direction, extractionStrategy);
+    }
+
+    /**
+     * Construct a counter.
+     *
+     * @param type               type.
+     * @param direction          direction.
+     * @param properties         props.
+     * @param extractionStrategy for extracting properties from relationships.
+     */
+    protected FullNaiveLiteralRelationshipCounter(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties, RelationshipPropertiesExtractionStrategy extractionStrategy) {
+        super(type, direction, properties, extractionStrategy);
     }
 
     /**
@@ -73,7 +101,7 @@ public class FullNaiveLiteralRelationshipCounter extends BaseFullRelationshipCou
             return new SimpleNaiveRelationshipCountManager().getRelationshipCount(new TypeAndDirectionDescriptionImpl(this), node);
         }
 
-        return new FullNaiveRelationshipCountManager().getRelationshipCount(new LiteralRelationshipDescription(this), node);
+        return new FullNaiveRelationshipCountManager(extractionStrategy).getRelationshipCount(new LiteralRelationshipDescription(this), node);
     }
 
     /**
@@ -81,17 +109,16 @@ public class FullNaiveLiteralRelationshipCounter extends BaseFullRelationshipCou
      */
     @Override
     public FullRelationshipCounter with(String key, Object value) {
-        return new FullNaiveLiteralRelationshipCounter(getType(), getDirection(), getProperties().with(key, value));
+        return new FullNaiveLiteralRelationshipCounter(getType(), getDirection(), getProperties().with(key, value), extractionStrategy);
     }
 
     /**
-     * Construct a counter.
+     * Construct a relationship representation from another one.
      *
-     * @param type       type.
-     * @param direction  direction.
-     * @param properties props.
+     * @param relationship       relationships representation.
+     * @param extractionStrategy for extracting properties from relationships.
      */
-    protected FullNaiveLiteralRelationshipCounter(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties) {
-        super(type, direction, properties);
+    protected FullNaiveLiteralRelationshipCounter(HasTypeDirectionAndProperties<String, ?> relationship, RelationshipPropertiesExtractionStrategy extractionStrategy) {
+        super(relationship, extractionStrategy);
     }
 }

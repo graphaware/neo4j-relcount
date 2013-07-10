@@ -21,7 +21,9 @@ import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescription;
 import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
 import com.graphaware.neo4j.relcount.simple.manager.SimpleCachingRelationshipCountManager;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
+import com.graphaware.neo4j.utils.DirectionUtils;
 import org.apache.log4j.Logger;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -51,8 +53,8 @@ public class SimpleRelationshipCountTransactionEventHandler extends Relationship
      * {@inheritDoc}
      */
     @Override
-    protected void handleCreatedRelationship(Relationship relationship, Node pointOfView) {
-        TypeAndDirectionDescription createdRelationship = new TypeAndDirectionDescriptionImpl(relationship, pointOfView);
+    protected void handleCreatedRelationship(Relationship relationship, Node pointOfView, Direction defaultDirection) {
+        TypeAndDirectionDescription createdRelationship = new TypeAndDirectionDescriptionImpl(relationship.getType(), DirectionUtils.resolveDirection(relationship, pointOfView, defaultDirection));
 
         countManager.incrementCount(createdRelationship, pointOfView);
     }
@@ -61,8 +63,8 @@ public class SimpleRelationshipCountTransactionEventHandler extends Relationship
      * {@inheritDoc}
      */
     @Override
-    protected void handleDeletedRelationship(Relationship relationship, Node pointOfView) {
-        TypeAndDirectionDescription deletedRelationship = new TypeAndDirectionDescriptionImpl(relationship, pointOfView);
+    protected void handleDeletedRelationship(Relationship relationship, Node pointOfView, Direction defaultDirection) {
+        TypeAndDirectionDescription deletedRelationship = new TypeAndDirectionDescriptionImpl(relationship.getType(), DirectionUtils.resolveDirection(relationship, pointOfView, defaultDirection));
 
         if (!countManager.decrementCount(deletedRelationship, pointOfView)) {
             LOG.warn(deletedRelationship.toString() + " was out of sync on node " + pointOfView.getId());

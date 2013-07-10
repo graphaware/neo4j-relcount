@@ -21,10 +21,14 @@ import com.graphaware.neo4j.tx.event.api.FilteredLazyTransactionData;
 import com.graphaware.neo4j.tx.event.api.ImprovedTransactionData;
 import com.graphaware.neo4j.tx.event.strategy.IncludeAllNodes;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.event.TransactionData;
 import org.neo4j.graphdb.event.TransactionEventHandler;
+
+import static org.neo4j.graphdb.Direction.INCOMING;
+import static org.neo4j.graphdb.Direction.OUTGOING;
 
 /**
  * {@link org.neo4j.graphdb.event.TransactionEventHandler} responsible for caching relationship counts on nodes.
@@ -62,13 +66,8 @@ public abstract class RelationshipCountCachingTransactionEventHandler extends Tr
 
     private void handleCreatedRelationships(ImprovedTransactionData data) {
         for (Relationship createdRelationship : data.getAllCreatedRelationships()) {
-            Node startNode = createdRelationship.getStartNode();
-            handleCreatedRelationship(createdRelationship, startNode);
-
-            Node endNode = createdRelationship.getEndNode();
-            if (!startNode.equals(endNode)) {
-                handleCreatedRelationship(createdRelationship, endNode);
-            }
+            handleCreatedRelationship(createdRelationship, createdRelationship.getStartNode(), INCOMING);
+            handleCreatedRelationship(createdRelationship, createdRelationship.getEndNode(), OUTGOING);
         }
     }
 
@@ -76,12 +75,12 @@ public abstract class RelationshipCountCachingTransactionEventHandler extends Tr
         for (Relationship deletedRelationship : data.getAllDeletedRelationships()) {
             Node startNode = deletedRelationship.getStartNode();
             if (!data.hasBeenDeleted(startNode)) {
-                handleDeletedRelationship(deletedRelationship, startNode);
+                handleDeletedRelationship(deletedRelationship, startNode, INCOMING);
             }
 
             Node endNode = deletedRelationship.getEndNode();
-            if (!data.hasBeenDeleted(endNode) && !startNode.equals(endNode)) {
-                handleDeletedRelationship(deletedRelationship, endNode);
+            if (!data.hasBeenDeleted(endNode)) {
+                handleDeletedRelationship(deletedRelationship, endNode, OUTGOING);
             }
         }
     }
@@ -91,31 +90,40 @@ public abstract class RelationshipCountCachingTransactionEventHandler extends Tr
             Relationship current = changedRelationship.getCurrent();
             Relationship previous = changedRelationship.getPrevious();
 
-            handleDeletedRelationship(previous, previous.getStartNode());
-            handleCreatedRelationship(current, current.getStartNode());
-
-            if (!previous.getStartNode().equals(previous.getEndNode())) {
-                handleDeletedRelationship(previous, previous.getEndNode());
-                handleCreatedRelationship(current, current.getEndNode());
-            }
+            handleDeletedRelationship(previous, previous.getStartNode(), INCOMING);
+            handleDeletedRelationship(previous, previous.getEndNode(), OUTGOING);
+            handleCreatedRelationship(current, current.getStartNode(), INCOMING);
+            handleCreatedRelationship(current, current.getEndNode(), OUTGOING);
         }
     }
 
     /**
      * Handle (i.e. cache) a created relationship.
      *
-     * @param relationship the has been created.
-     * @param pointOfView  node whose point of view the created relationships is being handled, i.e. the one on which
-     *                     the relationship count should be cached.
+     * @param relationship     the has been created.
+     * @param pointOfView      node whose point of view the created relationships is being handled, i.e. the one on which
+     *                         the relationship count should be cached.
+     * @param defaultDirection in case the relationship direction would be resolved to {@link Direction#BOTH}, what
+     *                         should it actually be resolved to? This must be {@link Direction#OUTGOING} or {@link Direction#INCOMING},
+     *                         never cache {@link Direction#BOTH}! (because its meaning would be unclear - is it just the
+     *                         cyclical relationships, or all? Also, there would be trouble during compaction and eventually,
+     *                         incoming and outgoing relationships could be compacted to BOTH, so it would be impossible
+     *                         to find only incoming or outgoing.
      */
-    protected abstract void handleCreatedRelationship(Relationship relationship, Node pointOfView);
+    protected abstract void handleCreatedRelationship(Relationship relationship, Node pointOfView, Direction defaultDirection);
 
     /**
      * Handle (i.e. cache) a deleted relationship.
      *
-     * @param relationship the has been deleted.
-     * @param pointOfView  node whose point of view the deleted relationships is being handled, i.e. the one on which
-     *                     the relationship count should be cached.
+     * @param relationship     the has been deleted.
+     * @param pointOfView      node whose point of view the deleted relationships is being handled, i.e. the one on which
+     *                         the relationship count should be cached.
+     * @param defaultDirection in case the relationship direction would be resolved to {@link Direction#BOTH}, what
+     *                         should it actually be resolved to? This must be {@link Direction#OUTGOING} or {@link Direction#INCOMING},
+     *                         never cache {@link Direction#BOTH}! (because its meaning would be unclear - is it just the
+     *                         cyclical relationships, or all? Also, there would be trouble during compaction and eventually,
+     *                         incoming and outgoing relationships could be compacted to BOTH, so it would be impossible
+     *                         to find only incoming or outgoing.
      */
-    protected abstract void handleDeletedRelationship(Relationship relationship, Node pointOfView);
+    protected abstract void handleDeletedRelationship(Relationship relationship, Node pointOfView, Direction defaultDirection);
 }

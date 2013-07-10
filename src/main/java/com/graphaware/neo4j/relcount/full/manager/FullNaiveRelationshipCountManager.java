@@ -20,14 +20,23 @@ import com.graphaware.neo4j.relcount.common.manager.BaseNaiveRelationshipCountMa
 import com.graphaware.neo4j.relcount.common.manager.RelationshipCountManager;
 import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.dto.relationship.RelationshipDescription;
+import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertiesExtractionStrategy;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+
+import java.util.Map;
 
 /**
  * {@link RelationshipCountManager} that counts relationships by traversing them (performs no caching). It is "full" in
  * the sense that it cares about {@link org.neo4j.graphdb.RelationshipType}s, {@link org.neo4j.graphdb.Direction}s, and properties.
  */
 public class FullNaiveRelationshipCountManager extends BaseNaiveRelationshipCountManager<RelationshipDescription> implements RelationshipCountManager<RelationshipDescription> {
+
+    private final RelationshipPropertiesExtractionStrategy extractionStrategy;
+
+    public FullNaiveRelationshipCountManager(RelationshipPropertiesExtractionStrategy extractionStrategy) {
+        this.extractionStrategy = extractionStrategy;
+    }
 
     /**
      * {@inheritDoc}
@@ -50,7 +59,7 @@ public class FullNaiveRelationshipCountManager extends BaseNaiveRelationshipCoun
      */
     @Override
     protected RelationshipDescription newCandidate(Relationship relationship, Node pointOfView) {
-        //todo extract properties
-        return new LiteralRelationshipDescription(relationship, pointOfView);
+        Map<String, String> extractedProperties = extractionStrategy.extractProperties(relationship, pointOfView);
+        return new LiteralRelationshipDescription(relationship, pointOfView, extractedProperties);   //direction can resolve to both, but that's ok for non-cached relationships
     }
 }

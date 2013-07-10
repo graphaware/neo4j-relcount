@@ -20,8 +20,6 @@ import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndPropertie
 import com.graphaware.neo4j.relcount.full.dto.property.GeneralPropertiesDescription;
 import com.graphaware.neo4j.relcount.full.dto.property.PropertiesDescription;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 
 import java.util.Map;
@@ -30,19 +28,6 @@ import java.util.Map;
  *  {@link RelationshipDescription} in which a missing property means "any", as opposed to a concrete "UNDEF" value (see {@link LiteralRelationshipDescription}).
  */
 public class GeneralRelationshipDescription extends BaseRelationshipDescription implements RelationshipDescription {
-
-    /**
-     * Construct a description. Please note that using this constructor, the actual properties on the
-     * relationship are ignored! The provided properties are used instead. If the start node of this relationship is the same as the end node,
-     * the direction will be resolved as {@link org.neo4j.graphdb.Direction#BOTH}.
-     *
-     * @param relationship Neo4j relationship to describe.
-     * @param pointOfView  node which is looking at this relationship and thus determines its direction.
-     * @param properties   to use as if they were in the relationship.
-     */
-    public GeneralRelationshipDescription(Relationship relationship, Node pointOfView, Map<String, ?> properties) {
-        super(relationship, pointOfView, properties);
-    }
 
     /**
      * Construct a description.
