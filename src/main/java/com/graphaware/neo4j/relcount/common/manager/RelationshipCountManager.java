@@ -9,9 +9,8 @@ import java.util.Map;
  * Internal component responsible for counting relationships for a {@link Node}.
  *
  * @param <DESCRIPTION> type of relationship description that can be used to query relationship counts on nodes.
- * @param <CANDIDATE>   type of internal relationship representation, used for manipulating and comparing candidate relationships.
  */
-public interface RelationshipCountManager<DESCRIPTION extends HasTypeAndDirection, CANDIDATE extends HasTypeAndDirection> {
+public interface RelationshipCountManager<DESCRIPTION extends HasTypeAndDirection> {
 
     /**
      * Get a relationship count for a node.
@@ -30,5 +29,5 @@ public interface RelationshipCountManager<DESCRIPTION extends HasTypeAndDirectio
      * @param node        for which to get relationship count.
      * @return relationship counts (key = candidate relationship, value = count).
      */
-    Map<CANDIDATE, Integer> getRelationshipCounts(DESCRIPTION description, Node node);
+    Map<DESCRIPTION, Integer> getRelationshipCounts(DESCRIPTION description, Node node);
 }

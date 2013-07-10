@@ -25,7 +25,7 @@ import java.util.TreeSet;
 import static junit.framework.Assert.*;
 
 /**
- * Unit test for {@link CandidateLiteralProperties}.
+ * Unit test for {@link LiteralPropertiesDescription}.
  */
 public class LiteralComparablePropertiesTest {
 
@@ -136,10 +136,10 @@ public class LiteralComparablePropertiesTest {
 
     @Test
     public void shouldGenerateMoreGeneralAllMoreGeneral() {
-        Set<CandidateProperties> result = lprops("key1#value1#key2#value2#key3#value3").generateAllMoreGeneral();
+        Set<PropertiesDescription> result = lprops("key1#value1#key2#value2#key3#value3").generateAllMoreGeneral();
 
         assertEquals(9, result.size());
-        Iterator<CandidateProperties> iterator = result.iterator();
+        Iterator<PropertiesDescription> iterator = result.iterator();
         assertEquals(iterator.next(), lprops("key1#value1#key2#value2#key3#value3"));
         assertEquals(iterator.next(), cprops("key1#value1#key2#value2#key3#value3"));
         assertEquals(iterator.next(), cprops("key1#value1#key2#value2"));
@@ -153,19 +153,19 @@ public class LiteralComparablePropertiesTest {
 
     @Test
     public void shouldGenerateMoreGeneralOneMoreGeneral() {
-        Set<CandidateProperties> result = lprops("key1#value1#key2#value2#key3#value3").generateOneMoreGeneral();
+        Set<PropertiesDescription> result = lprops("key1#value1#key2#value2#key3#value3").generateOneMoreGeneral();
 
         assertEquals(1, result.size());
-        Iterator<CandidateProperties> iterator = result.iterator();
+        Iterator<PropertiesDescription> iterator = result.iterator();
         assertEquals(iterator.next(), cprops("key1#value1#key2#value2#key3#value3"));
     }
 
     @Test
     public void shouldGenerateMoreGeneralOneMoreGeneral2() {
-        Set<CandidateProperties> result = lprops("key1#value1").generateOneMoreGeneral();
+        Set<PropertiesDescription> result = lprops("key1#value1").generateOneMoreGeneral();
 
         assertEquals(1, result.size());
-        Iterator<CandidateProperties> iterator = result.iterator();
+        Iterator<PropertiesDescription> iterator = result.iterator();
         assertEquals(iterator.next(), cprops("key1#value1"));
     }
 
@@ -178,7 +178,7 @@ public class LiteralComparablePropertiesTest {
 
     @Test
     public void shouldAchieveSpecificToGeneralOrderingForProperties() {
-        Set<CandidateProperties> properties = new TreeSet<>();
+        Set<PropertiesDescription> properties = new TreeSet<>();
 
         properties.add(lprops(""));
         properties.add(lprops("key1#value1#key2#value2"));
@@ -191,7 +191,7 @@ public class LiteralComparablePropertiesTest {
         properties.add(cprops("key2#value2"));
         properties.add(cprops("key2#value2"));
 
-        Iterator<CandidateProperties> iterator = properties.iterator();
+        Iterator<PropertiesDescription> iterator = properties.iterator();
         assertEquals(lprops(""), iterator.next());
         assertEquals(lprops("key1#value1#key2#value2"), iterator.next());
         assertEquals(lprops("key2#value2"), iterator.next());
@@ -203,7 +203,7 @@ public class LiteralComparablePropertiesTest {
 
     @Test
     public void propertiesShouldBehaveProperlyInTreeSets() {
-        Set<CandidateProperties> properties = new TreeSet<>();
+        Set<PropertiesDescription> properties = new TreeSet<>();
 
         properties.add(lprops(""));
         properties.add(lprops("key1#value1#key2#value2"));
@@ -233,11 +233,11 @@ public class LiteralComparablePropertiesTest {
     /**
      * just for readability
      */
-    private CandidateProperties lprops(String s) {
-        return new CandidateLiteralProperties(s);
+    private PropertiesDescription lprops(String s) {
+        return new LiteralPropertiesDescription(s);
     }
 
-    private CandidateProperties cprops(String s) {
-        return new CandidateGeneralizedProperties(s);
+    private PropertiesDescription cprops(String s) {
+        return new GeneralPropertiesDescription(s);
     }
 }

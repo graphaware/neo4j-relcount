@@ -25,9 +25,8 @@ import org.neo4j.graphdb.Node;
  * of that kind the node has.
  *
  * @param <DESCRIPTION> type of relationship representation that can be used to query relationship counts on nodes.
- * @param <CACHED>      type of the (typically string-convertible) object representation of the cached relationship.
  */
-public interface CachingRelationshipCountManager<DESCRIPTION extends HasTypeAndDirection, CACHED extends DESCRIPTION> extends RelationshipCountManager<DESCRIPTION, CACHED> {
+public interface CachingRelationshipCountManager<DESCRIPTION extends HasTypeAndDirection> extends RelationshipCountManager<DESCRIPTION> {
 
     /**
      * Increment the cached relationship count on the given node by 1.
@@ -36,7 +35,7 @@ public interface CachingRelationshipCountManager<DESCRIPTION extends HasTypeAndD
      * @param node         on which to increment the cached relationship count.
      * @return true iff the cached value did not exist and had to be created.
      */
-    boolean incrementCount(CACHED relationship, Node node);
+    boolean incrementCount(DESCRIPTION relationship, Node node);
 
     /**
      * Increment the cached relationship count on the given node by delta.
@@ -46,7 +45,7 @@ public interface CachingRelationshipCountManager<DESCRIPTION extends HasTypeAndD
      * @param delta        increment.
      * @return true iff the cached value did not exist and had to be created.
      */
-    boolean incrementCount(CACHED relationship, Node node, int delta);
+    boolean incrementCount(DESCRIPTION relationship, Node node, int delta);
 
     /**
      * Decrement the cached relationship count on the given node by 1.
@@ -56,7 +55,7 @@ public interface CachingRelationshipCountManager<DESCRIPTION extends HasTypeAndD
      * @param node         on which to decrement the cached relationship count.
      * @return true iff the cached value existed and was >= 1.
      */
-    boolean decrementCount(CACHED relationship, Node node);
+    boolean decrementCount(DESCRIPTION relationship, Node node);
 
     /**
      * Decrement the cached relationship count on the given node by delta.
@@ -67,7 +66,7 @@ public interface CachingRelationshipCountManager<DESCRIPTION extends HasTypeAndD
      * @param delta        increment.
      * @return true iff the cached value existed and was >= delta.
      */
-    boolean decrementCount(CACHED relationship, Node node, int delta);
+    boolean decrementCount(DESCRIPTION relationship, Node node, int delta);
 
     /**
      * Stop tracking relationship count for a node.
@@ -75,5 +74,5 @@ public interface CachingRelationshipCountManager<DESCRIPTION extends HasTypeAndD
      * @param relationship representation of the relationship to stop tracking.
      * @param node         on which to stop tracking.
      */
-    void deleteCount(CACHED relationship, Node node);
+    void deleteCount(DESCRIPTION relationship, Node node);
 }

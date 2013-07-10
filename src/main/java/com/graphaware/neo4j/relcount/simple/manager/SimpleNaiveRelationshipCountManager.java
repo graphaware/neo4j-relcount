@@ -16,23 +16,23 @@
 
 package com.graphaware.neo4j.relcount.simple.manager;
 
-import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
-import com.graphaware.neo4j.dto.common.relationship.TypeAndDirection;
 import com.graphaware.neo4j.relcount.common.manager.BaseNaiveRelationshipCountManager;
 import com.graphaware.neo4j.relcount.common.manager.RelationshipCountManager;
+import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescription;
+import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 /**
  * Default production implementation of {@link com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager}.
  */
-public class SimpleNaiveRelationshipCountManager extends BaseNaiveRelationshipCountManager<HasTypeAndDirection, HasTypeAndDirection> implements RelationshipCountManager<HasTypeAndDirection, HasTypeAndDirection> {
+public class SimpleNaiveRelationshipCountManager extends BaseNaiveRelationshipCountManager<TypeAndDirectionDescription> implements RelationshipCountManager<TypeAndDirectionDescription> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean candidateMatchesDescription(HasTypeAndDirection candidate, HasTypeAndDirection description) {
+    protected boolean candidateMatchesDescription(TypeAndDirectionDescription candidate, TypeAndDirectionDescription description) {
         return candidate.matches(description);
     }
 
@@ -49,7 +49,7 @@ public class SimpleNaiveRelationshipCountManager extends BaseNaiveRelationshipCo
      * {@inheritDoc}
      */
     @Override
-    protected HasTypeAndDirection newCandidate(Relationship relationship, Node pointOfView) {
-        return new TypeAndDirection(relationship, pointOfView);
+    protected TypeAndDirectionDescription newCandidate(Relationship relationship, Node pointOfView) {
+        return new TypeAndDirectionDescriptionImpl(relationship, pointOfView);
     }
 }

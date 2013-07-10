@@ -21,7 +21,6 @@ import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndPropertie
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializablePropertiesImpl;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.RelationshipType;
 
 import java.util.Map;
@@ -65,15 +64,7 @@ public abstract class BaseFullRelationshipCounter extends BaseDirectedRelationsh
      * {@inheritDoc}
      */
     @Override
-    protected CopyMakingSerializableProperties newProperties(PropertyContainer propertyContainer) {
-        return new CopyMakingSerializablePropertiesImpl(propertyContainer);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected CopyMakingSerializableProperties newProperties(Map<String, String> properties) {
+    protected CopyMakingSerializableProperties newProperties(Map<String, ?> properties) {
         return new CopyMakingSerializablePropertiesImpl(properties);
     }
 }

@@ -19,9 +19,7 @@ package com.graphaware.neo4j.relcount.full.dto.relationship;
 import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
 import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.neo4j.dto.string.relationship.BaseCopyMakingSerializableDirectedRelationship;
-import com.graphaware.neo4j.dto.string.relationship.CopyMakingSerializableDirectedRelationship;
-import com.graphaware.neo4j.relcount.full.dto.property.GeneralizingProperties;
-import com.graphaware.neo4j.relcount.full.dto.property.TotallyComparableProperties;
+import com.graphaware.neo4j.relcount.full.dto.property.PropertiesDescription;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -34,12 +32,12 @@ import java.util.TreeSet;
 /**
  *
  */
-public abstract class BaseCandidateRelationship<R extends CopyMakingSerializableDirectedRelationship<R, P>, P extends GeneralizingProperties<P> & TotallyComparableProperties> extends BaseCopyMakingSerializableDirectedRelationship<P,R> {
+public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializableDirectedRelationship<PropertiesDescription, RelationshipDescription> {
 
     /**
      * {@inheritDoc}
      */
-    public boolean isMoreGeneralThan(HasTypeDirectionAndProperties<String, ?> relationship) {
+    public boolean isMoreGeneralThan(RelationshipDescription relationship) {
         return matches((HasTypeAndDirection) relationship)
                 && getProperties().isMoreGeneralThan(relationship.getProperties());
     }
@@ -47,7 +45,7 @@ public abstract class BaseCandidateRelationship<R extends CopyMakingSerializable
     /**
      * {@inheritDoc}
      */
-    public boolean isStrictlyMoreGeneralThan(HasTypeDirectionAndProperties<String, ?> relationship) {
+    public boolean isStrictlyMoreGeneralThan(RelationshipDescription relationship) {
         return matches((HasTypeAndDirection) relationship)
                 && getProperties().isStrictlyMoreGeneralThan(relationship.getProperties());
     }
@@ -55,7 +53,7 @@ public abstract class BaseCandidateRelationship<R extends CopyMakingSerializable
     /**
      * {@inheritDoc}
      */
-    public boolean isMoreSpecificThan(HasTypeDirectionAndProperties<String, ?> relationship) {
+    public boolean isMoreSpecificThan(RelationshipDescription relationship) {
         return matches((HasTypeAndDirection) relationship)
                 && getProperties().isMoreSpecificThan(relationship.getProperties());
     }
@@ -63,7 +61,7 @@ public abstract class BaseCandidateRelationship<R extends CopyMakingSerializable
     /**
      * {@inheritDoc}
      */
-    public boolean isStrictlyMoreSpecificThan(HasTypeDirectionAndProperties<String, ?> relationship) {
+    public boolean isStrictlyMoreSpecificThan(RelationshipDescription relationship) {
         return matches((HasTypeAndDirection) relationship)
                 && getProperties().isStrictlyMoreSpecificThan(relationship.getProperties());
     }
@@ -71,21 +69,21 @@ public abstract class BaseCandidateRelationship<R extends CopyMakingSerializable
     /**
      * {@inheritDoc}
      */
-    public Set<R> generateOneMoreGeneral() {
+    public Set<RelationshipDescription> generateOneMoreGeneral() {
         return withDifferentProperties(getProperties().generateOneMoreGeneral());
     }
 
     /**
      * {@inheritDoc}
      */
-    public Set<R> generateAllMoreGeneral() {
+    public Set<RelationshipDescription> generateAllMoreGeneral() {
         return withDifferentProperties(getProperties().generateAllMoreGeneral());
     }
 
-    private Set<R> withDifferentProperties(Set<P> propertySets) {
-        Set<R> result = new TreeSet<>();
+    private Set<RelationshipDescription> withDifferentProperties(Set<PropertiesDescription> propertySets) {
+        Set<RelationshipDescription> result = new TreeSet<>();
 
-        for (P propertySet : propertySets) {
+        for (PropertiesDescription propertySet : propertySets) {
             result.add(newRelationship(getType(), getDirection(), propertySet));
         }
 
@@ -95,7 +93,7 @@ public abstract class BaseCandidateRelationship<R extends CopyMakingSerializable
     /**
      * {@inheritDoc}
      */
-    public int compareTo(TotallyComparableRelationship<TotallyComparableProperties> that) {
+    public int compareTo(RelationshipDescription that) {
         if (equals(that)) {
             return 0;
         } else if (isMoreGeneralThan(that)) {
@@ -107,31 +105,31 @@ public abstract class BaseCandidateRelationship<R extends CopyMakingSerializable
         return toString().compareTo(that.toString());
     }
 
-    protected BaseCandidateRelationship(Relationship relationship, Node pointOfView) {
+    protected BaseRelationshipDescription(Relationship relationship, Node pointOfView) {
         super(relationship, pointOfView);
     }
 
-    protected BaseCandidateRelationship(Relationship relationship, Node pointOfView, P properties) {
+    protected BaseRelationshipDescription(Relationship relationship, Node pointOfView, PropertiesDescription properties) {
         super(relationship, pointOfView, properties);
     }
 
-    protected BaseCandidateRelationship(RelationshipType type, Direction direction) {
+    protected BaseRelationshipDescription(RelationshipType type, Direction direction) {
         super(type, direction);
     }
 
-    protected BaseCandidateRelationship(RelationshipType type, Direction direction, P properties) {
+    protected BaseRelationshipDescription(RelationshipType type, Direction direction, PropertiesDescription properties) {
         super(type, direction, properties);
     }
 
-    protected BaseCandidateRelationship(RelationshipType type, Direction direction, Map<String, String> properties) {
+    protected BaseRelationshipDescription(RelationshipType type, Direction direction, Map<String, String> properties) {
         super(type, direction, properties);
     }
 
-    protected BaseCandidateRelationship(String string) {
+    protected BaseRelationshipDescription(String string) {
         super(string);
     }
 
-    protected BaseCandidateRelationship(HasTypeDirectionAndProperties<String, ?> relationship) {
+    protected BaseRelationshipDescription(HasTypeDirectionAndProperties<String, ?> relationship) {
         super(relationship);
     }
 }

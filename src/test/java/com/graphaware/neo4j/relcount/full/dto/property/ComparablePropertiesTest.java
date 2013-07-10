@@ -16,8 +16,6 @@
 
 package com.graphaware.neo4j.relcount.full.dto.property;
 
-import com.graphaware.neo4j.dto.common.property.ImmutableProperties;
-import com.graphaware.neo4j.dto.string.property.SerializablePropertiesImpl;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -27,76 +25,76 @@ import java.util.TreeSet;
 import static junit.framework.Assert.*;
 
 /**
- * Unit test for {@link CandidateGeneralizedProperties}.
+ * Unit test for {@link GeneralPropertiesDescription}.
  */
 public class ComparablePropertiesTest {
 
     @Test
     public void shouldCorrectlyJudgeMoreGeneral() {
-        assertTrue(props("key1#value1#key2#value2").isMoreGeneralThan(props2("key1#value1#key2#value2")));
-        assertFalse(props("key1#value1#key2#value2").isStrictlyMoreGeneralThan(props2("key1#value1#key2#value2")));
+        assertTrue(props("key1#value1#key2#value2").isMoreGeneralThan(props("key1#value1#key2#value2")));
+        assertFalse(props("key1#value1#key2#value2").isStrictlyMoreGeneralThan(props("key1#value1#key2#value2")));
 
-        assertTrue(props("key1#value1").isMoreGeneralThan(props2("key1#value1#key2#value2")));
-        assertTrue(props("key1#value1").isStrictlyMoreGeneralThan(props2("key1#value1#key2#value2")));
+        assertTrue(props("key1#value1").isMoreGeneralThan(props("key1#value1#key2#value2")));
+        assertTrue(props("key1#value1").isStrictlyMoreGeneralThan(props("key1#value1#key2#value2")));
 
         assertTrue(props("").isMoreGeneralThan(props("key1#value1#key2#value2")));
         assertTrue(props("").isStrictlyMoreGeneralThan(props("key1#value1#key2#value2")));
 
-        assertTrue(props("").isMoreGeneralThan(props2("")));
-        assertFalse(props("").isStrictlyMoreGeneralThan(props2("")));
+        assertTrue(props("").isMoreGeneralThan(props("")));
+        assertFalse(props("").isStrictlyMoreGeneralThan(props("")));
 
-        assertFalse(props("key1#value1#key2#value3").isMoreGeneralThan(props2("key1#value1#key2#value2")));
-        assertFalse(props("key1#value1#key2#value3").isStrictlyMoreGeneralThan(props2("key1#value1#key2#value2")));
+        assertFalse(props("key1#value1#key2#value3").isMoreGeneralThan(props("key1#value1#key2#value2")));
+        assertFalse(props("key1#value1#key2#value3").isStrictlyMoreGeneralThan(props("key1#value1#key2#value2")));
 
-        assertFalse(props("key1#value1#key2#value2").isMoreGeneralThan(props2("key1#value1#key2#value3")));
-        assertFalse(props("key1#value1#key2#value2").isStrictlyMoreGeneralThan(props2("key1#value1#key2#value3")));
+        assertFalse(props("key1#value1#key2#value2").isMoreGeneralThan(props("key1#value1#key2#value3")));
+        assertFalse(props("key1#value1#key2#value2").isStrictlyMoreGeneralThan(props("key1#value1#key2#value3")));
 
         assertFalse(props("key1#value1#key2#value2").isMoreGeneralThan(props("key1#value1")));
         assertFalse(props("key1#value1#key2#value2").isStrictlyMoreGeneralThan(props("key1#value1")));
 
-        assertFalse(props("key1#value1").isMoreGeneralThan(props2("")));
-        assertFalse(props("key1#value1").isStrictlyMoreGeneralThan(props2("")));
+        assertFalse(props("key1#value1").isMoreGeneralThan(props("")));
+        assertFalse(props("key1#value1").isStrictlyMoreGeneralThan(props("")));
 
-        assertFalse(props("key1#value1#key3#value2").isMoreGeneralThan(props2("key1#value1#key2#value2")));
-        assertFalse(props("key1#value1#key3#value2").isStrictlyMoreGeneralThan(props2("key1#value1#key2#value2")));
+        assertFalse(props("key1#value1#key3#value2").isMoreGeneralThan(props("key1#value1#key2#value2")));
+        assertFalse(props("key1#value1#key3#value2").isStrictlyMoreGeneralThan(props("key1#value1#key2#value2")));
     }
 
     @Test
     public void shouldCorrectlyJudgeMoreSpecific() {
-        assertTrue(props("key1#value1#key2#value2").isMoreSpecificThan(props2("key1#value1#key2#value2")));
-        assertFalse(props("key1#value1#key2#value2").isStrictlyMoreSpecificThan(props2("key1#value1#key2#value2")));
+        assertTrue(props("key1#value1#key2#value2").isMoreSpecificThan(props("key1#value1#key2#value2")));
+        assertFalse(props("key1#value1#key2#value2").isStrictlyMoreSpecificThan(props("key1#value1#key2#value2")));
 
-        assertTrue(props("key1#value1#key2#value2").isMoreSpecificThan(props2("key1#value1")));
-        assertTrue(props("key1#value1#key2#value2").isStrictlyMoreSpecificThan(props2("key1#value1")));
+        assertTrue(props("key1#value1#key2#value2").isMoreSpecificThan(props("key1#value1")));
+        assertTrue(props("key1#value1#key2#value2").isStrictlyMoreSpecificThan(props("key1#value1")));
 
         assertTrue(props("key1#value1#key2#value2").isMoreSpecificThan(props("")));
         assertTrue(props("key1#value1#key2#value2").isStrictlyMoreSpecificThan(props("")));
 
-        assertTrue(props("").isMoreSpecificThan(props2("")));
-        assertFalse(props("").isStrictlyMoreSpecificThan(props2("")));
+        assertTrue(props("").isMoreSpecificThan(props("")));
+        assertFalse(props("").isStrictlyMoreSpecificThan(props("")));
 
-        assertFalse(props("key1#value1#key2#value3").isMoreSpecificThan(props2("key1#value1#key2#value2")));
-        assertFalse(props("key1#value1#key2#value3").isStrictlyMoreSpecificThan(props2("key1#value1#key2#value2")));
+        assertFalse(props("key1#value1#key2#value3").isMoreSpecificThan(props("key1#value1#key2#value2")));
+        assertFalse(props("key1#value1#key2#value3").isStrictlyMoreSpecificThan(props("key1#value1#key2#value2")));
 
         assertFalse(props("key1#value1#key2#value2").isMoreSpecificThan(props("key1#value1#key2#value3")));
         assertFalse(props("key1#value1#key2#value2").isStrictlyMoreSpecificThan(props("key1#value1#key2#value3")));
 
-        assertFalse(props("key1#value1").isMoreSpecificThan(props2("key1#value1#key2#value2")));
-        assertFalse(props("key1#value1").isStrictlyMoreSpecificThan(props2("key1#value1#key2#value2")));
+        assertFalse(props("key1#value1").isMoreSpecificThan(props("key1#value1#key2#value2")));
+        assertFalse(props("key1#value1").isStrictlyMoreSpecificThan(props("key1#value1#key2#value2")));
 
-        assertFalse(props("").isMoreSpecificThan(props2("key1#value1")));
-        assertFalse(props("").isStrictlyMoreSpecificThan(props2("key1#value1")));
+        assertFalse(props("").isMoreSpecificThan(props("key1#value1")));
+        assertFalse(props("").isStrictlyMoreSpecificThan(props("key1#value1")));
 
-        assertFalse(props("key1#value1#key3#value2").isMoreSpecificThan(props2("key1#value1#key2#value2")));
-        assertFalse(props("key1#value1#key3#value2").isStrictlyMoreSpecificThan(props2("key1#value1#key2#value2")));
+        assertFalse(props("key1#value1#key3#value2").isMoreSpecificThan(props("key1#value1#key2#value2")));
+        assertFalse(props("key1#value1#key3#value2").isStrictlyMoreSpecificThan(props("key1#value1#key2#value2")));
     }
 
     @Test
     public void shouldGenerateMoreGeneralAllMoreGeneral() {
-        Set<CandidateProperties> result = props("key1#value1#key2#value2#key3#value3").generateAllMoreGeneral();
+        Set<PropertiesDescription> result = props("key1#value1#key2#value2#key3#value3").generateAllMoreGeneral();
 
         assertEquals(8, result.size());
-        Iterator<CandidateProperties> iterator = result.iterator();
+        Iterator<PropertiesDescription> iterator = result.iterator();
         assertEquals(iterator.next(), props("key1#value1#key2#value2#key3#value3"));
         assertEquals(iterator.next(), props("key1#value1#key2#value2"));
         assertEquals(iterator.next(), props("key1#value1#key3#value3"));
@@ -109,10 +107,10 @@ public class ComparablePropertiesTest {
 
     @Test
     public void shouldGenerateMoreGeneralOneMoreGeneral() {
-        Set<CandidateProperties> result = props("key1#value1#key2#value2#key3#value3").generateOneMoreGeneral();
+        Set<PropertiesDescription> result = props("key1#value1#key2#value2#key3#value3").generateOneMoreGeneral();
 
         assertEquals(4, result.size());
-        Iterator<CandidateProperties> iterator = result.iterator();
+        Iterator<PropertiesDescription> iterator = result.iterator();
         assertEquals(iterator.next(), props("key1#value1#key2#value2#key3#value3"));
         assertEquals(iterator.next(), props("key1#value1#key2#value2"));
         assertEquals(iterator.next(), props("key1#value1#key3#value3"));
@@ -121,10 +119,10 @@ public class ComparablePropertiesTest {
 
     @Test
     public void shouldGenerateMoreGeneralOneMoreGeneral2() {
-        Set<CandidateProperties> result = props("key1#value1").generateOneMoreGeneral();
+        Set<PropertiesDescription> result = props("key1#value1").generateOneMoreGeneral();
 
         assertEquals(2, result.size());
-        Iterator<CandidateProperties> iterator = result.iterator();
+        Iterator<PropertiesDescription> iterator = result.iterator();
         assertEquals(iterator.next(), props("key1#value1"));
         assertEquals(iterator.next(), props(""));
     }
@@ -136,7 +134,7 @@ public class ComparablePropertiesTest {
 
     @Test
     public void shouldAchieveSpecificToGeneralOrderingForProperties() {
-        Set<CandidateProperties> properties = new TreeSet<>();
+        Set<PropertiesDescription> properties = new TreeSet<>();
 
         properties.add(props(""));
         properties.add(props("key1#value1#key2#value2"));
@@ -144,7 +142,7 @@ public class ComparablePropertiesTest {
         properties.add(props("key2#value2"));
         properties.add(props("key2#value2"));
 
-        Iterator<CandidateProperties> iterator = properties.iterator();
+        Iterator<PropertiesDescription> iterator = properties.iterator();
         assertEquals(props("key1#value1#key2#value2"), iterator.next());
         assertEquals(props("key2#value2"), iterator.next());
         assertEquals(props(""), iterator.next());
@@ -153,7 +151,7 @@ public class ComparablePropertiesTest {
 
     @Test
     public void propertiesShouldBehaveProperlyInTreeSets() {
-        Set<CandidateProperties> properties = new TreeSet<>();
+        Set<PropertiesDescription> properties = new TreeSet<>();
 
         properties.add(props(""));
         properties.add(props("key1#value1#key2#value2"));
@@ -172,11 +170,7 @@ public class ComparablePropertiesTest {
     /**
      * just for readability
      */
-    private CandidateProperties props(String s) {
-        return new CandidateGeneralizedProperties(s);
-    }
-
-    private ImmutableProperties<String> props2(String s) {
-        return new SerializablePropertiesImpl(s);
-    }
+    private PropertiesDescription props(String s) {
+        return new GeneralPropertiesDescription(s);
+    }    
 }

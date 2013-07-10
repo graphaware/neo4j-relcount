@@ -16,9 +16,7 @@
 
 package com.graphaware.neo4j.relcount.full.dto.property;
 
-import com.graphaware.neo4j.dto.common.property.ImmutableProperties;
 import com.graphaware.neo4j.dto.string.property.BaseCopyMakingSerializableProperties;
-import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import org.neo4j.graphdb.PropertyContainer;
 
 import java.util.Collections;
@@ -29,17 +27,17 @@ import java.util.TreeSet;
 /**
  *
  */
-public abstract class BaseCandidateProperties<T extends GeneralizingProperties<T> & CopyMakingSerializableProperties<T>> extends BaseCopyMakingSerializableProperties<T> {
+public abstract class BasePropertiesDescription extends BaseCopyMakingSerializableProperties<PropertiesDescription> {
 
-    protected BaseCandidateProperties(PropertyContainer propertyContainer) {
+    protected BasePropertiesDescription(PropertyContainer propertyContainer) {
         super(propertyContainer);
     }
 
-    protected BaseCandidateProperties(Map<String, String> properties) {
+    protected BasePropertiesDescription(Map<String, String> properties) {
         super(properties);
     }
 
-    protected BaseCandidateProperties(String string) {
+    protected BasePropertiesDescription(String string) {
         super(string);
     }
 
@@ -51,7 +49,7 @@ public abstract class BaseCandidateProperties<T extends GeneralizingProperties<T
      * @param properties to compare.
      * @return true iff this instance is more general than or as general as the provided instance.
      */
-    public boolean isMoreGeneralThan(ImmutableProperties<String> properties) {
+    public boolean isMoreGeneralThan(PropertiesDescription properties) {
         for (String thisKey : keySet()) {
             if (!properties.containsKey(thisKey)) {
                 return false;
@@ -76,7 +74,7 @@ public abstract class BaseCandidateProperties<T extends GeneralizingProperties<T
      * @param properties to compare.
      * @return true iff this instance is strictly more general than the provided instance.
      */
-    public boolean isStrictlyMoreGeneralThan(ImmutableProperties<String> properties) {
+    public boolean isStrictlyMoreGeneralThan(PropertiesDescription properties) {
         return isMoreGeneralThan(properties) && !isMoreSpecificThan(properties);
     }
 
@@ -86,7 +84,7 @@ public abstract class BaseCandidateProperties<T extends GeneralizingProperties<T
      * @param properties to compare.
      * @return true iff this instance is more specific than or as specific as the provided instance.
      */
-    public boolean isMoreSpecificThan(ImmutableProperties<String> properties) {
+    public boolean isMoreSpecificThan(PropertiesDescription properties) {
         for (String thatKey : properties.keySet()) {
             if (!containsKey(thatKey)) {
                 return false;
@@ -111,14 +109,14 @@ public abstract class BaseCandidateProperties<T extends GeneralizingProperties<T
      * @param properties to compare.
      * @return true iff this instance is strictly more specific than the provided instance.
      */
-    public boolean isStrictlyMoreSpecificThan(ImmutableProperties<String> properties) {
+    public boolean isStrictlyMoreSpecificThan(PropertiesDescription properties) {
         return isMoreSpecificThan(properties) && !isMoreGeneralThan(properties);
     }
 
     /**
      * {@inheritDoc}
      */
-    public int compareTo(TotallyComparableProperties that) {
+    public int compareTo(PropertiesDescription that) {
         if (equals(that)) {
             return 0;
         } else if (isMoreGeneralThan(that)) {
@@ -135,8 +133,8 @@ public abstract class BaseCandidateProperties<T extends GeneralizingProperties<T
      *
      * @return set of one-level more/equally general instances, ordered by decreasing generality.
      */
-    public Set<T> generateOneMoreGeneral() {
-        Set<T> result = new TreeSet<>();
+    public Set<PropertiesDescription> generateOneMoreGeneral() {
+        Set<PropertiesDescription> result = new TreeSet<>();
         result.add(self());
         for (String key : keySet()) {
             result.add(without(key));
@@ -149,20 +147,20 @@ public abstract class BaseCandidateProperties<T extends GeneralizingProperties<T
      *
      * @return set of all more/equally general instances, ordered by decreasing generality.
      */
-    public Set<T> generateAllMoreGeneral() {
+    public Set<PropertiesDescription> generateAllMoreGeneral() {
         return generateAllMoreGeneral(self());
     }
 
-    protected Set<T> generateAllMoreGeneral(T propertiesRepresentation) {
+    protected Set<PropertiesDescription> generateAllMoreGeneral(PropertiesDescription propertiesRepresentation) {
         //base case
         if (propertiesRepresentation.isEmpty()) {
             return Collections.singleton(propertiesRepresentation);
         }
 
         //recursion
-        Set<T> result = new TreeSet<>();
+        Set<PropertiesDescription> result = new TreeSet<>();
         Map.Entry<String, String> next = propertiesRepresentation.entrySet().iterator().next();
-        for (T properties : generateAllMoreGeneral(propertiesRepresentation.without(next.getKey()))) {
+        for (PropertiesDescription properties : generateAllMoreGeneral(propertiesRepresentation.without(next.getKey()))) {
             result.add(properties);
             result.add(properties.with(next.getKey(), next.getValue()));
         }
@@ -173,5 +171,5 @@ public abstract class BaseCandidateProperties<T extends GeneralizingProperties<T
     /**
      * @return this.
      */
-    protected abstract T self();
+    protected abstract PropertiesDescription self();
 }

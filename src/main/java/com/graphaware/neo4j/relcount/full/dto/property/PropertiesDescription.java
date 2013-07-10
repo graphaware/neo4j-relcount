@@ -18,10 +18,11 @@ package com.graphaware.neo4j.relcount.full.dto.property;
 
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.relcount.full.dto.common.Generalizing;
+import com.graphaware.neo4j.relcount.full.dto.common.PartiallyComparable;
 
 /**
- * Interface for types that are able to generate more general versions of themselves.
+ *
  */
-public interface GeneralizingProperties<T extends GeneralizingProperties<T>> extends Generalizing<T>, PartiallyComparableProperties, CopyMakingSerializableProperties<T> {
-
+public interface PropertiesDescription extends CopyMakingSerializableProperties<PropertiesDescription>,
+        PartiallyComparable<PropertiesDescription>, Comparable<PropertiesDescription>, Generalizing<PropertiesDescription> {
 }

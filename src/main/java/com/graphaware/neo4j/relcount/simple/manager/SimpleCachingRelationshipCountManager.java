@@ -16,22 +16,22 @@
 
 package com.graphaware.neo4j.relcount.simple.manager;
 
-import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
-import com.graphaware.neo4j.dto.common.relationship.SerializableTypeAndDirection;
 import com.graphaware.neo4j.relcount.common.manager.BaseCachingRelationshipCountManager;
 import com.graphaware.neo4j.relcount.common.manager.CachingRelationshipCountManager;
+import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescription;
+import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
 import org.neo4j.graphdb.Node;
 
 /**
  * Default production implementation of {@link com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager}.
  */
-public class SimpleCachingRelationshipCountManager extends BaseCachingRelationshipCountManager<HasTypeAndDirection, SerializableTypeAndDirection> implements CachingRelationshipCountManager<HasTypeAndDirection, SerializableTypeAndDirection> {
+public class SimpleCachingRelationshipCountManager extends BaseCachingRelationshipCountManager<TypeAndDirectionDescription> implements CachingRelationshipCountManager<TypeAndDirectionDescription> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean candidateMatchesDescription(SerializableTypeAndDirection candidate, HasTypeAndDirection description) {
+    protected boolean candidateMatchesDescription(TypeAndDirectionDescription candidate, TypeAndDirectionDescription description) {
         return candidate.matches(description);
     }
 
@@ -48,15 +48,15 @@ public class SimpleCachingRelationshipCountManager extends BaseCachingRelationsh
      * {@inheritDoc}
      */
     @Override
-    protected SerializableTypeAndDirection newCachedRelationship(String string) {
-        return new SerializableTypeAndDirection(string);
+    protected TypeAndDirectionDescription newCachedRelationship(String string) {
+        return new TypeAndDirectionDescriptionImpl(string);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean cachedMatch(SerializableTypeAndDirection cached, SerializableTypeAndDirection relationship) {
+    protected boolean cachedMatch(TypeAndDirectionDescription cached, TypeAndDirectionDescription relationship) {
         return cached.matches(relationship);
     }
 
@@ -64,7 +64,7 @@ public class SimpleCachingRelationshipCountManager extends BaseCachingRelationsh
      * {@inheritDoc}
      */
     @Override
-    protected void handleZeroResult(HasTypeAndDirection hasTypeAndDirection, Node node) {
+    protected void handleZeroResult(TypeAndDirectionDescription description, Node node) {
         //do nothing
     }
 }

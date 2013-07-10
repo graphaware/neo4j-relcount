@@ -16,10 +16,16 @@
 
 package com.graphaware.neo4j.relcount.full.dto.relationship;
 
+import com.graphaware.neo4j.dto.string.relationship.CopyMakingSerializableDirectedRelationship;
+import com.graphaware.neo4j.relcount.full.dto.common.Generalizing;
+import com.graphaware.neo4j.relcount.full.dto.common.PartiallyComparable;
+import com.graphaware.neo4j.relcount.full.dto.property.PropertiesDescription;
 
-import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
-import com.graphaware.neo4j.relcount.full.dto.common.TotallyComparable;
-import com.graphaware.neo4j.relcount.full.dto.property.TotallyComparableProperties;
-
-public interface TotallyComparableRelationship<P extends TotallyComparableProperties> extends PartiallyComparableRelationship<P>, TotallyComparable<HasTypeDirectionAndProperties<String, ?>, TotallyComparableRelationship<TotallyComparableProperties>> {
+/**
+ *
+ */
+public interface RelationshipDescription extends
+        CopyMakingSerializableDirectedRelationship<RelationshipDescription, PropertiesDescription>,
+        PartiallyComparable<RelationshipDescription>, Comparable<RelationshipDescription>,
+        Generalizing<RelationshipDescription> {
 }

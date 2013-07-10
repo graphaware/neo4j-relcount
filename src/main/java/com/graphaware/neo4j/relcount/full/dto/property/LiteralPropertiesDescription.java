@@ -26,11 +26,11 @@ import java.util.TreeSet;
 import static com.graphaware.neo4j.common.Constants.SEPARATOR;
 
 /**
- * An extension of {@link CandidateGeneralizedProperties} in which a missing property is treated as a concrete value ({@link #UNDEF}) as opposed
+ * An extension of {@link GeneralPropertiesDescription} in which a missing property is treated as a concrete value ({@link #UNDEF}) as opposed
  * to "any". This is for situations where a relationship is explicitly created without some property that other relationships
  * of the same type might have. In such case, this relationship should not be treated as more general than the others.
  */
-public class CandidateLiteralProperties extends CandidateGeneralizedProperties {
+public class LiteralPropertiesDescription extends GeneralPropertiesDescription {
 
     /**
      * This string will be used as an extra "marker" property to indicate that they are meant literally.
@@ -47,7 +47,7 @@ public class CandidateLiteralProperties extends CandidateGeneralizedProperties {
      *
      * @param propertyContainer to take (copy) properties from.
      */
-    public CandidateLiteralProperties(PropertyContainer propertyContainer) {
+    public LiteralPropertiesDescription(PropertyContainer propertyContainer) {
         super(propertyContainer);
     }
 
@@ -56,7 +56,7 @@ public class CandidateLiteralProperties extends CandidateGeneralizedProperties {
      *
      * @param properties to take (copy).
      */
-    public CandidateLiteralProperties(Map<String, String> properties) {
+    public LiteralPropertiesDescription(Map<String, String> properties) {
         super(properties);
     }
 
@@ -66,7 +66,7 @@ public class CandidateLiteralProperties extends CandidateGeneralizedProperties {
      * @param string to construct properties from. Must be of the form _LITERAL_key1#value1#key2#value2 (assuming the default
      *               {@link com.graphaware.neo4j.common.Constants#SEPARATOR} and {@link #LITERAL}).
      */
-    public CandidateLiteralProperties(String string) {
+    public LiteralPropertiesDescription(String string) {
         super(string);
     }
 
@@ -98,19 +98,19 @@ public class CandidateLiteralProperties extends CandidateGeneralizedProperties {
     /**
      * {@inheritDoc}
      *
-     * @return a single more general instance, which is {@link CandidateGeneralizedProperties} with exactly the same properties.
+     * @return a single more general instance, which is {@link GeneralPropertiesDescription} with exactly the same properties.
      */
     @Override
-    public Set<CandidateProperties> generateOneMoreGeneral() {
-        return Collections.<CandidateProperties>singleton(new CandidateGeneralizedProperties(getProperties()));
+    public Set<PropertiesDescription> generateOneMoreGeneral() {
+        return Collections.<PropertiesDescription>singleton(new GeneralPropertiesDescription(getProperties()));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Set<CandidateProperties> generateAllMoreGeneral() {
-        Set<CandidateProperties> result = new TreeSet<>();
+    public Set<PropertiesDescription> generateAllMoreGeneral() {
+        Set<PropertiesDescription> result = new TreeSet<>();
         result.add(self());
         result.addAll(super.generateAllMoreGeneral(generateOneMoreGeneral().iterator().next()));
         return result;
@@ -128,7 +128,7 @@ public class CandidateLiteralProperties extends CandidateGeneralizedProperties {
      * {@inheritDoc}
      */
     @Override
-    protected CandidateProperties self() {
+    protected PropertiesDescription self() {
         return this;
     }
 }

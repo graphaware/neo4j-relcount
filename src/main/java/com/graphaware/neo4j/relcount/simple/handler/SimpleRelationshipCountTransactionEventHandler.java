@@ -16,8 +16,9 @@
 
 package com.graphaware.neo4j.relcount.simple.handler;
 
-import com.graphaware.neo4j.dto.common.relationship.SerializableTypeAndDirection;
 import com.graphaware.neo4j.relcount.common.handler.RelationshipCountCachingTransactionEventHandler;
+import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescription;
+import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
 import com.graphaware.neo4j.relcount.simple.manager.SimpleCachingRelationshipCountManager;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
 import org.apache.log4j.Logger;
@@ -44,13 +45,13 @@ public class SimpleRelationshipCountTransactionEventHandler extends Relationship
     }
 
     protected void handleCreatedRelationship(Relationship relationship, Node pointOfView) {
-        SerializableTypeAndDirection createdRelationship = new SerializableTypeAndDirection(relationship, pointOfView);
+        TypeAndDirectionDescription createdRelationship = new TypeAndDirectionDescriptionImpl(relationship, pointOfView);
 
         countManager.incrementCount(createdRelationship, pointOfView);
     }
 
     protected void handleDeletedRelationship(Relationship relationship, Node pointOfView) {
-        SerializableTypeAndDirection deletedRelationship = new SerializableTypeAndDirection(relationship, pointOfView);
+        TypeAndDirectionDescription deletedRelationship = new TypeAndDirectionDescriptionImpl(relationship, pointOfView);
 
         if (!countManager.decrementCount(deletedRelationship, pointOfView)) {
             LOG.warn(deletedRelationship.toString() + " was out of sync on node " + pointOfView.getId());

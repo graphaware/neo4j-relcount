@@ -12,9 +12,8 @@ import java.util.Map;
  * iterating through all {@link org.neo4j.graphdb.Node}'s {@link org.neo4j.graphdb.Relationship}s.
  *
  * @param <DESCRIPTION> type of relationship description that can be used to query relationship counts on nodes.
- * @param <CANDIDATE>   type of internal relationship representation, used for manipulating and comparing candidate relationships.
  */
-public abstract class BaseNaiveRelationshipCountManager<DESCRIPTION extends HasTypeAndDirection, CANDIDATE extends HasTypeAndDirection> extends BaseRelationshipCountManager<DESCRIPTION, CANDIDATE> {
+public abstract class BaseNaiveRelationshipCountManager<DESCRIPTION extends HasTypeAndDirection> extends BaseRelationshipCountManager<DESCRIPTION> {
 
     /**
      * {@inheritDoc}
@@ -23,11 +22,11 @@ public abstract class BaseNaiveRelationshipCountManager<DESCRIPTION extends HasT
      * i.e. to tell Neo4j to only return relationships of the specified type and direction.
      */
     @Override
-    public Map<CANDIDATE, Integer> getRelationshipCounts(DESCRIPTION description, Node node) {
-        Map<CANDIDATE, Integer> result = new HashMap<>();
+    public Map<DESCRIPTION, Integer> getRelationshipCounts(DESCRIPTION description, Node node) {
+        Map<DESCRIPTION, Integer> result = new HashMap<>();
 
         for (Relationship candidateRelationship : node.getRelationships(description.getDirection(), description.getType())) {
-            CANDIDATE candidate = newCandidate(candidateRelationship, node);
+            DESCRIPTION candidate = newCandidate(candidateRelationship, node);
             if (!result.containsKey(candidate)) {
                 result.put(candidate, 0);
             }
@@ -44,7 +43,7 @@ public abstract class BaseNaiveRelationshipCountManager<DESCRIPTION extends HasT
      * @param pointOfView  Node, whose point of view the candidate's direction will be determined.
      * @return representation of the candidate relationship.
      */
-    protected abstract CANDIDATE newCandidate(Relationship relationship, Node pointOfView);
+    protected abstract DESCRIPTION newCandidate(Relationship relationship, Node pointOfView);
 
     /**
      * {@inheritDoc}

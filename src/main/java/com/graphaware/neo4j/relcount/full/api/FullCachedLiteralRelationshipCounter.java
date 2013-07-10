@@ -18,8 +18,9 @@ package com.graphaware.neo4j.relcount.full.api;
 
 import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
-import com.graphaware.neo4j.relcount.full.dto.relationship.CandidateLiteralRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;
+import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
 import com.graphaware.neo4j.relcount.simple.manager.SimpleCachingRelationshipCountManager;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -62,10 +63,10 @@ public class FullCachedLiteralRelationshipCounter extends BaseFullRelationshipCo
     @Override
     public int count(Node node) {
         if (getProperties().isEmpty()) {
-            return new SimpleCachingRelationshipCountManager().getRelationshipCount(this, node);
+            return new SimpleCachingRelationshipCountManager().getRelationshipCount(new TypeAndDirectionDescriptionImpl(this), node);
         }
 
-        return new FullCachingRelationshipCountManager().getRelationshipCount(new CandidateLiteralRelationship(this), node);
+        return new FullCachingRelationshipCountManager().getRelationshipCount(new LiteralRelationshipDescription(this), node);
     }
 
     /**

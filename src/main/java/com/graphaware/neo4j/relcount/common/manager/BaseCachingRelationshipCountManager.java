@@ -12,9 +12,8 @@ import static com.graphaware.neo4j.common.Constants.GA_REL_PREFIX;
  * Abstract base-class for {@link CachingRelationshipCountManager} implementations.
  *
  * @param <DESCRIPTION> type of relationship description that can be used to query relationship counts on nodes.
- * @param <CACHED>      type of internal relationship representation, used for caching, manipulating and comparing relationships.
  */
-public abstract class BaseCachingRelationshipCountManager<DESCRIPTION extends HasTypeAndDirection, CACHED extends HasTypeAndDirection & Comparable<CACHED>> extends BaseRelationshipCountManager<DESCRIPTION, CACHED> {
+public abstract class BaseCachingRelationshipCountManager<DESCRIPTION extends HasTypeAndDirection & Comparable<DESCRIPTION>> extends BaseRelationshipCountManager<DESCRIPTION> {
 
     /**
      * {@inheritDoc}
@@ -23,7 +22,7 @@ public abstract class BaseCachingRelationshipCountManager<DESCRIPTION extends Ha
      * counts.
      */
     @Override
-    public Map<CACHED, Integer> getRelationshipCounts(DESCRIPTION description, Node node) {
+    public Map<DESCRIPTION, Integer> getRelationshipCounts(DESCRIPTION description, Node node) {
         return getRelationshipCounts(node);
     }
 
@@ -35,8 +34,8 @@ public abstract class BaseCachingRelationshipCountManager<DESCRIPTION extends Ha
      * @return cached relationship counts (key = relationship representation, value = count). The map is sorted
      *         so that it is iterated in a relationship specific to general order.
      */
-    public Map<CACHED, Integer> getRelationshipCounts(Node node) {
-        Map<CACHED, Integer> result = new TreeMap<>();
+    public Map<DESCRIPTION, Integer> getRelationshipCounts(Node node) {
+        Map<DESCRIPTION, Integer> result = new TreeMap<>();
         for (String key : node.getPropertyKeys()) {
             if (key.startsWith(GA_REL_PREFIX)) {
                 result.put(newCachedRelationship(key), (Integer) node.getProperty(key));
@@ -52,7 +51,7 @@ public abstract class BaseCachingRelationshipCountManager<DESCRIPTION extends Ha
      * @param string string representation of the cached relationship.
      * @return object representation of the cached relationship.
      */
-    protected abstract CACHED newCachedRelationship(String string);
+    protected abstract DESCRIPTION newCachedRelationship(String string);
 
     /**
      * Increment the cached relationship count on the given node by 1.
@@ -61,7 +60,7 @@ public abstract class BaseCachingRelationshipCountManager<DESCRIPTION extends Ha
      * @param node         on which to increment the cached relationship count.
      * @return true iff the cached value did not exist and had to be created.
      */
-    public boolean incrementCount(CACHED relationship, Node node) {
+    public boolean incrementCount(DESCRIPTION relationship, Node node) {
         return incrementCount(relationship, node, 1);
     }
 
@@ -73,8 +72,8 @@ public abstract class BaseCachingRelationshipCountManager<DESCRIPTION extends Ha
      * @param delta        increment.
      * @return true iff the cached value did not exist and had to be created.
      */
-    public boolean incrementCount(CACHED relationship, Node node, int delta) {
-        for (CACHED cachedRelationship : getRelationshipCounts(node).keySet()) {
+    public boolean incrementCount(DESCRIPTION relationship, Node node, int delta) {
+        for (DESCRIPTION cachedRelationship : getRelationshipCounts(node).keySet()) {
             if (cachedMatch(cachedRelationship, relationship)) {
                 node.setProperty(cachedRelationship.toString(), (Integer) node.getProperty(cachedRelationship.toString()) + delta);
                 return false;
@@ -94,7 +93,7 @@ public abstract class BaseCachingRelationshipCountManager<DESCRIPTION extends Ha
      * @param node         on which to decrement the cached relationship count.
      * @return true iff the cached value existed and was >= 1.
      */
-    public boolean decrementCount(CACHED relationship, Node node) {
+    public boolean decrementCount(DESCRIPTION relationship, Node node) {
         return decrementCount(relationship, node, 1);
     }
 
@@ -107,8 +106,8 @@ public abstract class BaseCachingRelationshipCountManager<DESCRIPTION extends Ha
      * @param delta        increment.
      * @return true iff the cached value existed and was >= delta.
      */
-    public boolean decrementCount(CACHED relationship, Node node, int delta) {
-        for (CACHED cachedRelationship : getRelationshipCounts(node).keySet()) {
+    public boolean decrementCount(DESCRIPTION relationship, Node node, int delta) {
+        for (DESCRIPTION cachedRelationship : getRelationshipCounts(node).keySet()) {
             if (cachedMatch(cachedRelationship, relationship)) {
                 int newValue = (Integer) node.getProperty(cachedRelationship.toString()) - delta;
                 node.setProperty(cachedRelationship.toString(), newValue);
@@ -131,7 +130,7 @@ public abstract class BaseCachingRelationshipCountManager<DESCRIPTION extends Ha
      * @param relationship representation being updated.
      * @return true iff the cached relationship is to be treated as the about-to-be-updated relationship's representation.
      */
-    protected abstract boolean cachedMatch(CACHED cached, CACHED relationship);
+    protected abstract boolean cachedMatch(DESCRIPTION cached, DESCRIPTION relationship);
 
     /**
      * Stop tracking relationship count for a node.
@@ -139,7 +138,7 @@ public abstract class BaseCachingRelationshipCountManager<DESCRIPTION extends Ha
      * @param relationship representation of the relationship to stop tracking.
      * @param node         on which to stop tracking.
      */
-    public void deleteCount(CACHED relationship, Node node) {
+    public void deleteCount(DESCRIPTION relationship, Node node) {
         node.removeProperty(relationship.toString());
     }
 }

@@ -16,10 +16,34 @@
 
 package com.graphaware.neo4j.relcount.full.dto.property;
 
-import com.graphaware.neo4j.dto.string.property.SerializableProperties;
+import org.neo4j.graphdb.PropertyContainer;
+
+import java.util.Map;
 
 /**
  *
  */
-public interface CandidateProperties extends SerializableProperties, TotallyComparableProperties, GeneralizingProperties<CandidateProperties> {
+public class GeneralPropertiesDescription extends BasePropertiesDescription implements PropertiesDescription {
+
+    public GeneralPropertiesDescription(PropertyContainer propertyContainer) {
+        super(propertyContainer);
+    }
+
+    public GeneralPropertiesDescription(Map<String, String> properties) {
+        super(properties);
+    }
+
+    public GeneralPropertiesDescription(String string) {
+        super(string);
+    }
+
+    @Override
+    protected PropertiesDescription self() {
+        return this;
+    }
+
+    @Override
+    protected PropertiesDescription newInstance(Map<String, String> props) {
+        return new GeneralPropertiesDescription(props);
+    }
 }

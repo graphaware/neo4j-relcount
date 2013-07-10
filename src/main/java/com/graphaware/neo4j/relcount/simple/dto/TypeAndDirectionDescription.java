@@ -14,15 +14,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.full.dto.relationship;
+package com.graphaware.neo4j.relcount.simple.dto;
 
-import com.graphaware.neo4j.dto.string.relationship.CopyMakingSerializableDirectedRelationship;
-import com.graphaware.neo4j.relcount.full.dto.common.Generalizing;
-import com.graphaware.neo4j.relcount.full.dto.property.GeneralizingProperties;
+import com.graphaware.neo4j.dto.common.relationship.SerializableTypeAndDirection;
 
 /**
- * Interface for types that are able to generate more general versions of themselves.
+ *
  */
-public interface GeneralizingRelationship<T extends GeneralizingRelationship<T, P>, P extends GeneralizingProperties<P>> extends Generalizing<T>, PartiallyComparableRelationship<P>, CopyMakingSerializableDirectedRelationship<T, P> {
-
+public interface TypeAndDirectionDescription extends SerializableTypeAndDirection, Comparable<TypeAndDirectionDescription> {
 }

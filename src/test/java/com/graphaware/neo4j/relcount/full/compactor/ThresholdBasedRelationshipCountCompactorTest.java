@@ -16,8 +16,8 @@
 
 package com.graphaware.neo4j.relcount.full.compactor;
 
-import com.graphaware.neo4j.relcount.full.dto.relationship.CandidateGeneralizedRelationship;
-import com.graphaware.neo4j.relcount.full.dto.relationship.CandidateRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.dto.relationship.RelationshipDescription;
 import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;
 import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.tx.single.TransactionCallback;
@@ -227,7 +227,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
     /**
      * just for readability
      */
-    private CandidateRelationship rel(String s) {
-        return new CandidateGeneralizedRelationship(GA_REL_PREFIX + s);
+    private RelationshipDescription rel(String s) {
+        return new GeneralRelationshipDescription(GA_REL_PREFIX + s);
     }
 }

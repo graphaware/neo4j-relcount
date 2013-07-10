@@ -16,28 +16,25 @@
 
 package com.graphaware.neo4j.relcount.full.manager;
 
-import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
-import com.graphaware.neo4j.dto.string.relationship.SerializableDirectedRelationship;
-import com.graphaware.neo4j.dto.string.relationship.SerializableDirectedRelationshipImpl;
 import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
 import com.graphaware.neo4j.relcount.common.manager.BaseCachingRelationshipCountManager;
 import com.graphaware.neo4j.relcount.common.manager.CachingRelationshipCountManager;
-import com.graphaware.neo4j.relcount.full.dto.relationship.CandidateGeneralizedRelationship;
-import com.graphaware.neo4j.relcount.full.dto.relationship.CandidateLiteralRelationship;
-import com.graphaware.neo4j.relcount.full.dto.relationship.CandidateRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.dto.relationship.RelationshipDescription;
 import org.neo4j.graphdb.Node;
 
 import java.util.Map;
 
-import static com.graphaware.neo4j.relcount.full.dto.property.CandidateLiteralProperties.LITERAL;
+import static com.graphaware.neo4j.relcount.full.dto.property.LiteralPropertiesDescription.LITERAL;
 
-public class FullCachingRelationshipCountManager extends BaseCachingRelationshipCountManager<HasTypeDirectionAndProperties<String, ?>, CandidateRelationship> implements CachingRelationshipCountManager<HasTypeDirectionAndProperties<String, ?>, CandidateRelationship> {
+public class FullCachingRelationshipCountManager extends BaseCachingRelationshipCountManager<RelationshipDescription> implements CachingRelationshipCountManager<RelationshipDescription> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean candidateMatchesDescription(CandidateRelationship candidate, HasTypeDirectionAndProperties<String, ?> description) {
+    protected boolean candidateMatchesDescription(RelationshipDescription candidate, RelationshipDescription description) {
         return candidate.isMoreSpecificThan(description);
     }
 
@@ -54,7 +51,7 @@ public class FullCachingRelationshipCountManager extends BaseCachingRelationship
      * {@inheritDoc}
      */
     @Override
-    protected boolean cachedMatch(CandidateRelationship cached, CandidateRelationship relationship) {
+    protected boolean cachedMatch(RelationshipDescription cached, RelationshipDescription relationship) {
         return cached.isMoreGeneralThan(relationship);
     }
 
@@ -62,11 +59,11 @@ public class FullCachingRelationshipCountManager extends BaseCachingRelationship
      * {@inheritDoc}
      */
     @Override
-    protected CandidateRelationship newCachedRelationship(String string) {
-        CandidateRelationship result = new CandidateGeneralizedRelationship(string);
+    protected RelationshipDescription newCachedRelationship(String string) {
+        RelationshipDescription result = new GeneralRelationshipDescription(string);
 
         if (result.getProperties().containsKey(LITERAL)) {
-            return new CandidateLiteralRelationship(result);
+            return new LiteralRelationshipDescription(result);
         }
 
         return result;
@@ -76,12 +73,12 @@ public class FullCachingRelationshipCountManager extends BaseCachingRelationship
      * {@inheritDoc}
      */
     @Override
-    protected void handleZeroResult(HasTypeDirectionAndProperties<String, ?> description, Node node) {
-        for (Map.Entry<CandidateRelationship, Integer> candidateWithCount : getRelationshipCounts(description, node).entrySet()) {
-            CandidateRelationship candidate = candidateWithCount.getKey();
+    protected void handleZeroResult(RelationshipDescription description, Node node) {
+        for (Map.Entry<RelationshipDescription, Integer> candidateWithCount : getRelationshipCounts(description, node).entrySet()) {
+            RelationshipDescription candidate = candidateWithCount.getKey();
             if (candidate.isMoreGeneralThan(description)) {
                 throw new UnableToCountException("Unable to count relationships with the following description: "
-                        + (description instanceof SerializableDirectedRelationship ? description.toString() : new SerializableDirectedRelationshipImpl(description).toString())
+                        + description.toString()
                         + " for node " + node.toString());
             }
         }
