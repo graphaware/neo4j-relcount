@@ -19,55 +19,74 @@ package com.graphaware.neo4j.relcount.full.dto.relationship;
 import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.neo4j.relcount.full.dto.property.GeneralPropertiesDescription;
 import com.graphaware.neo4j.relcount.full.dto.property.PropertiesDescription;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 
 import java.util.Map;
 
 /**
- *
+ *  {@link RelationshipDescription} in which a missing property means "any", as opposed to a concrete "UNDEF" value (see {@link LiteralRelationshipDescription}).
  */
 public class GeneralRelationshipDescription extends BaseRelationshipDescription implements RelationshipDescription {
 
-    @Override
-    protected RelationshipDescription newRelationship(RelationshipType type, Direction direction, PropertiesDescription properties) {
-        return new GeneralRelationshipDescription(type, direction, properties);
-    }
-
-    @Override
-    protected PropertiesDescription newProperties(PropertyContainer propertyContainer) {
-        return new GeneralPropertiesDescription(propertyContainer);
-    }
-
-    @Override
-    protected PropertiesDescription newProperties(Map<String, String> properties) {
-        return new GeneralPropertiesDescription(properties);
-    }
-
-    public GeneralRelationshipDescription(Relationship relationship, Node pointOfView) {
-        super(relationship, pointOfView);
-    }
-
-    public GeneralRelationshipDescription(Relationship relationship, Node pointOfView, PropertiesDescription properties) {
+    /**
+     * Construct a description. Please note that using this constructor, the actual properties on the
+     * relationship are ignored! The provided properties are used instead. If the start node of this relationship is the same as the end node,
+     * the direction will be resolved as {@link org.neo4j.graphdb.Direction#BOTH}.
+     *
+     * @param relationship Neo4j relationship to describe.
+     * @param pointOfView  node which is looking at this relationship and thus determines its direction.
+     * @param properties   to use as if they were in the relationship.
+     */
+    public GeneralRelationshipDescription(Relationship relationship, Node pointOfView, Map<String, ?> properties) {
         super(relationship, pointOfView, properties);
     }
 
-    public GeneralRelationshipDescription(RelationshipType type, Direction direction) {
-        super(type, direction);
-    }
-
-    public GeneralRelationshipDescription(RelationshipType type, Direction direction, PropertiesDescription properties) {
+    /**
+     * Construct a description.
+     *
+     * @param type       type.
+     * @param direction  direction.
+     * @param properties props.
+     */
+    public GeneralRelationshipDescription(RelationshipType type, Direction direction, Map<String, ?> properties) {
         super(type, direction, properties);
     }
 
-    public GeneralRelationshipDescription(RelationshipType type, Direction direction, Map<String, String> properties) {
-        super(type, direction, properties);
-    }
-
+    /**
+     * Construct a description from a string.
+     *
+     * @param string string to construct description from. Must be of the form type#direction#key1#value1#key2#value2...
+     *               (assuming the default {@link com.graphaware.neo4j.common.Constants#SEPARATOR}.
+     */
     public GeneralRelationshipDescription(String string) {
         super(string);
     }
 
+    /**
+     * Construct a description from another one.
+     *
+     * @param relationship relationships representation.
+     */
     public GeneralRelationshipDescription(HasTypeDirectionAndProperties<String, ?> relationship) {
         super(relationship);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected RelationshipDescription newRelationship(RelationshipType type, Direction direction, Map<String, ?> properties) {
+        return new GeneralRelationshipDescription(type, direction, properties);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected PropertiesDescription newProperties(Map<String, ?> properties) {
+        return new GeneralPropertiesDescription(properties);
     }
 }

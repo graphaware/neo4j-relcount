@@ -25,23 +25,37 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- *
+ * Abstract base-class for {@link PropertiesDescription} implementations.
  */
 public abstract class BasePropertiesDescription extends BaseCopyMakingSerializableProperties<PropertiesDescription> {
 
+    /**
+     * Construct a description from a {@link org.neo4j.graphdb.PropertyContainer}.
+     *
+     * @param propertyContainer to take (copy) properties from.
+     */
     protected BasePropertiesDescription(PropertyContainer propertyContainer) {
         super(propertyContainer);
     }
 
-    protected BasePropertiesDescription(Map<String, String> properties) {
+    /**
+     * Construct a description from a {@link java.util.Map}.
+     *
+     * @param properties to take (copy).
+     */
+    protected BasePropertiesDescription(Map<String, ?> properties) {
         super(properties);
     }
 
+    /**
+     * Construct a description from a {@link String}.
+     *
+     * @param string to construct properties from. Must be of the form key1#value1#key2#value2... (assuming the default
+     *               {@link com.graphaware.neo4j.common.Constants#SEPARATOR}.
+     */
     protected BasePropertiesDescription(String string) {
         super(string);
     }
-
-
 
     /**
      * Is this instance more general than (or at least as general as) the given instance?
@@ -114,7 +128,7 @@ public abstract class BasePropertiesDescription extends BaseCopyMakingSerializab
     }
 
     /**
-     * {@inheritDoc}
+     * @see {@link Comparable#compareTo(Object)}.
      */
     public int compareTo(PropertiesDescription that) {
         if (equals(that)) {

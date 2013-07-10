@@ -18,17 +18,18 @@ package com.graphaware.neo4j.relcount.full.api;
 
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
+import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
+import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
-                 //todo  then tests, then simplifications, then different weights per relationship, checks that tx manager is in place when 0 returned (is anything cached at all? if not, does the node really have 0?)
+//todo  then tests (incl BOTH), then rel extr. strategies overhaul, then different weights per relationship, checks that tx manager is in place when 0 returned (is anything cached at all? if not, does the node really have 0?)
+
 /**
  * {@link FullRelationshipCounter} that counts matching relationships by first trying to look them up in cached
  * {@link org.neo4j.graphdb.Node}'s properties, falling back to naive approach of iterating through all {@link Node}'s {@link org.neo4j.graphdb.Relationship}s.
  * <p/>
  * This is a <b>full</b> relationship counter, meaning that it inspects relationship types, directions, and properties.
- * If no properties are provided to this counter, no relationship properties will be inspected. This effectively means
- * this becomes a {@link com.graphaware.neo4j.relcount.simple.api.SimpleCachingRelationshipCounter}.
  * <p/>
  * Matching relationships are all relationships that are exactly the same as the relationship description provided to this counter.
  * For example, if this counter is configured to count all OUTGOING relationships of type "FRIEND" with property "strength"
@@ -39,8 +40,16 @@ import org.neo4j.graphdb.RelationshipType;
  * is used! If you just started using this functionality and you have an existing graph, call //todo!!! (re-caclculate counts)
  * <p/>
  * This counter always returns a count, never throws {@link com.graphaware.neo4j.relcount.common.api.UnableToCountException}.
+ * <p/>
+ * About fallback: Fallback to naive approach only happens if it is detected that compaction has taken place (see {@link com.graphaware.neo4j.relcount.full.compactor.RelationshipCountCompactor})
+ * and the relationship being counted is more specific than corresponding generalized cached counts. There is a performance
+ * penalty to this fallback. To avoid it, make sure the compaction threshold is set correctly. No fallback happens when
+ * a {@link com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy} has been used that explicitly excludes
+ * the relationships being counted (0 is returned). If you prefer exception to fallback, use {@link FullCachedLiteralRelationshipCounter}.
  */
 public class FullLiteralRelationshipCounter extends BaseFullRelationshipCounter implements FullRelationshipCounter {
+
+    private static final Logger LOG = Logger.getLogger(FullLiteralRelationshipCounter.class);
 
     /**
      * Construct a new relationship counter.
@@ -60,6 +69,8 @@ public class FullLiteralRelationshipCounter extends BaseFullRelationshipCounter 
         try {
             return new FullCachedLiteralRelationshipCounter(this).count(node);
         } catch (UnableToCountException e) {
+            LOG.warn("Unable to count relationships with description: " + new LiteralRelationshipDescription(this).toString() +
+                    " for node " + node.toString() + ". Falling back to naive approach");
             return new FullNaiveLiteralRelationshipCounter(this).count(node);
         }
     }

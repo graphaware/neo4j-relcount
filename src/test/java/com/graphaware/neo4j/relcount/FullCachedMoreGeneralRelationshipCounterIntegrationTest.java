@@ -18,7 +18,6 @@ package com.graphaware.neo4j.relcount;
 
 import com.graphaware.neo4j.relcount.full.FullRelationshipCountTransactionEventHandlerFactory;
 import com.graphaware.neo4j.relcount.full.api.FullCachedMoreGeneralRelationshipCounter;
-import com.graphaware.neo4j.relcount.full.dto.property.LiteralPropertiesDescription;
 import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;
@@ -204,7 +203,7 @@ public class FullCachedMoreGeneralRelationshipCounterIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                database.getNodeById(2).removeProperty(new LiteralRelationshipDescription(withName("test2"), OUTGOING, new LiteralPropertiesDescription(Collections.singletonMap("key1", "value3"))).toString());
+                database.getNodeById(2).removeProperty(new LiteralRelationshipDescription(withName("test2"), OUTGOING, Collections.singletonMap("key1", "value3")).toString());
                 return null;
             }
         });

@@ -20,8 +20,6 @@ import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndPropertie
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;
-import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
-import com.graphaware.neo4j.relcount.simple.manager.SimpleCachingRelationshipCountManager;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
@@ -30,8 +28,6 @@ import org.neo4j.graphdb.RelationshipType;
  * {@link FullRelationshipCounter} that counts matching relationships by looking them up in cached {@link org.neo4j.graphdb.Node}'s properties.
  * <p/>
  * <b>Full</b> relationship counter means that it inspects relationship types, directions, and properties.
- * If no properties are provided to this counter, no relationship properties will be inspected. This effectively means
- * this becomes a {@link com.graphaware.neo4j.relcount.simple.api.SimpleCachingRelationshipCounter}.
  * <p/>
  * Matching relationships are all relationships at least as specific as the relationship description provided to this counter.
  * For example, if this counter is configured to count all OUTGOING relationships of type "FRIEND" with property "strength"
@@ -58,32 +54,12 @@ public class FullCachedMoreGeneralRelationshipCounter extends BaseFullRelationsh
     }
 
     /**
-     * Construct a relationship representation from another one.
+     * Construct a counter from another relationship representation.
      *
      * @param relationship relationships representation.
      */
     protected FullCachedMoreGeneralRelationshipCounter(HasTypeDirectionAndProperties<String, ?> relationship) {
         super(relationship);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int count(Node node) {
-        if (getProperties().isEmpty()) {
-            return new SimpleCachingRelationshipCountManager().getRelationshipCount(new TypeAndDirectionDescriptionImpl(this), node);
-        }
-
-        return new FullCachingRelationshipCountManager().getRelationshipCount(new GeneralRelationshipDescription(this), node);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public FullRelationshipCounter with(String key, Object value) {
-        return new FullCachedMoreGeneralRelationshipCounter(getType(), getDirection(), getProperties().with(key, value));
     }
 
     /**
@@ -95,5 +71,21 @@ public class FullCachedMoreGeneralRelationshipCounter extends BaseFullRelationsh
      */
     protected FullCachedMoreGeneralRelationshipCounter(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties) {
         super(type, direction, properties);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int count(Node node) {
+        return new FullCachingRelationshipCountManager().getRelationshipCount(new GeneralRelationshipDescription(this), node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FullRelationshipCounter with(String key, Object value) {
+        return new FullCachedMoreGeneralRelationshipCounter(getType(), getDirection(), getProperties().with(key, value));
     }
 }

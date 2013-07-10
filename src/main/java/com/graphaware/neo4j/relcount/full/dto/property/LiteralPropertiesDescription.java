@@ -43,7 +43,7 @@ public class LiteralPropertiesDescription extends GeneralPropertiesDescription {
     private static final String UNDEF = "_UNDEF_";
 
     /**
-     * Construct a representation of properties from a {@link org.neo4j.graphdb.PropertyContainer}.
+     * Construct a description from a {@link org.neo4j.graphdb.PropertyContainer}.
      *
      * @param propertyContainer to take (copy) properties from.
      */
@@ -52,19 +52,21 @@ public class LiteralPropertiesDescription extends GeneralPropertiesDescription {
     }
 
     /**
-     * Construct a representation of properties from a {@link java.util.Map}.
+     * Construct a description from a {@link java.util.Map}.
      *
      * @param properties to take (copy).
      */
-    public LiteralPropertiesDescription(Map<String, String> properties) {
+    public LiteralPropertiesDescription(Map<String, ?> properties) {
         super(properties);
     }
 
     /**
-     * Construct a representation of properties from a {@link String}.
+     * Construct a description from a {@link String}.
      *
-     * @param string to construct properties from. Must be of the form _LITERAL_key1#value1#key2#value2 (assuming the default
-     *               {@link com.graphaware.neo4j.common.Constants#SEPARATOR} and {@link #LITERAL}).
+     * @param string to construct properties from. Must be of the form _LITERAL_#anything#key1#value1#key2#value2
+     *               (assuming the default {@link com.graphaware.neo4j.common.Constants#SEPARATOR} and {@link #LITERAL}),
+     *               in which case the _LITERAL_ property will be removed upon construction. Can also be of the form
+     *               key1#value1#key2#value2, in which case it will be constructed with those properties.
      */
     public LiteralPropertiesDescription(String string) {
         super(string);
@@ -122,13 +124,5 @@ public class LiteralPropertiesDescription extends GeneralPropertiesDescription {
     @Override
     public String toString() {
         return LITERAL + SEPARATOR + "true" + SEPARATOR + super.toString();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected PropertiesDescription self() {
-        return this;
     }
 }

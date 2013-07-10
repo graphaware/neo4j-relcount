@@ -19,14 +19,75 @@ package com.graphaware.neo4j.relcount.full.dto.relationship;
 import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.neo4j.relcount.full.dto.property.LiteralPropertiesDescription;
 import com.graphaware.neo4j.relcount.full.dto.property.PropertiesDescription;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 
 import java.util.*;
 
 /**
- *
+ * A {@link RelationshipDescription} in which a missing property is treated as a concrete value (undefined) as opposed
+ * to "any". This is for situations where a relationship is explicitly created without some property that other relationships
+ * of the same type might have. In such case, this relationship should not be treated as more general than the others.
  */
 public class LiteralRelationshipDescription extends BaseRelationshipDescription implements RelationshipDescription {
+
+    /**
+     * Construct a description. If the start node of this relationship is the same as the end node,
+     * the direction will be resolved as {@link org.neo4j.graphdb.Direction#BOTH}.
+     *
+     * @param relationship Neo4j relationship to describe.
+     * @param pointOfView  node which is looking at this relationship and thus determines its direction.
+     */
+    public LiteralRelationshipDescription(Relationship relationship, Node pointOfView) {
+        super(relationship, pointOfView);
+    }
+
+    /**
+     * Construct a description. Please note that using this constructor, the actual properties on the
+     * relationship are ignored! The provided properties are used instead. If the start node of this relationship is the same as the end node,
+     * the direction will be resolved as {@link org.neo4j.graphdb.Direction#BOTH}.
+     *
+     * @param relationship Neo4j relationship to describe.
+     * @param pointOfView  node which is looking at this relationship and thus determines its direction.
+     * @param properties   to use as if they were in the relationship.
+     */
+    public LiteralRelationshipDescription(Relationship relationship, Node pointOfView, Map<String, ?> properties) {
+        super(relationship, pointOfView, properties);
+    }
+
+    /**
+     * Construct a description.
+     *
+     * @param type       type.
+     * @param direction  direction.
+     * @param properties props.
+     */
+    public LiteralRelationshipDescription(RelationshipType type, Direction direction, Map<String, ?> properties) {
+        super(type, direction, properties);
+    }
+
+    /**
+     * Construct a description from a string.
+     *
+     * @param string string to construct description from. Must be of the form type#direction#_LITERAL_#anything#key1#value1#key2#value2
+     *               (assuming the default {@link com.graphaware.neo4j.common.Constants#SEPARATOR} and {@link LiteralPropertiesDescription#LITERAL}),
+     *               in which case the _LITERAL_ property will be removed upon construction. Can also be of the form
+     *               type#direction#key1#value1#key2#value2, in which case it will be constructed with those properties.
+     */
+    public LiteralRelationshipDescription(String string) {
+        super(string);
+    }
+
+    /**
+     * Construct a description from another one.
+     *
+     * @param relationship relationships representation.
+     */
+    public LiteralRelationshipDescription(HasTypeDirectionAndProperties<String, ?> relationship) {
+        super(relationship);
+    }
 
     /**
      * {@inheritDoc}
@@ -47,48 +108,21 @@ public class LiteralRelationshipDescription extends BaseRelationshipDescription 
         return result;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected RelationshipDescription newRelationship(RelationshipType type, Direction direction, PropertiesDescription properties) {
-        return new LiteralRelationshipDescription(type, direction, properties);
-    }
-
-    @Override
-    protected PropertiesDescription newProperties(PropertyContainer propertyContainer) {
-        return new LiteralPropertiesDescription(propertyContainer);
-    }
-
-    @Override
-    protected PropertiesDescription newProperties(Map<String, String> properties) {
-        Map<String, String> withoutLiteral = new HashMap<>(properties);
+    protected PropertiesDescription newProperties(Map<String, ?> properties) {
+        Map<String, ?> withoutLiteral = new HashMap<>(properties);
         withoutLiteral.remove(LiteralPropertiesDescription.LITERAL);
         return new LiteralPropertiesDescription(withoutLiteral);
     }
 
-    public LiteralRelationshipDescription(Relationship relationship, Node pointOfView) {
-        super(relationship, pointOfView);
-    }
-
-    public LiteralRelationshipDescription(Relationship relationship, Node pointOfView, PropertiesDescription properties) {
-        super(relationship, pointOfView, properties);
-    }
-
-    public LiteralRelationshipDescription(RelationshipType type, Direction direction) {
-        super(type, direction);
-    }
-
-    public LiteralRelationshipDescription(RelationshipType type, Direction direction, PropertiesDescription properties) {
-        super(type, direction, properties);
-    }
-
-    public LiteralRelationshipDescription(RelationshipType type, Direction direction, Map<String, String> properties) {
-        super(type, direction, properties);
-    }
-
-    public LiteralRelationshipDescription(String string) {
-        super(string);
-    }
-
-    public LiteralRelationshipDescription(HasTypeDirectionAndProperties<String, ?> relationship) {
-        super(relationship);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected RelationshipDescription newRelationship(RelationshipType type, Direction direction, Map<String, ?> properties) {
+        return new LiteralRelationshipDescription(type, direction, properties);
     }
 }

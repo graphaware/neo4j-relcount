@@ -18,7 +18,6 @@ package com.graphaware.neo4j.relcount.full.handler;
 
 import com.graphaware.neo4j.relcount.common.handler.RelationshipCountCachingTransactionEventHandler;
 import com.graphaware.neo4j.relcount.full.compactor.RelationshipCountCompactor;
-import com.graphaware.neo4j.relcount.full.dto.property.LiteralPropertiesDescription;
 import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
@@ -57,7 +56,7 @@ public class FullRelationshipCountTransactionEventHandler extends RelationshipCo
     protected void handleCreatedRelationship(Relationship relationship, Node pointOfView) {
         Map<String, String> extractedProperties = extractionStrategy.extractProperties(relationship, pointOfView);
 
-        LiteralRelationshipDescription createdRelationship = new LiteralRelationshipDescription(relationship, pointOfView, new LiteralPropertiesDescription(extractedProperties));
+        LiteralRelationshipDescription createdRelationship = new LiteralRelationshipDescription(relationship, pointOfView, extractedProperties);
 
         if (countManager.incrementCount(createdRelationship, pointOfView)) {
             countCompactor.compactRelationshipCounts(pointOfView); //todo async
@@ -65,7 +64,9 @@ public class FullRelationshipCountTransactionEventHandler extends RelationshipCo
     }
 
     protected void handleDeletedRelationship(Relationship relationship, Node pointOfView) {
-        LiteralRelationshipDescription deletedRelationship = new LiteralRelationshipDescription(relationship, pointOfView, new LiteralPropertiesDescription(relationship));
+        Map<String, String> extractedProperties = extractionStrategy.extractProperties(relationship, pointOfView);
+
+        LiteralRelationshipDescription deletedRelationship = new LiteralRelationshipDescription(relationship, pointOfView, extractedProperties);
 
         if (!countManager.decrementCount(deletedRelationship, pointOfView)) {
             LOG.warn(deletedRelationship.toString() + " was out of sync on node " + pointOfView.getId());

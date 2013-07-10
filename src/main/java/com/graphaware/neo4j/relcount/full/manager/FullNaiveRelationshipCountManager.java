@@ -23,6 +23,10 @@ import com.graphaware.neo4j.relcount.full.dto.relationship.RelationshipDescripti
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+/**
+ * {@link RelationshipCountManager} that counts relationships by traversing them (performs no caching). It is "full" in
+ * the sense that it cares about {@link org.neo4j.graphdb.RelationshipType}s, {@link org.neo4j.graphdb.Direction}s, and properties.
+ */
 public class FullNaiveRelationshipCountManager extends BaseNaiveRelationshipCountManager<RelationshipDescription> implements RelationshipCountManager<RelationshipDescription> {
 
     /**
@@ -38,8 +42,7 @@ public class FullNaiveRelationshipCountManager extends BaseNaiveRelationshipCoun
      */
     @Override
     protected boolean continueAfterFirstLookupMatch() {
-        //need to continue, there might be other more general matches
-        return true;
+        return true; //it is naive => need to traverse all relationship to find all matches.
     }
 
     /**
@@ -47,6 +50,7 @@ public class FullNaiveRelationshipCountManager extends BaseNaiveRelationshipCoun
      */
     @Override
     protected RelationshipDescription newCandidate(Relationship relationship, Node pointOfView) {
+        //todo extract properties
         return new LiteralRelationshipDescription(relationship, pointOfView);
     }
 }

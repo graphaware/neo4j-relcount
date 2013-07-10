@@ -54,28 +54,12 @@ public class FullCachedLiteralRelationshipCounter extends BaseFullRelationshipCo
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int count(Node node) {
-        return new FullCachingRelationshipCountManager().getRelationshipCount(new LiteralRelationshipDescription(this), node);
-    }
-
-    /**
-     * Construct a relationship representation from another one.
+     * Construct a counter from another relationship representation.
      *
      * @param relationship relationships representation.
      */
     protected FullCachedLiteralRelationshipCounter(HasTypeDirectionAndProperties<String, ?> relationship) {
         super(relationship);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public FullRelationshipCounter with(String key, Object value) {
-        return new FullCachedLiteralRelationshipCounter(getType(), getDirection(), getProperties().with(key, value));
     }
 
     /**
@@ -87,5 +71,21 @@ public class FullCachedLiteralRelationshipCounter extends BaseFullRelationshipCo
      */
     protected FullCachedLiteralRelationshipCounter(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties) {
         super(type, direction, properties);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int count(Node node) {
+        return new FullCachingRelationshipCountManager().getRelationshipCount(new LiteralRelationshipDescription(this), node);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FullRelationshipCounter with(String key, Object value) {
+        return new FullCachedLiteralRelationshipCounter(getType(), getDirection(), getProperties().with(key, value));
     }
 }

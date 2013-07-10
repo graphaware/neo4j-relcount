@@ -30,12 +30,69 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- *
+ * Abstract base-class for {@link RelationshipDescription} implementations.
  */
 public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializableDirectedRelationship<PropertiesDescription, RelationshipDescription> {
 
     /**
-     * {@inheritDoc}
+     * Construct a description. If the start node of this relationship is the same as the end node,
+     * the direction will be resolved as {@link org.neo4j.graphdb.Direction#BOTH}.
+     *
+     * @param relationship Neo4j relationship to describe.
+     * @param pointOfView  node which is looking at this relationship and thus determines its direction.
+     */
+    protected BaseRelationshipDescription(Relationship relationship, Node pointOfView) {
+        super(relationship, pointOfView);
+    }
+
+    /**
+     * Construct a description. Please note that using this constructor, the actual properties on the
+     * relationship are ignored! The provided properties are used instead. If the start node of this relationship is the same as the end node,
+     * the direction will be resolved as {@link org.neo4j.graphdb.Direction#BOTH}.
+     *
+     * @param relationship Neo4j relationship to describe.
+     * @param pointOfView  node which is looking at this relationship and thus determines its direction.
+     * @param properties   to use as if they were in the relationship.
+     */
+    protected BaseRelationshipDescription(Relationship relationship, Node pointOfView, Map<String, ?> properties) {
+        super(relationship, pointOfView, properties);
+    }
+
+    /**
+     * Construct a description.
+     *
+     * @param type       type.
+     * @param direction  direction.
+     * @param properties props.
+     */
+    protected BaseRelationshipDescription(RelationshipType type, Direction direction, Map<String, ?> properties) {
+        super(type, direction, properties);
+    }
+
+    /**
+     * Construct a description from a string.
+     *
+     * @param string string to construct description from. Must be of the form type#direction#key1#value1#key2#value2...
+     *               (assuming the default {@link com.graphaware.neo4j.common.Constants#SEPARATOR}.
+     */
+    protected BaseRelationshipDescription(String string) {
+        super(string);
+    }
+
+    /**
+     * Construct a description from another one.
+     *
+     * @param relationship relationships representation.
+     */
+    protected BaseRelationshipDescription(HasTypeDirectionAndProperties<String, ?> relationship) {
+        super(relationship);
+    }
+
+    /**
+     * Is this instance more general than (or at least as general as) the given instance?
+     *
+     * @param relationship to compare.
+     * @return true iff this instance is more general than or as general as the provided instance.
      */
     public boolean isMoreGeneralThan(RelationshipDescription relationship) {
         return matches((HasTypeAndDirection) relationship)
@@ -43,7 +100,10 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
     }
 
     /**
-     * {@inheritDoc}
+     * Is this instance strictly more general than the given instance?
+     *
+     * @param relationship to compare.
+     * @return true iff this instance is strictly more general than the provided instance.
      */
     public boolean isStrictlyMoreGeneralThan(RelationshipDescription relationship) {
         return matches((HasTypeAndDirection) relationship)
@@ -51,7 +111,10 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
     }
 
     /**
-     * {@inheritDoc}
+     * Is this instance more specific than (or at least as specific as) the given instance?
+     *
+     * @param relationship to compare.
+     * @return true iff this instance is more specific than or as specific as the provided instance.
      */
     public boolean isMoreSpecificThan(RelationshipDescription relationship) {
         return matches((HasTypeAndDirection) relationship)
@@ -59,7 +122,10 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
     }
 
     /**
-     * {@inheritDoc}
+     * Is this instance strictly more specific than the given instance?
+     *
+     * @param relationship to compare.
+     * @return true iff this instance is strictly more specific than the provided instance.
      */
     public boolean isStrictlyMoreSpecificThan(RelationshipDescription relationship) {
         return matches((HasTypeAndDirection) relationship)
@@ -67,14 +133,18 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
     }
 
     /**
-     * {@inheritDoc}
+     * Generate items one step more general than (or as general as) this instance.
+     *
+     * @return set of one-level more/equally general instances, ordered by decreasing generality.
      */
     public Set<RelationshipDescription> generateOneMoreGeneral() {
         return withDifferentProperties(getProperties().generateOneMoreGeneral());
     }
 
     /**
-     * {@inheritDoc}
+     * Generate all items more general than (or as general as) this instance.
+     *
+     * @return set of all more/equally general instances, ordered by decreasing generality.
      */
     public Set<RelationshipDescription> generateAllMoreGeneral() {
         return withDifferentProperties(getProperties().generateAllMoreGeneral());
@@ -84,14 +154,14 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
         Set<RelationshipDescription> result = new TreeSet<>();
 
         for (PropertiesDescription propertySet : propertySets) {
-            result.add(newRelationship(getType(), getDirection(), propertySet));
+            result.add(newRelationship(getType(), getDirection(), propertySet.getProperties()));
         }
 
         return result;
     }
 
     /**
-     * {@inheritDoc}
+     * @see {@link Comparable#compareTo(Object)}.
      */
     public int compareTo(RelationshipDescription that) {
         if (equals(that)) {
@@ -103,33 +173,5 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
         }
 
         return toString().compareTo(that.toString());
-    }
-
-    protected BaseRelationshipDescription(Relationship relationship, Node pointOfView) {
-        super(relationship, pointOfView);
-    }
-
-    protected BaseRelationshipDescription(Relationship relationship, Node pointOfView, PropertiesDescription properties) {
-        super(relationship, pointOfView, properties);
-    }
-
-    protected BaseRelationshipDescription(RelationshipType type, Direction direction) {
-        super(type, direction);
-    }
-
-    protected BaseRelationshipDescription(RelationshipType type, Direction direction, PropertiesDescription properties) {
-        super(type, direction, properties);
-    }
-
-    protected BaseRelationshipDescription(RelationshipType type, Direction direction, Map<String, String> properties) {
-        super(type, direction, properties);
-    }
-
-    protected BaseRelationshipDescription(String string) {
-        super(string);
-    }
-
-    protected BaseRelationshipDescription(HasTypeDirectionAndProperties<String, ?> relationship) {
-        super(relationship);
     }
 }

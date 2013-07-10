@@ -28,6 +28,10 @@ import java.util.Map;
 
 import static com.graphaware.neo4j.relcount.full.dto.property.LiteralPropertiesDescription.LITERAL;
 
+/**
+ * A full-blown implementation of {@link CachingRelationshipCountManager}.  It is "full" in
+ * the sense that it cares about {@link org.neo4j.graphdb.RelationshipType}s, {@link org.neo4j.graphdb.Direction}s, and properties.
+ */
 public class FullCachingRelationshipCountManager extends BaseCachingRelationshipCountManager<RelationshipDescription> implements CachingRelationshipCountManager<RelationshipDescription> {
 
     /**
@@ -43,8 +47,7 @@ public class FullCachingRelationshipCountManager extends BaseCachingRelationship
      */
     @Override
     protected boolean continueAfterFirstLookupMatch() {
-        //need to continue, there might be other more general matches
-        return true;
+        return true; //need to continue, there might be other more general matches
     }
 
     /**
@@ -79,7 +82,10 @@ public class FullCachingRelationshipCountManager extends BaseCachingRelationship
             if (candidate.isMoreGeneralThan(description)) {
                 throw new UnableToCountException("Unable to count relationships with the following description: "
                         + description.toString()
-                        + " for node " + node.toString());
+                        + " for node " + node.toString() + ". Since there are cached matches more general than your description," +
+                        " it looks like compaction has taken away the granularity you need. Please try to count this kind " +
+                        "of relationship with a naive counter. Alternatively, increase the compaction threshold and " +
+                        "rebuild all caches");//todo rebuild
             }
         }
     }

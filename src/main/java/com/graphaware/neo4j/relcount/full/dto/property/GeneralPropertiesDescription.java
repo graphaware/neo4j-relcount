@@ -21,27 +21,49 @@ import org.neo4j.graphdb.PropertyContainer;
 import java.util.Map;
 
 /**
- *
+ *  {@link PropertiesDescription} in which a missing property means "any", as opposed to a concrete "UNDEF" value (see {@link LiteralPropertiesDescription}).
  */
 public class GeneralPropertiesDescription extends BasePropertiesDescription implements PropertiesDescription {
 
+    /**
+     * Construct a description from a {@link org.neo4j.graphdb.PropertyContainer}.
+     *
+     * @param propertyContainer to take (copy) properties from.
+     */
     public GeneralPropertiesDescription(PropertyContainer propertyContainer) {
         super(propertyContainer);
     }
 
-    public GeneralPropertiesDescription(Map<String, String> properties) {
+    /**
+     * Construct a description from a {@link java.util.Map}.
+     *
+     * @param properties to take (copy).
+     */
+    public GeneralPropertiesDescription(Map<String, ?> properties) {
         super(properties);
     }
 
+    /**
+     * Construct a description from a {@link String}.
+     *
+     * @param string to construct properties from. Must be of the form key1#value1#key2#value2... (assuming the default
+     *               {@link com.graphaware.neo4j.common.Constants#SEPARATOR}.
+     */
     public GeneralPropertiesDescription(String string) {
         super(string);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected PropertiesDescription self() {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected PropertiesDescription newInstance(Map<String, String> props) {
         return new GeneralPropertiesDescription(props);

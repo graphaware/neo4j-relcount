@@ -22,10 +22,12 @@ import com.graphaware.neo4j.relcount.full.dto.common.PartiallyComparable;
 import com.graphaware.neo4j.relcount.full.dto.property.PropertiesDescription;
 
 /**
- *
+ * A description of a {@link org.neo4j.graphdb.Relationship}
+ * for the purposes of counting {@link org.neo4j.graphdb.Relationship}s, caching such counts, etc.
  */
 public interface RelationshipDescription extends
         CopyMakingSerializableDirectedRelationship<PropertiesDescription, RelationshipDescription>,
-        PartiallyComparable<RelationshipDescription>, Comparable<RelationshipDescription>,
+        PartiallyComparable<RelationshipDescription>,
+        Comparable<RelationshipDescription>,
         Generalizing<RelationshipDescription> {
 }
