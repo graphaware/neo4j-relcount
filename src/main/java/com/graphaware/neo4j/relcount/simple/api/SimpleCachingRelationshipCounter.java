@@ -31,7 +31,7 @@ import org.neo4j.graphdb.RelationshipType;
  * Matching relationships are all relationships that are exactly the same as the relationship description provided to this counter.
  * <p/>
  * WARNING: This counter will only work if {@link com.graphaware.neo4j.relcount.simple.handler.SimpleRelationshipCountTransactionEventHandler}
- * is used! If you just started using this functionality and you have an existing graph, call //todo!!! (re-caclculate counts)
+ * is used! If you just started using this functionality and you have an existing graph, call {@link com.graphaware.neo4j.relcount.simple.handler.SimpleRelationshipCountTransactionEventHandler#rebuildCachedCounts(org.neo4j.graphdb.GraphDatabaseService)}
  * <p/>
  * This counter always returns a count, never throws {@link com.graphaware.neo4j.relcount.common.api.UnableToCountException}.
  * If a relationship count isn't cached and you think it should be, please check that you are using {@link com.graphaware.neo4j.relcount.simple.handler.SimpleRelationshipCountTransactionEventHandler}

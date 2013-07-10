@@ -37,7 +37,7 @@ import org.neo4j.graphdb.RelationshipType;
  * will be counted.
  * <p/>
  * WARNING: This counter will only work if {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler}
- * is used! If you just started using this functionality and you have an existing graph, call //todo!!! (re-caclculate counts)
+ * is used! If you just started using this functionality and you have an existing graph, call {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler#rebuildCachedCounts(org.neo4j.graphdb.GraphDatabaseService)}
  * <p/>
  * This counter always returns a count, never throws {@link com.graphaware.neo4j.relcount.common.api.UnableToCountException}.
  * <p/>

@@ -85,7 +85,7 @@ public class FullCachingRelationshipCountManager extends BaseCachingRelationship
                         + " for node " + node.toString() + ". Since there are cached matches more general than your description," +
                         " it looks like compaction has taken away the granularity you need. Please try to count this kind " +
                         "of relationship with a naive counter. Alternatively, increase the compaction threshold and " +
-                        "rebuild all caches");//todo rebuild
+                        "rebuild all caches by calling FullRelationshipCountTransactionEventHandler#rebuildCachedCounts(..)");
             }
         }
     }

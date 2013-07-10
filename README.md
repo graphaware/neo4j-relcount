@@ -1,4 +1,4 @@
-//todo  then tests (incl BOTH), then rel extr. strategies overhaul, then different weights per relationship
+//todo  then tests (incl BOTH), then different weights per relationship
 
 Neo4j Relationship Count Cache
 ------------------------------
