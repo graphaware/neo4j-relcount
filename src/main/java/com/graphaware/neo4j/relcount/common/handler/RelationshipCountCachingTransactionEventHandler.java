@@ -62,8 +62,13 @@ public abstract class RelationshipCountCachingTransactionEventHandler extends Tr
 
     private void handleCreatedRelationships(ImprovedTransactionData data) {
         for (Relationship createdRelationship : data.getAllCreatedRelationships()) {
-            handleCreatedRelationship(createdRelationship, createdRelationship.getStartNode());
-            handleCreatedRelationship(createdRelationship, createdRelationship.getEndNode());
+            Node startNode = createdRelationship.getStartNode();
+            handleCreatedRelationship(createdRelationship, startNode);
+
+            Node endNode = createdRelationship.getEndNode();
+            if (!startNode.equals(endNode)) {
+                handleCreatedRelationship(createdRelationship, endNode);
+            }
         }
     }
 
@@ -75,7 +80,7 @@ public abstract class RelationshipCountCachingTransactionEventHandler extends Tr
             }
 
             Node endNode = deletedRelationship.getEndNode();
-            if (!data.hasBeenDeleted(endNode)) {
+            if (!data.hasBeenDeleted(endNode) && !startNode.equals(endNode)) {
                 handleDeletedRelationship(deletedRelationship, endNode);
             }
         }
@@ -87,10 +92,12 @@ public abstract class RelationshipCountCachingTransactionEventHandler extends Tr
             Relationship previous = changedRelationship.getPrevious();
 
             handleDeletedRelationship(previous, previous.getStartNode());
-            handleDeletedRelationship(previous, previous.getEndNode());
-
             handleCreatedRelationship(current, current.getStartNode());
-            handleCreatedRelationship(current, current.getEndNode());
+
+            if (!previous.getStartNode().equals(previous.getEndNode())) {
+                handleDeletedRelationship(previous, previous.getEndNode());
+                handleCreatedRelationship(current, current.getEndNode());
+            }
         }
     }
 
