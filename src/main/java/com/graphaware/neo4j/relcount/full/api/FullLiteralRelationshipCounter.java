@@ -23,7 +23,6 @@ import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
-//todo  then tests (incl BOTH), then rel extr. strategies overhaul, then different weights per relationship, checks that tx manager is in place when 0 returned (is anything cached at all? if not, does the node really have 0?)
 
 /**
  * {@link FullRelationshipCounter} that counts matching relationships by first trying to look them up in cached

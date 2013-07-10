@@ -14,11 +14,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount;
+package com.graphaware.neo4j.relcount.full.api;
 
 import com.graphaware.neo4j.relcount.full.FullRelationshipCountTransactionEventHandlerFactory;
-import com.graphaware.neo4j.relcount.full.api.FullCachedMoreGeneralRelationshipCounter;
-import com.graphaware.neo4j.relcount.full.api.FullNaiveMoreGeneralRelationshipCounter;
+import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;
+import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertiesExtractionStrategy;
 import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.tx.single.TransactionCallback;
@@ -29,16 +31,20 @@ import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.graphaware.neo4j.common.Constants.GA_REL_PREFIX;
 import static com.graphaware.neo4j.utils.DeleteUtils.deleteNodeAndRelationships;
 import static com.graphaware.neo4j.utils.PropertyContainerUtils.*;
 import static java.lang.String.valueOf;
 import static java.lang.System.currentTimeMillis;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
@@ -46,7 +52,7 @@ import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 /**
  * Integration test for relationship counting.
  */
-public class FullNaiveMoreGeneralRelationshipCounterIntegrationTest {
+public class FullCachedMoreGeneralRelationshipCounterIntegrationTest {
 
     private GraphDatabaseService database;
     private TransactionExecutor txExecutor;
@@ -55,44 +61,45 @@ public class FullNaiveMoreGeneralRelationshipCounterIntegrationTest {
     public void setUp() {
         database = new TestGraphDatabaseFactory().newImpermanentDatabase();
         txExecutor = new SimpleTransactionExecutor(database);
+        database.registerTransactionEventHandler(new FullRelationshipCountTransactionEventHandlerFactory().create(5));
     }
 
     @Test
     public void noRelationshipsShouldExistInEmptyDatabase() {
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(0)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(0)));
     }
 
     @Test
     public void noRelationshipsShouldExistInDatabaseWithNoRelationships() {
         createNodes();
 
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(0)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(0)));
     }
 
     @Test
-    public void relationshipsShouldBeCountedOneByOne() {
+    public void relationshipsBelowThresholdShouldBeCountedOneByOne() {
         createNodes();
         createFirstRelationships();
 
-        assertEquals(1, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
-        assertEquals(2, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
-        assertEquals(4, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        assertEquals(1, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
-        assertEquals(1, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), INCOMING).with("key2", "value1").count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        assertEquals(2, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
+        assertEquals(4, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), INCOMING).with("key2", "value1").count(database.getNodeById(1)));
     }
 
     @Test
-    public void relationshipsAboveThresholdShouldBeCountableOneByOne() {
+    public void relationshipsAboveThresholdShouldNotBeCountableOneByOne() {
         createNodes();
         createFirstRelationships();
         createSecondRelationships();
 
-        assertEquals(1, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
-        assertEquals(2, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
-        assertEquals(1, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
-        assertEquals(8, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        assertEquals(1, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
+        assertEquals(8, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
     }
 
     @Test
@@ -113,11 +120,11 @@ public class FullNaiveMoreGeneralRelationshipCounterIntegrationTest {
             }
         });
 
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
-        assertEquals(2, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
-        assertEquals(3, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        assertEquals(1, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        assertEquals(2, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
+        assertEquals(3, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
     }
 
     @Test
@@ -139,11 +146,81 @@ public class FullNaiveMoreGeneralRelationshipCounterIntegrationTest {
             }
         });
 
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
-        assertEquals(7, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        assertEquals(1, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
+        assertEquals(7, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+    }
+
+    @Test
+    public void deletingBelowZeroShouldNotDoAnyHarm() {
+        createNodes();
+        createFirstRelationships();
+
+        txExecutor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                database.getNodeById(1).setProperty(new GeneralRelationshipDescription(withName("test"), OUTGOING, MapUtil.stringMap("key1", "value1", "_LITERAL_", "true")).toString(), 0);
+                return null;
+            }
+        });
+
+        txExecutor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                for (Relationship relationship : database.getNodeById(1).getRelationships(withName("test"), OUTGOING)) {
+                    if (relationship.getEndNode().getId() == 2) {
+                        relationship.delete();
+                        break;
+                    }
+                }
+                return null;
+            }
+        });
+
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        assertEquals(2, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
+        assertEquals(3, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+    }
+
+    @Test
+    public void deletingNonExistingShouldNotDoAnyHarm() {
+        createNodes();
+        createFirstRelationships();
+
+        txExecutor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                database.getNodeById(2).createRelationshipTo(database.getNodeById(10), withName("test2")).setProperty("key1", "value3");
+                return null;
+            }
+        });
+
+        txExecutor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                database.getNodeById(2).removeProperty(new LiteralRelationshipDescription(withName("test2"), OUTGOING, Collections.singletonMap("key1", "value3")).toString());
+                return null;
+            }
+        });
+
+        txExecutor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                database.getNodeById(2).getSingleRelationship(withName("test2"), OUTGOING).delete();
+                return null;
+            }
+        });
+
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        assertEquals(2, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
+        assertEquals(4, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), INCOMING).with("key2", "value1").count(database.getNodeById(1)));
     }
 
     @Test
@@ -152,8 +229,8 @@ public class FullNaiveMoreGeneralRelationshipCounterIntegrationTest {
         createFirstRelationships();
         createSecondRelationships();
 
-        assertEquals(1, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(2)));
-        assertEquals(1, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(3)));
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(2)));
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(3)));
 
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
@@ -163,8 +240,8 @@ public class FullNaiveMoreGeneralRelationshipCounterIntegrationTest {
             }
         });
 
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(2)));
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(3)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(2)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(3)));
     }
 
     @Test
@@ -185,11 +262,11 @@ public class FullNaiveMoreGeneralRelationshipCounterIntegrationTest {
             }
         });
 
-        assertEquals(1, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
-        assertEquals(2, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
-        assertEquals(4, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        assertEquals(1, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        assertEquals(2, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
+        assertEquals(4, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
     }
 
     @Test
@@ -210,11 +287,11 @@ public class FullNaiveMoreGeneralRelationshipCounterIntegrationTest {
             }
         });
 
-        assertEquals(2, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
-        assertEquals(1, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
-        assertEquals(4, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        assertEquals(1, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(2, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
+        assertEquals(4, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
     }
 
     @Test
@@ -236,11 +313,11 @@ public class FullNaiveMoreGeneralRelationshipCounterIntegrationTest {
             }
         });
 
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
-        assertEquals(8, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        assertEquals(1, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
+        assertEquals(8, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
     }
 
     @Test
@@ -262,11 +339,51 @@ public class FullNaiveMoreGeneralRelationshipCounterIntegrationTest {
             }
         });
 
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
-        assertEquals(0, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
-        assertEquals(8, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        assertEquals(1, new FullNaiveMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
+        assertEquals(8, new FullCachedMoreGeneralRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedMoreGeneralRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+    }
+
+    @Test
+    public void internalRelationshipsAreIgnored() {
+        createNodes();
+
+        txExecutor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                database.getNodeById(0).createRelationshipTo(database.getNodeById(1), withName(GA_REL_PREFIX + "IGNORED")).setProperty("key1", "value1");
+                return null;
+            }
+        });
+
+        assertTrue(new FullCachingRelationshipCountManager().getRelationshipCounts(database.getNodeById(0)).isEmpty());
+
+    }
+
+    @Test
+    public void inclusionStrategyIsHonored() {
+        database = new TestGraphDatabaseFactory().newImpermanentDatabase();
+        txExecutor = new SimpleTransactionExecutor(database);
+        database.registerTransactionEventHandler(new FullRelationshipCountTransactionEventHandlerFactory().create(5, new RelationshipInclusionStrategy() {
+            @Override
+            public boolean include(Relationship relationship) {
+                return false;
+            }
+        }));
+
+        createNodes();
+
+        txExecutor.executeInTransaction(new TransactionCallback<Void>() {
+            @Override
+            public Void doInTransaction(GraphDatabaseService database) {
+                database.getNodeById(0).createRelationshipTo(database.getNodeById(1), withName("test")).setProperty("key1", "value1");
+                return null;
+            }
+        });
+
+        assertTrue(new FullCachingRelationshipCountManager().getRelationshipCounts(database.getNodeById(0)).isEmpty());
     }
 
     @Test

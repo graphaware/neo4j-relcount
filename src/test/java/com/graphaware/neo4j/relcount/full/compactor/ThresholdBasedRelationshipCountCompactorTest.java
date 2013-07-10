@@ -16,6 +16,7 @@
 
 package com.graphaware.neo4j.relcount.full.compactor;
 
+import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
 import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.dto.relationship.RelationshipDescription;
 import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;
@@ -29,7 +30,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
 import static com.graphaware.neo4j.common.Constants.GA_REL_PREFIX;
-import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.*;
 
 /**
  * Unit tests for {@link com.graphaware.neo4j.relcount.full.compactor.ThresholdBasedRelationshipCountCompactor}
@@ -114,11 +115,15 @@ public class ThresholdBasedRelationshipCountCompactorTest {
         });
 
         assertEquals(1, manager.getRelationshipCounts(database.getNodeById(0)).size());
-        assertEquals(0, manager.getRelationshipCount(rel("test#OUTGOING#k1#v1"), database.getNodeById(0)));
-        assertEquals(0, manager.getRelationshipCount(rel("test#OUTGOING#k1#v2"), database.getNodeById(0)));
-        assertEquals(0, manager.getRelationshipCount(rel("test#OUTGOING#k1#v3"), database.getNodeById(0)));
-        assertEquals(0, manager.getRelationshipCount(rel("test#OUTGOING#k1#v4"), database.getNodeById(0)));
+        assertTrue(manager.getRelationshipCounts(database.getNodeById(0)).containsKey(rel("test#OUTGOING#")));
         assertEquals(24, manager.getRelationshipCount(rel("test#OUTGOING#"), database.getNodeById(0)));
+
+        try {
+            manager.getRelationshipCount(rel("test#OUTGOING#k1#v1"), database.getNodeById(0));
+            fail();
+        } catch (UnableToCountException e) {
+            //OK
+        }
     }
 
     @Test
@@ -216,12 +221,18 @@ public class ThresholdBasedRelationshipCountCompactorTest {
         });
 
         assertEquals(5, manager.getRelationshipCounts(database.getNodeById(0)).size());
-        assertEquals(0, manager.getRelationshipCount(rel("test#OUTGOING#k1#v1"), database.getNodeById(0)));
         assertEquals(6, manager.getRelationshipCount(rel("test#OUTGOING#"), database.getNodeById(0)));
         assertEquals(1, manager.getRelationshipCount(rel("test2#OUTGOING#"), database.getNodeById(0)));
         assertEquals(1, manager.getRelationshipCount(rel("test3#OUTGOING#"), database.getNodeById(0)));
         assertEquals(1, manager.getRelationshipCount(rel("test4#OUTGOING#"), database.getNodeById(0)));
         assertEquals(1, manager.getRelationshipCount(rel("test5#OUTGOING#"), database.getNodeById(0)));
+
+        try {
+            manager.getRelationshipCount(rel("test#OUTGOING#k1#v1"), database.getNodeById(0));
+            fail();
+        } catch (UnableToCountException e) {
+            //ok
+        }
     }
 
     /**
