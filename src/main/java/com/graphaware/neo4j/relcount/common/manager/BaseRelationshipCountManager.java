@@ -57,7 +57,7 @@ public abstract class BaseRelationshipCountManager<DESCRIPTION extends HasTypeAn
     }
 
     /**
-     * Get all relationship counts for a node.
+     * Get all candidate relationship counts for a node.
      *
      * @param description description of the relationship for which to get count. Can be used to guide search,
      *                    but can well be ignored. Thus, there is no guarantee that all returned candidates match the description.

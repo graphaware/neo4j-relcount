@@ -11,7 +11,9 @@ import static com.graphaware.neo4j.common.Constants.GA_REL_PREFIX;
 /**
  * Abstract base-class for {@link CachingRelationshipCountManager} implementations.
  *
- * @param <DESCRIPTION> type of relationship description that can be used to query relationship counts on nodes.
+ * @param <DESCRIPTION> type of relationship representation that can be used as a relationship description for querying
+ *                      and caching. Must be {@link Comparable}; the resulting order is the order in which candidates
+ *                      are evaluated.
  */
 public abstract class BaseCachingRelationshipCountManager<DESCRIPTION extends HasTypeAndDirection & Comparable<DESCRIPTION>> extends BaseRelationshipCountManager<DESCRIPTION> {
 
@@ -32,7 +34,7 @@ public abstract class BaseCachingRelationshipCountManager<DESCRIPTION extends Ha
      *
      * @param node from which to get cached relationship counts.
      * @return cached relationship counts (key = relationship representation, value = count). The map is sorted
-     *         so that it is iterated in a relationship specific to general order.
+     *         so that it can be iterated in order (e.g. alphabetic or specific to general).
      */
     public Map<DESCRIPTION, Integer> getRelationshipCounts(Node node) {
         Map<DESCRIPTION, Integer> result = new TreeMap<>();

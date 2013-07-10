@@ -24,7 +24,8 @@ import org.neo4j.graphdb.Node;
  * property is a {@link String} representation of some kind of relationship. The value is the number of relationships
  * of that kind the node has.
  *
- * @param <DESCRIPTION> type of relationship representation that can be used to query relationship counts on nodes.
+ * @param <DESCRIPTION> type of relationship representation that can be used as a relationship description for querying
+ *                      and caching.
  */
 public interface CachingRelationshipCountManager<DESCRIPTION extends HasTypeAndDirection> extends RelationshipCountManager<DESCRIPTION> {
 
