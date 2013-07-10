@@ -16,23 +16,28 @@
 
 package com.graphaware.neo4j.relcount.full.manager;
 
-import com.graphaware.neo4j.dto.common.property.ImmutableProperties;
-import com.graphaware.neo4j.dto.common.relationship.ImmutableDirectedRelationship;
+import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
+import com.graphaware.neo4j.dto.string.relationship.SerializableDirectedRelationship;
+import com.graphaware.neo4j.dto.string.relationship.SerializableDirectedRelationshipImpl;
+import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
 import com.graphaware.neo4j.relcount.common.manager.BaseCachingRelationshipCountManager;
 import com.graphaware.neo4j.relcount.common.manager.CachingRelationshipCountManager;
 import com.graphaware.neo4j.relcount.full.dto.relationship.CountableRelationship;
 import com.graphaware.neo4j.relcount.full.dto.relationship.GenerallyCountableRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.LiterallyCountableRelationship;
+import org.neo4j.graphdb.Node;
 
-/**
- * Default production implementation of {@link FullCachingRelationshipCountManager}.
- */
-public class FullCachingRelationshipCountManager extends BaseCachingRelationshipCountManager<ImmutableDirectedRelationship<String, ? extends ImmutableProperties<String>>, CountableRelationship> implements CachingRelationshipCountManager<ImmutableDirectedRelationship<String, ? extends ImmutableProperties<String>>, CountableRelationship> {
+import java.util.Map;
+
+import static com.graphaware.neo4j.relcount.full.dto.property.LiterallyCountableProperties.LITERAL;
+
+public class FullCachingRelationshipCountManager extends BaseCachingRelationshipCountManager<HasTypeDirectionAndProperties<String, ?>, CountableRelationship> implements CachingRelationshipCountManager<HasTypeDirectionAndProperties<String, ?>, CountableRelationship> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean candidateMatchesDescription(CountableRelationship candidate, ImmutableDirectedRelationship<String, ? extends ImmutableProperties<String>> description) {
+    protected boolean candidateMatchesDescription(CountableRelationship candidate, HasTypeDirectionAndProperties<String, ?> description) {
         return candidate.isMoreSpecificThan(description);
     }
 
@@ -57,7 +62,29 @@ public class FullCachingRelationshipCountManager extends BaseCachingRelationship
      * {@inheritDoc}
      */
     @Override
-    protected GenerallyCountableRelationship newCachedRelationship(String string) {
-        return new GenerallyCountableRelationship(string);
+    protected CountableRelationship newCachedRelationship(String string) {
+        CountableRelationship result = new GenerallyCountableRelationship(string);
+
+        if (result.getProperties().containsKey(LITERAL)) {
+            return new LiterallyCountableRelationship(result);
+        }
+
+        return result;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void handleZeroResult(HasTypeDirectionAndProperties<String, ?> description, Node node) {
+        for (Map.Entry<CountableRelationship, Integer> candidateWithCount : getRelationshipCounts(description, node).entrySet()) {
+            CountableRelationship candidate = candidateWithCount.getKey();
+            if (candidate.isMoreGeneralThan(description)) {
+                throw new UnableToCountException("Unable to count relationships with the following description: "
+                        + (description instanceof SerializableDirectedRelationship ? description.toString() : new SerializableDirectedRelationshipImpl(description).toString())
+                        + " for node " + node.toString());
+            }
+        }
+    }
+
 }

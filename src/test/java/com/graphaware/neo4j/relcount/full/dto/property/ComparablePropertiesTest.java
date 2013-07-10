@@ -14,12 +14,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.dto;
+package com.graphaware.neo4j.relcount.full.dto.property;
 
 import com.graphaware.neo4j.dto.common.property.ImmutableProperties;
 import com.graphaware.neo4j.dto.string.property.SerializablePropertiesImpl;
-import com.graphaware.neo4j.relcount.full.dto.property.CountableProperties;
-import com.graphaware.neo4j.relcount.full.dto.property.GenerallyCountableProperties;
 import org.junit.Test;
 
 import java.util.Iterator;

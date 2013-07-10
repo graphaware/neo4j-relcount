@@ -16,19 +16,23 @@
 
 package com.graphaware.neo4j.relcount.common.api;
 
+import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
 import org.neo4j.graphdb.Node;
 
 /**
  * A node in/out-degree counter. Degree is the number of incoming/outgoing relationships that a node has. Implementations
- * should provide a way to describe, which relationships should be counted (i.e. direction, type, properties).
+ * should provide a way to describe which relationships should be counted (i.e. direction, type, properties).
  */
-public interface RelationshipCounter {
+public interface RelationshipCounter extends HasTypeAndDirection {
 
     /**
      * Count relationships described by this counter on the given node.
      *
      * @param node on which to count relationships.
      * @return number of relationships.
+     * @throws UnableToCountException indicating that for some reason, relationships could not be counted.
+     *                                For example, when asking for a count purely based on cached values and the cached
+     *                                values are not present (e.g. have been compacted-out).
      */
     int count(Node node);
 }

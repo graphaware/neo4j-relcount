@@ -16,7 +16,7 @@
 
 package com.graphaware.neo4j.relcount.full.dto.relationship;
 
-import com.graphaware.neo4j.dto.common.relationship.ImmutableDirectedRelationship;
+import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.dto.string.relationship.CopyMakingSerializableDirectedRelationship;
 import com.graphaware.neo4j.relcount.full.dto.property.TotallyComparableProperties;
@@ -71,7 +71,7 @@ public abstract class TotallyComparableSerializableRelationship<R extends CopyMa
         super(string);
     }
 
-    protected TotallyComparableSerializableRelationship(ImmutableDirectedRelationship<String, P> relationship) {
+    protected TotallyComparableSerializableRelationship(HasTypeDirectionAndProperties<String, ?> relationship) {
         super(relationship);
     }
 }

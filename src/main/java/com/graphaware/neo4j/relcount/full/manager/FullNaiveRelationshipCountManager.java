@@ -16,24 +16,21 @@
 
 package com.graphaware.neo4j.relcount.full.manager;
 
-import com.graphaware.neo4j.dto.common.property.ImmutableProperties;
-import com.graphaware.neo4j.dto.common.relationship.ImmutableDirectedRelationship;
+import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.neo4j.relcount.common.manager.BaseNaiveRelationshipCountManager;
 import com.graphaware.neo4j.relcount.common.manager.RelationshipCountManager;
-import com.graphaware.neo4j.relcount.full.dto.relationship.GenerallyCountableRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CountableRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.LiterallyCountableRelationship;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-/**
- * Default production implementation of {@link com.graphaware.neo4j.relcount.full.manager.FullNaiveRelationshipCountManager}.
- */
-public class FullNaiveRelationshipCountManager extends BaseNaiveRelationshipCountManager<ImmutableDirectedRelationship<String, ? extends ImmutableProperties<String>>, GenerallyCountableRelationship> implements RelationshipCountManager<ImmutableDirectedRelationship<String, ? extends ImmutableProperties<String>>, GenerallyCountableRelationship> {
+public class FullNaiveRelationshipCountManager extends BaseNaiveRelationshipCountManager<HasTypeDirectionAndProperties<String, ?>, CountableRelationship> implements RelationshipCountManager<HasTypeDirectionAndProperties<String, ?>, CountableRelationship> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean candidateMatchesDescription(GenerallyCountableRelationship candidate, ImmutableDirectedRelationship<String, ? extends ImmutableProperties<String>> description) {
+    protected boolean candidateMatchesDescription(CountableRelationship candidate, HasTypeDirectionAndProperties<String, ?> description) {
         return candidate.isMoreSpecificThan(description);
     }
 
@@ -50,7 +47,7 @@ public class FullNaiveRelationshipCountManager extends BaseNaiveRelationshipCoun
      * {@inheritDoc}
      */
     @Override
-    protected GenerallyCountableRelationship newCandidate(Relationship relationship, Node pointOfView) {
-        return new GenerallyCountableRelationship(relationship, pointOfView);
+    protected CountableRelationship newCandidate(Relationship relationship, Node pointOfView) {
+        return new LiterallyCountableRelationship(relationship, pointOfView);
     }
 }

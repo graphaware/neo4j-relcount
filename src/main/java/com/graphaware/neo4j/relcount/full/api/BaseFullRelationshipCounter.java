@@ -17,6 +17,7 @@
 package com.graphaware.neo4j.relcount.full.api;
 
 import com.graphaware.neo4j.dto.common.relationship.BaseDirectedRelationship;
+import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializablePropertiesImpl;
 import org.neo4j.graphdb.Direction;
@@ -26,11 +27,7 @@ import org.neo4j.graphdb.RelationshipType;
 import java.util.Map;
 
 /**
- * A naive {@link com.graphaware.neo4j.relcount.full.api.FullRelationshipCounter} that counts matching relationships by inspecting all
- * {@link org.neo4j.graphdb.Node}'s {@link org.neo4j.graphdb.Relationship}s. It delegates the work to {@link com.graphaware.neo4j.relcount.full.manager.FullNaiveRelationshipCountManager}.
- * <p/>
- * Because relationships are counted on the fly (no caching performed), this can be used without any {@link org.neo4j.graphdb.event.TransactionEventHandler}s
- * and on already existing graphs.
+ * Abstract base-class for {@link FullRelationshipCounter} implementations.
  */
 public abstract class BaseFullRelationshipCounter extends BaseDirectedRelationship<String, CopyMakingSerializableProperties<?>> {
 
@@ -53,6 +50,15 @@ public abstract class BaseFullRelationshipCounter extends BaseDirectedRelationsh
      */
     protected BaseFullRelationshipCounter(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties) {
         super(type, direction, properties);
+    }
+
+    /**
+     * Construct a relationship representation from another one.
+     *
+     * @param relationship relationships representation.
+     */
+    protected BaseFullRelationshipCounter(HasTypeDirectionAndProperties<String, ?> relationship) {
+        super(relationship);
     }
 
     /**

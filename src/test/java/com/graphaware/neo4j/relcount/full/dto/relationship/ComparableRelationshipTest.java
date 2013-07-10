@@ -14,14 +14,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.dto;
+package com.graphaware.neo4j.relcount.full.dto.relationship;
 
 import com.graphaware.neo4j.dto.common.relationship.ImmutableDirectedRelationship;
 import com.graphaware.neo4j.dto.string.relationship.SerializableDirectedRelationshipImpl;
-import com.graphaware.neo4j.relcount.full.dto.property.LiterallyCountableProperties;
-import com.graphaware.neo4j.relcount.full.dto.relationship.CountableRelationship;
-import com.graphaware.neo4j.relcount.full.dto.relationship.GenerallyCountableRelationship;
-import com.graphaware.neo4j.relcount.full.dto.relationship.LiterallyCountableRelationship;
+import com.graphaware.neo4j.relcount.full.dto.property.GenerallyCountableProperties;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -42,22 +39,17 @@ public class ComparableRelationshipTest {
     public void propertiesShouldBeCorrectlyConstructed() {
         CountableRelationship relationship = crel("test#INCOMING#_LITERAL_#true#key1#value1#key2#value2");
 
-        assertTrue(relationship.getProperties() instanceof LiterallyCountableProperties);
+        assertTrue(relationship.getProperties() instanceof GenerallyCountableProperties);
+        assertTrue(relationship.getProperties().containsKey("_LITERAL_"));
         assertTrue(relationship.getProperties().containsKey("key1"));
         assertTrue(relationship.getProperties().containsKey("key2"));
-        assertEquals(2, relationship.getProperties().size());
+        assertEquals(3, relationship.getProperties().size());
 
         relationship = crel("test#INCOMING#key1#value1#key2#value2");
 
-        assertFalse(relationship.getProperties() instanceof LiterallyCountableProperties);
         assertTrue(relationship.getProperties().containsKey("key1"));
         assertTrue(relationship.getProperties().containsKey("key2"));
         assertEquals(2, relationship.getProperties().size());
-
-        relationship = crel("test#INCOMING#_LITERAL_#true");
-
-        assertTrue(relationship.getProperties() instanceof LiterallyCountableProperties);
-        assertEquals(0, relationship.getProperties().size());
     }
 
     @Test
@@ -65,38 +57,20 @@ public class ComparableRelationshipTest {
         assertTrue(crel("test#INCOMING#key1#value1#key2#value2").isMoreGeneralThan(drel("test#INCOMING#key1#value1#key2#value2")));
         assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreGeneralThan(drel("test#INCOMING#key1#value1#key2#value2")));
 
-        assertTrue(lrel("test#INCOMING#","key1#value1#key2#value2").isMoreGeneralThan(drel("test#INCOMING#key1#value1#key2#value2")));
-        assertFalse(lrel("test#INCOMING#", "key1#value1#key2#value2").isStrictlyMoreGeneralThan(drel("test#INCOMING#key1#value1#key2#value2")));
-
         assertTrue(crel("test#INCOMING#key2#value2").isMoreGeneralThan(drel("test#INCOMING#key1#value1#key2#value2")));
         assertTrue(crel("test#INCOMING#key2#value2").isStrictlyMoreGeneralThan(drel("test#INCOMING#key1#value1#key2#value2")));
-
-        assertFalse(lrel("test#INCOMING#", "key2#value2").isMoreGeneralThan(drel("test#INCOMING#key1#value1#key2#value2")));
-        assertFalse(lrel("test#INCOMING#", "key2#value2").isStrictlyMoreGeneralThan(drel("test#INCOMING#key1#value1#key2#value2")));
 
         assertTrue(crel("test#INCOMING").isMoreGeneralThan(crel("test#INCOMING#key1#value1#key2#value2")));
         assertTrue(crel("test#INCOMING").isStrictlyMoreGeneralThan(crel("test#INCOMING#key1#value1#key2#value2")));
 
-        assertFalse(lrel("test#INCOMING#","").isMoreGeneralThan(crel("test#INCOMING#key1#value1#key2#value2")));
-        assertFalse(lrel("test#INCOMING#","").isStrictlyMoreGeneralThan(crel("test#INCOMING#key1#value1#key2#value2")));
-
         assertFalse(crel("test#INCOMING#key2#value3").isMoreGeneralThan(drel("test#INCOMING#key1#value1#key2#value2")));
         assertFalse(crel("test#INCOMING#key2#value3").isStrictlyMoreGeneralThan(drel("test#INCOMING#key1#value1#key2#value2")));
-
-        assertFalse(lrel("test#INCOMING#","key2#value3").isMoreGeneralThan(drel("test#INCOMING#key1#value1#key2#value2")));
-        assertFalse(lrel("test#INCOMING#","key2#value3").isStrictlyMoreGeneralThan(drel("test#INCOMING#key1#value1#key2#value2")));
 
         assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isMoreGeneralThan(drel("test#OUTGOING#key1#value1#key2#value2")));
         assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreGeneralThan(drel("test#OUTGOING#key1#value1#key2#value2")));
 
-        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isMoreGeneralThan(drel("test#OUTGOING#key1#value1#key2#value2")));
-        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isStrictlyMoreGeneralThan(drel("test#OUTGOING#key1#value1#key2#value2")));
-
         assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isMoreGeneralThan(drel("test2#INCOMING#key1#value1#key2#value2")));
         assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreGeneralThan(drel("test2#INCOMING#key1#value1#key2#value2")));
-
-        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isMoreGeneralThan(drel("test2#INCOMING#key1#value1#key2#value2")));
-        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isStrictlyMoreGeneralThan(drel("test2#INCOMING#key1#value1#key2#value2")));
     }
 
     @Test
@@ -104,38 +78,20 @@ public class ComparableRelationshipTest {
         assertTrue(crel("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(drel("test#INCOMING#key1#value1#key2#value2")));
         assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreSpecificThan(drel("test#INCOMING#key1#value1#key2#value2")));
 
-        assertTrue(lrel("test#INCOMING#","key1#value1#key2#value2").isMoreSpecificThan(drel("test#INCOMING#key1#value1#key2#value2")));
-        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isStrictlyMoreSpecificThan(drel("test#INCOMING#key1#value1#key2#value2")));
-
         assertTrue(crel("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(drel("test#INCOMING#key2#value2")));
         assertTrue(crel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreSpecificThan(drel("test#INCOMING#key2#value2")));
-
-        assertTrue(lrel("test#INCOMING#","key1#value1#key2#value2").isMoreSpecificThan(drel("test#INCOMING#key2#value2")));
-        assertTrue(lrel("test#INCOMING#","key1#value1#key2#value2").isStrictlyMoreSpecificThan(drel("test#INCOMING#key2#value2")));
 
         assertTrue(crel("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(crel("test#INCOMING")));
         assertTrue(crel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreSpecificThan(crel("test#INCOMING")));
 
-        assertTrue(lrel("test#INCOMING#","key1#value1#key2#value2").isMoreSpecificThan(crel("test#INCOMING")));
-        assertTrue(lrel("test#INCOMING#","key1#value1#key2#value2").isStrictlyMoreSpecificThan(crel("test#INCOMING")));
-
         assertFalse(crel("test#INCOMING#key2#value2").isMoreSpecificThan(drel("test#INCOMING#key2#value3")));
         assertFalse(crel("test#INCOMING#key2#value2").isStrictlyMoreSpecificThan(drel("test#INCOMING#key2#value3")));
-
-        assertFalse(lrel("test#INCOMING#","key2#value2").isMoreSpecificThan(drel("test#INCOMING#key2#value3")));
-        assertFalse(lrel("test#INCOMING#","key2#value2").isStrictlyMoreSpecificThan(drel("test#INCOMING#key2#value3")));
 
         assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(drel("test#OUTGOING#key1#value1#key2#value2")));
         assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreSpecificThan(drel("test#OUTGOING#key1#value1#key2#value2")));
 
-        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isMoreSpecificThan(drel("test#OUTGOING#key1#value1#key2#value2")));
-        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isStrictlyMoreSpecificThan(drel("test#OUTGOING#key1#value1#key2#value2")));
-
         assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(drel("test2#INCOMING#key1#value1#key2#value2")));
         assertFalse(crel("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreSpecificThan(drel("test2#INCOMING#key1#value1#key2#value2")));
-
-        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isMoreSpecificThan(drel("test2#INCOMING#key1#value1#key2#value2")));
-        assertFalse(lrel("test#INCOMING#","key1#value1#key2#value2").isStrictlyMoreSpecificThan(drel("test2#INCOMING#key1#value1#key2#value2")));
     }
 
     @Test
@@ -202,24 +158,23 @@ public class ComparableRelationshipTest {
 
     @Test
     public void shouldCorrectlyConvertToString() {
-        assertEquals(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2", new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2").toString());
-        assertEquals(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true", new LiterallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true").toString());
-        assertEquals(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true", new LiterallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#anything#").toString());
+        assertEquals(GA_REL_PREFIX + "test#OUTGOING#key1#value1#key2#value2", new GenerallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#key1#value1#key2#value2").toString());
+        assertEquals(GA_REL_PREFIX + "test#INCOMING", new GenerallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING").toString());
+        assertEquals(GA_REL_PREFIX + "test#INCOMING", new GenerallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING#").toString());
     }
 
     @Test
     public void sameRelationshipsShouldBeEqual() {
-        assertTrue(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true").equals(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true")));
-        assertTrue(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2").equals(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2")));
-        assertTrue(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2").equals(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#anything#key1#value1#key2#value2#")));
-        assertTrue(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true#key1#value1#key2#").equals(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true#key1#value1#key2")));
+        assertTrue(new GenerallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING").equals(new GenerallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING")));
+        assertTrue(new GenerallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#key1#value1#key2#value2").equals(new GenerallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#key1#value1#key2#value2")));
+        assertTrue(new GenerallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING#key1#value1#key2#").equals(new GenerallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING#key1#value1#key2")));
     }
 
     @Test
     public void differentRelationshipsShouldNotBeEqual() {
-        assertFalse(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true").equals(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING#_LITERAL_#true")));
-        assertFalse(new LiterallyCountableRelationship(GA_REL_PREFIX + "test2#OUTGOING#_LITERAL_#true#key1#value1#key2#value2").equals(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2")));
-        assertFalse(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key3#value1#key2#value2").equals(new LiterallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2#")));
+        assertFalse(new GenerallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING").equals(new GenerallyCountableRelationship(GA_REL_PREFIX + "test#INCOMING")));
+        assertFalse(new GenerallyCountableRelationship(GA_REL_PREFIX + "test2#OUTGOING#key1#value1#key2#value2").equals(new GenerallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#key1#value1#key2#value2")));
+        assertFalse(new GenerallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#key3#value1#key2#value2").equals(new GenerallyCountableRelationship(GA_REL_PREFIX + "test#OUTGOING#key1#value1#key2#value2#")));
     }
 
     private CountableRelationship crel(String s) {
@@ -229,9 +184,4 @@ public class ComparableRelationshipTest {
     private ImmutableDirectedRelationship<String, ?> drel(String s) {
         return new SerializableDirectedRelationshipImpl(GA_REL_PREFIX + s);
     }
-
-    private CountableRelationship lrel(String rel, String props) {
-        return new LiterallyCountableRelationship(GA_REL_PREFIX + rel + "_LITERAL_#true#" +props);
-    }
-
 }

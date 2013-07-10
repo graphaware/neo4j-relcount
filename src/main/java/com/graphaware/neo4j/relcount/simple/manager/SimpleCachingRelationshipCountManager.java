@@ -20,6 +20,7 @@ import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
 import com.graphaware.neo4j.dto.common.relationship.SerializableTypeAndDirection;
 import com.graphaware.neo4j.relcount.common.manager.BaseCachingRelationshipCountManager;
 import com.graphaware.neo4j.relcount.common.manager.CachingRelationshipCountManager;
+import org.neo4j.graphdb.Node;
 
 /**
  * Default production implementation of {@link com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager}.
@@ -57,5 +58,13 @@ public class SimpleCachingRelationshipCountManager extends BaseCachingRelationsh
     @Override
     protected boolean cachedMatch(SerializableTypeAndDirection cached, SerializableTypeAndDirection relationship) {
         return cached.matches(relationship);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void handleZeroResult(HasTypeAndDirection hasTypeAndDirection, Node node) {
+        //do nothing
     }
 }

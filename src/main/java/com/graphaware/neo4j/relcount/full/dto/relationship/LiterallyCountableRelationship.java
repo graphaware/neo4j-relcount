@@ -16,18 +16,36 @@
 
 package com.graphaware.neo4j.relcount.full.dto.relationship;
 
-import com.graphaware.neo4j.dto.common.relationship.ImmutableDirectedRelationship;
+import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.neo4j.relcount.full.dto.property.CountableProperties;
 import com.graphaware.neo4j.relcount.full.dto.property.LiterallyCountableProperties;
 import org.neo4j.graphdb.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
  */
 public class LiterallyCountableRelationship extends GeneralizingComparableSerializableRelationship<CountableRelationship, CountableProperties> implements CountableRelationship {
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<CountableRelationship> generateOneMoreGeneral() {
+        return Collections.<CountableRelationship>singleton(new GenerallyCountableRelationship(this));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<CountableRelationship> generateAllMoreGeneral() {
+        Set<CountableRelationship> result = new TreeSet<>();
+        result.add(this);
+        result.addAll(new GenerallyCountableRelationship(this).generateAllMoreGeneral());
+        return result;
+    }
 
     @Override
     protected CountableRelationship newRelationship(RelationshipType type, Direction direction, CountableProperties properties) {
@@ -70,7 +88,7 @@ public class LiterallyCountableRelationship extends GeneralizingComparableSerial
         super(string);
     }
 
-    public LiterallyCountableRelationship(ImmutableDirectedRelationship<String, CountableProperties> relationship) {
+    public LiterallyCountableRelationship(HasTypeDirectionAndProperties<String, ?> relationship) {
         super(relationship);
     }
 }

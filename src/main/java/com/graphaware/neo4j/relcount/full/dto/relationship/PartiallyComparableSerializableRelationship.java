@@ -16,9 +16,8 @@
 
 package com.graphaware.neo4j.relcount.full.dto.relationship;
 
-import com.graphaware.neo4j.dto.common.property.ImmutableProperties;
 import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
-import com.graphaware.neo4j.dto.common.relationship.ImmutableDirectedRelationship;
+import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.dto.string.relationship.BaseCopyMakingSerializableDirectedRelationship;
 import com.graphaware.neo4j.dto.string.relationship.CopyMakingSerializableDirectedRelationship;
@@ -38,7 +37,7 @@ public abstract class PartiallyComparableSerializableRelationship<T extends Copy
     /**
      * {@inheritDoc}
      */
-    public boolean isMoreGeneralThan(ImmutableDirectedRelationship<String, ? extends ImmutableProperties<String>> relationship) {
+    public boolean isMoreGeneralThan(HasTypeDirectionAndProperties<String, ?> relationship) {
         return matches((HasTypeAndDirection) relationship)
                 && getProperties().isMoreGeneralThan(relationship.getProperties());
     }
@@ -46,7 +45,7 @@ public abstract class PartiallyComparableSerializableRelationship<T extends Copy
     /**
      * {@inheritDoc}
      */
-    public boolean isStrictlyMoreGeneralThan(ImmutableDirectedRelationship<String, ? extends ImmutableProperties<String>> relationship) {
+    public boolean isStrictlyMoreGeneralThan(HasTypeDirectionAndProperties<String, ?> relationship) {
         return matches((HasTypeAndDirection) relationship)
                 && getProperties().isStrictlyMoreGeneralThan(relationship.getProperties());
     }
@@ -54,7 +53,7 @@ public abstract class PartiallyComparableSerializableRelationship<T extends Copy
     /**
      * {@inheritDoc}
      */
-    public boolean isMoreSpecificThan(ImmutableDirectedRelationship<String, ? extends ImmutableProperties<String>> relationship) {
+    public boolean isMoreSpecificThan(HasTypeDirectionAndProperties<String, ?> relationship) {
         return matches((HasTypeAndDirection) relationship)
                 && getProperties().isMoreSpecificThan(relationship.getProperties());
     }
@@ -62,7 +61,7 @@ public abstract class PartiallyComparableSerializableRelationship<T extends Copy
     /**
      * {@inheritDoc}
      */
-    public boolean isStrictlyMoreSpecificThan(ImmutableDirectedRelationship<String, ? extends ImmutableProperties<String>> relationship) {
+    public boolean isStrictlyMoreSpecificThan(HasTypeDirectionAndProperties<String, ?> relationship) {
         return matches((HasTypeAndDirection) relationship)
                 && getProperties().isStrictlyMoreSpecificThan(relationship.getProperties());
     }
@@ -93,7 +92,7 @@ public abstract class PartiallyComparableSerializableRelationship<T extends Copy
         super(string);
     }
 
-    protected PartiallyComparableSerializableRelationship(ImmutableDirectedRelationship<String, P> relationship) {
+    protected PartiallyComparableSerializableRelationship(HasTypeDirectionAndProperties<String, ?>  relationship) {
         super(relationship);
     }
 }

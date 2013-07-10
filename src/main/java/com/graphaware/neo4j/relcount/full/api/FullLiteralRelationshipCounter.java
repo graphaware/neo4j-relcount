@@ -17,16 +17,28 @@
 package com.graphaware.neo4j.relcount.full.api;
 
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
+import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
-
+                 //todo  then tests, then simplifications, then different weights per relationship, checks that tx manager is in place when 0 returned (is anything cached at all? if not, does the node really have 0?)
 /**
- * A naive {@link com.graphaware.neo4j.relcount.full.api.FullRelationshipCounter} that counts matching relationships by inspecting all
- * {@link org.neo4j.graphdb.Node}'s {@link org.neo4j.graphdb.Relationship}s. It delegates the work to {@link com.graphaware.neo4j.relcount.full.manager.FullNaiveRelationshipCountManager}.
+ * {@link FullRelationshipCounter} that counts matching relationships by first trying to look them up in cached
+ * {@link org.neo4j.graphdb.Node}'s properties, falling back to naive approach of iterating through all {@link Node}'s {@link org.neo4j.graphdb.Relationship}s.
  * <p/>
- * Because relationships are counted on the fly (no caching performed), this can be used without any {@link org.neo4j.graphdb.event.TransactionEventHandler}s
- * and on already existing graphs.
+ * This is a <b>full</b> relationship counter, meaning that it inspects relationship types, directions, and properties.
+ * If no properties are provided to this counter, no relationship properties will be inspected. This effectively means
+ * this becomes a {@link com.graphaware.neo4j.relcount.simple.api.SimpleCachingRelationshipCounter}.
+ * <p/>
+ * Matching relationships are all relationships that are exactly the same as the relationship description provided to this counter.
+ * For example, if this counter is configured to count all OUTGOING relationships of type "FRIEND" with property "strength"
+ * equal to 2, only relationships with that specification <b>excluding those with other properties</b> (such as "timestamp" = 123456)
+ * will be counted.
+ * <p/>
+ * WARNING: This counter will only work if {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler}
+ * is used! If you just started using this functionality and you have an existing graph, call //todo!!! (re-caclculate counts)
+ * <p/>
+ * This counter always returns a count, never throws {@link com.graphaware.neo4j.relcount.common.api.UnableToCountException}.
  */
 public class FullLiteralRelationshipCounter extends BaseFullRelationshipCounter implements FullRelationshipCounter {
 
@@ -45,7 +57,11 @@ public class FullLiteralRelationshipCounter extends BaseFullRelationshipCounter 
      */
     @Override
     public int count(Node node) {
-        return 0;
+        try {
+            return new FullCachedLiteralRelationshipCounter(this).count(node);
+        } catch (UnableToCountException e) {
+            return new FullNaiveLiteralRelationshipCounter(this).count(node);
+        }
     }
 
     /**

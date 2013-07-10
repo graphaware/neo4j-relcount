@@ -45,4 +45,12 @@ public abstract class BaseNaiveRelationshipCountManager<DESCRIPTION extends HasT
      * @return representation of the candidate relationship.
      */
     protected abstract CANDIDATE newCandidate(Relationship relationship, Node pointOfView);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void handleZeroResult(DESCRIPTION description, Node node) {
+        //do nothing, if the naive method yields 0, then there really are none.
+    }
 }

@@ -17,9 +17,9 @@
 package com.graphaware.neo4j.relcount.full.dto.relationship;
 
 
-import com.graphaware.neo4j.dto.common.relationship.ImmutableDirectedRelationship;
+import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.neo4j.relcount.full.dto.common.TotallyComparable;
 import com.graphaware.neo4j.relcount.full.dto.property.TotallyComparableProperties;
 
-public interface TotallyComparableRelationship<P extends TotallyComparableProperties> extends PartiallyComparableRelationship<P>, TotallyComparable<ImmutableDirectedRelationship<String, ?>, TotallyComparableRelationship<TotallyComparableProperties>> {
+public interface TotallyComparableRelationship<P extends TotallyComparableProperties> extends PartiallyComparableRelationship<P>, TotallyComparable<HasTypeDirectionAndProperties<String, ?>, TotallyComparableRelationship<TotallyComparableProperties>> {
 }

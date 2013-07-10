@@ -60,7 +60,7 @@ public class FullRelationshipCountTransactionEventHandler extends RelationshipCo
         LiterallyCountableRelationship createdRelationship = new LiterallyCountableRelationship(relationship, pointOfView, new LiterallyCountableProperties(extractedProperties));
 
         if (countManager.incrementCount(createdRelationship, pointOfView)) {
-            countCompactor.compactRelationshipCounts(pointOfView);
+            countCompactor.compactRelationshipCounts(pointOfView); //todo async
         }
     }
 

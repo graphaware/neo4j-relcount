@@ -14,10 +14,8 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.logic;
+package com.graphaware.neo4j.relcount.full.compactor;
 
-import com.graphaware.neo4j.relcount.full.compactor.RelationshipCountCompactor;
-import com.graphaware.neo4j.relcount.full.compactor.ThresholdBasedRelationshipCountCompactor;
 import com.graphaware.neo4j.relcount.full.dto.relationship.CountableRelationship;
 import com.graphaware.neo4j.relcount.full.dto.relationship.GenerallyCountableRelationship;
 import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;

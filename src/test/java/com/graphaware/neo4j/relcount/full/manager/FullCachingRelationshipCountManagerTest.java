@@ -14,11 +14,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.logic;
+package com.graphaware.neo4j.relcount.full.manager;
 
 import com.graphaware.neo4j.relcount.full.dto.relationship.CountableRelationship;
 import com.graphaware.neo4j.relcount.full.dto.relationship.GenerallyCountableRelationship;
-import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;
 import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.tx.single.TransactionCallback;
 import com.graphaware.neo4j.tx.single.TransactionExecutor;
@@ -38,7 +37,7 @@ import static org.junit.Assert.*;
 /**
  * Unit tests for {@link FullCachingRelationshipCountManager}.
  */
-public class RelationshipCountManagerImplTest {
+public class FullCachingRelationshipCountManagerTest {
 
     private FullCachingRelationshipCountManager mgr;
     private GraphDatabaseService database;

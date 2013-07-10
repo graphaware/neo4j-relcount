@@ -17,6 +17,7 @@
 package com.graphaware.neo4j.relcount.full.api;
 
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
+import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
@@ -45,8 +46,13 @@ public class FullMoreGeneralRelationshipCounter extends BaseFullRelationshipCoun
      */
     @Override
     public int count(Node node) {
-        return 0;
+        try {
+            return new FullCachedMoreGeneralRelationshipCounter(this).count(node);
+        } catch (UnableToCountException e) {
+            return new FullNaiveMoreGeneralRelationshipCounter(this).count(node);
+        }
     }
+
 
     /**
      * {@inheritDoc}

@@ -30,7 +30,7 @@ import java.util.Map;
 public abstract class BaseRelationshipCountManager<DESCRIPTION extends HasTypeAndDirection, CANDIDATE extends HasTypeAndDirection> {
 
     /**
-     * Get a relationship count for a node. The count is the sum of all the counts that {@link #candidateMatchesDescription(com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection, com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection)},
+     * Get a relationship count for a node. The count is the sum of all the counts where {@link #candidateMatchesDescription(com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection, com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection)},
      * unless {@link #continueAfterFirstLookupMatch()} returns <code>false</code>, in which case it is just the first
      * matching value found.
      *
@@ -49,6 +49,11 @@ public abstract class BaseRelationshipCountManager<DESCRIPTION extends HasTypeAn
                 }
             }
         }
+
+        if (result == 0) {
+            handleZeroResult(description, node);
+        }
+
         return result;
     }
 
@@ -77,4 +82,12 @@ public abstract class BaseRelationshipCountManager<DESCRIPTION extends HasTypeAn
      * @return true to continue, false to return the first candidate's count.
      */
     protected abstract boolean continueAfterFirstLookupMatch();
+
+    /**
+     * Act upon the fact that no matching relationships were found, if desired.
+     *
+     * @param description of the relationship for which to get count.
+     * @param node        for which to get relationship count.
+     */
+    protected abstract void handleZeroResult(DESCRIPTION description, Node node);
 }

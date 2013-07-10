@@ -14,7 +14,7 @@ import static com.graphaware.neo4j.common.Constants.GA_REL_PREFIX;
  * @param <DESCRIPTION> type of relationship description that can be used to query relationship counts on nodes.
  * @param <CACHED>      type of internal relationship representation, used for caching, manipulating and comparing relationships.
  */
-public abstract class BaseCachingRelationshipCountManager<DESCRIPTION extends HasTypeAndDirection, CACHED extends HasTypeAndDirection> extends BaseRelationshipCountManager<DESCRIPTION, CACHED> {
+public abstract class BaseCachingRelationshipCountManager<DESCRIPTION extends HasTypeAndDirection, CACHED extends HasTypeAndDirection & Comparable<CACHED>> extends BaseRelationshipCountManager<DESCRIPTION, CACHED> {
 
     /**
      * {@inheritDoc}
