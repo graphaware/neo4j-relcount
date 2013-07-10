@@ -17,15 +17,20 @@
 package com.graphaware.neo4j.relcount.common.handler;
 
 import com.graphaware.neo4j.common.Change;
+import com.graphaware.neo4j.common.Constants;
+import com.graphaware.neo4j.tx.batch.IterableInputBatchExecutor;
+import com.graphaware.neo4j.tx.batch.UnitOfWork;
 import com.graphaware.neo4j.tx.event.api.FilteredLazyTransactionData;
 import com.graphaware.neo4j.tx.event.api.ImprovedTransactionData;
 import com.graphaware.neo4j.tx.event.strategy.IncludeAllNodes;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
 import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.event.TransactionData;
 import org.neo4j.graphdb.event.TransactionEventHandler;
+import org.neo4j.tooling.GlobalGraphOperations;
 
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -126,4 +131,51 @@ public abstract class RelationshipCountCachingTransactionEventHandler extends Tr
      *                         to find only incoming or outgoing.
      */
     protected abstract void handleDeletedRelationship(Relationship relationship, Node pointOfView, Direction defaultDirection);
+
+    /**
+     * Clear and rebuild all cached counts. NOTE: This is a potentially very expensive operation as it traverses the
+     * entire graph! Use with care.
+     *
+     * @param databaseService to perform the operation on.
+     */
+    public void rebuildCachedCounts(GraphDatabaseService databaseService) {
+        clearCachedCounts(databaseService);
+
+        new IterableInputBatchExecutor<>(
+                databaseService,
+                1000,
+                GlobalGraphOperations.at(databaseService).getAllRelationships(),
+                new UnitOfWork<Relationship>() {
+                    @Override
+                    public void execute(GraphDatabaseService database, Relationship relationship) {
+                        handleCreatedRelationship(relationship, relationship.getStartNode(), INCOMING);
+                        handleCreatedRelationship(relationship, relationship.getEndNode(), OUTGOING);
+                    }
+                }).execute();
+
+    }
+
+    /**
+     * Clear all cached counts. NOTE: This is a potentially very expensive operation as it traverses the
+     * entire graph! Use with care.
+     *
+     * @param databaseService to perform the operation on.
+     */
+    public void clearCachedCounts(GraphDatabaseService databaseService) {
+        new IterableInputBatchExecutor<>(
+                databaseService,
+                1000,
+                GlobalGraphOperations.at(databaseService).getAllNodes(),
+                new UnitOfWork<Node>() {
+                    @Override
+                    public void execute(GraphDatabaseService database, Node node) {
+                        for (String key : node.getPropertyKeys()) {
+                            if (key.startsWith(Constants.GA_REL_PREFIX)) {
+                                node.removeProperty(key);
+                            }
+                        }
+                    }
+                }
+        ).execute();
+    }
 }
