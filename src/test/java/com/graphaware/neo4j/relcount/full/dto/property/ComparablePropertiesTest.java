@@ -27,7 +27,7 @@ import java.util.TreeSet;
 import static junit.framework.Assert.*;
 
 /**
- * Unit test for {@link GenerallyCountableProperties}.
+ * Unit test for {@link CandidateGeneralizedProperties}.
  */
 public class ComparablePropertiesTest {
 
@@ -93,10 +93,10 @@ public class ComparablePropertiesTest {
 
     @Test
     public void shouldGenerateMoreGeneralAllMoreGeneral() {
-        Set<CountableProperties> result = props("key1#value1#key2#value2#key3#value3").generateAllMoreGeneral();
+        Set<CandidateProperties> result = props("key1#value1#key2#value2#key3#value3").generateAllMoreGeneral();
 
         assertEquals(8, result.size());
-        Iterator<CountableProperties> iterator = result.iterator();
+        Iterator<CandidateProperties> iterator = result.iterator();
         assertEquals(iterator.next(), props("key1#value1#key2#value2#key3#value3"));
         assertEquals(iterator.next(), props("key1#value1#key2#value2"));
         assertEquals(iterator.next(), props("key1#value1#key3#value3"));
@@ -109,10 +109,10 @@ public class ComparablePropertiesTest {
 
     @Test
     public void shouldGenerateMoreGeneralOneMoreGeneral() {
-        Set<CountableProperties> result = props("key1#value1#key2#value2#key3#value3").generateOneMoreGeneral();
+        Set<CandidateProperties> result = props("key1#value1#key2#value2#key3#value3").generateOneMoreGeneral();
 
         assertEquals(4, result.size());
-        Iterator<CountableProperties> iterator = result.iterator();
+        Iterator<CandidateProperties> iterator = result.iterator();
         assertEquals(iterator.next(), props("key1#value1#key2#value2#key3#value3"));
         assertEquals(iterator.next(), props("key1#value1#key2#value2"));
         assertEquals(iterator.next(), props("key1#value1#key3#value3"));
@@ -121,10 +121,10 @@ public class ComparablePropertiesTest {
 
     @Test
     public void shouldGenerateMoreGeneralOneMoreGeneral2() {
-        Set<CountableProperties> result = props("key1#value1").generateOneMoreGeneral();
+        Set<CandidateProperties> result = props("key1#value1").generateOneMoreGeneral();
 
         assertEquals(2, result.size());
-        Iterator<CountableProperties> iterator = result.iterator();
+        Iterator<CandidateProperties> iterator = result.iterator();
         assertEquals(iterator.next(), props("key1#value1"));
         assertEquals(iterator.next(), props(""));
     }
@@ -136,7 +136,7 @@ public class ComparablePropertiesTest {
 
     @Test
     public void shouldAchieveSpecificToGeneralOrderingForProperties() {
-        Set<CountableProperties> properties = new TreeSet<>();
+        Set<CandidateProperties> properties = new TreeSet<>();
 
         properties.add(props(""));
         properties.add(props("key1#value1#key2#value2"));
@@ -144,7 +144,7 @@ public class ComparablePropertiesTest {
         properties.add(props("key2#value2"));
         properties.add(props("key2#value2"));
 
-        Iterator<CountableProperties> iterator = properties.iterator();
+        Iterator<CandidateProperties> iterator = properties.iterator();
         assertEquals(props("key1#value1#key2#value2"), iterator.next());
         assertEquals(props("key2#value2"), iterator.next());
         assertEquals(props(""), iterator.next());
@@ -153,7 +153,7 @@ public class ComparablePropertiesTest {
 
     @Test
     public void propertiesShouldBehaveProperlyInTreeSets() {
-        Set<CountableProperties> properties = new TreeSet<>();
+        Set<CandidateProperties> properties = new TreeSet<>();
 
         properties.add(props(""));
         properties.add(props("key1#value1#key2#value2"));
@@ -172,8 +172,8 @@ public class ComparablePropertiesTest {
     /**
      * just for readability
      */
-    private CountableProperties props(String s) {
-        return new GenerallyCountableProperties(s);
+    private CandidateProperties props(String s) {
+        return new CandidateGeneralizedProperties(s);
     }
 
     private ImmutableProperties<String> props2(String s) {

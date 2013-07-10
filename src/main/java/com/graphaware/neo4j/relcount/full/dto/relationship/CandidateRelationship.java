@@ -16,11 +16,10 @@
 
 package com.graphaware.neo4j.relcount.full.dto.relationship;
 
-import com.graphaware.neo4j.dto.string.relationship.SerializableDirectedRelationship;
-import com.graphaware.neo4j.relcount.full.dto.property.CountableProperties;
+import com.graphaware.neo4j.relcount.full.dto.property.CandidateProperties;
 
 /**
  *
  */
-public interface CountableRelationship extends SerializableDirectedRelationship<CountableProperties>, TotallyComparableRelationship<CountableProperties>, GeneralizingRelationship<CountableRelationship, CountableProperties> {
+public interface CandidateRelationship extends TotallyComparableRelationship<CandidateProperties>, GeneralizingRelationship<CandidateRelationship, CandidateProperties> {
 }

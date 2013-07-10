@@ -18,9 +18,9 @@ package com.graphaware.neo4j.relcount;
 
 import com.graphaware.neo4j.relcount.full.FullRelationshipCountTransactionEventHandlerFactory;
 import com.graphaware.neo4j.relcount.full.api.FullCachedMoreGeneralRelationshipCounter;
-import com.graphaware.neo4j.relcount.full.dto.property.LiterallyCountableProperties;
-import com.graphaware.neo4j.relcount.full.dto.relationship.GenerallyCountableRelationship;
-import com.graphaware.neo4j.relcount.full.dto.relationship.LiterallyCountableRelationship;
+import com.graphaware.neo4j.relcount.full.dto.property.CandidateLiteralProperties;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CandidateGeneralizedRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CandidateLiteralRelationship;
 import com.graphaware.neo4j.relcount.full.manager.FullCachingRelationshipCountManager;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertiesExtractionStrategy;
@@ -163,7 +163,7 @@ public class RelationshipCountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                database.getNodeById(1).setProperty(new GenerallyCountableRelationship(withName("test"), OUTGOING, MapUtil.stringMap("key1", "value1", "_LITERAL_", "true")).toString(), 0);
+                database.getNodeById(1).setProperty(new CandidateGeneralizedRelationship(withName("test"), OUTGOING, MapUtil.stringMap("key1", "value1", "_LITERAL_", "true")).toString(), 0);
                 return null;
             }
         });
@@ -204,7 +204,7 @@ public class RelationshipCountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                database.getNodeById(2).removeProperty(new LiterallyCountableRelationship(withName("test2"), OUTGOING, new LiterallyCountableProperties(Collections.singletonMap("key1", "value3"))).toString());
+                database.getNodeById(2).removeProperty(new CandidateLiteralRelationship(withName("test2"), OUTGOING, new CandidateLiteralProperties(Collections.singletonMap("key1", "value3"))).toString());
                 return null;
             }
         });

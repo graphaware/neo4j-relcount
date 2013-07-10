@@ -21,5 +21,5 @@ import com.graphaware.neo4j.dto.string.property.SerializableProperties;
 /**
  *
  */
-public interface CountableProperties extends SerializableProperties, TotallyComparableProperties, GeneralizingProperties<CountableProperties> {
+public interface CandidateProperties extends SerializableProperties, TotallyComparableProperties, GeneralizingProperties<CandidateProperties> {
 }

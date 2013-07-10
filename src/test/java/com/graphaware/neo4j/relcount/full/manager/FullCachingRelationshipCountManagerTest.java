@@ -16,8 +16,8 @@
 
 package com.graphaware.neo4j.relcount.full.manager;
 
-import com.graphaware.neo4j.relcount.full.dto.relationship.CountableRelationship;
-import com.graphaware.neo4j.relcount.full.dto.relationship.GenerallyCountableRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CandidateGeneralizedRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CandidateRelationship;
 import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.tx.single.TransactionCallback;
 import com.graphaware.neo4j.tx.single.TransactionExecutor;
@@ -97,12 +97,12 @@ public class FullCachingRelationshipCountManagerTest {
 
         final Node root = database.getNodeById(0);
 
-        Map<CountableRelationship,Integer> relationshipCounts = mgr.getRelationshipCounts(root);
-        Iterator<Map.Entry<CountableRelationship,Integer>> iterator = relationshipCounts.entrySet().iterator();
+        Map<CandidateRelationship,Integer> relationshipCounts = mgr.getRelationshipCounts(root);
+        Iterator<Map.Entry<CandidateRelationship,Integer>> iterator = relationshipCounts.entrySet().iterator();
 
         //also testing order
 
-        Map.Entry<CountableRelationship, Integer> next = iterator.next();
+        Map.Entry<CandidateRelationship, Integer> next = iterator.next();
         assertEquals(rel("test#OUTGOING#key1#value1#key2#value2"), next.getKey());
         assertEquals(3, (int) next.getValue());
 
@@ -406,8 +406,8 @@ public class FullCachingRelationshipCountManagerTest {
     /**
      * just for readability
      */
-    private GenerallyCountableRelationship rel(String s) {
-        return new GenerallyCountableRelationship(GA_REL_PREFIX + s);
+    private CandidateGeneralizedRelationship rel(String s) {
+        return new CandidateGeneralizedRelationship(GA_REL_PREFIX + s);
     }
 
 }

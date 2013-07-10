@@ -18,21 +18,23 @@ package com.graphaware.neo4j.relcount.full.dto.relationship;
 
 import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
 import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
-import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.dto.string.relationship.BaseCopyMakingSerializableDirectedRelationship;
 import com.graphaware.neo4j.dto.string.relationship.CopyMakingSerializableDirectedRelationship;
-import com.graphaware.neo4j.relcount.full.dto.property.PartiallyComparableProperties;
+import com.graphaware.neo4j.relcount.full.dto.property.GeneralizingProperties;
+import com.graphaware.neo4j.relcount.full.dto.property.TotallyComparableProperties;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
- * Abstract base-class for {@link com.graphaware.neo4j.relcount.full.dto.property.PartiallyComparableProperties}, {@link com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties} implementations.
+ *
  */
-public abstract class PartiallyComparableSerializableRelationship<T extends CopyMakingSerializableDirectedRelationship<T, P>, P extends PartiallyComparableProperties & CopyMakingSerializableProperties<P>> extends BaseCopyMakingSerializableDirectedRelationship<P,T> {
+public abstract class BaseCandidateRelationship<R extends CopyMakingSerializableDirectedRelationship<R, P>, P extends GeneralizingProperties<P> & TotallyComparableProperties> extends BaseCopyMakingSerializableDirectedRelationship<P,R> {
 
     /**
      * {@inheritDoc}
@@ -66,33 +68,70 @@ public abstract class PartiallyComparableSerializableRelationship<T extends Copy
                 && getProperties().isStrictlyMoreSpecificThan(relationship.getProperties());
     }
 
-    //constructors
+    /**
+     * {@inheritDoc}
+     */
+    public Set<R> generateOneMoreGeneral() {
+        return withDifferentProperties(getProperties().generateOneMoreGeneral());
+    }
 
-    protected PartiallyComparableSerializableRelationship(Relationship relationship, Node pointOfView) {
+    /**
+     * {@inheritDoc}
+     */
+    public Set<R> generateAllMoreGeneral() {
+        return withDifferentProperties(getProperties().generateAllMoreGeneral());
+    }
+
+    private Set<R> withDifferentProperties(Set<P> propertySets) {
+        Set<R> result = new TreeSet<>();
+
+        for (P propertySet : propertySets) {
+            result.add(newRelationship(getType(), getDirection(), propertySet));
+        }
+
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int compareTo(TotallyComparableRelationship<TotallyComparableProperties> that) {
+        if (equals(that)) {
+            return 0;
+        } else if (isMoreGeneralThan(that)) {
+            return 1;
+        } else if (isMoreSpecificThan(that)) {
+            return -1;
+        }
+
+        return toString().compareTo(that.toString());
+    }
+
+    protected BaseCandidateRelationship(Relationship relationship, Node pointOfView) {
         super(relationship, pointOfView);
     }
 
-    protected PartiallyComparableSerializableRelationship(Relationship relationship, Node pointOfView, P properties) {
+    protected BaseCandidateRelationship(Relationship relationship, Node pointOfView, P properties) {
         super(relationship, pointOfView, properties);
     }
 
-    protected PartiallyComparableSerializableRelationship(RelationshipType type, Direction direction) {
+    protected BaseCandidateRelationship(RelationshipType type, Direction direction) {
         super(type, direction);
     }
 
-    protected PartiallyComparableSerializableRelationship(RelationshipType type, Direction direction, P properties) {
+    protected BaseCandidateRelationship(RelationshipType type, Direction direction, P properties) {
         super(type, direction, properties);
     }
 
-    protected PartiallyComparableSerializableRelationship(RelationshipType type, Direction direction, Map<String, String> properties) {
+    protected BaseCandidateRelationship(RelationshipType type, Direction direction, Map<String, String> properties) {
         super(type, direction, properties);
     }
 
-    protected PartiallyComparableSerializableRelationship(String string) {
+    protected BaseCandidateRelationship(String string) {
         super(string);
     }
 
-    protected PartiallyComparableSerializableRelationship(HasTypeDirectionAndProperties<String, ?>  relationship) {
+    protected BaseCandidateRelationship(HasTypeDirectionAndProperties<String, ?> relationship) {
         super(relationship);
     }
 }

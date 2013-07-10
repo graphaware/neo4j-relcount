@@ -22,22 +22,22 @@ import com.graphaware.neo4j.dto.string.relationship.SerializableDirectedRelation
 import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
 import com.graphaware.neo4j.relcount.common.manager.BaseCachingRelationshipCountManager;
 import com.graphaware.neo4j.relcount.common.manager.CachingRelationshipCountManager;
-import com.graphaware.neo4j.relcount.full.dto.relationship.CountableRelationship;
-import com.graphaware.neo4j.relcount.full.dto.relationship.GenerallyCountableRelationship;
-import com.graphaware.neo4j.relcount.full.dto.relationship.LiterallyCountableRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CandidateGeneralizedRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CandidateLiteralRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CandidateRelationship;
 import org.neo4j.graphdb.Node;
 
 import java.util.Map;
 
-import static com.graphaware.neo4j.relcount.full.dto.property.LiterallyCountableProperties.LITERAL;
+import static com.graphaware.neo4j.relcount.full.dto.property.CandidateLiteralProperties.LITERAL;
 
-public class FullCachingRelationshipCountManager extends BaseCachingRelationshipCountManager<HasTypeDirectionAndProperties<String, ?>, CountableRelationship> implements CachingRelationshipCountManager<HasTypeDirectionAndProperties<String, ?>, CountableRelationship> {
+public class FullCachingRelationshipCountManager extends BaseCachingRelationshipCountManager<HasTypeDirectionAndProperties<String, ?>, CandidateRelationship> implements CachingRelationshipCountManager<HasTypeDirectionAndProperties<String, ?>, CandidateRelationship> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean candidateMatchesDescription(CountableRelationship candidate, HasTypeDirectionAndProperties<String, ?> description) {
+    protected boolean candidateMatchesDescription(CandidateRelationship candidate, HasTypeDirectionAndProperties<String, ?> description) {
         return candidate.isMoreSpecificThan(description);
     }
 
@@ -54,7 +54,7 @@ public class FullCachingRelationshipCountManager extends BaseCachingRelationship
      * {@inheritDoc}
      */
     @Override
-    protected boolean cachedMatch(CountableRelationship cached, CountableRelationship relationship) {
+    protected boolean cachedMatch(CandidateRelationship cached, CandidateRelationship relationship) {
         return cached.isMoreGeneralThan(relationship);
     }
 
@@ -62,11 +62,11 @@ public class FullCachingRelationshipCountManager extends BaseCachingRelationship
      * {@inheritDoc}
      */
     @Override
-    protected CountableRelationship newCachedRelationship(String string) {
-        CountableRelationship result = new GenerallyCountableRelationship(string);
+    protected CandidateRelationship newCachedRelationship(String string) {
+        CandidateRelationship result = new CandidateGeneralizedRelationship(string);
 
         if (result.getProperties().containsKey(LITERAL)) {
-            return new LiterallyCountableRelationship(result);
+            return new CandidateLiteralRelationship(result);
         }
 
         return result;
@@ -77,8 +77,8 @@ public class FullCachingRelationshipCountManager extends BaseCachingRelationship
      */
     @Override
     protected void handleZeroResult(HasTypeDirectionAndProperties<String, ?> description, Node node) {
-        for (Map.Entry<CountableRelationship, Integer> candidateWithCount : getRelationshipCounts(description, node).entrySet()) {
-            CountableRelationship candidate = candidateWithCount.getKey();
+        for (Map.Entry<CandidateRelationship, Integer> candidateWithCount : getRelationshipCounts(description, node).entrySet()) {
+            CandidateRelationship candidate = candidateWithCount.getKey();
             if (candidate.isMoreGeneralThan(description)) {
                 throw new UnableToCountException("Unable to count relationships with the following description: "
                         + (description instanceof SerializableDirectedRelationship ? description.toString() : new SerializableDirectedRelationshipImpl(description).toString())

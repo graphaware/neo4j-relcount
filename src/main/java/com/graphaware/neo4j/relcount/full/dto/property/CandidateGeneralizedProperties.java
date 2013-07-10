@@ -23,27 +23,27 @@ import java.util.Map;
 /**
  *
  */
-public class GenerallyCountableProperties extends GeneralizingComparableSerializableProperties<CountableProperties> implements CountableProperties {
+public class CandidateGeneralizedProperties extends BaseCandidateProperties<CandidateProperties> implements CandidateProperties {
 
-    public GenerallyCountableProperties(PropertyContainer propertyContainer) {
+    public CandidateGeneralizedProperties(PropertyContainer propertyContainer) {
         super(propertyContainer);
     }
 
-    public GenerallyCountableProperties(Map<String, String> properties) {
+    public CandidateGeneralizedProperties(Map<String, String> properties) {
         super(properties);
     }
 
-    public GenerallyCountableProperties(String string) {
+    public CandidateGeneralizedProperties(String string) {
         super(string);
     }
 
     @Override
-    protected CountableProperties self() {
+    protected CandidateProperties self() {
         return this;
     }
 
     @Override
-    protected CountableProperties newInstance(Map<String, String> props) {
-        return new GenerallyCountableProperties(props);
+    protected CandidateProperties newInstance(Map<String, String> props) {
+        return new CandidateGeneralizedProperties(props);
     }
 }

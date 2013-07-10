@@ -19,18 +19,18 @@ package com.graphaware.neo4j.relcount.full.manager;
 import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.neo4j.relcount.common.manager.BaseNaiveRelationshipCountManager;
 import com.graphaware.neo4j.relcount.common.manager.RelationshipCountManager;
-import com.graphaware.neo4j.relcount.full.dto.relationship.CountableRelationship;
-import com.graphaware.neo4j.relcount.full.dto.relationship.LiterallyCountableRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CandidateLiteralRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CandidateRelationship;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-public class FullNaiveRelationshipCountManager extends BaseNaiveRelationshipCountManager<HasTypeDirectionAndProperties<String, ?>, CountableRelationship> implements RelationshipCountManager<HasTypeDirectionAndProperties<String, ?>, CountableRelationship> {
+public class FullNaiveRelationshipCountManager extends BaseNaiveRelationshipCountManager<HasTypeDirectionAndProperties<String, ?>, CandidateRelationship> implements RelationshipCountManager<HasTypeDirectionAndProperties<String, ?>, CandidateRelationship> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected boolean candidateMatchesDescription(CountableRelationship candidate, HasTypeDirectionAndProperties<String, ?> description) {
+    protected boolean candidateMatchesDescription(CandidateRelationship candidate, HasTypeDirectionAndProperties<String, ?> description) {
         return candidate.isMoreSpecificThan(description);
     }
 
@@ -47,7 +47,7 @@ public class FullNaiveRelationshipCountManager extends BaseNaiveRelationshipCoun
      * {@inheritDoc}
      */
     @Override
-    protected CountableRelationship newCandidate(Relationship relationship, Node pointOfView) {
-        return new LiterallyCountableRelationship(relationship, pointOfView);
+    protected CandidateRelationship newCandidate(Relationship relationship, Node pointOfView) {
+        return new CandidateLiteralRelationship(relationship, pointOfView);
     }
 }

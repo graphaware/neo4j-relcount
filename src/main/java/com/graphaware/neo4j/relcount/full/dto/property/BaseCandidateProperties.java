@@ -21,40 +21,29 @@ import com.graphaware.neo4j.dto.string.property.BaseCopyMakingSerializableProper
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import org.neo4j.graphdb.PropertyContainer;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
- * Abstract base-class for {@link PartiallyComparableProperties}, {@link CopyMakingSerializableProperties} implementations.
+ *
  */
-public abstract class PartiallyComparableSerializableProperties<T extends CopyMakingSerializableProperties<T>> extends BaseCopyMakingSerializableProperties<T> {
+public abstract class BaseCandidateProperties<T extends GeneralizingProperties<T> & CopyMakingSerializableProperties<T>> extends BaseCopyMakingSerializableProperties<T> {
 
-    /**
-     * Construct a representation of properties from a {@link org.neo4j.graphdb.PropertyContainer}.
-     *
-     * @param propertyContainer to take (copy) properties from.
-     */
-    protected PartiallyComparableSerializableProperties(PropertyContainer propertyContainer) {
+    protected BaseCandidateProperties(PropertyContainer propertyContainer) {
         super(propertyContainer);
     }
 
-    /**
-     * Construct a representation of properties from a {@link java.util.Map}.
-     *
-     * @param properties to take (copy).
-     */
-    protected PartiallyComparableSerializableProperties(Map<String, String> properties) {
+    protected BaseCandidateProperties(Map<String, String> properties) {
         super(properties);
     }
 
-    /**
-     * Construct a representation of properties from a {@link String}.
-     *
-     * @param string to construct properties from. Must be of the form key1#value1#key2#value2... (assuming the default
-     *               {@link com.graphaware.neo4j.common.Constants#SEPARATOR}.
-     */
-    protected PartiallyComparableSerializableProperties(String string) {
+    protected BaseCandidateProperties(String string) {
         super(string);
     }
+
+
 
     /**
      * Is this instance more general than (or at least as general as) the given instance?
@@ -125,4 +114,64 @@ public abstract class PartiallyComparableSerializableProperties<T extends CopyMa
     public boolean isStrictlyMoreSpecificThan(ImmutableProperties<String> properties) {
         return isMoreSpecificThan(properties) && !isMoreGeneralThan(properties);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int compareTo(TotallyComparableProperties that) {
+        if (equals(that)) {
+            return 0;
+        } else if (isMoreGeneralThan(that)) {
+            return 1;
+        } else if (isMoreSpecificThan(that)) {
+            return -1;
+        }
+
+        return toString().compareTo(that.toString());
+    }
+
+    /**
+     * Generate items one step more general than (or as general as) this instance.
+     *
+     * @return set of one-level more/equally general instances, ordered by decreasing generality.
+     */
+    public Set<T> generateOneMoreGeneral() {
+        Set<T> result = new TreeSet<>();
+        result.add(self());
+        for (String key : keySet()) {
+            result.add(without(key));
+        }
+        return result;
+    }
+
+    /**
+     * Generate all items more general than (or as general as) this instance.
+     *
+     * @return set of all more/equally general instances, ordered by decreasing generality.
+     */
+    public Set<T> generateAllMoreGeneral() {
+        return generateAllMoreGeneral(self());
+    }
+
+    protected Set<T> generateAllMoreGeneral(T propertiesRepresentation) {
+        //base case
+        if (propertiesRepresentation.isEmpty()) {
+            return Collections.singleton(propertiesRepresentation);
+        }
+
+        //recursion
+        Set<T> result = new TreeSet<>();
+        Map.Entry<String, String> next = propertiesRepresentation.entrySet().iterator().next();
+        for (T properties : generateAllMoreGeneral(propertiesRepresentation.without(next.getKey()))) {
+            result.add(properties);
+            result.add(properties.with(next.getKey(), next.getValue()));
+        }
+
+        return result;
+    }
+
+    /**
+     * @return this.
+     */
+    protected abstract T self();
 }
