@@ -44,7 +44,7 @@ public class GeneralRelationshipDescription extends BaseRelationshipDescription 
      * Construct a description from a string.
      *
      * @param string    string to construct description from. Must be of the form prefix + type#direction#key1#value1#key2#value2...
-     *                  (assuming the default {@link com.graphaware.neo4j.common.Constants#SEPARATOR}.
+     *                  (assuming # separator).
      * @param prefix    of the string that should be removed before conversion.
      * @param separator of information, ideally a single character, must not be null or empty.
      */

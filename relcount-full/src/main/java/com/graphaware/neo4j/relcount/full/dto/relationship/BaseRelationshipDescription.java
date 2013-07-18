@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static com.graphaware.neo4j.framework.config.FrameworkConfiguration.DEFAULT_SEPARATOR;
+
 /**
  * Abstract base-class for {@link RelationshipDescription} implementations.
  */
@@ -174,6 +176,7 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
             return -1;
         }
 
-        return toString().compareTo(that.toString());
+        //it's OK to use any separator here, as long as it's the same one
+        return toString(DEFAULT_SEPARATOR).compareTo(that.toString(DEFAULT_SEPARATOR));
     }
 }
