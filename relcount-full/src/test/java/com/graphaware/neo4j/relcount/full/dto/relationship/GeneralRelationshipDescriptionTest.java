@@ -179,30 +179,30 @@ public class GeneralRelationshipDescriptionTest {
 
     @Test
     public void shouldCorrectlyConvertToString() {
-        assertEquals("PREFIXtest#OUTGOING#key1#value1#key2#value2", new GeneralRelationshipDescription("PREFIXtest#OUTGOING#key1#value1#key2#value2", "PREFIX").toString("PREFIX"));
-        assertEquals("_PREFIX_" + "test#INCOMING", new GeneralRelationshipDescription("_PREFIX_test#INCOMING", "_PREFIX_").toString("_PREFIX_"));
-        assertEquals("_PREFIX_" + "test#INCOMING", new GeneralRelationshipDescription("_PREFIX_test#INCOMING#", "_PREFIX_").toString("_PREFIX_"));
+        assertEquals("PREFIXtest#OUTGOING#key1#value1#key2#value2", new GeneralRelationshipDescription("PREFIXtest#OUTGOING#key1#value1#key2#value2", "PREFIX", "#").toString("PREFIX", "#"));
+        assertEquals("_PREFIX_" + "test#INCOMING", new GeneralRelationshipDescription("_PREFIX_test#INCOMING", "_PREFIX_", "#").toString("_PREFIX_", "#"));
+        assertEquals("_PREFIX_" + "test#INCOMING", new GeneralRelationshipDescription("_PREFIX_test#INCOMING#", "_PREFIX_", "#").toString("_PREFIX_", "#"));
     }
 
     @Test
     public void sameRelationshipsShouldBeEqual() {
-        assertTrue(new GeneralRelationshipDescription("PREFIX" + "test#INCOMING", "PREFIX").equals(new GeneralRelationshipDescription("bla" + "test#INCOMING", "bla")));
-        assertTrue(new GeneralRelationshipDescription("test#OUTGOING#key1#value1#key2#value2", "").equals(new GeneralRelationshipDescription("test#OUTGOING#key1#value1#key2#value2", null)));
-        assertTrue(new GeneralRelationshipDescription("test#INCOMING#key1#value1#key2#", "").equals(new GeneralRelationshipDescription("test#INCOMING#key1#value1#key2", null)));
+        assertTrue(new GeneralRelationshipDescription("PREFIX" + "test_INCOMING", "PREFIX", "_").equals(new GeneralRelationshipDescription("bla" + "test#INCOMING", "bla", "#")));
+        assertTrue(new GeneralRelationshipDescription("test#OUTGOING#key1#value1#key2#value2", "", "#").equals(new GeneralRelationshipDescription("test#OUTGOING#key1#value1#key2#value2", null, "#")));
+        assertTrue(new GeneralRelationshipDescription("test#INCOMING#key1#value1#key2#", "", "#").equals(new GeneralRelationshipDescription("test#INCOMING#key1#value1#key2", null, "#")));
     }
 
     @Test
     public void differentRelationshipsShouldNotBeEqual() {
-        assertFalse(new GeneralRelationshipDescription("test#OUTGOING", null).equals(new GeneralRelationshipDescription("test#INCOMING", null)));
-        assertFalse(new GeneralRelationshipDescription("test2#OUTGOING#key1#value1#key2#value2", null).equals(new GeneralRelationshipDescription("test#OUTGOING#key1#value1#key2#value2", null)));
-        assertFalse(new GeneralRelationshipDescription("test#OUTGOING#key3#value1#key2#value2", null).equals(new GeneralRelationshipDescription("test#OUTGOING#key1#value1#key2#value2#", null)));
+        assertFalse(new GeneralRelationshipDescription("test#OUTGOING", null, "#").equals(new GeneralRelationshipDescription("test#INCOMING", null, "#")));
+        assertFalse(new GeneralRelationshipDescription("test2#OUTGOING#key1#value1#key2#value2", null, "#").equals(new GeneralRelationshipDescription("test#OUTGOING#key1#value1#key2#value2", null, "#")));
+        assertFalse(new GeneralRelationshipDescription("test#OUTGOING#key3#value1#key2#value2", null, "#").equals(new GeneralRelationshipDescription("test#OUTGOING#key1#value1#key2#value2#", null, "#")));
     }
 
     private RelationshipDescription gen(String s) {
-        return new GeneralRelationshipDescription(s, null);
+        return new GeneralRelationshipDescription(s, null, "#");
     }
 
     private RelationshipDescription lit(String s) {
-        return new LiteralRelationshipDescription(s, null);
+        return new LiteralRelationshipDescription(s, null, "#");
     }
 }

@@ -16,7 +16,6 @@
 
 package com.graphaware.neo4j.relcount.full.api;
 
-import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
@@ -57,7 +56,9 @@ public class FullNaiveRelationshipCounter extends BaseFullRelationshipCounter im
     }
 
     /**
-     * Construct a new relationship counter.
+     * Construct a new relationship counter. Use when custom {@link RelationshipCountStrategies} have been used for the
+     * {@link com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule}. Alternatively, it might be easier
+     * use {@link com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule#naiveCounter(org.neo4j.graphdb.RelationshipType, org.neo4j.graphdb.Direction)}.
      *
      * @param type                        type of the relationships to count.
      * @param direction                   direction of the relationships to count.
@@ -105,17 +106,6 @@ public class FullNaiveRelationshipCounter extends BaseFullRelationshipCounter im
      */
     protected FullNaiveRelationshipCounter(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties, RelationshipCountStrategies relationshipCountStrategies) {
         super(type, direction, properties);
-        this.relationshipCountStrategies = relationshipCountStrategies;
-    }
-
-    /**
-     * Construct a counter from another relationship representation.
-     *
-     * @param relationship                relationships representation.
-     * @param relationshipCountStrategies strategies, of which only {@link com.graphaware.neo4j.relcount.full.strategy.RelationshipPropertiesExtractionStrategy} is used.
-     */
-    protected FullNaiveRelationshipCounter(HasTypeDirectionAndProperties<String, ?> relationship, RelationshipCountStrategies relationshipCountStrategies) {
-        super(relationship);
         this.relationshipCountStrategies = relationshipCountStrategies;
     }
 }

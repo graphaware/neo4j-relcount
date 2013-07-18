@@ -16,7 +16,7 @@
 
 package com.graphaware.neo4j;
 
-import com.graphaware.neo4j.common.NullItem;
+import com.graphaware.neo4j.misc.NullItem;
 import com.graphaware.neo4j.tx.batch.IterableInputBatchExecutor;
 import com.graphaware.neo4j.tx.batch.NoInputBatchExecutor;
 import com.graphaware.neo4j.tx.batch.UnitOfWork;

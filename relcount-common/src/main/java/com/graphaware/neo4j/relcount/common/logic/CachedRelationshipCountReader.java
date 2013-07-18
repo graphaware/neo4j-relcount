@@ -1,7 +1,8 @@
 package com.graphaware.neo4j.relcount.common.logic;
 
-import com.graphaware.neo4j.common.Constants;
 import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
+import com.graphaware.neo4j.framework.GraphAwareFramework;
+import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
 import org.neo4j.graphdb.Node;
 
 import java.util.Map;
@@ -17,9 +18,17 @@ import java.util.TreeMap;
 public abstract class CachedRelationshipCountReader<DESCRIPTION extends HasTypeAndDirection & Comparable<DESCRIPTION>> extends BaseRelationshipCountReader<DESCRIPTION> {
 
     private final String id;
+    private final FrameworkConfiguration config;
 
-    protected CachedRelationshipCountReader(String id) {
+    /**
+     * Construct a new reader.
+     *
+     * @param id     of the {@link com.graphaware.neo4j.relcount.common.module.RelationshipCountModule} this reader belongs to.
+     * @param config of the {@link GraphAwareFramework} that the module is registered with.
+     */
+    protected CachedRelationshipCountReader(String id, FrameworkConfiguration config) {
         this.id = id;
+        this.config = config;
     }
 
     /**
@@ -34,8 +43,8 @@ public abstract class CachedRelationshipCountReader<DESCRIPTION extends HasTypeA
     public Map<DESCRIPTION, Integer> getCandidates(DESCRIPTION description, Node node) {
         Map<DESCRIPTION, Integer> result = new TreeMap<>();
         for (String key : node.getPropertyKeys()) {
-            if (key.startsWith(prefix())) {
-                result.put(newCachedRelationship(key, prefix()), (Integer) node.getProperty(key));
+            if (key.startsWith(config.createPrefix(id))) {
+                result.put(newCachedRelationship(key, config.createPrefix(id), config.separator()), (Integer) node.getProperty(key));
             }
         }
         return result;
@@ -45,18 +54,10 @@ public abstract class CachedRelationshipCountReader<DESCRIPTION extends HasTypeA
      * Create a cached relationship representation from a String representation of the cached relationship, coming from
      * a node's property key.
      *
-     * @param string string representation of the cached relationship.
-     * @param prefix to be removed from the string representation before conversion.
+     * @param string    string representation of the cached relationship.
+     * @param prefix    to be removed from the string representation before conversion.
+     * @param separator delimiter of information in the string.
      * @return object representation of the cached relationship.
      */
-    protected abstract DESCRIPTION newCachedRelationship(String string, String prefix);
-
-    /**
-     * Build a prefix that all properties on nodes written and read by this cache will get.
-     *
-     * @return prefix.
-     */
-    private String prefix() {
-        return Constants.GA_PREFIX + id + "_";
-    }
+    protected abstract DESCRIPTION newCachedRelationship(String string, String prefix, String separator);
 }

@@ -16,6 +16,7 @@
 
 package com.graphaware.neo4j.relcount.common.logic;
 
+import com.graphaware.neo4j.framework.config.FrameworkConfigured;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -24,7 +25,7 @@ import org.neo4j.graphdb.Relationship;
 /**
  * Internal component that caches relationship counts.
  */
-public interface RelationshipCountCache {
+public interface RelationshipCountCache extends FrameworkConfigured {
 
     /**
      * Handle (i.e. cache) a created relationship.

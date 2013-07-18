@@ -17,6 +17,7 @@
 package com.graphaware.neo4j.relcount.full.module;
 
 import com.graphaware.neo4j.framework.GraphAwareFramework;
+import com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration;
 import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
 import com.graphaware.neo4j.relcount.full.Constants;
 import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
@@ -33,6 +34,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
+import static com.graphaware.neo4j.framework.config.FrameworkConfiguration.GA_PREFIX;
 import static com.graphaware.neo4j.relcount.full.Constants.FULL_RELCOUNT_DEFAULT_ID;
 import static junit.framework.Assert.*;
 
@@ -66,7 +68,7 @@ public class CompactionIntegrationTest {
             }
         });
 
-        reader = new FullCachedRelationshipCountReader(FULL_RELCOUNT_DEFAULT_ID);
+        reader = new FullCachedRelationshipCountReader(FULL_RELCOUNT_DEFAULT_ID, DefaultFrameworkConfiguration.getInstance());
     }
 
     @Test
@@ -201,6 +203,6 @@ public class CompactionIntegrationTest {
      * just for readability
      */
     private RelationshipDescription rel(String s) {
-        return new GeneralRelationshipDescription(s, com.graphaware.neo4j.common.Constants.GA_PREFIX + Constants.FULL_RELCOUNT_DEFAULT_ID);
+        return new GeneralRelationshipDescription(s, GA_PREFIX + Constants.FULL_RELCOUNT_DEFAULT_ID, "#");
     }
 }

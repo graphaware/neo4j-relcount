@@ -14,34 +14,29 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package simple.api;
+package com.graphaware.neo4j.relcount.simple.api;
 
 import com.graphaware.neo4j.dto.common.relationship.TypeAndDirection;
+import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
+import com.graphaware.neo4j.relcount.simple.logic.SimpleNaiveRelationshipCountReader;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
-import simple.dto.TypeAndDirectionDescriptionImpl;
-import simple.logic.SimpleCachedRelationshipCountReader;
-import simple.logic.SimpleRelationshipCountCache;
-
-import static simple.Constants.SIMPLE_RELCOUNT_ID;
 
 /**
- * A {@link SimpleRelationshipCounter} that counts matching relationships by by looking them up in cached {@link org.neo4j.graphdb.Node}'s properties.
+ * A naive {@link SimpleRelationshipCounter} that counts matching relationships by inspecting all {@link org.neo4j.graphdb.Node}'s {@link org.neo4j.graphdb.Relationship}s.
  * <p/>
  * <b>Simple</b> relationship counter means that it inspects relationship types and directions, but <b>not</b> properties.
  * <p/>
  * Matching relationships are all relationships that are exactly the same as the relationship description provided to this counter.
  * <p/>
- * WARNING: This counter will only work if {@link com.graphaware.neo4j.relcount.common.handler.RelationshipCountCachingTransactionEventHandler}
- * is used! If you just started using this functionality and you have an existing graph, call {@link SimpleRelationshipCountCache#rebuildCachedCounts(org.neo4j.graphdb.GraphDatabaseService)}.
+ * Because relationships are counted on the fly (no caching performed), this can be used on any graph without any
+ * {@link com.graphaware.neo4j.framework.GraphAwareModule}s registered and even without the
+ * {@link com.graphaware.neo4j.framework.GraphAwareFramework} running at all.
  * <p/>
  * This counter always returns a count, never throws {@link com.graphaware.neo4j.relcount.common.api.UnableToCountException}.
- * If a relationship count isn't cached and you think it should be, please check that you are using {@link com.graphaware.neo4j.relcount.common.handler.RelationshipCountCachingTransactionEventHandler}
- * on the {@link org.neo4j.graphdb.GraphDatabaseService} and that you haven't excluded the relationships from caching by
- * means of a custom {@link com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy}.
  */
-public class SimpleCachedRelationshipCounter extends TypeAndDirection implements SimpleRelationshipCounter {
+public class SimpleNaiveRelationshipCounter extends TypeAndDirection implements SimpleRelationshipCounter {
 
     /**
      * Construct a new relationship counter.
@@ -49,7 +44,7 @@ public class SimpleCachedRelationshipCounter extends TypeAndDirection implements
      * @param type      type of the relationships to count.
      * @param direction direction of the relationships to count.
      */
-    public SimpleCachedRelationshipCounter(RelationshipType type, Direction direction) {
+    public SimpleNaiveRelationshipCounter(RelationshipType type, Direction direction) {
         super(type, direction);
     }
 
@@ -58,6 +53,6 @@ public class SimpleCachedRelationshipCounter extends TypeAndDirection implements
      */
     @Override
     public int count(Node node) {
-        return new SimpleCachedRelationshipCountReader(SIMPLE_RELCOUNT_ID).getRelationshipCount(new TypeAndDirectionDescriptionImpl(this), node);
+        return new SimpleNaiveRelationshipCountReader().getRelationshipCount(new TypeAndDirectionDescriptionImpl(this), node);
     }
 }

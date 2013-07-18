@@ -14,17 +14,18 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package simple.logic;
+package com.graphaware.neo4j.relcount.simple.logic;
 
+import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
 import com.graphaware.neo4j.relcount.common.logic.BaseRelationshipCountCache;
 import com.graphaware.neo4j.relcount.common.logic.RelationshipCountCache;
+import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescription;
+import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
 import com.graphaware.neo4j.utils.DirectionUtils;
 import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import simple.dto.TypeAndDirectionDescription;
-import simple.dto.TypeAndDirectionDescriptionImpl;
 
 /**
  * A simple implementation of {@link com.graphaware.neo4j.relcount.common.logic.RelationshipCountCache}. It is simple in
@@ -35,6 +36,11 @@ public class SimpleRelationshipCountCache extends BaseRelationshipCountCache<Typ
 
     private static final Logger LOG = Logger.getLogger(SimpleRelationshipCountCache.class);
 
+    /**
+     * Construct a new cache.
+     *
+     * @param id of the module this cache belongs to.
+     */
     public SimpleRelationshipCountCache(String id) {
         super(id);
     }
@@ -43,8 +49,8 @@ public class SimpleRelationshipCountCache extends BaseRelationshipCountCache<Typ
      * {@inheritDoc}
      */
     @Override
-    protected TypeAndDirectionDescription newCachedRelationship(String string, String prefix) {
-        return new TypeAndDirectionDescriptionImpl(string, prefix);
+    protected TypeAndDirectionDescription newCachedRelationship(String string, String prefix, String separator) {
+        return new TypeAndDirectionDescriptionImpl(string, prefix, separator);
     }
 
     /**
@@ -73,7 +79,7 @@ public class SimpleRelationshipCountCache extends BaseRelationshipCountCache<Typ
         TypeAndDirectionDescription deletedRelationship = new TypeAndDirectionDescriptionImpl(relationship.getType(), DirectionUtils.resolveDirection(relationship, pointOfView, defaultDirection));
 
         if (!decrementCount(deletedRelationship, pointOfView, 1)) {
-            LOG.warn(deletedRelationship.toString() + " was out of sync on node " + pointOfView.getId());
+            LOG.warn(deletedRelationship.toString(FrameworkConfiguration.DEFAULT_SEPARATOR) + " was out of sync on node " + pointOfView.getId());
         }
     }
 }

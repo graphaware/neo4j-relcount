@@ -36,6 +36,14 @@
             <groupId>com.graphaware</groupId>
             <artifactId>neo4j-framework</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.graphaware</groupId>
+            <artifactId>neo4j-tx-event-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.graphaware</groupId>
+            <artifactId>neo4j-dto</artifactId>
+        </dependency>
 
         <!-- Neo4j -->
         <dependency>

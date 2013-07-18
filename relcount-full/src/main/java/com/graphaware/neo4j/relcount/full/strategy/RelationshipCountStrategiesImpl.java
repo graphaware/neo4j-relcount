@@ -1,5 +1,7 @@
 package com.graphaware.neo4j.relcount.full.strategy;
 
+import com.graphaware.neo4j.framework.strategy.IncludeAllRelationshipProperties;
+import com.graphaware.neo4j.framework.strategy.IncludeAllRelationships;
 import com.graphaware.neo4j.tx.event.strategy.*;
 
 /**

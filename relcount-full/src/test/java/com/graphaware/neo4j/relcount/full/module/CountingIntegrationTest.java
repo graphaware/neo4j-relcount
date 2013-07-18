@@ -17,6 +17,7 @@
 package com.graphaware.neo4j.relcount.full.module;
 
 import com.graphaware.neo4j.framework.GraphAwareFramework;
+import com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration;
 import com.graphaware.neo4j.relcount.full.Constants;
 import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
@@ -37,6 +38,7 @@ import org.neo4j.test.TestGraphDatabaseFactory;
 import java.util.Iterator;
 import java.util.Map;
 
+import static com.graphaware.neo4j.framework.config.FrameworkConfiguration.GA_PREFIX;
 import static com.graphaware.neo4j.relcount.full.Constants.FULL_RELCOUNT_DEFAULT_ID;
 import static org.junit.Assert.*;
 
@@ -62,7 +64,7 @@ public class CountingIntegrationTest {
         framework.registerModule(module);
         framework.start();
 
-        reader = new FullCachedRelationshipCountReader(FULL_RELCOUNT_DEFAULT_ID);
+        reader = new FullCachedRelationshipCountReader(FULL_RELCOUNT_DEFAULT_ID, DefaultFrameworkConfiguration.getInstance());
     }
 
     @After
@@ -427,11 +429,11 @@ public class CountingIntegrationTest {
      * just for readability
      */
     private RelationshipDescription gen(String s) {
-        return new GeneralRelationshipDescription(s, com.graphaware.neo4j.common.Constants.GA_PREFIX + Constants.FULL_RELCOUNT_DEFAULT_ID);
+        return new GeneralRelationshipDescription(s, GA_PREFIX + Constants.FULL_RELCOUNT_DEFAULT_ID, "#");
     }
 
     private RelationshipDescription lit(String s) {
-        return new LiteralRelationshipDescription(s, com.graphaware.neo4j.common.Constants.GA_PREFIX + Constants.FULL_RELCOUNT_DEFAULT_ID);
+        return new LiteralRelationshipDescription(s, GA_PREFIX + Constants.FULL_RELCOUNT_DEFAULT_ID, "#");
     }
 
 }

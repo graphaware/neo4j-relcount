@@ -14,17 +14,20 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package simple.logic;
+package com.graphaware.neo4j.relcount.simple.logic;
 
 import com.graphaware.neo4j.relcount.common.logic.NaiveRelationshipCountReader;
 import com.graphaware.neo4j.relcount.common.logic.RelationshipCountReader;
+import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescription;
+import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import simple.dto.TypeAndDirectionDescription;
-import simple.dto.TypeAndDirectionDescriptionImpl;
 
 /**
- * {@link com.graphaware.neo4j.relcount.common.logic.RelationshipCountReader} that counts relationships by traversing them (assumes no caching).
+ * {@link com.graphaware.neo4j.relcount.common.logic.RelationshipCountReader} that counts relationships by traversing
+ * them (assumes no caching). It can thus be used on any graph without any {@link com.graphaware.neo4j.framework.GraphAwareModule}s
+ * registered and even without the {@link com.graphaware.neo4j.framework.GraphAwareFramework} running at all.
+ * <p/>
  * It is simple in the sense that it only cares about {@link org.neo4j.graphdb.RelationshipType}s and {@link org.neo4j.graphdb.Direction}s;
  * it completely ignores {@link Relationship} properties.
  */

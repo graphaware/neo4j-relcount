@@ -16,8 +16,9 @@
 
 package com.graphaware.neo4j.relcount.full.api;
 
-import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
+import com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration;
+import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
 import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.logic.FullCachedRelationshipCountReader;
@@ -28,64 +29,77 @@ import org.neo4j.graphdb.RelationshipType;
 import static com.graphaware.neo4j.relcount.full.Constants.FULL_RELCOUNT_DEFAULT_ID;
 
 /**
- * {@link FullRelationshipCounter} that counts matching relationships by looking them up in cached {@link org.neo4j.graphdb.Node}'s properties.
+ * {@link FullRelationshipCounter} that counts matching relationships by looking them up cached in {@link org.neo4j.graphdb.Node}'s properties.
  * <p/>
  * <b>Full</b> relationship counter means that it inspects relationship types, directions, and properties.
  * <p/>
- * Matching relationships are all relationships at least as specific as the relationship description provided to this counter.
- * For example, if this counter is configured to count all OUTGOING relationships of type "FRIEND" with property "strength"
- * equal to 2, all relationships with that specification <b>including those with other properties</b> (such as "timestamp" = 123456)
- * will be counted.
- * <p/>
- * WARNING: This counter will only work if {@link com.graphaware.neo4j.relcount.full.handler.FullRelationshipCountTransactionEventHandler}
- * is used! If you just started using this functionality and you have an existing graph, call //todo!!! (re-caclculate counts)
+ * It must be used in conjunction with {@link com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule}
+ * registered with {@link com.graphaware.neo4j.framework.GraphAwareFramework}.
  * <p/>
  * This counter throws {@link com.graphaware.neo4j.relcount.common.api.UnableToCountException} in case the relationship
  * being counted is more specific than any cached count, but there is a more general cached count and at the same time.
  * This means compaction has taken place and this counter can't serve a request for relationship count this specific.
+ * If you still want to count the relationship, either use {@link FullNaiveRelationshipCounter} or consider increasing
+ * the compaction threshold.
  */
 public class FullCachedRelationshipCounter extends BaseFullRelationshipCounter implements FullRelationshipCounter {
 
-    protected final String id;
+    private final String id;
+    private final FrameworkConfiguration config;
 
     /**
-     * Construct a new relationship counter.
+     * Construct a new relationship counter. Use this constructor when {@link com.graphaware.neo4j.framework.GraphAwareFramework}
+     * is used with default configuration and only a single instance of {@link com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule}
+     * is registered. This will be the case for most use cases.
      *
      * @param type      type of the relationships to count.
      * @param direction direction of the relationships to count.
      */
     public FullCachedRelationshipCounter(RelationshipType type, Direction direction) {
-        this(FULL_RELCOUNT_DEFAULT_ID, type, direction);
+        this(type, direction, FULL_RELCOUNT_DEFAULT_ID);
     }
 
     /**
-     * Construct a counter from another relationship representation.
-     *
-     * @param relationship relationships representation.
-     */
-    protected FullCachedRelationshipCounter(HasTypeDirectionAndProperties<String, ?> relationship) {
-        this(FULL_RELCOUNT_DEFAULT_ID, relationship);
-    }
-
-    /**
-     * Construct a new relationship counter.
+     * Construct a new relationship counter. Use this constructor when the
+     * {@link com.graphaware.neo4j.framework.GraphAwareFramework} is used with custom configuration. This should rarely
+     * be the case. Alternatively, use {@link com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule#cachedCounter(org.neo4j.graphdb.RelationshipType, org.neo4j.graphdb.Direction)}.
      *
      * @param type      type of the relationships to count.
      * @param direction direction of the relationships to count.
+     * @param config    used with the {@link com.graphaware.neo4j.framework.GraphAwareFramework}.
      */
-    public FullCachedRelationshipCounter(String id, RelationshipType type, Direction direction) {
-        super(type, direction);
-        this.id = id;
+    public FullCachedRelationshipCounter(RelationshipType type, Direction direction, FrameworkConfiguration config) {
+        this(type, direction, FULL_RELCOUNT_DEFAULT_ID, config);
     }
 
     /**
-     * Construct a counter from another relationship representation.
+     * Construct a new relationship counter. Use this constructor when multiple instances of {@link com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule}
+     * have been registered with the {@link com.graphaware.neo4j.framework.GraphAwareFramework}.
+     * Alternatively, use {@link com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule#cachedCounter(org.neo4j.graphdb.RelationshipType, org.neo4j.graphdb.Direction)}.
      *
-     * @param relationship relationships representation.
+     * @param type      type of the relationships to count.
+     * @param direction direction of the relationships to count.
+     * @param id        of the {@link com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule} used to cache relationship counts.
      */
-    protected FullCachedRelationshipCounter(String id, HasTypeDirectionAndProperties<String, ?> relationship) {
-        super(relationship);
+    public FullCachedRelationshipCounter(RelationshipType type, Direction direction, String id) {
+        this(type, direction, id, DefaultFrameworkConfiguration.getInstance());
+    }
+
+    /**
+     * Construct a new relationship counter. Use this constructor when multiple instances of {@link com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule}
+     * have been registered with the {@link com.graphaware.neo4j.framework.GraphAwareFramework} and when the
+     * {@link com.graphaware.neo4j.framework.GraphAwareFramework} is used with custom configuration. This should rarely
+     * be the case. Alternatively, use {@link com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule#cachedCounter(org.neo4j.graphdb.RelationshipType, org.neo4j.graphdb.Direction)}.
+     *
+     * @param type      type of the relationships to count.
+     * @param direction direction of the relationships to count.
+     * @param id        of the {@link com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule} used to cache relationship counts.
+     * @param config    used with the {@link com.graphaware.neo4j.framework.GraphAwareFramework}.
+     */
+    public FullCachedRelationshipCounter(RelationshipType type, Direction direction, String id, FrameworkConfiguration config) {
+        super(type, direction);
         this.id = id;
+        this.config = config;
     }
 
     /**
@@ -95,9 +109,10 @@ public class FullCachedRelationshipCounter extends BaseFullRelationshipCounter i
      * @param direction  direction.
      * @param properties props.
      */
-    protected FullCachedRelationshipCounter(String id, RelationshipType type, Direction direction, CopyMakingSerializableProperties properties) {
+    protected FullCachedRelationshipCounter(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties, String id, FrameworkConfiguration config) {
         super(type, direction, properties);
         this.id = id;
+        this.config = config;
     }
 
     /**
@@ -105,12 +120,12 @@ public class FullCachedRelationshipCounter extends BaseFullRelationshipCounter i
      */
     @Override
     public int count(Node node) {
-        return new FullCachedRelationshipCountReader(id).getRelationshipCount(new GeneralRelationshipDescription(this), node);
+        return new FullCachedRelationshipCountReader(id, config).getRelationshipCount(new GeneralRelationshipDescription(this), node);
     }
 
     @Override
     public int countLiterally(Node node) {
-        return new FullCachedRelationshipCountReader(id).getRelationshipCount(new LiteralRelationshipDescription(this), node);
+        return new FullCachedRelationshipCountReader(id, config).getRelationshipCount(new LiteralRelationshipDescription(this), node);
     }
 
     /**
@@ -118,6 +133,6 @@ public class FullCachedRelationshipCounter extends BaseFullRelationshipCounter i
      */
     @Override
     public FullRelationshipCounter with(String key, Object value) {
-        return new FullCachedRelationshipCounter(id, getType(), getDirection(), getProperties().with(key, value));
+        return new FullCachedRelationshipCounter(getType(), getDirection(), getProperties().with(key, value), id, config);
     }
 }

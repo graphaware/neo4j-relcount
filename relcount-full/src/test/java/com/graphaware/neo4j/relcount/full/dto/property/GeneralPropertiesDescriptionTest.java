@@ -209,10 +209,10 @@ public class GeneralPropertiesDescriptionTest {
      * just for readability
      */
     private PropertiesDescription gen(String s) {
-        return new GeneralPropertiesDescription(s);
+        return new GeneralPropertiesDescription(s, "#");
     }
 
     private PropertiesDescription lit(String s) {
-        return new LiteralPropertiesDescription(s);
+        return new LiteralPropertiesDescription(s, "#");
     }
 }

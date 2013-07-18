@@ -43,12 +43,13 @@ public class GeneralRelationshipDescription extends BaseRelationshipDescription 
     /**
      * Construct a description from a string.
      *
-     * @param string string to construct description from. Must be of the form prefix + type#direction#key1#value1#key2#value2...
-     *               (assuming the default {@link com.graphaware.neo4j.common.Constants#SEPARATOR}.
-     * @param prefix of the string that should be removed before conversion.
+     * @param string    string to construct description from. Must be of the form prefix + type#direction#key1#value1#key2#value2...
+     *                  (assuming the default {@link com.graphaware.neo4j.common.Constants#SEPARATOR}.
+     * @param prefix    of the string that should be removed before conversion.
+     * @param separator of information, ideally a single character, must not be null or empty.
      */
-    public GeneralRelationshipDescription(String string, String prefix) {
-        super(string, prefix);
+    public GeneralRelationshipDescription(String string, String prefix, String separator) {
+        super(string, prefix, separator);
     }
 
     /**

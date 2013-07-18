@@ -62,8 +62,8 @@ public class FullRelationshipCountCache extends BaseRelationshipCountCache<Relat
      * {@inheritDoc}
      */
     @Override
-    protected RelationshipDescription newCachedRelationship(String string, String prefix) {
-        RelationshipDescription result = new GeneralRelationshipDescription(string, prefix);
+    protected RelationshipDescription newCachedRelationship(String string, String prefix, String separator) {
+        RelationshipDescription result = new GeneralRelationshipDescription(string, prefix, separator);
 
         if (result.getProperties().containsKey(LITERAL)) {
             return new LiteralRelationshipDescription(result);

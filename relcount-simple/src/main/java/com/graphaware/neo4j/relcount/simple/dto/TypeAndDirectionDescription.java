@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package simple.dto;
+package com.graphaware.neo4j.relcount.simple.dto;
 
 import com.graphaware.neo4j.dto.common.relationship.SerializableTypeAndDirection;
 

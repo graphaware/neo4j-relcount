@@ -1,7 +1,7 @@
 package com.graphaware.neo4j.relcount.common.logic;
 
-import com.graphaware.neo4j.common.Constants;
 import com.graphaware.neo4j.dto.common.relationship.SerializableTypeAndDirection;
+import com.graphaware.neo4j.framework.config.BaseFrameworkConfigured;
 import com.graphaware.neo4j.tx.batch.IterableInputBatchExecutor;
 import com.graphaware.neo4j.tx.batch.UnitOfWork;
 import org.neo4j.graphdb.Direction;
@@ -21,7 +21,7 @@ import java.util.TreeMap;
  *                      Must be {@link Comparable}; the resulting order is essential for determining, which property
  *                      corresponds to an about-to-be-cached relationship count.
  */
-public abstract class BaseRelationshipCountCache<DESCRIPTION extends SerializableTypeAndDirection & Comparable<DESCRIPTION>> {
+public abstract class BaseRelationshipCountCache<DESCRIPTION extends SerializableTypeAndDirection & Comparable<DESCRIPTION>> extends BaseFrameworkConfigured {
 
     private final String id;
 
@@ -44,8 +44,8 @@ public abstract class BaseRelationshipCountCache<DESCRIPTION extends Serializabl
     public Map<DESCRIPTION, Integer> getRelationshipCounts(Node node) {
         Map<DESCRIPTION, Integer> result = new TreeMap<>();
         for (String key : node.getPropertyKeys()) {
-            if (key.startsWith(prefix())) {
-                result.put(newCachedRelationship(key, prefix()), (Integer) node.getProperty(key));
+            if (key.startsWith(getConfig().createPrefix(id))) {
+                result.put(newCachedRelationship(key, getConfig().createPrefix(id), getConfig().separator()), (Integer) node.getProperty(key));
             }
         }
         return result;
@@ -55,11 +55,12 @@ public abstract class BaseRelationshipCountCache<DESCRIPTION extends Serializabl
      * Create a cached relationship representation from a String representation of the cached relationship, coming from
      * a node's property key.
      *
-     * @param string string representation of the cached relationship.
-     * @param prefix to be removed from the string representation before conversion.
+     * @param string    string representation of the cached relationship.
+     * @param prefix    to be removed from the string representation before conversion.
+     * @param separator delimiter of information in the string.
      * @return object representation of the cached relationship.
      */
-    protected abstract DESCRIPTION newCachedRelationship(String string, String prefix);
+    protected abstract DESCRIPTION newCachedRelationship(String string, String prefix, String separator);
 
     /**
      * Handle (i.e. cache) a created relationship.
@@ -106,7 +107,7 @@ public abstract class BaseRelationshipCountCache<DESCRIPTION extends Serializabl
                     @Override
                     public void execute(GraphDatabaseService database, Node node) {
                         for (String key : node.getPropertyKeys()) {
-                            if (key.startsWith(prefix())) {
+                            if (key.startsWith(getConfig().createPrefix(id))) {
                                 node.removeProperty(key);
                             }
                         }
@@ -149,13 +150,13 @@ public abstract class BaseRelationshipCountCache<DESCRIPTION extends Serializabl
     public boolean incrementCount(DESCRIPTION relationship, Node node, int delta) {
         for (DESCRIPTION cachedRelationship : getRelationshipCounts(node).keySet()) {
             if (cachedMatch(cachedRelationship, relationship)) {
-                String key = cachedRelationship.toString(prefix());
+                String key = cachedRelationship.toString(getConfig().createPrefix(id), getConfig().separator());
                 node.setProperty(key, (Integer) node.getProperty(key) + delta);
                 return false;
             }
         }
 
-        node.setProperty(relationship.toString(prefix()), delta);
+        node.setProperty(relationship.toString(getConfig().createPrefix(id), getConfig().separator()), delta);
         return true;
 
     }
@@ -172,7 +173,7 @@ public abstract class BaseRelationshipCountCache<DESCRIPTION extends Serializabl
     public boolean decrementCount(DESCRIPTION relationship, Node node, int delta) {
         for (DESCRIPTION cachedRelationship : getRelationshipCounts(node).keySet()) {
             if (cachedMatch(cachedRelationship, relationship)) {
-                String key = cachedRelationship.toString(prefix());
+                String key = cachedRelationship.toString(getConfig().createPrefix(id), getConfig().separator());
                 int newValue = (Integer) node.getProperty(key) - delta;
                 node.setProperty(key, newValue);
 
@@ -194,7 +195,7 @@ public abstract class BaseRelationshipCountCache<DESCRIPTION extends Serializabl
      * @param node         on which to stop tracking.
      */
     public void deleteCount(DESCRIPTION relationship, Node node) {
-        node.removeProperty(relationship.toString(prefix()));
+        node.removeProperty(relationship.toString(getConfig().createPrefix(id), getConfig().separator()));
     }
 
     /**
@@ -205,13 +206,4 @@ public abstract class BaseRelationshipCountCache<DESCRIPTION extends Serializabl
      * @return true iff the cached relationship is to be treated as the about-to-be-updated relationship's representation.
      */
     protected abstract boolean cachedMatch(DESCRIPTION cached, DESCRIPTION relationship);
-
-    /**
-     * Build a prefix that all properties on nodes written and read by this cache will get.
-     *
-     * @return prefix.
-     */
-    private String prefix() {
-        return Constants.GA_PREFIX + id + "_";
-    }
 }

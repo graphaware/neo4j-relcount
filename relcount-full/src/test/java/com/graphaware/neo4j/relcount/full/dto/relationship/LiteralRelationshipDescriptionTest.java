@@ -183,36 +183,36 @@ public class LiteralRelationshipDescriptionTest {
 
     @Test
     public void shouldCorrectlyConvertToString() {
-        assertEquals("_PRE_" + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2", new LiteralRelationshipDescription("_PRE_test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2", "_PRE_").toString("_PRE_"));
-        assertEquals("test#INCOMING#_LITERAL_#true", new LiteralRelationshipDescription("_PRE_test#INCOMING#", "_PRE_").toString());
-        assertEquals("test#INCOMING#_LITERAL_#true", new LiteralRelationshipDescription("test#INCOMING#_LITERAL_#anything#", "").toString());
+        assertEquals("_PRE_" + "test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2", new LiteralRelationshipDescription("_PRE_test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2", "_PRE_", "#").toString("_PRE_", "#"));
+        assertEquals("test#INCOMING#_LITERAL_#true", new LiteralRelationshipDescription("_PRE_test#INCOMING#", "_PRE_", "#").toString("#"));
+        assertEquals("test#INCOMING#_LITERAL_#true", new LiteralRelationshipDescription("test#INCOMING#_LITERAL_#anything#", "", "#").toString("#"));
     }
 
     @Test
     public void sameRelationshipsShouldBeEqual() {
-        assertTrue(new LiteralRelationshipDescription("test#INCOMING#", "").equals(new LiteralRelationshipDescription("_PRE_test#INCOMING#_LITERAL_#true", "_PRE_")));
-        assertTrue(new LiteralRelationshipDescription("test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2", "").equals(new LiteralRelationshipDescription("test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2", null)));
-        assertTrue(new LiteralRelationshipDescription("test#OUTGOING#key1#value1#key2#value2", "").equals(new LiteralRelationshipDescription("test#OUTGOING#_LITERAL_#anything#key1#value1#key2#value2#", null)));
-        assertTrue(new LiteralRelationshipDescription("test#INCOMING#_LITERAL_#true#key1#value1#key2#", "").equals(new LiteralRelationshipDescription("test#INCOMING#_LITERAL_#true#key1#value1#key2", null)));
+        assertTrue(new LiteralRelationshipDescription("test#INCOMING#", "", "#").equals(new LiteralRelationshipDescription("_PRE_test#INCOMING#_LITERAL_#true", "_PRE_", "#")));
+        assertTrue(new LiteralRelationshipDescription("test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2", "", "#").equals(new LiteralRelationshipDescription("test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2", null, "#")));
+        assertTrue(new LiteralRelationshipDescription("test#OUTGOING#key1#value1#key2#value2", "", "#").equals(new LiteralRelationshipDescription("test#OUTGOING#_LITERAL_#anything#key1#value1#key2#value2#", null, "#")));
+        assertTrue(new LiteralRelationshipDescription("test#INCOMING#_LITERAL_#true#key1#value1#key2#", "", "#").equals(new LiteralRelationshipDescription("test#INCOMING#_LITERAL_#true#key1#value1#key2", null, "#")));
     }
 
     @Test
     public void differentRelationshipsShouldNotBeEqual() {
-        assertFalse(new LiteralRelationshipDescription("test#OUTGOING#_LITERAL_#true", null).equals(new LiteralRelationshipDescription("test#INCOMING#_LITERAL_#true", null)));
-        assertFalse(new LiteralRelationshipDescription("test2#OUTGOING#_LITERAL_#true#key1#value1#key2#value2", null).equals(new LiteralRelationshipDescription("test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2", null)));
-        assertFalse(new LiteralRelationshipDescription("test#OUTGOING#_LITERAL_#true#key3#value1#key2#value2", null).equals(new LiteralRelationshipDescription("test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2#", null)));
+        assertFalse(new LiteralRelationshipDescription("test#OUTGOING#_LITERAL_#true", null, "#").equals(new LiteralRelationshipDescription("test#INCOMING#_LITERAL_#true", null, "#")));
+        assertFalse(new LiteralRelationshipDescription("test2#OUTGOING#_LITERAL_#true#key1#value1#key2#value2", null, "#").equals(new LiteralRelationshipDescription("test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2", null, "#")));
+        assertFalse(new LiteralRelationshipDescription("test#OUTGOING#_LITERAL_#true#key3#value1#key2#value2", null, "#").equals(new LiteralRelationshipDescription("test#OUTGOING#_LITERAL_#true#key1#value1#key2#value2#", null, "#")));
     }
 
     private RelationshipDescription gen(String s) {
-        return new GeneralRelationshipDescription(s, null);
+        return new GeneralRelationshipDescription(s, null, "#");
     }
 
     private RelationshipDescription lit(String rel, String props) {
-        return new LiteralRelationshipDescription(rel + "_LITERAL_#true#" + props, null);
+        return new LiteralRelationshipDescription(rel + "_LITERAL_#true#" + props, null, "#");
     }
 
     private RelationshipDescription lit(String rel) {
-        return new LiteralRelationshipDescription("_PRE_" + rel, "_PRE_");
+        return new LiteralRelationshipDescription("_PRE_" + rel, "_PRE_", "#");
     }
 
 }

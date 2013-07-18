@@ -1,7 +1,10 @@
 package com.graphaware.neo4j.relcount.common.module;
 
-import com.graphaware.neo4j.common.Change;
 import com.graphaware.neo4j.framework.GraphAwareModule;
+import com.graphaware.neo4j.framework.config.BaseFrameworkConfigured;
+import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
+import com.graphaware.neo4j.framework.config.FrameworkConfigured;
+import com.graphaware.neo4j.misc.Change;
 import com.graphaware.neo4j.relcount.common.logic.RelationshipCountCache;
 import com.graphaware.neo4j.tx.event.api.ImprovedTransactionData;
 import org.neo4j.graphdb.Direction;
@@ -13,24 +16,14 @@ import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 /**
- * Abstract base-class for {@link GraphAwareModule}s that with to provide caching capabilities for relationship counting.
+ * Abstract base-class for {@link GraphAwareModule}s that wish to provide caching capabilities for relationship counting.
  */
-public abstract class RelationshipCountModule implements GraphAwareModule {
-
-    private static final String DEFAULT_ID = "RC";
+public abstract class RelationshipCountModule extends BaseFrameworkConfigured implements GraphAwareModule, FrameworkConfigured {
 
     private final String id;
 
     /**
-     * Create a module with {@link #DEFAULT_ID}.
-     */
-    public RelationshipCountModule() {
-        this.id = DEFAULT_ID;
-    }
-
-    /**
-     * Create a module with a specific ID. Use this if you want to use multiple modules at the same time,
-     * each (perhaps) with a different configuration.
+     * Create a module.
      *
      * @param id of this module. Should be a short meaningful String.
      */
@@ -69,6 +62,15 @@ public abstract class RelationshipCountModule implements GraphAwareModule {
         handleCreatedRelationships(transactionData);
         handleDeletedRelationships(transactionData);
         handleChangedRelationships(transactionData);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void configurationChanged(FrameworkConfiguration configuration) {
+        super.configurationChanged(configuration);
+        getRelationshipCountCache().configurationChanged(configuration);
     }
 
     private void handleCreatedRelationships(ImprovedTransactionData data) {

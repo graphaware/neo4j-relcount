@@ -1,4 +1,4 @@
-package simple.api;
+package com.graphaware.neo4j.relcount.simple.api;
 
 import com.graphaware.neo4j.relcount.common.api.RelationshipCounter;
 

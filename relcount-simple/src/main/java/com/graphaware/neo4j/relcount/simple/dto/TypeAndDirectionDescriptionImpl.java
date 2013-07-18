@@ -1,4 +1,4 @@
-package simple.dto;
+package com.graphaware.neo4j.relcount.simple.dto;
 
 import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
 import com.graphaware.neo4j.dto.common.relationship.SerializableTypeAndDirectionImpl;
@@ -6,6 +6,8 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
+
+import static com.graphaware.neo4j.framework.config.FrameworkConfiguration.DEFAULT_SEPARATOR;
 
 /**
  * An simple implementation of {@link TypeAndDirectionDescription}.
@@ -45,12 +47,13 @@ public class TypeAndDirectionDescriptionImpl extends SerializableTypeAndDirectio
     /**
      * Construct a description from a string.
      *
-     * @param string string to construct description from. Must be of the form prefix + type#direction
-     *               (assuming the default {@link com.graphaware.neo4j.common.Constants#SEPARATOR}).
-     * @param prefix of the string that should be removed before conversion.
+     * @param string    string to construct description from. Must be of the form prefix + type#direction
+     *                  (assuming # separator).
+     * @param prefix    of the string that should be removed before conversion.
+     * @param separator of information.
      */
-    public TypeAndDirectionDescriptionImpl(String string, String prefix) {
-        super(string, prefix);
+    public TypeAndDirectionDescriptionImpl(String string, String prefix, String separator) {
+        super(string, prefix, separator);
     }
 
     /**
@@ -58,6 +61,6 @@ public class TypeAndDirectionDescriptionImpl extends SerializableTypeAndDirectio
      */
     @Override
     public int compareTo(TypeAndDirectionDescription o) {
-        return this.toString().compareTo(o.toString());
+        return this.toString(DEFAULT_SEPARATOR).compareTo(o.toString(DEFAULT_SEPARATOR));
     }
 }

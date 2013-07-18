@@ -225,10 +225,10 @@ public class LiteralPropertiesDescriptionPropertiesTest {
      * just for readability
      */
     private PropertiesDescription lit(String s) {
-        return new LiteralPropertiesDescription(s);
+        return new LiteralPropertiesDescription(s, "#");
     }
 
     private PropertiesDescription gen(String s) {
-        return new GeneralPropertiesDescription(s);
+        return new GeneralPropertiesDescription(s, "#");
     }
 }

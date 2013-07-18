@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static com.graphaware.neo4j.common.Constants.SEPARATOR;
-
 /**
  * An extension of {@link GeneralPropertiesDescription} in which a missing property is treated as a concrete value ({@link #UNDEF}) as opposed
  * to "any". This is for situations where a relationship is explicitly created without some property that other relationships
@@ -63,13 +61,14 @@ public class LiteralPropertiesDescription extends GeneralPropertiesDescription {
     /**
      * Construct a description from a {@link String}.
      *
-     * @param string to construct properties from. Must be of the form _LITERAL_#anything#key1#value1#key2#value2
-     *               (assuming the default {@link com.graphaware.neo4j.common.Constants#SEPARATOR} and {@link #LITERAL}),
-     *               in which case the _LITERAL_ property will be removed upon construction. Can also be of the form
-     *               key1#value1#key2#value2, in which case it will be constructed with those properties.
+     * @param string    to construct properties from. Must be of the form {@link #LITERAL}#anything#key1#value1#key2#value2
+     *                  (assuming # separator),
+     *                  in which case the {@link #LITERAL} property will be removed upon construction. Can also be of the form
+     *                  key1#value1#key2#value2, in which case it will be constructed with those properties.
+     * @param separator of keys and values, ideally a single character, must not be null or empty.
      */
-    public LiteralPropertiesDescription(String string) {
-        super(string);
+    public LiteralPropertiesDescription(String string, String separator) {
+        super(string, separator);
     }
 
     /**
@@ -122,7 +121,7 @@ public class LiteralPropertiesDescription extends GeneralPropertiesDescription {
      * {@inheritDoc}
      */
     @Override
-    public String toString() {
-        return LITERAL + SEPARATOR + "true" + SEPARATOR + super.toString();
+    public String toString(String separator) {
+        return LITERAL + separator + "true" + separator + super.toString(separator);
     }
 }

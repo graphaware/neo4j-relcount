@@ -60,14 +60,15 @@ public class LiteralRelationshipDescription extends BaseRelationshipDescription 
     /**
      * Construct a description from a string.
      *
-     * @param string string to construct description from. Must be of the form prefix + type#direction#_LITERAL_#anything#key1#value1#key2#value2
-     *               (assuming the default {@link com.graphaware.neo4j.common.Constants#SEPARATOR} and {@link LiteralPropertiesDescription#LITERAL}),
-     *               in which case the _LITERAL_ property will be removed upon construction. Can also be of the form
-     *               prefix + type#direction#key1#value1#key2#value2, in which case it will be constructed with those properties.
-     * @param prefix of the string that should be removed before conversion.
+     * @param string    string to construct description from. Must be of the form prefix + type#direction#_LITERAL_#anything#key1#value1#key2#value2
+     *                  (assuming # separator) and {@link LiteralPropertiesDescription#LITERAL}),
+     *                  in which case the _LITERAL_ property will be removed upon construction. Can also be of the form
+     *                  prefix + type#direction#key1#value1#key2#value2, in which case it will be constructed with those properties.
+     * @param prefix    of the string that should be removed before conversion.
+     * @param separator of information, ideally a single character, must not be null or empty.
      */
-    public LiteralRelationshipDescription(String string, String prefix) {
-        super(string, prefix);
+    public LiteralRelationshipDescription(String string, String prefix, String separator) {
+        super(string, prefix, separator);
     }
 
     /**

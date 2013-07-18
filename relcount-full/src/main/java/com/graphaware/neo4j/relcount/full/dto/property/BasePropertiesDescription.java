@@ -50,11 +50,11 @@ public abstract class BasePropertiesDescription extends BaseCopyMakingSerializab
     /**
      * Construct a description from a {@link String}.
      *
-     * @param string to construct properties from. Must be of the form key1#value1#key2#value2... (assuming the default
-     *               {@link com.graphaware.neo4j.common.Constants#SEPARATOR}.
+     * @param string    to construct properties from. Must be of the form key1#value1#key2#value2... (assuming # separator).
+     * @param separator of keys and values, ideally a single character, must not be null or empty.
      */
-    protected BasePropertiesDescription(String string) {
-        super(string);
+    protected BasePropertiesDescription(String string, String separator) {
+        super(string, separator);
     }
 
     /**

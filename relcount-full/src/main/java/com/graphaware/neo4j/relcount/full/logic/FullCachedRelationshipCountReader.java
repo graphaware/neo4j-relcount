@@ -16,6 +16,7 @@
 
 package com.graphaware.neo4j.relcount.full.logic;
 
+import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
 import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
 import com.graphaware.neo4j.relcount.common.logic.CachedRelationshipCountReader;
 import com.graphaware.neo4j.relcount.common.logic.RelationshipCountReader;
@@ -34,8 +35,14 @@ import static com.graphaware.neo4j.relcount.full.dto.property.LiteralPropertiesD
  */
 public class FullCachedRelationshipCountReader extends CachedRelationshipCountReader<RelationshipDescription> implements RelationshipCountReader<RelationshipDescription> {
 
-    public FullCachedRelationshipCountReader(String id) {
-        super(id);
+    /**
+     * Construct a new reader.
+     *
+     * @param id     of the {@link com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule} this reader belongs to.
+     * @param config of the {@link com.graphaware.neo4j.framework.GraphAwareFramework} that the module is registered with.
+     */
+    public FullCachedRelationshipCountReader(String id, FrameworkConfiguration config) {
+        super(id, config);
     }
 
     /**
@@ -58,8 +65,8 @@ public class FullCachedRelationshipCountReader extends CachedRelationshipCountRe
      * {@inheritDoc}
      */
     @Override
-    protected RelationshipDescription newCachedRelationship(String string, String prefix) {
-        RelationshipDescription result = new GeneralRelationshipDescription(string, prefix);
+    protected RelationshipDescription newCachedRelationship(String string, String prefix, String separator) {
+        RelationshipDescription result = new GeneralRelationshipDescription(string, prefix, separator);
 
         if (result.getProperties().containsKey(LITERAL)) {
             return new LiteralRelationshipDescription(result);
@@ -77,11 +84,10 @@ public class FullCachedRelationshipCountReader extends CachedRelationshipCountRe
             RelationshipDescription candidate = candidateWithCount.getKey();
             if (candidate.isMoreGeneralThan(description)) {
                 throw new UnableToCountException("Unable to count relationships with the following description: "
-                        + description.toString()
+                        + description.toString(FrameworkConfiguration.DEFAULT_SEPARATOR)
                         + " for node " + node.toString() + ". Since there are cached matches more general than your description," +
                         " it looks like compaction has taken away the granularity you need. Please try to count this kind " +
-                        "of relationship with a naive counter. Alternatively, increase the compaction threshold and " +
-                        "rebuild all caches by calling FullRelationshipCountTransactionEventHandler#rebuildCachedCounts(..)");
+                        "of relationship with a naive counter. Alternatively, increase the compaction threshold.");
             }
         }
     }

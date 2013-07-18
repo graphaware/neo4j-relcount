@@ -42,7 +42,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.graphaware.neo4j.common.Constants.GA_PREFIX;
+import static com.graphaware.neo4j.framework.config.FrameworkConfiguration.GA_PREFIX;
 import static com.graphaware.neo4j.utils.DeleteUtils.deleteNodeAndRelationships;
 import static com.graphaware.neo4j.utils.PropertyContainerUtils.*;
 import static java.lang.String.valueOf;
