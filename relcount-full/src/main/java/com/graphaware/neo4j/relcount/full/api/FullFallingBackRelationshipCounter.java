@@ -95,12 +95,22 @@ public class FullFallingBackRelationshipCounter extends BaseFullRelationshipCoun
      */
     @Override
     public int count(Node node) {
+        if (Direction.BOTH.equals(getDirection())) {
+            int outgoingCount = doCount(node, Direction.OUTGOING);
+            int incomingCount = doCount(node, Direction.INCOMING);
+            return outgoingCount + incomingCount;
+        }
+
+        return doCount(node, getDirection());
+    }
+
+    private int doCount(Node node, Direction direction) {
         try {
-            return new FullCachedRelationshipCounter(getType(), getDirection(), getProperties(), id, config).count(node);
+            return new FullCachedRelationshipCounter(getType(), direction, getProperties(), id, config).count(node);
         } catch (UnableToCountException e) {
             LOG.warn("Unable to count relationships with description: " + new GeneralRelationshipDescription(this).toString() +
                     " for node " + node.toString() + ". Falling back to naive approach");
-            return new FullNaiveRelationshipCounter(getType(), getDirection(), getProperties(), strategies).count(node);
+            return new FullNaiveRelationshipCounter(getType(), direction, getProperties(), strategies).count(node);
         }
     }
 
@@ -109,12 +119,22 @@ public class FullFallingBackRelationshipCounter extends BaseFullRelationshipCoun
      */
     @Override
     public int countLiterally(Node node) {
+        if (Direction.BOTH.equals(getDirection())) {
+            int outgoingCount = doCountLiterally(node, Direction.OUTGOING);
+            int incomingCount = doCountLiterally(node, Direction.INCOMING);
+            return outgoingCount + incomingCount;
+        }
+
+        return doCountLiterally(node, getDirection());
+    }
+
+    private int doCountLiterally(Node node, Direction direction) {
         try {
-            return new FullCachedRelationshipCounter(getType(), getDirection(), getProperties(), id, config).countLiterally(node);
+            return new FullCachedRelationshipCounter(getType(), direction, getProperties(), id, config).countLiterally(node);
         } catch (UnableToCountException e) {
             LOG.warn("Unable to count relationships with description: " + new LiteralRelationshipDescription(this).toString() +
                     " for node " + node.toString() + ". Falling back to naive approach");
-            return new FullNaiveRelationshipCounter(getType(), getDirection(), getProperties(), strategies).countLiterally(node);
+            return new FullNaiveRelationshipCounter(getType(), direction, getProperties(), strategies).countLiterally(node);
         }
     }
 

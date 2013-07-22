@@ -152,6 +152,13 @@ public class CompactionIntegrationTest {
         assertEquals(4, reader.getRelationshipCount(rel("test#OUTGOING#k1#v1"), database.getNodeById(0)));
         assertEquals(4, reader.getRelationshipCount(rel("test#OUTGOING#k1#v2"), database.getNodeById(0)));
         assertEquals(8, reader.getRelationshipCount(rel("test#OUTGOING#"), database.getNodeById(0)));
+
+        try {
+            reader.getRelationshipCount(rel("test#OUTGOING#k2#v3"), database.getNodeById(0));
+            fail();
+        } catch (UnableToCountException e) {
+            //ok
+        }
     }
 
     @Test
@@ -173,6 +180,13 @@ public class CompactionIntegrationTest {
         assertEquals(1, cache.getRelationshipCounts(database.getNodeById(0)).size());
         assertEquals(5, reader.getRelationshipCount(rel("test#OUTGOING#k1#v1"), database.getNodeById(0)));
         assertEquals(5, reader.getRelationshipCount(rel("test#OUTGOING#"), database.getNodeById(0)));
+
+        try {
+            reader.getRelationshipCount(rel("test#OUTGOING#k3#v4"), database.getNodeById(0));
+            fail();
+        } catch (UnableToCountException e) {
+            //ok
+        }
     }
 
     @Test

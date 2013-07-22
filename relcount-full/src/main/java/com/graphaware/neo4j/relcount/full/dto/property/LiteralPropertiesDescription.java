@@ -18,10 +18,7 @@ package com.graphaware.neo4j.relcount.full.dto.property;
 
 import org.neo4j.graphdb.PropertyContainer;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * An extension of {@link GeneralPropertiesDescription} in which a missing property is treated as a concrete value ({@link #UNDEF}) as opposed
@@ -34,6 +31,11 @@ public class LiteralPropertiesDescription extends GeneralPropertiesDescription {
      * This string will be used as an extra "marker" property to indicate that they are meant literally.
      */
     public static final String LITERAL = "_LITERAL_";
+
+    /**
+     * This is the marker's property value.
+     */
+    public static final String TRUE = "true";
 
     /**
      * Value of undefined keys. It is not printed anywhere, but it is used internally for comparisons.
@@ -61,13 +63,10 @@ public class LiteralPropertiesDescription extends GeneralPropertiesDescription {
     /**
      * Construct a description from a {@link String}.
      *
-     * @param string    to construct properties from. Must be of the form {@link #LITERAL}#anything#key1#value1#key2#value2
-     *                  (assuming # separator),
-     *                  in which case the {@link #LITERAL} property will be removed upon construction. Can also be of the form
-     *                  key1#value1#key2#value2, in which case it will be constructed with those properties.
+     * @param string    to construct properties from. Must be of the form key1#value1#key2#value2 (assuming # separator).
      * @param separator of keys and values, ideally a single character, must not be null or empty.
      */
-    public LiteralPropertiesDescription(String string, String separator) {
+    LiteralPropertiesDescription(String string, String separator) {
         super(string, separator);
     }
 
@@ -98,12 +97,54 @@ public class LiteralPropertiesDescription extends GeneralPropertiesDescription {
 
     /**
      * {@inheritDoc}
+     */
+    @Override
+    public Set<String> keySet() {
+        Set<String> result = new HashSet<>(super.keySet());
+        result.add(LITERAL);
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<Map.Entry<String, String>> entrySet() {
+        Set<Map.Entry<String, String>> result = new HashSet<>(super.entrySet());
+        result.add(new AbstractMap.SimpleEntry<>(LITERAL, TRUE));
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<String> values() {
+        Collection<String> result = new HashSet<>(super.values());
+        result.add(TRUE);
+        return result;
+    }
+
+    /**
+     * Get an immutable {@link java.util.Map} of represented properties.
+     *
+     * @return read-only {@link java.util.Map} of properties.
+     */
+    @Override
+    public Map<String, String> getProperties() {
+        Map<String, String> result = new TreeMap<>(super.getProperties());
+        result.put(LITERAL, TRUE);
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * @return a single more general instance, which is {@link GeneralPropertiesDescription} with exactly the same properties.
      */
     @Override
     public Set<PropertiesDescription> generateOneMoreGeneral() {
-        return Collections.<PropertiesDescription>singleton(new GeneralPropertiesDescription(getProperties()));
+        return Collections.<PropertiesDescription>singleton(new GeneralPropertiesDescription(super.getProperties()));
     }
 
     /**
@@ -115,13 +156,5 @@ public class LiteralPropertiesDescription extends GeneralPropertiesDescription {
         result.add(self());
         result.addAll(super.generateAllMoreGeneral(generateOneMoreGeneral().iterator().next()));
         return result;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString(String separator) {
-        return LITERAL + separator + "true" + separator + super.toString(separator);
     }
 }

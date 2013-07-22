@@ -54,7 +54,7 @@ public class GeneralRelationshipDescriptionTest {
         assertTrue(gen("test#INCOMING#key1#value1#key2#value2").isMoreGeneralThan(gen("test#INCOMING#key1#value1#key2#value2")));
         assertTrue(gen("test#INCOMING#key1#value1#key2#value2").isMoreGeneralThan(lit("test#INCOMING#key1#value1#key2#value2")));
         assertFalse(gen("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreGeneralThan(gen("test#INCOMING#key1#value1#key2#value2")));
-        assertFalse(gen("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreGeneralThan(lit("test#INCOMING#key1#value1#key2#value2")));
+        assertTrue(gen("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreGeneralThan(lit("test#INCOMING#key1#value1#key2#value2")));
 
         assertTrue(gen("test#INCOMING#key2#value2").isMoreGeneralThan(gen("test#INCOMING#key1#value1#key2#value2")));
         assertTrue(gen("test#INCOMING#key2#value2").isMoreGeneralThan(lit("test#INCOMING#key1#value1#key2#value2")));
@@ -85,7 +85,7 @@ public class GeneralRelationshipDescriptionTest {
     @Test
     public void shouldCorrectlyJudgeMoreSpecific() {
         assertTrue(gen("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(gen("test#INCOMING#key1#value1#key2#value2")));
-        assertTrue(gen("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(lit("test#INCOMING#key1#value1#key2#value2")));
+        assertFalse(gen("test#INCOMING#key1#value1#key2#value2").isMoreSpecificThan(lit("test#INCOMING#key1#value1#key2#value2")));
         assertFalse(gen("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreSpecificThan(gen("test#INCOMING#key1#value1#key2#value2")));
         assertFalse(gen("test#INCOMING#key1#value1#key2#value2").isStrictlyMoreSpecificThan(lit("test#INCOMING#key1#value1#key2#value2")));
 

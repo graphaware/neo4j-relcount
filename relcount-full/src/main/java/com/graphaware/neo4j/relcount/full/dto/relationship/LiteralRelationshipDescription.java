@@ -85,7 +85,7 @@ public class LiteralRelationshipDescription extends BaseRelationshipDescription 
      */
     @Override
     public Set<RelationshipDescription> generateOneMoreGeneral() {
-        return Collections.<RelationshipDescription>singleton(new GeneralRelationshipDescription(this));
+        return Collections.<RelationshipDescription>singleton(new GeneralRelationshipDescription(getType(), getDirection(), getProperties().generateOneMoreGeneral().iterator().next().getProperties()));
     }
 
     /**
@@ -95,7 +95,7 @@ public class LiteralRelationshipDescription extends BaseRelationshipDescription 
     public Set<RelationshipDescription> generateAllMoreGeneral() {
         Set<RelationshipDescription> result = new TreeSet<>();
         result.add(this);
-        result.addAll(new GeneralRelationshipDescription(this).generateAllMoreGeneral());
+        result.addAll(new GeneralRelationshipDescription(getType(), getDirection(), getProperties().generateOneMoreGeneral().iterator().next().getProperties()).generateAllMoreGeneral());
         return result;
     }
 

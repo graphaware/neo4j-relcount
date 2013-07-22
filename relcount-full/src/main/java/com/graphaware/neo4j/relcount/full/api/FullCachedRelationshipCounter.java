@@ -120,12 +120,28 @@ public class FullCachedRelationshipCounter extends BaseFullRelationshipCounter i
      */
     @Override
     public int count(Node node) {
-        return new FullCachedRelationshipCountReader(id, config).getRelationshipCount(new GeneralRelationshipDescription(this), node);
+        FullCachedRelationshipCountReader countReader = new FullCachedRelationshipCountReader(id, config);
+
+        if (Direction.BOTH.equals(getDirection())) {
+            int outgoingResult = countReader.getRelationshipCount(new GeneralRelationshipDescription(this.getType(), Direction.OUTGOING, this.getProperties().getProperties()), node);
+            int incomingResult = countReader.getRelationshipCount(new GeneralRelationshipDescription(this.getType(), Direction.INCOMING, this.getProperties().getProperties()), node);
+            return incomingResult + outgoingResult;
+        }
+
+        return countReader.getRelationshipCount(new GeneralRelationshipDescription(this), node);
     }
 
     @Override
     public int countLiterally(Node node) {
-        return new FullCachedRelationshipCountReader(id, config).getRelationshipCount(new LiteralRelationshipDescription(this), node);
+        FullCachedRelationshipCountReader countReader = new FullCachedRelationshipCountReader(id, config);
+
+        if (Direction.BOTH.equals(getDirection())) {
+            int outgoingResult = countReader.getRelationshipCount(new LiteralRelationshipDescription(this.getType(), Direction.OUTGOING, this.getProperties().getProperties()), node);
+            int incomingResult = countReader.getRelationshipCount(new LiteralRelationshipDescription(this.getType(), Direction.INCOMING, this.getProperties().getProperties()), node);
+            return incomingResult + outgoingResult;
+        }
+
+        return countReader.getRelationshipCount(new LiteralRelationshipDescription(this), node);
     }
 
     /**

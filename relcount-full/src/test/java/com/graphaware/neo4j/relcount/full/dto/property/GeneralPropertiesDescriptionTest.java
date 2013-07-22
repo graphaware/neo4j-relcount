@@ -34,7 +34,7 @@ public class GeneralPropertiesDescriptionTest {
         assertTrue(gen("key1#value1#key2#value2").isMoreGeneralThan(gen("key1#value1#key2#value2")));
         assertTrue(gen("key1#value1#key2#value2").isMoreGeneralThan(lit("key1#value1#key2#value2")));
         assertFalse(gen("key1#value1#key2#value2").isStrictlyMoreGeneralThan(gen("key1#value1#key2#value2")));
-        assertFalse(gen("key1#value1#key2#value2").isStrictlyMoreGeneralThan(lit("key1#value1#key2#value2")));
+        assertTrue(gen("key1#value1#key2#value2").isStrictlyMoreGeneralThan(lit("key1#value1#key2#value2")));
 
         assertTrue(gen("key1#value1").isMoreGeneralThan(gen("key1#value1#key2#value2")));
         assertTrue(gen("key1#value1").isMoreGeneralThan(lit("key1#value1#key2#value2")));
@@ -49,7 +49,7 @@ public class GeneralPropertiesDescriptionTest {
         assertTrue(gen("").isMoreGeneralThan(gen("")));
         assertTrue(gen("").isMoreGeneralThan(lit("")));
         assertFalse(gen("").isStrictlyMoreGeneralThan(gen("")));
-        assertFalse(gen("").isStrictlyMoreGeneralThan(lit("")));
+        assertTrue(gen("").isStrictlyMoreGeneralThan(lit("")));
 
         assertFalse(gen("key1#value1#key2#value3").isMoreGeneralThan(gen("key1#value1#key2#value2")));
         assertFalse(gen("key1#value1#key2#value3").isMoreGeneralThan(lit("key1#value1#key2#value2")));
@@ -95,7 +95,7 @@ public class GeneralPropertiesDescriptionTest {
         assertFalse(gen("key1#value1#key2#value2").isStrictlyMoreSpecificThan(lit("")));
 
         assertTrue(gen("").isMoreSpecificThan(gen("")));
-        assertTrue(gen("").isMoreSpecificThan(lit("")));
+        assertFalse(gen("").isMoreSpecificThan(lit("")));
         assertFalse(gen("").isStrictlyMoreSpecificThan(gen("")));
         assertFalse(gen("").isStrictlyMoreSpecificThan(lit("")));
 

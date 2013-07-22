@@ -23,6 +23,7 @@ import com.graphaware.neo4j.relcount.common.logic.RelationshipCountReader;
 import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.dto.relationship.RelationshipDescription;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 
 import java.util.Map;
@@ -43,6 +44,22 @@ public class FullCachedRelationshipCountReader extends CachedRelationshipCountRe
      */
     public FullCachedRelationshipCountReader(String id, FrameworkConfiguration config) {
         super(id, config);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalArgumentException in case the description's direction is {@link Direction#BOTH}. This is not allowed
+     *                                  as it interferes with the ability to predict, whether compaction caused the result of this method to be inaccurate.
+     *                                  Please call this method 2x, once with {@link Direction#OUTGOING} and once with {@link Direction#INCOMING} and add
+     *                                  up the results.
+     */
+    @Override
+    public int getRelationshipCount(RelationshipDescription description, Node node) {
+        if (Direction.BOTH.equals(description.getDirection())) {
+            throw new IllegalArgumentException("Direction can't be BOTH for Full Cached Relationship Count Reader");
+        }
+        return super.getRelationshipCount(description, node);
     }
 
     /**
@@ -82,12 +99,19 @@ public class FullCachedRelationshipCountReader extends CachedRelationshipCountRe
     protected void handleZeroResult(RelationshipDescription description, Node node) {
         for (Map.Entry<RelationshipDescription, Integer> candidateWithCount : getCandidates(description, node).entrySet()) {
             RelationshipDescription candidate = candidateWithCount.getKey();
-            if (candidate.isMoreGeneralThan(description)) {
-                throw new UnableToCountException("Unable to count relationships with the following description: "
-                        + description.toString(FrameworkConfiguration.DEFAULT_SEPARATOR)
-                        + " for node " + node.toString() + ". Since there are cached matches more general than your description," +
-                        " it looks like compaction has taken away the granularity you need. Please try to count this kind " +
-                        "of relationship with a naive counter. Alternatively, increase the compaction threshold.");
+
+            if (candidate instanceof LiteralRelationshipDescription) {
+                continue;
+            }
+
+            for (RelationshipDescription candidateGeneralization : candidate.generateAllMoreGeneral()) {
+                if (candidateGeneralization.isMoreGeneralThan(description)) {
+                    throw new UnableToCountException("Unable to count relationships with the following description: "
+                            + description.toString(FrameworkConfiguration.DEFAULT_SEPARATOR)
+                            + " for node " + node.toString() + ". Since there are potentially compacted out cached matches," +
+                            " it looks like compaction has taken away the granularity you need. Please try to count this kind " +
+                            "of relationship with a naive counter. Alternatively, increase the compaction threshold.");
+                }
             }
         }
     }

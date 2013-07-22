@@ -81,7 +81,7 @@ public class LiteralPropertiesDescriptionPropertiesTest {
     public void shouldCorrectlyJudgeMoreSpecific() {
         assertTrue(lit("key1#value1#key2#value2").isMoreSpecificThan(gen("key1#value1#key2#value2")));
         assertTrue(lit("key1#value1#key2#value2").isMoreSpecificThan(lit("key1#value1#key2#value2")));
-        assertFalse(lit("key1#value1#key2#value2").isStrictlyMoreSpecificThan(gen("key1#value1#key2#value2")));
+        assertTrue(lit("key1#value1#key2#value2").isStrictlyMoreSpecificThan(gen("key1#value1#key2#value2")));
         assertFalse(lit("key1#value1#key2#value2").isStrictlyMoreSpecificThan(lit("key1#value1#key2#value2")));
 
         assertTrue(lit("key1#value1#key2#value2").isMoreSpecificThan(gen("key1#value1")));
@@ -96,7 +96,7 @@ public class LiteralPropertiesDescriptionPropertiesTest {
 
         assertTrue(lit("").isMoreSpecificThan(gen("")));
         assertTrue(lit("").isMoreSpecificThan(lit("")));
-        assertFalse(lit("").isStrictlyMoreSpecificThan(gen("")));
+        assertTrue(lit("").isStrictlyMoreSpecificThan(gen("")));
         assertFalse(lit("").isStrictlyMoreSpecificThan(lit("")));
 
         assertFalse(lit("key1#value1#key2#value3").isMoreSpecificThan(gen("key1#value1#key2#value2")));
