@@ -7,6 +7,8 @@ import org.neo4j.graphdb.Relationship;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.neo4j.graphdb.Direction.BOTH;
+
 /**
  * Abstract base-class for naive {@link RelationshipCountReader} implementations that count matching relationships by
  * iterating through all {@link org.neo4j.graphdb.Node}'s {@link org.neo4j.graphdb.Relationship}s.
@@ -30,7 +32,12 @@ public abstract class NaiveRelationshipCountReader<DESCRIPTION extends HasTypeAn
             if (!result.containsKey(candidate)) {
                 result.put(candidate, 0);
             }
-            result.put(candidate, result.get(candidate) + 1);
+            result.put(candidate, result.get(candidate) + relationshipWeight(candidateRelationship, node));
+
+            //double count self-relationships if looking for BOTH
+            if (BOTH.equals(description.getDirection()) && BOTH.equals(candidate.getDirection())) {
+                result.put(candidate, result.get(candidate) + relationshipWeight(candidateRelationship, node));
+            }
         }
 
         return result;
@@ -44,6 +51,15 @@ public abstract class NaiveRelationshipCountReader<DESCRIPTION extends HasTypeAn
      * @return representation of the candidate relationship.
      */
     protected abstract DESCRIPTION newCandidate(Relationship relationship, Node pointOfView);
+
+    /**
+     * Get a relationship's weight.
+     *
+     * @param relationship to find weight for.
+     * @param pointOfView  node whose point of view we are currently looking at the relationship.
+     * @return the relationship weight. Should be positive.
+     */
+    protected abstract int relationshipWeight(Relationship relationship, Node pointOfView);
 
     /**
      * {@inheritDoc}

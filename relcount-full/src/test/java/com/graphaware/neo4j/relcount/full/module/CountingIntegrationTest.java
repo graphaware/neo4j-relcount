@@ -38,7 +38,6 @@ import org.neo4j.test.TestGraphDatabaseFactory;
 import java.util.Iterator;
 import java.util.Map;
 
-import static com.graphaware.neo4j.framework.config.FrameworkConfiguration.GA_PREFIX;
 import static com.graphaware.neo4j.relcount.full.Constants.FULL_RELCOUNT_DEFAULT_ID;
 import static org.junit.Assert.*;
 
@@ -402,9 +401,9 @@ public class CountingIntegrationTest {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
                 Node root = database.getNodeById(0);
-                root.setProperty(lit("test#OUTGOING#key1#value1").toString(), 2);
-                root.setProperty(lit("test#OUTGOING#key1#value2").toString(), 3);
-                root.setProperty(lit("test#OUTGOING#key2#value2").toString(), 4);
+                root.setProperty(lit("test#OUTGOING#key1#value1").toString(prefix(), "#"), 2);
+                root.setProperty(lit("test#OUTGOING#key1#value2").toString(prefix(), "#"), 3);
+                root.setProperty(lit("test#OUTGOING#key2#value2").toString(prefix(), "#"), 4);
                 return null;
             }
         });
@@ -415,25 +414,29 @@ public class CountingIntegrationTest {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
                 Node root = database.getNodeById(0);
-                root.setProperty(gen("test#OUTGOING#key1#value1#key2#value2").toString(), 3);
-                root.setProperty(gen("test#OUTGOING#key1#value1#key2#value3").toString(), 5);
-                root.setProperty(gen("test#OUTGOING#key1#value1").toString(), 7);
-                root.setProperty(gen("test#OUTGOING#key1#value2").toString(), 11);
-                root.setProperty(gen("test#OUTGOING").toString(), 13);
+                root.setProperty(gen("test#OUTGOING#key1#value1#key2#value2").toString(prefix(), "#"), 3);
+                root.setProperty(gen("test#OUTGOING#key1#value1#key2#value3").toString(prefix(), "#"), 5);
+                root.setProperty(gen("test#OUTGOING#key1#value1").toString(prefix(), "#"), 7);
+                root.setProperty(gen("test#OUTGOING#key1#value2").toString(prefix(), "#"), 11);
+                root.setProperty(gen("test#OUTGOING").toString(prefix(), "#"), 13);
                 return null;
             }
         });
+    }
+
+    private String prefix() {
+        return DefaultFrameworkConfiguration.getInstance().createPrefix(Constants.FULL_RELCOUNT_DEFAULT_ID);
     }
 
     /**
      * just for readability
      */
     private RelationshipDescription gen(String s) {
-        return new GeneralRelationshipDescription(s, GA_PREFIX + Constants.FULL_RELCOUNT_DEFAULT_ID, "#");
+        return new GeneralRelationshipDescription(s, null, "#");
     }
 
     private RelationshipDescription lit(String s) {
-        return new LiteralRelationshipDescription(s, GA_PREFIX + Constants.FULL_RELCOUNT_DEFAULT_ID, "#");
+        return new LiteralRelationshipDescription(s, null, "#");
     }
 
 }

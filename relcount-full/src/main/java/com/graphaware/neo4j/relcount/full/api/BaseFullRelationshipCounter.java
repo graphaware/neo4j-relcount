@@ -17,7 +17,6 @@
 package com.graphaware.neo4j.relcount.full.api;
 
 import com.graphaware.neo4j.dto.common.relationship.BaseDirectedRelationship;
-import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializablePropertiesImpl;
 import org.neo4j.graphdb.Direction;
@@ -49,15 +48,6 @@ public abstract class BaseFullRelationshipCounter extends BaseDirectedRelationsh
      */
     protected BaseFullRelationshipCounter(RelationshipType type, Direction direction, CopyMakingSerializableProperties properties) {
         super(type, direction, properties);
-    }
-
-    /**
-     * Construct a relationship representation from another one.
-     *
-     * @param relationship relationships representation.
-     */
-    protected BaseFullRelationshipCounter(HasTypeDirectionAndProperties<String, ?> relationship) {
-        super(relationship);
     }
 
     /**

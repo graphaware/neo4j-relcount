@@ -31,7 +31,7 @@ public class LiteralPropertiesDescriptionPropertiesTest {
 
     @Test
     public void shouldCorrectlyJudgeMoreGeneral() {
-        assertTrue(lit("key1#value1#key2#value2").isMoreGeneralThan(gen("key1#value1#key2#value2")));
+        assertFalse(lit("key1#value1#key2#value2").isMoreGeneralThan(gen("key1#value1#key2#value2")));
         assertTrue(lit("key1#value1#key2#value2").isMoreGeneralThan(lit("key1#value1#key2#value2")));
         assertFalse(lit("key1#value1#key2#value2").isStrictlyMoreGeneralThan(gen("key1#value1#key2#value2")));
         assertFalse(lit("key1#value1#key2#value2").isStrictlyMoreGeneralThan(lit("key1#value1#key2#value2")));
@@ -46,7 +46,7 @@ public class LiteralPropertiesDescriptionPropertiesTest {
         assertFalse(lit("").isStrictlyMoreGeneralThan(gen("key1#value1#key2#value2")));
         assertFalse(lit("").isStrictlyMoreGeneralThan(lit("key1#value1#key2#value2")));
 
-        assertTrue(lit("").isMoreGeneralThan(gen("")));
+        assertFalse(lit("").isMoreGeneralThan(gen("")));
         assertTrue(lit("").isMoreGeneralThan(lit("")));
         assertFalse(lit("").isStrictlyMoreGeneralThan(gen("")));
         assertFalse(lit("").isStrictlyMoreGeneralThan(lit("")));

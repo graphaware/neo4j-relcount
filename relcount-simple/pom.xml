@@ -36,6 +36,12 @@
             <artifactId>relcount-common</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.graphaware</groupId>
+            <artifactId>relcount-common</artifactId>
+            <classifier>tests</classifier>
+        </dependency>
+
         <!-- GraphAware -->
         <dependency>
             <groupId>com.graphaware</groupId>

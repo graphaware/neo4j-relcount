@@ -75,10 +75,10 @@ public class FullNaiveRelationshipCounter extends BaseFullRelationshipCounter im
     @Override
     public int count(Node node) {
         if (getProperties().isEmpty() && relationshipCountStrategies.getRelationshipPropertiesExtractionStrategy().equals(ExtractAllRelationshipProperties.getInstance())) {
-            return new FullNaiveRelationshipCountReader(ExtractNoRelationshipProperties.getInstance()).getRelationshipCount(new GeneralRelationshipDescription(this), node);
+            return new FullNaiveRelationshipCountReader(ExtractNoRelationshipProperties.getInstance(), relationshipCountStrategies.getRelationshipWeighingStrategy()).getRelationshipCount(new GeneralRelationshipDescription(this), node);
         }
 
-        return new FullNaiveRelationshipCountReader(relationshipCountStrategies.getRelationshipPropertiesExtractionStrategy()).getRelationshipCount(new GeneralRelationshipDescription(this), node);
+        return new FullNaiveRelationshipCountReader(relationshipCountStrategies.getRelationshipPropertiesExtractionStrategy(), relationshipCountStrategies.getRelationshipWeighingStrategy()).getRelationshipCount(new GeneralRelationshipDescription(this), node);
     }
 
     /**
@@ -86,7 +86,7 @@ public class FullNaiveRelationshipCounter extends BaseFullRelationshipCounter im
      */
     @Override
     public int countLiterally(Node node) {
-        return new FullNaiveRelationshipCountReader(relationshipCountStrategies.getRelationshipPropertiesExtractionStrategy()).getRelationshipCount(new LiteralRelationshipDescription(this), node);
+        return new FullNaiveRelationshipCountReader(relationshipCountStrategies.getRelationshipPropertiesExtractionStrategy(), relationshipCountStrategies.getRelationshipWeighingStrategy()).getRelationshipCount(new LiteralRelationshipDescription(this), node);
     }
 
     /**

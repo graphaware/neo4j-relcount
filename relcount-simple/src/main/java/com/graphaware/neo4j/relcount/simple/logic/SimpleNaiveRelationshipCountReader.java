@@ -56,4 +56,12 @@ public class SimpleNaiveRelationshipCountReader extends NaiveRelationshipCountRe
     protected TypeAndDirectionDescription newCandidate(Relationship relationship, Node pointOfView) {
         return new TypeAndDirectionDescriptionImpl(relationship, pointOfView);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected int relationshipWeight(Relationship relationship, Node pointOfView) {
+        return 1;  //this is a simple counter, each relationship counts for one
+    }
 }

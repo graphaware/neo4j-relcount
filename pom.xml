@@ -125,6 +125,14 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.graphaware</groupId>
+                <artifactId>relcount-common</artifactId>
+                <version>${project.version}</version>
+                <classifier>tests</classifier>
+                <scope>test</scope>
+            </dependency>
+
             <!-- GraphAware -->
             <dependency>
                 <groupId>com.graphaware</groupId>

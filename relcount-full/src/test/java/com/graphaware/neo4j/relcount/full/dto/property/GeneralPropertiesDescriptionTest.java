@@ -80,7 +80,7 @@ public class GeneralPropertiesDescriptionTest {
     @Test
     public void shouldCorrectlyJudgeMoreSpecific() {
         assertTrue(gen("key1#value1#key2#value2").isMoreSpecificThan(gen("key1#value1#key2#value2")));
-        assertTrue(gen("key1#value1#key2#value2").isMoreSpecificThan(lit("key1#value1#key2#value2")));
+        assertFalse(gen("key1#value1#key2#value2").isMoreSpecificThan(lit("key1#value1#key2#value2")));
         assertFalse(gen("key1#value1#key2#value2").isStrictlyMoreSpecificThan(gen("key1#value1#key2#value2")));
         assertFalse(gen("key1#value1#key2#value2").isStrictlyMoreSpecificThan(lit("key1#value1#key2#value2")));
 

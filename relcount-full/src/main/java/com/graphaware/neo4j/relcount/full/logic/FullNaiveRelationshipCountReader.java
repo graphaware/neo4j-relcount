@@ -20,7 +20,9 @@ import com.graphaware.neo4j.relcount.common.logic.NaiveRelationshipCountReader;
 import com.graphaware.neo4j.relcount.common.logic.RelationshipCountReader;
 import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.dto.relationship.RelationshipDescription;
+import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategiesImpl;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipPropertiesExtractionStrategy;
+import com.graphaware.neo4j.relcount.full.strategy.RelationshipWeighingStrategy;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -33,9 +35,42 @@ import java.util.Map;
 public class FullNaiveRelationshipCountReader extends NaiveRelationshipCountReader<RelationshipDescription> implements RelationshipCountReader<RelationshipDescription> {
 
     private final RelationshipPropertiesExtractionStrategy extractionStrategy;
+    private final RelationshipWeighingStrategy weighingStrategy;
 
+    /**
+     * Construct a new counter with default strategies for extracting properties and weighing relationships.
+     */
+    public FullNaiveRelationshipCountReader() {
+        this(RelationshipCountStrategiesImpl.defaultStrategies().getRelationshipPropertiesExtractionStrategy());
+    }
+
+    /**
+     * Construct a new counter with default properties extraction strategy.
+     *
+     * @param weighingStrategy strategy for weighing each relationship.
+     */
+    public FullNaiveRelationshipCountReader(RelationshipWeighingStrategy weighingStrategy) {
+        this(RelationshipCountStrategiesImpl.defaultStrategies().getRelationshipPropertiesExtractionStrategy(), weighingStrategy);
+    }
+
+    /**
+     * Construct a new counter with default relationship weighing strategy.
+     *
+     * @param extractionStrategy strategy for extracting properties from relationships.
+     */
     public FullNaiveRelationshipCountReader(RelationshipPropertiesExtractionStrategy extractionStrategy) {
+        this(extractionStrategy, RelationshipCountStrategiesImpl.defaultStrategies().getRelationshipWeighingStrategy());
+    }
+
+    /**
+     * Construct a new counter.
+     *
+     * @param extractionStrategy strategy for extracting properties from relationships.
+     * @param weighingStrategy   strategy for weighing each relationship.
+     */
+    public FullNaiveRelationshipCountReader(RelationshipPropertiesExtractionStrategy extractionStrategy, RelationshipWeighingStrategy weighingStrategy) {
         this.extractionStrategy = extractionStrategy;
+        this.weighingStrategy = weighingStrategy;
     }
 
     /**
@@ -61,5 +96,13 @@ public class FullNaiveRelationshipCountReader extends NaiveRelationshipCountRead
     protected RelationshipDescription newCandidate(Relationship relationship, Node pointOfView) {
         Map<String, String> extractedProperties = extractionStrategy.extractProperties(relationship, pointOfView);
         return new LiteralRelationshipDescription(relationship, pointOfView, extractedProperties);   //direction can resolve to both, but that's ok for non-cached relationships
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected int relationshipWeight(Relationship relationship, Node pointOfView) {
+        return weighingStrategy.getRelationshipWeight(relationship, pointOfView);
     }
 }

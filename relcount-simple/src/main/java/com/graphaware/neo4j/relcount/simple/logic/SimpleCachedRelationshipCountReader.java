@@ -58,7 +58,7 @@ public class SimpleCachedRelationshipCountReader extends CachedRelationshipCount
      */
     @Override
     protected boolean continueAfterFirstLookupMatch() {
-        return false; //there can only be one cached value per type-direction combination => first match is all we need
+        return true; //there can only be one cached value per type-direction combination, but if the user asks for BOTH direction, there could be 2
     }
 
     /**
