@@ -173,6 +173,61 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
     }
 
     @Test
+    public void weightedRelationships3() {
+        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        final FullRelationshipCountModule module = new FullRelationshipCountModule(
+                RelationshipCountStrategiesImpl.defaultStrategies()
+                        .with(new RelationshipWeighingStrategy() {
+                            @Override
+                            public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
+                                return (int) relationship.getProperty(WEIGHT, 1);
+                            }
+                        }));
+
+        framework.registerModule(module);
+        framework.start();
+
+        setUpTwoNodes();
+        simulateUsage();
+        simulateUsage();
+        simulateUsage();
+
+        verifyWeightedCounts(3, naiveCounterCreator(module));
+        verifyWeightedCounts(3, cachedCounterCreator(module));
+    }
+
+    @Test
+    public void weightedRelationships10() {
+        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        final FullRelationshipCountModule module = new FullRelationshipCountModule(
+                RelationshipCountStrategiesImpl.defaultStrategies()
+                        .with(new RelationshipWeighingStrategy() {
+                            @Override
+                            public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
+                                return (int) relationship.getProperty(WEIGHT, 1);
+                            }
+                        }));
+
+        framework.registerModule(module);
+        framework.start();
+
+        setUpTwoNodes();
+        simulateUsage();
+        simulateUsage();
+        simulateUsage();
+        simulateUsage();
+        simulateUsage();
+        simulateUsage();
+        simulateUsage();
+        simulateUsage();
+        simulateUsage();
+        simulateUsage();
+
+        verifyWeightedCounts(10, naiveCounterCreator(module));
+        verifyWeightedCounts(10, cachedCounterCreator(module));
+    }
+
+    @Test
     public void fallbackWithCompaction() {
         GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
         final FullRelationshipCountModule module = new FullRelationshipCountModule(
@@ -187,15 +242,73 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         verifyCounts(1, fallbackCounterCreator(module));
     }
 
+    @Test
+    public void fallbackWithCompaction2() {
+        GraphAwareFramework framework = new GraphAwareFramework(database);
+        final FullRelationshipCountModule module = new FullRelationshipCountModule(
+                RelationshipCountStrategiesImpl.defaultStrategies().with(3)
+        );
+        framework.registerModule(module);
+        framework.start();
+
+        setUpTwoNodes();
+        simulateUsage();
+        simulateUsage();
+
+        verifyCounts(2, fallbackCounterCreator(module));
+    }
+
+    @Test
+    public void fallbackWithCompaction3() {
+        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        final FullRelationshipCountModule module = new FullRelationshipCountModule(
+                RelationshipCountStrategiesImpl.defaultStrategies().with(8)
+        );
+        framework.registerModule(module);
+        framework.start();
+
+        setUpTwoNodes();
+        simulateUsage();
+        simulateUsage();
+        simulateUsage();
+
+        verifyCounts(3, fallbackCounterCreator(module));
+    }
+
+    @Test
+    public void fallbackWithCompactionAndWeighting() {
+        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        final FullRelationshipCountModule module = new FullRelationshipCountModule(
+                RelationshipCountStrategiesImpl.defaultStrategies()
+                        .with(new RelationshipWeighingStrategy() {
+                            @Override
+                            public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
+                                return (int) relationship.getProperty(WEIGHT, 1);
+                            }
+                        })
+                        .with(10));
+
+        framework.registerModule(module);
+        framework.start();
+
+        setUpTwoNodes();
+        simulateUsage();
+        simulateUsage();
+        simulateUsage();
+        simulateUsage();
+
+        verifyCounts(4, fallbackCounterCreator(module));
+    }
+
     //helpers
 
     private CounterCreator naiveCounterCreator(final FullRelationshipCountModule module) {
         return new CounterCreator() {
-                @Override
-                public FullRelationshipCounter createCounter(RelationshipType type, Direction direction) {
-                    return module.naiveCounter(type, direction);
-                }
-            };
+            @Override
+            public FullRelationshipCounter createCounter(RelationshipType type, Direction direction) {
+                return module.naiveCounter(type, direction);
+            }
+        };
     }
 
     private CounterCreator cachedCounterCreator(final FullRelationshipCountModule module) {
