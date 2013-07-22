@@ -20,6 +20,8 @@ import java.util.Set;
 
 /**
  * Interface for types that are able to generate more general versions of themselves.
+ *
+ * @param <T> type of generated more general objects.
  */
 public interface Generalizing<T extends PartiallyComparable> {
 
