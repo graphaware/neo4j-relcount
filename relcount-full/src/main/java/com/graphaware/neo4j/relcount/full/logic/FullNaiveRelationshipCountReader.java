@@ -86,14 +86,6 @@ public class FullNaiveRelationshipCountReader extends NaiveRelationshipCountRead
      * {@inheritDoc}
      */
     @Override
-    protected boolean continueAfterFirstLookupMatch() {
-        return true; //it is naive => need to traverse all relationship to find all matches.
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected CompactibleRelationship newCandidate(Relationship relationship, Node pointOfView) {
         Map<String, String> extractedProperties = extractionStrategy.extractProperties(relationship, pointOfView);
         return new CompactibleRelationshipImpl(relationship, pointOfView, extractedProperties);   //direction can resolve to both, but that's ok for non-cached relationships

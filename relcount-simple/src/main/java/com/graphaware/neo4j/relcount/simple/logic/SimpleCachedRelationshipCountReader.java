@@ -53,14 +53,6 @@ public class SimpleCachedRelationshipCountReader extends CachedRelationshipCount
      * {@inheritDoc}
      */
     @Override
-    protected boolean continueAfterFirstLookupMatch() {
-        return true; //there can only be one cached value per type-direction combination, but if the user asks for BOTH direction, there could be 2
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected TypeAndDirectionDescription newCachedRelationship(String string, String prefix, String separator) {
         return new TypeAndDirectionDescriptionImpl(string, prefix, separator);
     }

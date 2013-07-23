@@ -44,9 +44,6 @@ public abstract class BaseRelationshipCountReader<CANDIDATE extends HasTypeAndDi
             CANDIDATE candidate = candidateWithCount.getKey();
             if (candidateMatchesDescription(candidate, description)) {
                 result += candidateWithCount.getValue();
-                if (!continueAfterFirstLookupMatch()) {
-                    return result;
-                }
             }
         }
 
@@ -71,11 +68,4 @@ public abstract class BaseRelationshipCountReader<CANDIDATE extends HasTypeAndDi
      * @return true iff the candidate matches the description and should thus be taken into account.
      */
     protected abstract boolean candidateMatchesDescription(CANDIDATE candidate, DESCRIPTION description);
-
-    /**
-     * When counting relationships, should the search through candidates continue after the candidate has been found?
-     *
-     * @return true to continue, false to return the first candidate's count.
-     */
-    protected abstract boolean continueAfterFirstLookupMatch();
 }

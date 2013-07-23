@@ -58,14 +58,6 @@ public class FullCachedRelationshipCountReader extends CachedRelationshipCountRe
      * {@inheritDoc}
      */
     @Override
-    protected boolean continueAfterFirstLookupMatch() {
-        return true; //need to continue, there might be other more general matches
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected CompactibleRelationship newCachedRelationship(String string, String prefix, String separator) {
         return new CompactibleRelationshipImpl(string, prefix, separator);
     }

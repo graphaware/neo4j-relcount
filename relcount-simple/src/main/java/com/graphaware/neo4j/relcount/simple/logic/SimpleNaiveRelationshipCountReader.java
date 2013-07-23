@@ -45,14 +45,6 @@ public class SimpleNaiveRelationshipCountReader extends NaiveRelationshipCountRe
      * {@inheritDoc}
      */
     @Override
-    protected boolean continueAfterFirstLookupMatch() {
-        return true; //it is naive => need to traverse all relationship to find all matches.
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected TypeAndDirectionDescription newCandidate(Relationship relationship, Node pointOfView) {
         return new TypeAndDirectionDescriptionImpl(relationship, pointOfView);
     }
