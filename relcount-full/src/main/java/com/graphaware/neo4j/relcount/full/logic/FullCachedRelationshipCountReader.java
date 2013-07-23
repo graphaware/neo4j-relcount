@@ -23,8 +23,6 @@ import com.graphaware.neo4j.relcount.common.logic.RelationshipCountReader;
 import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationship;
 import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationshipImpl;
 import com.graphaware.neo4j.relcount.full.dto.relationship.RelationshipDescription;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
 
 /**
  * Full {@link CachedRelationshipCountReader}.  It is "full" in the sense that it cares about
@@ -40,22 +38,6 @@ public class FullCachedRelationshipCountReader extends CachedRelationshipCountRe
      */
     public FullCachedRelationshipCountReader(String id, FrameworkConfiguration config) {
         super(id, config);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @throws IllegalArgumentException in case the description's direction is {@link Direction#BOTH}. This is not allowed
-     *                                  as it interferes with the ability to predict, whether compaction caused the result of this method to be inaccurate.
-     *                                  Please call this method 2x, once with {@link Direction#OUTGOING} and once with {@link Direction#INCOMING} and add
-     *                                  up the results.
-     */
-    @Override
-    public int getRelationshipCount(RelationshipDescription description, Node node) {
-        if (Direction.BOTH.equals(description.getDirection())) {
-            throw new IllegalArgumentException("Direction can't be BOTH for Full Cached Relationship Count Reader");
-        }
-        return super.getRelationshipCount(description, node);
     }
 
     /**
