@@ -19,9 +19,7 @@ package com.graphaware.neo4j.relcount.full.module;
 import com.graphaware.neo4j.framework.GraphAwareFramework;
 import com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration;
 import com.graphaware.neo4j.relcount.full.Constants;
-import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
-import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
-import com.graphaware.neo4j.relcount.full.dto.relationship.RelationshipDescription;
+import com.graphaware.neo4j.relcount.full.dto.relationship.*;
 import com.graphaware.neo4j.relcount.full.logic.FullCachedRelationshipCountReader;
 import com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountCache;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategiesImpl;
@@ -118,12 +116,12 @@ public class CountingIntegrationTest {
 
         final Node root = database.getNodeById(0);
 
-        Map<RelationshipDescription, Integer> relationshipCounts = cache.getRelationshipCounts(root);
-        Iterator<Map.Entry<RelationshipDescription, Integer>> iterator = relationshipCounts.entrySet().iterator();
+        Map<CompactibleRelationship, Integer> relationshipCounts = cache.getRelationshipCounts(root);
+        Iterator<Map.Entry<CompactibleRelationship, Integer>> iterator = relationshipCounts.entrySet().iterator();
 
         //also testing order
 
-        Map.Entry<RelationshipDescription, Integer> next = iterator.next();
+        Map.Entry<CompactibleRelationship, Integer> next = iterator.next();
         assertEquals(gen("test#OUTGOING#key1#value1#key2#value2"), next.getKey());
         assertEquals(3, (int) next.getValue());
 
@@ -155,7 +153,7 @@ public class CountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertTrue(cache.incrementCount(gen("test#OUTGOING#key1#value3"), root, 1));
+                assertTrue(cache.incrementCount(comp("test#OUTGOING#key1#value3"), root, 1));
                 return null;
             }
         });
@@ -172,7 +170,7 @@ public class CountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertTrue(cache.incrementCount(gen("test#OUTGOING#key1#value3"), root, 5));
+                assertTrue(cache.incrementCount(comp("test#OUTGOING#key1#value3"), root, 5));
                 return null;
             }
         });
@@ -189,7 +187,7 @@ public class CountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertFalse(cache.incrementCount(gen("test#OUTGOING#key1#value2"), root, 1));
+                assertFalse(cache.incrementCount(comp("test#OUTGOING#key1#value2"), root, 1));
                 return null;
             }
         });
@@ -206,7 +204,7 @@ public class CountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertFalse(cache.incrementCount(gen("test#OUTGOING#key1#value1"), root, 5));
+                assertFalse(cache.incrementCount(comp("test#OUTGOING#key1#value1"), root, 5));
                 return null;
             }
         });
@@ -223,7 +221,7 @@ public class CountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertFalse(cache.incrementCount(gen("test#OUTGOING#key1#value1"), root, 5));
+                assertFalse(cache.incrementCount(comp("test#OUTGOING#key1#value1"), root, 5));
                 return null;
             }
         });
@@ -241,7 +239,7 @@ public class CountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertFalse(cache.decrementCount(gen("test#OUTGOING#key1#value3"), root, 1));
+                assertFalse(cache.decrementCount(comp("test#OUTGOING#key1#value3"), root, 1));
                 return null;
             }
         });
@@ -260,7 +258,7 @@ public class CountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertFalse(cache.decrementCount(gen("test#OUTGOING#key1#value3"), root, 2));
+                assertFalse(cache.decrementCount(comp("test#OUTGOING#key1#value3"), root, 2));
                 return null;
             }
         });
@@ -279,7 +277,7 @@ public class CountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertTrue(cache.decrementCount(gen("test#OUTGOING#key1#value2"), root, 1));
+                assertTrue(cache.decrementCount(comp("test#OUTGOING#key1#value2"), root, 1));
                 return null;
             }
         });
@@ -296,7 +294,7 @@ public class CountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertTrue(cache.decrementCount(gen("test#OUTGOING#key2#value2"), root, 2));
+                assertTrue(cache.decrementCount(comp("test#OUTGOING#key2#value2"), root, 2));
                 return null;
             }
         });
@@ -313,7 +311,7 @@ public class CountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertTrue(cache.decrementCount(gen("test#OUTGOING#key1#value1"), root, 5));
+                assertTrue(cache.decrementCount(comp("test#OUTGOING#key1#value1"), root, 5));
                 return null;
             }
         });
@@ -331,7 +329,7 @@ public class CountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertFalse(cache.decrementCount(gen("test#OUTGOING#key1#value1"), root, 8));
+                assertFalse(cache.decrementCount(comp("test#OUTGOING#key1#value1"), root, 8));
                 return null;
             }
         });
@@ -350,7 +348,7 @@ public class CountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                assertTrue(cache.decrementCount(gen("test#OUTGOING#key1#value1"), root, 7));
+                assertTrue(cache.decrementCount(comp("test#OUTGOING#key1#value1"), root, 7));
                 return null;
             }
         });
@@ -369,7 +367,7 @@ public class CountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                cache.deleteCount(gen("test#OUTGOING"), root);
+                cache.deleteCount(comp("test#OUTGOING"), root);
                 return null;
             }
         });
@@ -384,7 +382,7 @@ public class CountingIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                cache.deleteCount(gen("test#OUTGOING#key1#value2"), root);
+                cache.deleteCount(comp("test#OUTGOING#key1#value2"), root);
                 return null;
             }
         });
@@ -428,11 +426,12 @@ public class CountingIntegrationTest {
         return DefaultFrameworkConfiguration.getInstance().createPrefix(Constants.FULL_RELCOUNT_DEFAULT_ID);
     }
 
-    /**
-     * just for readability
-     */
+    private CompactibleRelationship comp(String s) {
+        return new CompactibleRelationshipImpl(s, null, "#");
+    }
+
     private RelationshipDescription gen(String s) {
-        return new GeneralRelationshipDescription(s, null, "#");
+        return new WildcardRelationshipDescription(s, null, "#");
     }
 
     private RelationshipDescription lit(String s) {

@@ -23,7 +23,7 @@ import java.util.Set;
  *
  * @param <T> type of generated more general objects.
  */
-public interface Generalizing<T extends PartiallyComparable> {
+public interface Generalizing<T extends Generalizing<T>> {
 
     /**
      * Generate items one step more general than (or as general as) this instance.

@@ -19,7 +19,7 @@ package com.graphaware.neo4j.relcount;
 import com.graphaware.neo4j.framework.GraphAwareFramework;
 import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
 import com.graphaware.neo4j.relcount.full.api.FullCachedRelationshipCounter;
-import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationshipImpl;
 import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategiesImpl;
@@ -206,7 +206,7 @@ public class FullCachedMoreGeneralRelationshipCounterIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                database.getNodeById(1).setProperty(new GeneralRelationshipDescription(withName("test"), OUTGOING, MapUtil.stringMap("key1", "value1", "_LITERAL_", "true")).toString(), 0);
+                database.getNodeById(1).setProperty(new CompactibleRelationshipImpl(withName("test"), OUTGOING, MapUtil.stringMap("key1", "value1", "_LITERAL_", "true")).toString(), 0);
                 return null;
             }
         });

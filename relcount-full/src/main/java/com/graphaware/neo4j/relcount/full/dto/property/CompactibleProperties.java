@@ -16,10 +16,20 @@
 
 package com.graphaware.neo4j.relcount.full.dto.property;
 
+import com.graphaware.neo4j.dto.common.property.ImmutableProperties;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
+import com.graphaware.neo4j.relcount.full.dto.common.Generalizing;
+import com.graphaware.neo4j.relcount.full.dto.common.MutuallyExclusive;
+import com.graphaware.neo4j.relcount.full.dto.common.PartiallyComparable;
 
 /**
- *
+ * A description of a {@link org.neo4j.graphdb.Relationship}'s properties
+ * for the purposes of counting {@link org.neo4j.graphdb.Relationship}s with those properties, caching such counts, etc.
  */
-public interface PropertiesDescription extends CopyMakingSerializableProperties<PropertiesDescription> {
+public interface CompactibleProperties extends
+        CopyMakingSerializableProperties<CompactibleProperties>,
+        PartiallyComparable<ImmutableProperties<String>>,
+        Comparable<CompactibleProperties>,
+        Generalizing<CompactibleProperties>,
+        MutuallyExclusive<ImmutableProperties<String>> {
 }

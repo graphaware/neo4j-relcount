@@ -18,9 +18,8 @@ package com.graphaware.neo4j.relcount.full.logic;
 
 import com.graphaware.neo4j.relcount.common.logic.BaseRelationshipCountCache;
 import com.graphaware.neo4j.relcount.common.logic.RelationshipCountCache;
-import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
-import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
-import com.graphaware.neo4j.relcount.full.dto.relationship.RelationshipDescription;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationshipImpl;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategies;
 import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Direction;
@@ -29,14 +28,13 @@ import org.neo4j.graphdb.Relationship;
 
 import java.util.Map;
 
-import static com.graphaware.neo4j.relcount.full.dto.property.LiteralPropertiesDescription.LITERAL;
 import static com.graphaware.neo4j.utils.DirectionUtils.resolveDirection;
 
 /**
  * A full-blown implementation of {@link com.graphaware.neo4j.relcount.common.logic.RelationshipCountCache}.  It is "full" in
  * the sense that it cares about {@link org.neo4j.graphdb.RelationshipType}s, {@link org.neo4j.graphdb.Direction}s, and properties.
  */
-public class FullRelationshipCountCache extends BaseRelationshipCountCache<RelationshipDescription> implements RelationshipCountCache {
+public class FullRelationshipCountCache extends BaseRelationshipCountCache<CompactibleRelationship> implements RelationshipCountCache {
 
     private static final Logger LOG = Logger.getLogger(FullRelationshipCountCache.class);
 
@@ -59,7 +57,7 @@ public class FullRelationshipCountCache extends BaseRelationshipCountCache<Relat
      * {@inheritDoc}
      */
     @Override
-    protected boolean cachedMatch(RelationshipDescription cached, RelationshipDescription relationship) {
+    protected boolean cachedMatch(CompactibleRelationship cached, CompactibleRelationship relationship) {
         return cached.isMoreGeneralThan(relationship);
     }
 
@@ -67,14 +65,8 @@ public class FullRelationshipCountCache extends BaseRelationshipCountCache<Relat
      * {@inheritDoc}
      */
     @Override
-    protected RelationshipDescription newCachedRelationship(String string, String prefix, String separator) {
-        RelationshipDescription result = new GeneralRelationshipDescription(string, prefix, separator);
-
-        if (result.getProperties().containsKey(LITERAL)) {
-            return new LiteralRelationshipDescription(result);
-        }
-
-        return result;
+    protected CompactibleRelationship newCachedRelationship(String string, String prefix, String separator) {
+        return new CompactibleRelationshipImpl(string, prefix, separator);
     }
 
     /**
@@ -85,7 +77,7 @@ public class FullRelationshipCountCache extends BaseRelationshipCountCache<Relat
         Map<String, String> extractedProperties = relationshipCountStrategies.getRelationshipPropertiesExtractionStrategy().extractProperties(relationship, pointOfView);
         int relationshipWeight = relationshipCountStrategies.getRelationshipWeighingStrategy().getRelationshipWeight(relationship, pointOfView);
 
-        LiteralRelationshipDescription createdRelationship = new LiteralRelationshipDescription(relationship.getType(), resolveDirection(relationship, pointOfView, defaultDirection), extractedProperties);
+        CompactibleRelationship createdRelationship = new CompactibleRelationshipImpl(relationship.getType(), resolveDirection(relationship, pointOfView, defaultDirection), extractedProperties);
 
         if (incrementCount(createdRelationship, pointOfView, relationshipWeight)) {
             relationshipCountCompactor.compactRelationshipCounts(pointOfView); //todo async
@@ -100,7 +92,7 @@ public class FullRelationshipCountCache extends BaseRelationshipCountCache<Relat
         Map<String, String> extractedProperties = relationshipCountStrategies.getRelationshipPropertiesExtractionStrategy().extractProperties(relationship, pointOfView);
         int relationshipWeight = relationshipCountStrategies.getRelationshipWeighingStrategy().getRelationshipWeight(relationship, pointOfView);
 
-        LiteralRelationshipDescription deletedRelationship = new LiteralRelationshipDescription(relationship.getType(), resolveDirection(relationship, pointOfView, defaultDirection), extractedProperties);
+        CompactibleRelationship deletedRelationship = new CompactibleRelationshipImpl(relationship.getType(), resolveDirection(relationship, pointOfView, defaultDirection), extractedProperties);
 
         if (!decrementCount(deletedRelationship, pointOfView, relationshipWeight)) {
             LOG.warn(deletedRelationship.toString() + " was out of sync on node " + pointOfView.getId());

@@ -20,21 +20,17 @@ import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
 import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
 import com.graphaware.neo4j.relcount.common.logic.CachedRelationshipCountReader;
 import com.graphaware.neo4j.relcount.common.logic.RelationshipCountReader;
-import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
-import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationshipImpl;
 import com.graphaware.neo4j.relcount.full.dto.relationship.RelationshipDescription;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
-
-import java.util.Map;
-
-import static com.graphaware.neo4j.relcount.full.dto.property.LiteralPropertiesDescription.LITERAL;
 
 /**
  * Full {@link CachedRelationshipCountReader}.  It is "full" in the sense that it cares about
  * {@link org.neo4j.graphdb.RelationshipType}s, {@link org.neo4j.graphdb.Direction}s, and properties.
  */
-public class FullCachedRelationshipCountReader extends CachedRelationshipCountReader<RelationshipDescription> implements RelationshipCountReader<RelationshipDescription> {
+public class FullCachedRelationshipCountReader extends CachedRelationshipCountReader<CompactibleRelationship, RelationshipDescription> implements RelationshipCountReader<RelationshipDescription> {
 
     /**
      * Construct a new reader.
@@ -66,8 +62,14 @@ public class FullCachedRelationshipCountReader extends CachedRelationshipCountRe
      * {@inheritDoc}
      */
     @Override
-    protected boolean candidateMatchesDescription(RelationshipDescription candidate, RelationshipDescription description) {
-        return candidate.isMoreSpecificThan(description);
+    protected boolean candidateMatchesDescription(CompactibleRelationship candidate, RelationshipDescription description) {
+        boolean matches = candidate.isMoreSpecificThan(description);
+
+        if (!matches && !candidate.isMutuallyExclusive(description)) {
+            throw new UnableToCountException();
+        }
+
+        return matches;
     }
 
     /**
@@ -82,37 +84,31 @@ public class FullCachedRelationshipCountReader extends CachedRelationshipCountRe
      * {@inheritDoc}
      */
     @Override
-    protected RelationshipDescription newCachedRelationship(String string, String prefix, String separator) {
-        RelationshipDescription result = new GeneralRelationshipDescription(string, prefix, separator);
-
-        if (result.getProperties().containsKey(LITERAL)) {
-            return new LiteralRelationshipDescription(result);
-        }
-
-        return result;
+    protected CompactibleRelationship newCachedRelationship(String string, String prefix, String separator) {
+        return new CompactibleRelationshipImpl(string, prefix, separator);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void handleZeroResult(RelationshipDescription description, Node node) {
-        for (Map.Entry<RelationshipDescription, Integer> candidateWithCount : getCandidates(description, node).entrySet()) {
-            RelationshipDescription candidate = candidateWithCount.getKey();
-
-            if (candidate instanceof LiteralRelationshipDescription) {
-                continue;
-            }
-
-            for (RelationshipDescription candidateGeneralization : candidate.generateAllMoreGeneral()) {
-                if (candidateGeneralization.isMoreGeneralThan(description)) {
-                    throw new UnableToCountException("Unable to count relationships with the following description: "
-                            + description.toString(FrameworkConfiguration.DEFAULT_SEPARATOR)
-                            + " for node " + node.toString() + ". Since there are potentially compacted out cached matches," +
-                            " it looks like compaction has taken away the granularity you need. Please try to count this kind " +
-                            "of relationship with a naive counter. Alternatively, increase the compaction threshold.");
-                }
-            }
-        }
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    protected void handleZeroResult(CompactibleRelationship description, Node node) {
+//        for (Map.Entry<CompactibleRelationship, Integer> candidateWithCount : getCandidates(description, node).entrySet()) {
+//            CompactibleRelationship candidate = candidateWithCount.getKey();
+//
+//            if (candidate instanceof LiteralRelationshipDescription) {
+//                continue;
+//            }
+//
+//            for (CompactibleRelationship candidateGeneralization : candidate.generateAllMoreGeneral()) {
+//                if (candidateGeneralization.isMoreGeneralThan(description)) {
+//                    throw new UnableToCountException("Unable to count relationships with the following description: "
+//                            + description.toString(FrameworkConfiguration.DEFAULT_SEPARATOR)
+//                            + " for node " + node.toString() + ". Since there are potentially compacted out cached matches," +
+//                            " it looks like compaction has taken away the granularity you need. Please try to count this kind " +
+//                            "of relationship with a naive counter. Alternatively, increase the compaction threshold.");
+//                }
+//            }
+//        }
+//    }
 }

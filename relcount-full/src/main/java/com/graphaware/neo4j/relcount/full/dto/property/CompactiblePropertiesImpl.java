@@ -16,27 +16,27 @@
 
 package com.graphaware.neo4j.relcount.full.dto.property;
 
+import com.graphaware.neo4j.dto.common.property.ImmutableProperties;
 import com.graphaware.neo4j.dto.string.property.BaseCopyMakingSerializableProperties;
 import org.neo4j.graphdb.PropertyContainer;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import static com.graphaware.neo4j.framework.config.FrameworkConfiguration.DEFAULT_SEPARATOR;
 
 /**
- * Abstract base-class for {@link PropertiesDescription} implementations.
+ * Abstract base-class for {@link CompactibleProperties} implementations.
  */
-public abstract class BasePropertiesDescription extends BaseCopyMakingSerializableProperties<PropertiesDescription> {
+public class CompactiblePropertiesImpl extends BaseCopyMakingSerializableProperties<CompactibleProperties> implements CompactibleProperties {
+
+    public static final String ANY_VALUE = "_ANY_";
 
     /**
      * Construct a description from a {@link org.neo4j.graphdb.PropertyContainer}.
      *
      * @param propertyContainer to take (copy) properties from.
      */
-    protected BasePropertiesDescription(PropertyContainer propertyContainer) {
+    public CompactiblePropertiesImpl(PropertyContainer propertyContainer) {
         super(propertyContainer);
     }
 
@@ -45,7 +45,7 @@ public abstract class BasePropertiesDescription extends BaseCopyMakingSerializab
      *
      * @param properties to take (copy).
      */
-    protected BasePropertiesDescription(Map<String, ?> properties) {
+    public CompactiblePropertiesImpl(Map<String, ?> properties) {
         super(properties);
     }
 
@@ -55,7 +55,7 @@ public abstract class BasePropertiesDescription extends BaseCopyMakingSerializab
      * @param string    to construct properties from. Must be of the form key1#value1#key2#value2... (assuming # separator).
      * @param separator of keys and values, ideally a single character, must not be null or empty.
      */
-    protected BasePropertiesDescription(String string, String separator) {
+    public CompactiblePropertiesImpl(String string, String separator) {
         super(string, separator);
     }
 
@@ -65,18 +65,25 @@ public abstract class BasePropertiesDescription extends BaseCopyMakingSerializab
      * @param properties to compare.
      * @return true iff this instance is more general than or as general as the provided instance.
      */
-    public boolean isMoreGeneralThan(PropertiesDescription properties) {
+    public boolean isMoreGeneralThan(ImmutableProperties<String> properties) {
         for (String thisKey : keySet()) {
+            String value = get(thisKey);
+
+            if (ANY_VALUE.equals(value)) {
+                continue;
+            }
+
             if (!properties.containsKey(thisKey)) {
                 return false;
             }
-            if (!get(thisKey).equals(properties.get(thisKey))) {
+
+            if (!value.equals(properties.get(thisKey))) {
                 return false;
             }
         }
 
         for (String thatKey : properties.keySet()) {
-            if (containsKey(thatKey) && !get(thatKey).equals(properties.get(thatKey))) {
+            if (!containsKey(thatKey)) {
                 return false;
             }
         }
@@ -90,7 +97,7 @@ public abstract class BasePropertiesDescription extends BaseCopyMakingSerializab
      * @param properties to compare.
      * @return true iff this instance is strictly more general than the provided instance.
      */
-    public boolean isStrictlyMoreGeneralThan(PropertiesDescription properties) {
+    public boolean isStrictlyMoreGeneralThan(ImmutableProperties<String> properties) {
         return isMoreGeneralThan(properties) && !isMoreSpecificThan(properties);
     }
 
@@ -100,18 +107,25 @@ public abstract class BasePropertiesDescription extends BaseCopyMakingSerializab
      * @param properties to compare.
      * @return true iff this instance is more specific than or as specific as the provided instance.
      */
-    public boolean isMoreSpecificThan(PropertiesDescription properties) {
+    public boolean isMoreSpecificThan(ImmutableProperties<String> properties) {
         for (String thatKey : properties.keySet()) {
+            String value = properties.get(thatKey);
+
+            if (ANY_VALUE.equals(value)) {
+                continue;
+            }
+
             if (!containsKey(thatKey)) {
                 return false;
             }
-            if (!get(thatKey).equals(properties.get(thatKey))) {
+
+            if (!value.equals(get(thatKey))) {
                 return false;
             }
         }
 
         for (String thisKey : keySet()) {
-            if (properties.containsKey(thisKey) && !properties.get(thisKey).equals(get(thisKey))) {
+            if (!properties.containsKey(thisKey)) {
                 return false;
             }
         }
@@ -125,14 +139,14 @@ public abstract class BasePropertiesDescription extends BaseCopyMakingSerializab
      * @param properties to compare.
      * @return true iff this instance is strictly more specific than the provided instance.
      */
-    public boolean isStrictlyMoreSpecificThan(PropertiesDescription properties) {
+    public boolean isStrictlyMoreSpecificThan(ImmutableProperties<String> properties) {
         return isMoreSpecificThan(properties) && !isMoreGeneralThan(properties);
     }
 
     /**
      * @see {@link Comparable#compareTo(Object)}.
      */
-    public int compareTo(PropertiesDescription that) {
+    public int compareTo(CompactibleProperties that) {
         if (equals(that)) {
             return 0;
         } else if (isMoreGeneralThan(that)) {
@@ -150,11 +164,11 @@ public abstract class BasePropertiesDescription extends BaseCopyMakingSerializab
      *
      * @return set of one-level more/equally general instances, ordered by decreasing generality.
      */
-    public Set<PropertiesDescription> generateOneMoreGeneral() {
-        Set<PropertiesDescription> result = new TreeSet<>();
-        result.add(self());
+    public Set<CompactibleProperties> generateOneMoreGeneral() {
+        Set<CompactibleProperties> result = new TreeSet<>();
+        result.add(this);
         for (String key : keySet()) {
-            result.add(without(key));
+            result.add(with(key, ANY_VALUE));
         }
         return result;
     }
@@ -164,29 +178,78 @@ public abstract class BasePropertiesDescription extends BaseCopyMakingSerializab
      *
      * @return set of all more/equally general instances, ordered by decreasing generality.
      */
-    public Set<PropertiesDescription> generateAllMoreGeneral() {
-        return generateAllMoreGeneral(self());
+    public Set<CompactibleProperties> generateAllMoreGeneral() {
+        return generateAllMoreGeneral(this);
     }
 
-    protected Set<PropertiesDescription> generateAllMoreGeneral(PropertiesDescription propertiesRepresentation) {
+    protected Set<CompactibleProperties> generateAllMoreGeneral(CompactibleProperties properties) {
+        Set<String> nonWildcardKeys = nonWildcardKeys(properties);
+
         //base case
-        if (propertiesRepresentation.isEmpty()) {
-            return Collections.singleton(propertiesRepresentation);
+        if (nonWildcardKeys.isEmpty()) {
+            return Collections.singleton(properties);
         }
 
         //recursion
-        Set<PropertiesDescription> result = new TreeSet<>();
-        Map.Entry<String, String> next = propertiesRepresentation.entrySet().iterator().next();
-        for (PropertiesDescription properties : generateAllMoreGeneral(propertiesRepresentation.without(next.getKey()))) {
-            result.add(properties);
-            result.add(properties.with(next.getKey(), next.getValue()));
+        Set<CompactibleProperties> result = new TreeSet<>();
+        for (String key : nonWildcardKeys) {
+            for (CompactibleProperties moreGeneral : generateAllMoreGeneral(properties.with(key, ANY_VALUE))) {
+                result.add(moreGeneral);
+                result.add(moreGeneral.with(key, get(key)));
+            }
+        }
+
+        return result;
+    }
+
+    private Set<String> nonWildcardKeys(CompactibleProperties compactibleProperties) {
+        Set<String> result = new HashSet<>();
+        for (String key : compactibleProperties.keySet()) {
+            if (!ANY_VALUE.equals(compactibleProperties.get(key))) {
+                result.add(key);
+            }
         }
 
         return result;
     }
 
     /**
-     * @return this.
+     * {@inheritDoc}
      */
-    protected abstract PropertiesDescription self();
+    @Override
+    public boolean isMutuallyExclusive(ImmutableProperties<String> other) {
+        for (String key : keySet()) {
+            if (ANY_VALUE.equals(get(key))) {
+                continue;
+            }
+
+            if (!other.containsKey(key)) {
+                return true;
+            }
+
+            if (!ANY_VALUE.equals(other.get(key)) && !get(key).equals(other.get(key))) {
+                return true;
+            }
+        }
+
+        for (String key : other.keySet()) {
+            if (ANY_VALUE.equals(other.get(key))) {
+                continue;
+            }
+
+            if (!containsKey(key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected CompactibleProperties newInstance(Map<String, String> props) {
+        return new CompactiblePropertiesImpl(props);
+    }
 }

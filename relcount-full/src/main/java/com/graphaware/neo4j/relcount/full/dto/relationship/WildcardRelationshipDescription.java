@@ -18,8 +18,8 @@ package com.graphaware.neo4j.relcount.full.dto.relationship;
 
 import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.neo4j.dto.string.relationship.BaseCopyMakingSerializableDirectedRelationship;
-import com.graphaware.neo4j.relcount.full.dto.property.LiteralPropertiesDescription;
 import com.graphaware.neo4j.relcount.full.dto.property.PropertiesDescription;
+import com.graphaware.neo4j.relcount.full.dto.property.WildcardPropertiesDescription;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -28,11 +28,11 @@ import org.neo4j.graphdb.RelationshipType;
 import java.util.Map;
 
 /**
- * A {@link CompactibleRelationship} in which a missing property is treated as a concrete value (undefined) as opposed
+ * A {@link com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationship} in which a missing property is treated as a concrete value (undefined) as opposed
  * to "any". This is for situations where a relationship is explicitly created without some property that other relationships
  * of the same type might have. In such case, this relationship should not be treated as more general than the others.
  */
-public class LiteralRelationshipDescription extends BaseCopyMakingSerializableDirectedRelationship<PropertiesDescription, RelationshipDescription> implements RelationshipDescription {
+public class WildcardRelationshipDescription extends BaseCopyMakingSerializableDirectedRelationship<PropertiesDescription, RelationshipDescription> implements RelationshipDescription {
 
     /**
      * Construct a description. Please note that using this constructor, the actual properties on the
@@ -43,7 +43,7 @@ public class LiteralRelationshipDescription extends BaseCopyMakingSerializableDi
      * @param pointOfView  node which is looking at this relationship and thus determines its direction.
      * @param properties   to use as if they were in the relationship.
      */
-    public LiteralRelationshipDescription(Relationship relationship, Node pointOfView, Map<String, ?> properties) {
+    public WildcardRelationshipDescription(Relationship relationship, Node pointOfView, Map<String, ?> properties) {
         super(relationship, pointOfView, properties);
     }
 
@@ -54,7 +54,7 @@ public class LiteralRelationshipDescription extends BaseCopyMakingSerializableDi
      * @param direction  direction.
      * @param properties props.
      */
-    public LiteralRelationshipDescription(RelationshipType type, Direction direction, Map<String, ?> properties) {
+    public WildcardRelationshipDescription(RelationshipType type, Direction direction, Map<String, ?> properties) {
         super(type, direction, properties);
     }
 
@@ -66,7 +66,7 @@ public class LiteralRelationshipDescription extends BaseCopyMakingSerializableDi
      * @param prefix    of the string that should be removed before conversion.
      * @param separator of information, ideally a single character, must not be null or empty.
      */
-    public LiteralRelationshipDescription(String string, String prefix, String separator) {
+    public WildcardRelationshipDescription(String string, String prefix, String separator) {
         super(string, prefix, separator);
     }
 
@@ -75,7 +75,7 @@ public class LiteralRelationshipDescription extends BaseCopyMakingSerializableDi
      *
      * @param relationship relationships representation.
      */
-    public LiteralRelationshipDescription(HasTypeDirectionAndProperties<String, ?> relationship) {
+    public WildcardRelationshipDescription(HasTypeDirectionAndProperties<String, ?> relationship) {
         super(relationship);
     }
 
@@ -84,7 +84,7 @@ public class LiteralRelationshipDescription extends BaseCopyMakingSerializableDi
      */
     @Override
     protected RelationshipDescription newRelationship(RelationshipType type, Direction direction, Map<String, ?> properties) {
-        return new LiteralRelationshipDescription(type, direction, properties);
+        return new WildcardRelationshipDescription(type, direction, properties);
     }
 
     /**
@@ -92,6 +92,6 @@ public class LiteralRelationshipDescription extends BaseCopyMakingSerializableDi
      */
     @Override
     protected PropertiesDescription newProperties(Map<String, ?> properties) {
-        return new LiteralPropertiesDescription(properties);
+        return new WildcardPropertiesDescription(properties);
     }
 }

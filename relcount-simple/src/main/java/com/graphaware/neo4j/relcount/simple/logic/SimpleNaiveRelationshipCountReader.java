@@ -31,7 +31,7 @@ import org.neo4j.graphdb.Relationship;
  * It is simple in the sense that it only cares about {@link org.neo4j.graphdb.RelationshipType}s and {@link org.neo4j.graphdb.Direction}s;
  * it completely ignores {@link Relationship} properties.
  */
-public class SimpleNaiveRelationshipCountReader extends NaiveRelationshipCountReader<TypeAndDirectionDescription> implements RelationshipCountReader<TypeAndDirectionDescription> {
+public class SimpleNaiveRelationshipCountReader extends NaiveRelationshipCountReader<TypeAndDirectionDescription, TypeAndDirectionDescription> implements RelationshipCountReader<TypeAndDirectionDescription> {
 
     /**
      * {@inheritDoc}

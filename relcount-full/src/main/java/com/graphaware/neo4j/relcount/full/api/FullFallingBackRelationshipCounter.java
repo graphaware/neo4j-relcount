@@ -20,8 +20,8 @@ import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties
 import com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration;
 import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
 import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
-import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.dto.relationship.WildcardRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategies;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategiesImpl;
 import org.apache.log4j.Logger;
@@ -108,7 +108,7 @@ public class FullFallingBackRelationshipCounter extends BaseFullRelationshipCoun
         try {
             return new FullCachedRelationshipCounter(getType(), direction, getProperties(), id, config).count(node);
         } catch (UnableToCountException e) {
-            LOG.warn("Unable to count relationships with description: " + new GeneralRelationshipDescription(this).toString() +
+            LOG.warn("Unable to count relationships with description: " + new WildcardRelationshipDescription(this).toString() +
                     " for node " + node.toString() + ". Falling back to naive approach");
             return new FullNaiveRelationshipCounter(getType(), direction, getProperties(), strategies).count(node);
         }

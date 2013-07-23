@@ -16,40 +16,33 @@
 
 package com.graphaware.neo4j.relcount.full.dto.property;
 
-import org.neo4j.graphdb.PropertyContainer;
+import com.graphaware.neo4j.dto.string.property.BaseCopyMakingSerializableProperties;
 
 import java.util.Map;
 
+import static com.graphaware.neo4j.relcount.full.dto.property.CompactiblePropertiesImpl.ANY_VALUE;
+
 /**
- *  {@link PropertiesDescription} in which a missing property means "any", as opposed to a concrete "UNDEF" value (see {@link LiteralPropertiesDescription}).
+ *
  */
-public class GeneralPropertiesDescription extends BasePropertiesDescription implements PropertiesDescription {
+public class WildcardPropertiesDescription extends BaseCopyMakingSerializableProperties<PropertiesDescription> implements PropertiesDescription {
 
     /**
-     * Construct a description from a {@link org.neo4j.graphdb.PropertyContainer}.
-     *
-     * @param propertyContainer to take (copy) properties from.
-     */
-    public GeneralPropertiesDescription(PropertyContainer propertyContainer) {
-        super(propertyContainer);
-    }
-
-    /**
-     * Construct a description from a {@link java.util.Map}.
+     * Construct a representation of properties from a {@link java.util.Map}.
      *
      * @param properties to take (copy).
      */
-    public GeneralPropertiesDescription(Map<String, ?> properties) {
+    public WildcardPropertiesDescription(Map<String, ?> properties) {
         super(properties);
     }
 
     /**
-     * Construct a description from a {@link String}.
+     * Construct a representation of properties from a {@link String}.
      *
      * @param string    to construct properties from. Must be of the form key1#value1#key2#value2... (assuming # separator).
      * @param separator of keys and values, ideally a single character, must not be null or empty.
      */
-    public GeneralPropertiesDescription(String string, String separator) {
+    WildcardPropertiesDescription(String string, String separator) {
         super(string, separator);
     }
 
@@ -57,15 +50,32 @@ public class GeneralPropertiesDescription extends BasePropertiesDescription impl
      * {@inheritDoc}
      */
     @Override
-    protected PropertiesDescription self() {
-        return this;
+    protected PropertiesDescription newInstance(Map<String, String> props) {
+        return new WildcardPropertiesDescription(props);
     }
 
     /**
      * {@inheritDoc}
+     *
+     * @return always true.
      */
     @Override
-    protected PropertiesDescription newInstance(Map<String, String> props) {
-        return new GeneralPropertiesDescription(props);
+    public boolean containsKey(String key) {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return the actual value or {@link com.graphaware.neo4j.relcount.full.dto.property.CompactiblePropertiesImpl#ANY_VALUE} if the underlying properties do not contain the key.
+     */
+    @Override
+    public String get(String key) {
+        String value = super.get(key);
+        if (value != null) {
+            return value;
+        }
+
+        return ANY_VALUE;
     }
 }

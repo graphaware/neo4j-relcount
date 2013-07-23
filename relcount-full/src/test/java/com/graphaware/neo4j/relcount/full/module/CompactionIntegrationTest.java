@@ -19,8 +19,9 @@ package com.graphaware.neo4j.relcount.full.module;
 import com.graphaware.neo4j.framework.GraphAwareFramework;
 import com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration;
 import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
-import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationshipImpl;
 import com.graphaware.neo4j.relcount.full.dto.relationship.RelationshipDescription;
+import com.graphaware.neo4j.relcount.full.dto.relationship.WildcardRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.logic.FullCachedRelationshipCountReader;
 import com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountCache;
 import com.graphaware.neo4j.relcount.full.logic.RelationshipCountCompactor;
@@ -118,7 +119,7 @@ public class CompactionIntegrationTest {
         });
 
         assertEquals(1, cache.getRelationshipCounts(database.getNodeById(0)).size());
-        assertTrue(cache.getRelationshipCounts(database.getNodeById(0)).containsKey(rel("test#OUTGOING#")));
+        assertTrue(cache.getRelationshipCounts(database.getNodeById(0)).containsKey(new CompactibleRelationshipImpl("test#OUTGOING#k1#_ANY_", null, "#")));
         assertEquals(24, reader.getRelationshipCount(rel("test#OUTGOING#"), database.getNodeById(0)));
 
         try {
@@ -229,6 +230,6 @@ public class CompactionIntegrationTest {
      * just for readability
      */
     private RelationshipDescription rel(String s) {
-        return new GeneralRelationshipDescription(s, null, "#");
+        return new WildcardRelationshipDescription(s, null, "#");
     }
 }

@@ -17,17 +17,10 @@
 package com.graphaware.neo4j.relcount.full.dto.relationship;
 
 import com.graphaware.neo4j.dto.string.relationship.CopyMakingSerializableDirectedRelationship;
-import com.graphaware.neo4j.relcount.full.dto.common.Generalizing;
-import com.graphaware.neo4j.relcount.full.dto.common.PartiallyComparable;
 import com.graphaware.neo4j.relcount.full.dto.property.PropertiesDescription;
 
 /**
- * A description of a {@link org.neo4j.graphdb.Relationship}
- * for the purposes of counting {@link org.neo4j.graphdb.Relationship}s, caching such counts, etc.
+ *
  */
-public interface RelationshipDescription extends
-        CopyMakingSerializableDirectedRelationship<PropertiesDescription, RelationshipDescription>,
-        PartiallyComparable<RelationshipDescription>,
-        Comparable<RelationshipDescription>,
-        Generalizing<RelationshipDescription> {
+public interface RelationshipDescription extends CopyMakingSerializableDirectedRelationship<PropertiesDescription, RelationshipDescription> {
 }

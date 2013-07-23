@@ -14,12 +14,20 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.full.dto.property;
-
-import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
+package com.graphaware.neo4j.relcount.full.dto.common;
 
 /**
+ * Component that can determine, whether it is mutually exclusive with another instance.
  *
+ * @param <T> type of object this can be mutually exclusive with.
  */
-public interface PropertiesDescription extends CopyMakingSerializableProperties<PropertiesDescription> {
+public interface MutuallyExclusive<T> {
+
+    /**
+     * Is this instance mutually exclusive with the given other instance? This method is reflexive.
+     *
+     * @param other to check mutual exclusivity against.
+     * @return true iff this and the other are mutually exclusive.
+     */
+    boolean isMutuallyExclusive(T other);
 }

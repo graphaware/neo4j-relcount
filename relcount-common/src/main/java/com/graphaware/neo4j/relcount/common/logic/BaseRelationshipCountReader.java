@@ -25,8 +25,9 @@ import java.util.Map;
  * Base class for {@link RelationshipCountReader} implementations.
  *
  * @param <DESCRIPTION> type of relationship description that can be used to query relationship counts for nodes.
+ * @param <CANDIDATE>   type if candidate relationship representation.
  */
-public abstract class BaseRelationshipCountReader<DESCRIPTION extends HasTypeAndDirection> {
+public abstract class BaseRelationshipCountReader<CANDIDATE extends HasTypeAndDirection, DESCRIPTION extends HasTypeAndDirection> {
 
     /**
      * Get a relationship count for a node. The count is the sum of all the counts where {@link #candidateMatchesDescription(com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection, com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection)},
@@ -39,18 +40,14 @@ public abstract class BaseRelationshipCountReader<DESCRIPTION extends HasTypeAnd
      */
     public int getRelationshipCount(DESCRIPTION description, Node node) {
         int result = 0;
-        for (Map.Entry<DESCRIPTION, Integer> candidateWithCount : getCandidates(description, node).entrySet()) {
-            DESCRIPTION candidate = candidateWithCount.getKey();
+        for (Map.Entry<CANDIDATE, Integer> candidateWithCount : getCandidates(description, node).entrySet()) {
+            CANDIDATE candidate = candidateWithCount.getKey();
             if (candidateMatchesDescription(candidate, description)) {
                 result += candidateWithCount.getValue();
                 if (!continueAfterFirstLookupMatch()) {
                     return result;
                 }
             }
-        }
-
-        if (result == 0) {
-            handleZeroResult(description, node);
         }
 
         return result;
@@ -64,7 +61,7 @@ public abstract class BaseRelationshipCountReader<DESCRIPTION extends HasTypeAnd
      * @param node        for which to get relationship count.
      * @return relationship counts (key = candidate relationship, value = count).
      */
-    protected abstract Map<DESCRIPTION, Integer> getCandidates(DESCRIPTION description, Node node);
+    protected abstract Map<CANDIDATE, Integer> getCandidates(DESCRIPTION description, Node node);
 
     /**
      * Does the given candidate match the relationship description?
@@ -73,7 +70,7 @@ public abstract class BaseRelationshipCountReader<DESCRIPTION extends HasTypeAnd
      * @param description of the relationships being counted.
      * @return true iff the candidate matches the description and should thus be taken into account.
      */
-    protected abstract boolean candidateMatchesDescription(DESCRIPTION candidate, DESCRIPTION description);
+    protected abstract boolean candidateMatchesDescription(CANDIDATE candidate, DESCRIPTION description);
 
     /**
      * When counting relationships, should the search through candidates continue after the candidate has been found?
@@ -81,12 +78,4 @@ public abstract class BaseRelationshipCountReader<DESCRIPTION extends HasTypeAnd
      * @return true to continue, false to return the first candidate's count.
      */
     protected abstract boolean continueAfterFirstLookupMatch();
-
-    /**
-     * Act upon the fact that no matching relationships were found, if desired.
-     *
-     * @param description of the relationship for which to get count.
-     * @param node        for which to get relationship count.
-     */
-    protected abstract void handleZeroResult(DESCRIPTION description, Node node);
 }

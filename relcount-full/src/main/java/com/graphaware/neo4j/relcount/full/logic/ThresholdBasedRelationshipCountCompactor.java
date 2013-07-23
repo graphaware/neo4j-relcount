@@ -1,13 +1,10 @@
 package com.graphaware.neo4j.relcount.full.logic;
 
-import com.graphaware.neo4j.relcount.full.dto.relationship.RelationshipDescription;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationship;
 import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Node;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Default production implementation of {@link RelationshipCountCompactor} which compacts relationship counts based
@@ -49,7 +46,7 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
     }
 
     private boolean performCompaction(Node node) {
-        Map<RelationshipDescription, Integer> cachedCounts = countCache.getRelationshipCounts(node);
+        Map<CompactibleRelationship, Integer> cachedCounts = countCache.getRelationshipCounts(node);
 
         //Not above the threshold => no need for compaction
         if (cachedCounts.size() < compactionThreshold) {
@@ -57,38 +54,46 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
         }
 
         //Generate all possible generalizations
-        Set<RelationshipDescription> generalizations = new TreeSet<>();
-        for (RelationshipDescription cached : cachedCounts.keySet()) {
+        Set<CompactibleRelationship> generalizations = new TreeSet<>();
+        for (CompactibleRelationship cached : cachedCounts.keySet()) {
             generalizations.addAll(cached.generateAllMoreGeneral());
         }
 
         //Find the most specific generalization that has a chance to result in some compaction
-        for (RelationshipDescription generalization : generalizations) {
-            Set<RelationshipDescription> candidates = new HashSet<>();
-            for (RelationshipDescription potentialCandidate : cachedCounts.keySet()) {
+        Set<CompactibleRelationship> bestCandidates = Collections.emptySet();
+        CompactibleRelationship bestGeneralization = null;
+
+        for (CompactibleRelationship generalization : generalizations) {
+            if (bestGeneralization != null && generalization.isMoreGeneralThan(bestGeneralization)) {
+                break;
+            }
+            Set<CompactibleRelationship> candidates = new HashSet<>();
+            for (CompactibleRelationship potentialCandidate : cachedCounts.keySet()) {
                 if (generalization.isMoreGeneralThan(potentialCandidate)) {
                     candidates.add(potentialCandidate);
                 }
             }
 
-            //See if the generalization will result in compaction
-            if (candidates.size() > 1) {
-
-                //It will, do it!
-                int candidateCachedCount = 0;
-                for (RelationshipDescription candidate : candidates) {
-                    candidateCachedCount += cachedCounts.get(candidate);
-                    countCache.deleteCount(candidate, node);
-                }
-
-                countCache.incrementCount(generalization, node, candidateCachedCount);
-
-                //After the compaction, see if more is needed using a recursive call
-                performCompaction(node);
-
-                //Break the for loop, other generalizations (if needed) will be found using recursion above.
-                break;
+            if (candidates.size() > 1 && candidates.size() > bestCandidates.size()) {
+                bestCandidates = candidates;
+                bestGeneralization = generalization;
             }
+        }
+
+        //See if the generalization will result in compaction
+        if (bestCandidates.size() > 1) {
+
+            //It will, do it!
+            int candidateCachedCount = 0;
+            for (CompactibleRelationship candidate : bestCandidates) {
+                candidateCachedCount += cachedCounts.get(candidate);
+                countCache.deleteCount(candidate, node);
+            }
+
+            countCache.incrementCount(bestGeneralization, node, candidateCachedCount);
+
+            //After the compaction, see if more is needed using a recursive call
+            performCompaction(node);
         }
 
         //If we reached this point and haven't compacted enough, we can't!

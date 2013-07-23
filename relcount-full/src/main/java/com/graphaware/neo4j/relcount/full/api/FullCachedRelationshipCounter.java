@@ -19,8 +19,8 @@ package com.graphaware.neo4j.relcount.full.api;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration;
 import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
-import com.graphaware.neo4j.relcount.full.dto.relationship.GeneralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.dto.relationship.WildcardRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.logic.FullCachedRelationshipCountReader;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -123,12 +123,12 @@ public class FullCachedRelationshipCounter extends BaseFullRelationshipCounter i
         FullCachedRelationshipCountReader countReader = new FullCachedRelationshipCountReader(id, config);
 
         if (Direction.BOTH.equals(getDirection())) {
-            int outgoingResult = countReader.getRelationshipCount(new GeneralRelationshipDescription(this.getType(), Direction.OUTGOING, this.getProperties().getProperties()), node);
-            int incomingResult = countReader.getRelationshipCount(new GeneralRelationshipDescription(this.getType(), Direction.INCOMING, this.getProperties().getProperties()), node);
+            int outgoingResult = countReader.getRelationshipCount(new WildcardRelationshipDescription(this.getType(), Direction.OUTGOING, this.getProperties().getProperties()), node);
+            int incomingResult = countReader.getRelationshipCount(new WildcardRelationshipDescription(this.getType(), Direction.INCOMING, this.getProperties().getProperties()), node);
             return incomingResult + outgoingResult;
         }
 
-        return countReader.getRelationshipCount(new GeneralRelationshipDescription(this), node);
+        return countReader.getRelationshipCount(new WildcardRelationshipDescription(this), node);
     }
 
     @Override

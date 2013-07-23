@@ -18,7 +18,8 @@ package com.graphaware.neo4j.relcount.full.logic;
 
 import com.graphaware.neo4j.relcount.common.logic.NaiveRelationshipCountReader;
 import com.graphaware.neo4j.relcount.common.logic.RelationshipCountReader;
-import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationship;
+import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationshipImpl;
 import com.graphaware.neo4j.relcount.full.dto.relationship.RelationshipDescription;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategiesImpl;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipPropertiesExtractionStrategy;
@@ -32,7 +33,7 @@ import java.util.Map;
  * {@link com.graphaware.neo4j.relcount.common.logic.RelationshipCountReader} that counts relationships by traversing them (performs no caching). It is "full" in
  * the sense that it cares about {@link org.neo4j.graphdb.RelationshipType}s, {@link org.neo4j.graphdb.Direction}s, and properties.
  */
-public class FullNaiveRelationshipCountReader extends NaiveRelationshipCountReader<RelationshipDescription> implements RelationshipCountReader<RelationshipDescription> {
+public class FullNaiveRelationshipCountReader extends NaiveRelationshipCountReader<CompactibleRelationship, RelationshipDescription> implements RelationshipCountReader<RelationshipDescription> {
 
     private final RelationshipPropertiesExtractionStrategy extractionStrategy;
     private final RelationshipWeighingStrategy weighingStrategy;
@@ -77,7 +78,7 @@ public class FullNaiveRelationshipCountReader extends NaiveRelationshipCountRead
      * {@inheritDoc}
      */
     @Override
-    protected boolean candidateMatchesDescription(RelationshipDescription candidate, RelationshipDescription description) {
+    protected boolean candidateMatchesDescription(CompactibleRelationship candidate, RelationshipDescription description) {
         return candidate.isMoreSpecificThan(description);
     }
 
@@ -93,9 +94,9 @@ public class FullNaiveRelationshipCountReader extends NaiveRelationshipCountRead
      * {@inheritDoc}
      */
     @Override
-    protected RelationshipDescription newCandidate(Relationship relationship, Node pointOfView) {
+    protected CompactibleRelationship newCandidate(Relationship relationship, Node pointOfView) {
         Map<String, String> extractedProperties = extractionStrategy.extractProperties(relationship, pointOfView);
-        return new LiteralRelationshipDescription(relationship, pointOfView, extractedProperties);   //direction can resolve to both, but that's ok for non-cached relationships
+        return new CompactibleRelationshipImpl(relationship, pointOfView, extractedProperties);   //direction can resolve to both, but that's ok for non-cached relationships
     }
 
     /**

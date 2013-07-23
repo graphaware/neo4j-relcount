@@ -15,7 +15,7 @@ import java.util.TreeMap;
  * @param <DESCRIPTION> type of relationship representation that can be used as a relationship description for querying.
  *                      Must be {@link Comparable}; the resulting order is the order in which candidates are evaluated.
  */
-public abstract class CachedRelationshipCountReader<DESCRIPTION extends HasTypeAndDirection & Comparable<DESCRIPTION>> extends BaseRelationshipCountReader<DESCRIPTION> {
+public abstract class CachedRelationshipCountReader<CANDIDATE extends HasTypeAndDirection & Comparable<CANDIDATE>, DESCRIPTION extends HasTypeAndDirection> extends BaseRelationshipCountReader<CANDIDATE, DESCRIPTION> {
 
     private final String id;
     private final FrameworkConfiguration config;
@@ -40,8 +40,8 @@ public abstract class CachedRelationshipCountReader<DESCRIPTION extends HasTypeA
      * The returned map is sorted so that it can be iterated in order (e.g. alphabetic or specific to general).
      */
     @Override
-    public Map<DESCRIPTION, Integer> getCandidates(DESCRIPTION description, Node node) {
-        Map<DESCRIPTION, Integer> result = new TreeMap<>();
+    public Map<CANDIDATE, Integer> getCandidates(DESCRIPTION description, Node node) {
+        Map<CANDIDATE, Integer> result = new TreeMap<>();
         for (String key : node.getPropertyKeys()) {
             if (key.startsWith(config.createPrefix(id))) {
                 result.put(newCachedRelationship(key, config.createPrefix(id), config.separator()), (Integer) node.getProperty(key));
@@ -59,5 +59,5 @@ public abstract class CachedRelationshipCountReader<DESCRIPTION extends HasTypeA
      * @param separator delimiter of information in the string.
      * @return object representation of the cached relationship.
      */
-    protected abstract DESCRIPTION newCachedRelationship(String string, String prefix, String separator);
+    protected abstract CANDIDATE newCachedRelationship(String string, String prefix, String separator);
 }

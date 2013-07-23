@@ -15,7 +15,7 @@ import static org.neo4j.graphdb.Direction.BOTH;
  *
  * @param <DESCRIPTION> type of relationship description that can be used to query relationship counts for nodes.
  */
-public abstract class NaiveRelationshipCountReader<DESCRIPTION extends HasTypeAndDirection> extends BaseRelationshipCountReader<DESCRIPTION> {
+public abstract class NaiveRelationshipCountReader<CANDIDATE extends  HasTypeAndDirection, DESCRIPTION extends HasTypeAndDirection> extends BaseRelationshipCountReader<CANDIDATE, DESCRIPTION> {
 
     /**
      * {@inheritDoc}
@@ -24,11 +24,11 @@ public abstract class NaiveRelationshipCountReader<DESCRIPTION extends HasTypeAn
      * i.e. to tell Neo4j to only return relationships of the specified type and direction.
      */
     @Override
-    public Map<DESCRIPTION, Integer> getCandidates(DESCRIPTION description, Node node) {
-        Map<DESCRIPTION, Integer> result = new HashMap<>();
+    public Map<CANDIDATE, Integer> getCandidates(DESCRIPTION description, Node node) {
+        Map<CANDIDATE, Integer> result = new HashMap<>();
 
         for (Relationship candidateRelationship : node.getRelationships(description.getDirection(), description.getType())) {
-            DESCRIPTION candidate = newCandidate(candidateRelationship, node);
+            CANDIDATE candidate = newCandidate(candidateRelationship, node);
             if (!result.containsKey(candidate)) {
                 result.put(candidate, 0);
             }
@@ -50,7 +50,7 @@ public abstract class NaiveRelationshipCountReader<DESCRIPTION extends HasTypeAn
      * @param pointOfView  Node, whose point of view the candidate's direction will be determined.
      * @return representation of the candidate relationship.
      */
-    protected abstract DESCRIPTION newCandidate(Relationship relationship, Node pointOfView);
+    protected abstract CANDIDATE newCandidate(Relationship relationship, Node pointOfView);
 
     /**
      * Get a relationship's weight.
@@ -60,12 +60,4 @@ public abstract class NaiveRelationshipCountReader<DESCRIPTION extends HasTypeAn
      * @return the relationship weight. Should be positive.
      */
     protected abstract int relationshipWeight(Relationship relationship, Node pointOfView);
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void handleZeroResult(DESCRIPTION description, Node node) {
-        //do nothing, if the naive method yields 0, then there really are none.
-    }
 }

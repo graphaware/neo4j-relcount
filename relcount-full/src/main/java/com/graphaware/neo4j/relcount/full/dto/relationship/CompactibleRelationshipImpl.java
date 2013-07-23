@@ -16,10 +16,12 @@
 
 package com.graphaware.neo4j.relcount.full.dto.relationship;
 
+import com.graphaware.neo4j.dto.common.property.ImmutableProperties;
 import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
 import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.neo4j.dto.string.relationship.BaseCopyMakingSerializableDirectedRelationship;
-import com.graphaware.neo4j.relcount.full.dto.property.PropertiesDescription;
+import com.graphaware.neo4j.relcount.full.dto.property.CompactibleProperties;
+import com.graphaware.neo4j.relcount.full.dto.property.CompactiblePropertiesImpl;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -32,9 +34,9 @@ import java.util.TreeSet;
 import static com.graphaware.neo4j.framework.config.FrameworkConfiguration.DEFAULT_SEPARATOR;
 
 /**
- * Abstract base-class for {@link RelationshipDescription} implementations.
+ * Abstract base-class for {@link CompactibleRelationship} implementations.
  */
-public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializableDirectedRelationship<PropertiesDescription, RelationshipDescription> {
+public class CompactibleRelationshipImpl extends BaseCopyMakingSerializableDirectedRelationship<CompactibleProperties, CompactibleRelationship> implements CompactibleRelationship {
 
     /**
      * Construct a description. If the start node of this relationship is the same as the end node,
@@ -43,7 +45,7 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
      * @param relationship Neo4j relationship to describe.
      * @param pointOfView  node which is looking at this relationship and thus determines its direction.
      */
-    protected BaseRelationshipDescription(Relationship relationship, Node pointOfView) {
+    public CompactibleRelationshipImpl(Relationship relationship, Node pointOfView) {
         super(relationship, pointOfView);
     }
 
@@ -56,7 +58,7 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
      * @param pointOfView  node which is looking at this relationship and thus determines its direction.
      * @param properties   to use as if they were in the relationship.
      */
-    protected BaseRelationshipDescription(Relationship relationship, Node pointOfView, Map<String, ?> properties) {
+    public CompactibleRelationshipImpl(Relationship relationship, Node pointOfView, Map<String, ?> properties) {
         super(relationship, pointOfView, properties);
     }
 
@@ -67,7 +69,7 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
      * @param direction  direction.
      * @param properties props.
      */
-    protected BaseRelationshipDescription(RelationshipType type, Direction direction, Map<String, ?> properties) {
+    public CompactibleRelationshipImpl(RelationshipType type, Direction direction, Map<String, ?> properties) {
         super(type, direction, properties);
     }
 
@@ -79,7 +81,7 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
      * @param prefix    of the string that should be removed before conversion.
      * @param separator of information, ideally a single character, must not be null or empty.
      */
-    protected BaseRelationshipDescription(String string, String prefix, String separator) {
+    public CompactibleRelationshipImpl(String string, String prefix, String separator) {
         super(string, prefix, separator);
     }
 
@@ -88,7 +90,7 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
      *
      * @param relationship relationships representation.
      */
-    protected BaseRelationshipDescription(HasTypeDirectionAndProperties<String, ?> relationship) {
+    public CompactibleRelationshipImpl(HasTypeDirectionAndProperties<String, ?> relationship) {
         super(relationship);
     }
 
@@ -98,7 +100,7 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
      * @param relationship to compare.
      * @return true iff this instance is more general than or as general as the provided instance.
      */
-    public boolean isMoreGeneralThan(RelationshipDescription relationship) {
+    public boolean isMoreGeneralThan(HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>> relationship) {
         return matches((HasTypeAndDirection) relationship)
                 && getProperties().isMoreGeneralThan(relationship.getProperties());
     }
@@ -109,7 +111,7 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
      * @param relationship to compare.
      * @return true iff this instance is strictly more general than the provided instance.
      */
-    public boolean isStrictlyMoreGeneralThan(RelationshipDescription relationship) {
+    public boolean isStrictlyMoreGeneralThan(HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>> relationship) {
         return matches((HasTypeAndDirection) relationship)
                 && getProperties().isStrictlyMoreGeneralThan(relationship.getProperties());
     }
@@ -120,7 +122,7 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
      * @param relationship to compare.
      * @return true iff this instance is more specific than or as specific as the provided instance.
      */
-    public boolean isMoreSpecificThan(RelationshipDescription relationship) {
+    public boolean isMoreSpecificThan(HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>> relationship) {
         return matches((HasTypeAndDirection) relationship)
                 && getProperties().isMoreSpecificThan(relationship.getProperties());
     }
@@ -131,7 +133,7 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
      * @param relationship to compare.
      * @return true iff this instance is strictly more specific than the provided instance.
      */
-    public boolean isStrictlyMoreSpecificThan(RelationshipDescription relationship) {
+    public boolean isStrictlyMoreSpecificThan(HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>> relationship) {
         return matches((HasTypeAndDirection) relationship)
                 && getProperties().isStrictlyMoreSpecificThan(relationship.getProperties());
     }
@@ -141,7 +143,7 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
      *
      * @return set of one-level more/equally general instances, ordered by decreasing generality.
      */
-    public Set<RelationshipDescription> generateOneMoreGeneral() {
+    public Set<CompactibleRelationship> generateOneMoreGeneral() {
         return withDifferentProperties(getProperties().generateOneMoreGeneral());
     }
 
@@ -150,14 +152,14 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
      *
      * @return set of all more/equally general instances, ordered by decreasing generality.
      */
-    public Set<RelationshipDescription> generateAllMoreGeneral() {
+    public Set<CompactibleRelationship> generateAllMoreGeneral() {
         return withDifferentProperties(getProperties().generateAllMoreGeneral());
     }
 
-    private Set<RelationshipDescription> withDifferentProperties(Set<PropertiesDescription> propertySets) {
-        Set<RelationshipDescription> result = new TreeSet<>();
+    private Set<CompactibleRelationship> withDifferentProperties(Set<CompactibleProperties> propertySets) {
+        Set<CompactibleRelationship> result = new TreeSet<>();
 
-        for (PropertiesDescription propertySet : propertySets) {
+        for (CompactibleProperties propertySet : propertySets) {
             result.add(newRelationship(getType(), getDirection(), propertySet.getProperties()));
         }
 
@@ -167,7 +169,7 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
     /**
      * @see {@link Comparable#compareTo(Object)}.
      */
-    public int compareTo(RelationshipDescription that) {
+    public int compareTo(CompactibleRelationship that) {
         if (equals(that)) {
             return 0;
         } else if (isMoreGeneralThan(that)) {
@@ -178,5 +180,40 @@ public abstract class BaseRelationshipDescription extends BaseCopyMakingSerializ
 
         //it's OK to use any separator here, as long as it's the same one
         return toString(DEFAULT_SEPARATOR).compareTo(that.toString(DEFAULT_SEPARATOR));
+    }
+
+    /**
+     * Create a new instance of this relationship representation.
+     *
+     * @param type       type.
+     * @param direction  direction.
+     * @param properties props.
+     * @return new instance.
+     */
+    @Override
+    protected CompactibleRelationship newRelationship(RelationshipType type, Direction direction, Map<String, ?> properties) {
+        return new CompactibleRelationshipImpl(type, direction, properties);
+    }
+
+    /**
+     * Create properties representation for this relationship a map of properties.
+     *
+     * @param properties to create a representation from.
+     * @return created properties.
+     */
+    @Override
+    protected CompactibleProperties newProperties(Map<String, ?> properties) {
+        return new CompactiblePropertiesImpl(properties);
+    }
+
+    /**
+     * Is this instance mutually exclusive with the given other instance? This method is reflexive.
+     *
+     * @param other to check mutual exclusivity against.
+     * @return true iff this and the other are mutually exclusive.
+     */
+    @Override
+    public boolean isMutuallyExclusive(HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>> other) {
+        return !matches((HasTypeAndDirection) other) || getProperties().isMutuallyExclusive(other.getProperties());
     }
 }
