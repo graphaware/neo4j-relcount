@@ -33,9 +33,6 @@ import org.neo4j.graphdb.RelationshipType;
  * <p/>
  * <b>Full</b> relationship counter means that it inspects relationship types, directions, and properties.
  * <p/>
- * If no properties are provided to this counter and the {@link #count(org.neo4j.graphdb.Node)} method is invoked,
- * no relationship properties will be inspected.
- * <p/>
  * Because relationships are counted on the fly (no caching performed), this can be used without the
  * {@link com.graphaware.neo4j.framework.GraphAwareFramework} and/or any {@link com.graphaware.neo4j.framework.GraphAwareModule}s.
  * <p/>
@@ -74,6 +71,7 @@ public class FullNaiveRelationshipCounter extends BaseFullRelationshipCounter im
      */
     @Override
     public int count(Node node) {
+        //optimization - don't load properties if it is unnecessary
         if (getProperties().isEmpty() && relationshipCountStrategies.getRelationshipPropertiesExtractionStrategy().equals(ExtractAllRelationshipProperties.getInstance())) {
             return new FullNaiveRelationshipCountReader(ExtractNoRelationshipProperties.getInstance(), relationshipCountStrategies.getRelationshipWeighingStrategy()).getRelationshipCount(new WildcardRelationshipDescription(this), node);
         }

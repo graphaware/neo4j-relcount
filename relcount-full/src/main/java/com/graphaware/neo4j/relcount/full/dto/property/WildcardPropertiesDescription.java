@@ -23,7 +23,7 @@ import java.util.Map;
 import static com.graphaware.neo4j.relcount.full.dto.property.CompactiblePropertiesImpl.ANY_VALUE;
 
 /**
- *
+ *  {@link PropertiesDescription} where a missing property means "any".
  */
 public class WildcardPropertiesDescription extends BaseCopyMakingSerializableProperties<PropertiesDescription> implements PropertiesDescription {
 

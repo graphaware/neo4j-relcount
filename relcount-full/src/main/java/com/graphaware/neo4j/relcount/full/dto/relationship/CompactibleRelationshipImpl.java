@@ -34,7 +34,7 @@ import java.util.TreeSet;
 import static com.graphaware.neo4j.framework.config.FrameworkConfiguration.DEFAULT_SEPARATOR;
 
 /**
- * Abstract base-class for {@link CompactibleRelationship} implementations.
+ * Base-class for {@link CompactibleRelationship} implementations.
  */
 public class CompactibleRelationshipImpl extends BaseCopyMakingSerializableDirectedRelationship<CompactibleProperties, CompactibleRelationship> implements CompactibleRelationship {
 
@@ -75,63 +75,49 @@ public class CompactibleRelationshipImpl extends BaseCopyMakingSerializableDirec
     }
 
     /**
-     * Is this instance more general than (or at least as general as) the given instance?
-     *
-     * @param relationship to compare.
-     * @return true iff this instance is more general than or as general as the provided instance.
+     * {@inheritDoc}
      */
+    @Override
     public boolean isMoreGeneralThan(HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>> relationship) {
-        return matches((HasTypeAndDirection) relationship)
-                && getProperties().isMoreGeneralThan(relationship.getProperties());
+        return matches((HasTypeAndDirection) relationship) && getProperties().isMoreGeneralThan(relationship.getProperties());
     }
 
     /**
-     * Is this instance strictly more general than the given instance?
-     *
-     * @param relationship to compare.
-     * @return true iff this instance is strictly more general than the provided instance.
+     * {@inheritDoc}
      */
+    @Override
     public boolean isStrictlyMoreGeneralThan(HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>> relationship) {
-        return matches((HasTypeAndDirection) relationship)
-                && getProperties().isStrictlyMoreGeneralThan(relationship.getProperties());
+        return matches((HasTypeAndDirection) relationship) && getProperties().isStrictlyMoreGeneralThan(relationship.getProperties());
     }
 
     /**
-     * Is this instance more specific than (or at least as specific as) the given instance?
-     *
-     * @param relationship to compare.
-     * @return true iff this instance is more specific than or as specific as the provided instance.
+     * {@inheritDoc}
      */
+    @Override
     public boolean isMoreSpecificThan(HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>> relationship) {
-        return matches((HasTypeAndDirection) relationship)
-                && getProperties().isMoreSpecificThan(relationship.getProperties());
+        return matches((HasTypeAndDirection) relationship) && getProperties().isMoreSpecificThan(relationship.getProperties());
     }
 
     /**
-     * Is this instance strictly more specific than the given instance?
-     *
-     * @param relationship to compare.
-     * @return true iff this instance is strictly more specific than the provided instance.
+     * {@inheritDoc}
      */
+    @Override
     public boolean isStrictlyMoreSpecificThan(HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>> relationship) {
-        return matches((HasTypeAndDirection) relationship)
-                && getProperties().isStrictlyMoreSpecificThan(relationship.getProperties());
+        return matches((HasTypeAndDirection) relationship) && getProperties().isStrictlyMoreSpecificThan(relationship.getProperties());
     }
 
     /**
-     * Generate items one step more general than (or as general as) this instance.
-     *
-     * @return set of one-level more/equally general instances, ordered by decreasing generality.
+     * {@inheritDoc}
      */
+    @Override
     public Set<CompactibleRelationship> generateOneMoreGeneral() {
         return withDifferentProperties(getProperties().generateOneMoreGeneral());
     }
 
     /**
-     * Generate all items more general than (or as general as) this instance.
-     *
-     * @return set of all more/equally general instances, ordered by decreasing generality.
+     * {@inheritDoc}
      */
+    @Override
     public Set<CompactibleRelationship> generateAllMoreGeneral() {
         return withDifferentProperties(getProperties().generateAllMoreGeneral());
     }
@@ -147,8 +133,9 @@ public class CompactibleRelationshipImpl extends BaseCopyMakingSerializableDirec
     }
 
     /**
-     * @see {@link Comparable#compareTo(Object)}.
+     * {@inheritDoc}
      */
+    @Override
     public int compareTo(CompactibleRelationship that) {
         if (equals(that)) {
             return 0;
@@ -163,12 +150,15 @@ public class CompactibleRelationshipImpl extends BaseCopyMakingSerializableDirec
     }
 
     /**
-     * Create a new instance of this relationship representation.
-     *
-     * @param type       type.
-     * @param direction  direction.
-     * @param properties props.
-     * @return new instance.
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isMutuallyExclusive(HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>> other) {
+        return !matches((HasTypeAndDirection) other) || getProperties().isMutuallyExclusive(other.getProperties());
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     protected CompactibleRelationship newRelationship(RelationshipType type, Direction direction, Map<String, ?> properties) {
@@ -176,24 +166,10 @@ public class CompactibleRelationshipImpl extends BaseCopyMakingSerializableDirec
     }
 
     /**
-     * Create properties representation for this relationship a map of properties.
-     *
-     * @param properties to create a representation from.
-     * @return created properties.
+     * {@inheritDoc}
      */
     @Override
     protected CompactibleProperties newProperties(Map<String, ?> properties) {
         return new CompactiblePropertiesImpl(properties);
-    }
-
-    /**
-     * Is this instance mutually exclusive with the given other instance? This method is reflexive.
-     *
-     * @param other to check mutual exclusivity against.
-     * @return true iff this and the other are mutually exclusive.
-     */
-    @Override
-    public boolean isMutuallyExclusive(HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>> other) {
-        return !matches((HasTypeAndDirection) other) || getProperties().isMutuallyExclusive(other.getProperties());
     }
 }

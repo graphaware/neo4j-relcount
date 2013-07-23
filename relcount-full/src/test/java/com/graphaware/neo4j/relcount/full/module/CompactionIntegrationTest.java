@@ -39,6 +39,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
 import static com.graphaware.neo4j.relcount.full.Constants.FULL_RELCOUNT_DEFAULT_ID;
+import static com.graphaware.neo4j.relcount.full.dto.property.CompactiblePropertiesImpl.ANY_VALUE;
 import static junit.framework.Assert.*;
 
 /**
@@ -125,7 +126,7 @@ public class CompactionIntegrationTest {
         });
 
         assertEquals(1, cache.getRelationshipCounts(database.getNodeById(0)).size());
-        assertTrue(cache.getRelationshipCounts(database.getNodeById(0)).containsKey(new CompactibleRelationshipImpl("test#OUTGOING#k1#_ANY_", null, "#")));
+        assertTrue(cache.getRelationshipCounts(database.getNodeById(0)).containsKey(new CompactibleRelationshipImpl("test#OUTGOING#k1#" + ANY_VALUE, null, "#")));
         assertEquals(24, reader.getRelationshipCount(rel("test#OUTGOING#"), database.getNodeById(0)));
 
         try {

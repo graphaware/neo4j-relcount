@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static com.graphaware.neo4j.relcount.full.dto.property.CompactiblePropertiesImpl.ANY_VALUE;
 import static junit.framework.Assert.*;
 
 /**
@@ -40,53 +41,53 @@ public class CompactiblePropertiesImplTest {
         assertFalse(compactible("key1#value1#key2#value2").isStrictlyMoreGeneralThan(literal("key1#value1#key2#value2")));
         assertFalse(compactible("key1#value1#key2#value2").isStrictlyMoreGeneralThan(wildcard("key1#value1#key2#value2")));
 
-        assertTrue(compactible("key1#value1#key2#_ANY_").isMoreGeneralThan(compactible("key1#value1#key2#value2")));
-        assertTrue(compactible("key1#value1#key2#_ANY_").isMoreGeneralThan(literal("key1#value1#key2#value2")));
-        assertTrue(compactible("key1#value1#key2#_ANY_").isMoreGeneralThan(wildcard("key1#value1#key2#value2")));
+        assertTrue(compactible("key1#value1#key2#" + ANY_VALUE).isMoreGeneralThan(compactible("key1#value1#key2#value2")));
+        assertTrue(compactible("key1#value1#key2#"+ANY_VALUE).isMoreGeneralThan(literal("key1#value1#key2#value2")));
+        assertTrue(compactible("key1#value1#key2#"+ANY_VALUE).isMoreGeneralThan(wildcard("key1#value1#key2#value2")));
 
-        assertTrue(compactible("key1#value1#key2#_ANY_").isStrictlyMoreGeneralThan(compactible("key1#value1#key2#value2")));
-        assertTrue(compactible("key1#value1#key2#_ANY_").isStrictlyMoreGeneralThan(literal("key1#value1#key2#value2")));
-        assertTrue(compactible("key1#value1#key2#_ANY_").isStrictlyMoreGeneralThan(wildcard("key1#value1#key2#value2")));
+        assertTrue(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreGeneralThan(compactible("key1#value1#key2#value2")));
+        assertTrue(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreGeneralThan(literal("key1#value1#key2#value2")));
+        assertTrue(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreGeneralThan(wildcard("key1#value1#key2#value2")));
 
-        assertTrue(compactible("key1#value1#key2#_ANY_").isMoreGeneralThan(compactible("key1#value1#key2#_ANY_")));
-        assertTrue(compactible("key1#value1#key2#_ANY_").isMoreGeneralThan(literal("key1#value1#key2#_ANY_")));
-        assertTrue(compactible("key1#value1#key2#_ANY_").isMoreGeneralThan(wildcard("key1#value1#key2#_ANY_")));
+        assertTrue(compactible("key1#value1#key2#"+ANY_VALUE).isMoreGeneralThan(compactible("key1#value1#key2#"+ANY_VALUE)));
+        assertTrue(compactible("key1#value1#key2#"+ANY_VALUE).isMoreGeneralThan(literal("key1#value1#key2#"+ANY_VALUE)));
+        assertTrue(compactible("key1#value1#key2#"+ANY_VALUE).isMoreGeneralThan(wildcard("key1#value1#key2#"+ANY_VALUE)));
 
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreGeneralThan(compactible("key1#value1#key2#_ANY_")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreGeneralThan(literal("key1#value1#key2#_ANY_")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreGeneralThan(wildcard("key1#value1#key2#_ANY_")));
+        assertFalse(compactible("key1#value1#key2#" + ANY_VALUE).isStrictlyMoreGeneralThan(compactible("key1#value1#key2#" + ANY_VALUE)));
+        assertFalse(compactible("key1#value1#key2#" + ANY_VALUE).isStrictlyMoreGeneralThan(literal("key1#value1#key2#" + ANY_VALUE)));
+        assertFalse(compactible("key1#value1#key2#" + ANY_VALUE).isStrictlyMoreGeneralThan(wildcard("key1#value1#key2#" + ANY_VALUE)));
 
-        assertFalse(compactible("key1#value1#key2#_ANY_").isMoreGeneralThan(compactible("key1#_ANY_#key2#value2")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isMoreGeneralThan(literal("key1#_ANY_#key2#value2")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isMoreGeneralThan(wildcard("key1#_ANY_#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#" + ANY_VALUE).isMoreGeneralThan(compactible("key1#" + ANY_VALUE + "#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#" + ANY_VALUE).isMoreGeneralThan(literal("key1#" + ANY_VALUE + "#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#" + ANY_VALUE).isMoreGeneralThan(wildcard("key1#" + ANY_VALUE + "#key2#value2")));
 
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreGeneralThan(compactible("key1#_ANY_#key2#value2")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreGeneralThan(literal("key1#_ANY_#key2#value2")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreGeneralThan(wildcard("key1#_ANY_#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreGeneralThan(compactible("key1#"+ANY_VALUE+"#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreGeneralThan(literal("key1#"+ANY_VALUE+"#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreGeneralThan(wildcard("key1#"+ANY_VALUE+"#key2#value2")));
 
-        assertTrue(compactible("key1#value1#key2#_ANY_").isMoreGeneralThan(compactible("key1#value1")));
-        assertTrue(compactible("key1#value1#key2#_ANY_").isMoreGeneralThan(literal("key1#value1")));
-        assertTrue(compactible("key1#value1#key2#_ANY_").isMoreGeneralThan(wildcard("key1#value1")));
+        assertTrue(compactible("key1#value1#key2#"+ANY_VALUE).isMoreGeneralThan(compactible("key1#value1")));
+        assertTrue(compactible("key1#value1#key2#"+ANY_VALUE).isMoreGeneralThan(literal("key1#value1")));
+        assertTrue(compactible("key1#value1#key2#"+ANY_VALUE).isMoreGeneralThan(wildcard("key1#value1")));
 
-        assertTrue(compactible("key1#value1#key2#_ANY_").isStrictlyMoreGeneralThan(compactible("key1#value1")));
-        assertTrue(compactible("key1#value1#key2#_ANY_").isStrictlyMoreGeneralThan(literal("key1#value1")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreGeneralThan(wildcard("key1#value1")));
+        assertTrue(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreGeneralThan(compactible("key1#value1")));
+        assertTrue(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreGeneralThan(literal("key1#value1")));
+        assertFalse(compactible("key1#value1#key2#" + ANY_VALUE).isStrictlyMoreGeneralThan(wildcard("key1#value1")));
 
-        assertTrue(compactible("key1#_ANY_#key2#_ANY_").isMoreGeneralThan(compactible("key1#value1#key2#value2")));
-        assertTrue(compactible("key1#_ANY_#key2#_ANY_").isMoreGeneralThan(literal("key1#value1#key2#value2")));
-        assertTrue(compactible("key1#_ANY_#key2#_ANY_").isMoreGeneralThan(wildcard("key1#value1#key2#value2")));
+        assertTrue(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isMoreGeneralThan(compactible("key1#value1#key2#value2")));
+        assertTrue(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isMoreGeneralThan(literal("key1#value1#key2#value2")));
+        assertTrue(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isMoreGeneralThan(wildcard("key1#value1#key2#value2")));
 
-        assertTrue(compactible("key1#_ANY_#key2#_ANY_").isStrictlyMoreGeneralThan(compactible("key1#value1#key2#value2")));
-        assertTrue(compactible("key1#_ANY_#key2#_ANY_").isStrictlyMoreGeneralThan(literal("key1#value1#key2#value2")));
-        assertTrue(compactible("key1#_ANY_#key2#_ANY_").isStrictlyMoreGeneralThan(wildcard("key1#value1#key2#value2")));
+        assertTrue(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isStrictlyMoreGeneralThan(compactible("key1#value1#key2#value2")));
+        assertTrue(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isStrictlyMoreGeneralThan(literal("key1#value1#key2#value2")));
+        assertTrue(compactible("key1#" + ANY_VALUE + "#key2#" + ANY_VALUE).isStrictlyMoreGeneralThan(wildcard("key1#value1#key2#value2")));
 
-        assertTrue(compactible("key1#_ANY_#key2#_ANY_").isMoreGeneralThan(compactible("key2#value2")));
-        assertTrue(compactible("key1#_ANY_#key2#_ANY_").isMoreGeneralThan(literal("key2#value2")));
-        assertTrue(compactible("key1#_ANY_#key2#_ANY_").isMoreGeneralThan(wildcard("key2#value2")));
+        assertTrue(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isMoreGeneralThan(compactible("key2#value2")));
+        assertTrue(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isMoreGeneralThan(literal("key2#value2")));
+        assertTrue(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isMoreGeneralThan(wildcard("key2#value2")));
 
-        assertTrue(compactible("key1#_ANY_#key2#_ANY_").isStrictlyMoreGeneralThan(compactible("key2#value2")));
-        assertTrue(compactible("key1#_ANY_#key2#_ANY_").isStrictlyMoreGeneralThan(literal("key2#value2")));
-        assertTrue(compactible("key1#_ANY_#key2#_ANY_").isStrictlyMoreGeneralThan(wildcard("key2#value2")));
+        assertTrue(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isStrictlyMoreGeneralThan(compactible("key2#value2")));
+        assertTrue(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isStrictlyMoreGeneralThan(literal("key2#value2")));
+        assertTrue(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isStrictlyMoreGeneralThan(wildcard("key2#value2")));
 
         assertFalse(compactible("key1#value1").isMoreGeneralThan(compactible("key1#value1#key2#value2")));
         assertFalse(compactible("key1#value1").isMoreGeneralThan(literal("key1#value1#key2#value2")));
@@ -104,13 +105,13 @@ public class CompactiblePropertiesImplTest {
         assertFalse(compactible("key1#value1#key2#value2").isStrictlyMoreGeneralThan(literal("key1#value1")));
         assertFalse(compactible("key1#value1#key2#value2").isStrictlyMoreGeneralThan(wildcard("key1#value1")));
 
-        assertFalse(compactible("key1#value1#key2#value2").isMoreGeneralThan(compactible("key1#value1#key2#_ANY_")));
-        assertFalse(compactible("key1#value1#key2#value2").isMoreGeneralThan(literal("key1#value1#key2#_ANY_")));
-        assertFalse(compactible("key1#value1#key2#value2").isMoreGeneralThan(wildcard("key1#value1#key2#_ANY_")));
+        assertFalse(compactible("key1#value1#key2#value2").isMoreGeneralThan(compactible("key1#value1#key2#"+ANY_VALUE)));
+        assertFalse(compactible("key1#value1#key2#value2").isMoreGeneralThan(literal("key1#value1#key2#"+ANY_VALUE)));
+        assertFalse(compactible("key1#value1#key2#value2").isMoreGeneralThan(wildcard("key1#value1#key2#"+ANY_VALUE)));
 
-        assertFalse(compactible("key1#value1#key2#value2").isStrictlyMoreGeneralThan(compactible("key1#value1#key2#_ANY_")));
-        assertFalse(compactible("key1#value1#key2#value2").isStrictlyMoreGeneralThan(literal("key1#value1#key2#_ANY_")));
-        assertFalse(compactible("key1#value1#key2#value2").isStrictlyMoreGeneralThan(wildcard("key1#value1#key2#_ANY_")));
+        assertFalse(compactible("key1#value1#key2#value2").isStrictlyMoreGeneralThan(compactible("key1#value1#key2#"+ANY_VALUE)));
+        assertFalse(compactible("key1#value1#key2#value2").isStrictlyMoreGeneralThan(literal("key1#value1#key2#"+ANY_VALUE)));
+        assertFalse(compactible("key1#value1#key2#value2").isStrictlyMoreGeneralThan(wildcard("key1#value1#key2#"+ANY_VALUE)));
 
         assertFalse(compactible("key1#value1#key2#value2").isMoreGeneralThan(compactible("")));
         assertFalse(compactible("key1#value1#key2#value2").isMoreGeneralThan(literal("")));
@@ -163,53 +164,53 @@ public class CompactiblePropertiesImplTest {
         assertFalse(compactible("key1#value1#key2#value2").isStrictlyMoreSpecificThan(literal("key1#value1#key2#value2")));
         assertFalse(compactible("key1#value1#key2#value2").isStrictlyMoreSpecificThan(wildcard("key1#value1#key2#value2")));
 
-        assertFalse(compactible("key1#value1#key2#_ANY_").isMoreSpecificThan(compactible("key1#value1#key2#value2")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isMoreSpecificThan(literal("key1#value1#key2#value2")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isMoreSpecificThan(wildcard("key1#value1#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isMoreSpecificThan(compactible("key1#value1#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isMoreSpecificThan(literal("key1#value1#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isMoreSpecificThan(wildcard("key1#value1#key2#value2")));
 
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreSpecificThan(compactible("key1#value1#key2#value2")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreSpecificThan(literal("key1#value1#key2#value2")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreSpecificThan(wildcard("key1#value1#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(compactible("key1#value1#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(literal("key1#value1#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(wildcard("key1#value1#key2#value2")));
 
-        assertTrue(compactible("key1#value1#key2#_ANY_").isMoreSpecificThan(compactible("key1#value1#key2#_ANY_")));
-        assertTrue(compactible("key1#value1#key2#_ANY_").isMoreSpecificThan(literal("key1#value1#key2#_ANY_")));
-        assertTrue(compactible("key1#value1#key2#_ANY_").isMoreSpecificThan(wildcard("key1#value1#key2#_ANY_")));
+        assertTrue(compactible("key1#value1#key2#"+ANY_VALUE).isMoreSpecificThan(compactible("key1#value1#key2#"+ANY_VALUE)));
+        assertTrue(compactible("key1#value1#key2#"+ANY_VALUE).isMoreSpecificThan(literal("key1#value1#key2#"+ANY_VALUE)));
+        assertTrue(compactible("key1#value1#key2#"+ANY_VALUE).isMoreSpecificThan(wildcard("key1#value1#key2#"+ANY_VALUE)));
 
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreSpecificThan(compactible("key1#value1#key2#_ANY_")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreSpecificThan(literal("key1#value1#key2#_ANY_")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreSpecificThan(wildcard("key1#value1#key2#_ANY_")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(compactible("key1#value1#key2#"+ANY_VALUE)));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(literal("key1#value1#key2#"+ANY_VALUE)));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(wildcard("key1#value1#key2#"+ANY_VALUE)));
 
-        assertFalse(compactible("key1#value1#key2#_ANY_").isMoreSpecificThan(compactible("key1#_ANY_#key2#value2")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isMoreSpecificThan(literal("key1#_ANY_#key2#value2")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isMoreSpecificThan(wildcard("key1#_ANY_#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isMoreSpecificThan(compactible("key1#"+ANY_VALUE+"#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isMoreSpecificThan(literal("key1#"+ANY_VALUE+"#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isMoreSpecificThan(wildcard("key1#"+ANY_VALUE+"#key2#value2")));
 
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreSpecificThan(compactible("key1#_ANY_#key2#value2")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreSpecificThan(literal("key1#_ANY_#key2#value2")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreSpecificThan(wildcard("key1#_ANY_#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(compactible("key1#"+ANY_VALUE+"#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(literal("key1#"+ANY_VALUE+"#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(wildcard("key1#" + ANY_VALUE + "#key2#value2")));
 
-        assertFalse(compactible("key1#value1#key2#_ANY_").isMoreSpecificThan(compactible("key1#value1")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isMoreSpecificThan(literal("key1#value1")));
-        assertTrue(compactible("key1#value1#key2#_ANY_").isMoreSpecificThan(wildcard("key1#value1")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isMoreSpecificThan(compactible("key1#value1")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isMoreSpecificThan(literal("key1#value1")));
+        assertTrue(compactible("key1#value1#key2#"+ANY_VALUE).isMoreSpecificThan(wildcard("key1#value1")));
 
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreSpecificThan(compactible("key1#value1")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreSpecificThan(literal("key1#value1")));
-        assertFalse(compactible("key1#value1#key2#_ANY_").isStrictlyMoreSpecificThan(wildcard("key1#value1")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(compactible("key1#value1")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(literal("key1#value1")));
+        assertFalse(compactible("key1#value1#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(wildcard("key1#value1")));
 
-        assertFalse(compactible("key1#_ANY_#key2#_ANY_").isMoreSpecificThan(compactible("key1#value1#key2#value2")));
-        assertFalse(compactible("key1#_ANY_#key2#_ANY_").isMoreSpecificThan(literal("key1#value1#key2#value2")));
-        assertFalse(compactible("key1#_ANY_#key2#_ANY_").isMoreSpecificThan(wildcard("key1#value1#key2#value2")));
+        assertFalse(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isMoreSpecificThan(compactible("key1#value1#key2#value2")));
+        assertFalse(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isMoreSpecificThan(literal("key1#value1#key2#value2")));
+        assertFalse(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isMoreSpecificThan(wildcard("key1#value1#key2#value2")));
 
-        assertFalse(compactible("key1#_ANY_#key2#_ANY_").isStrictlyMoreSpecificThan(compactible("key1#value1#key2#value2")));
-        assertFalse(compactible("key1#_ANY_#key2#_ANY_").isStrictlyMoreSpecificThan(literal("key1#value1#key2#value2")));
-        assertFalse(compactible("key1#_ANY_#key2#_ANY_").isStrictlyMoreSpecificThan(wildcard("key1#value1#key2#value2")));
+        assertFalse(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(compactible("key1#value1#key2#value2")));
+        assertFalse(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(literal("key1#value1#key2#value2")));
+        assertFalse(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(wildcard("key1#value1#key2#value2")));
 
-        assertFalse(compactible("key1#_ANY_#key2#_ANY_").isMoreSpecificThan(compactible("key2#value2")));
-        assertFalse(compactible("key1#_ANY_#key2#_ANY_").isMoreSpecificThan(literal("key2#value2")));
-        assertFalse(compactible("key1#_ANY_#key2#_ANY_").isMoreSpecificThan(wildcard("key2#value2")));
+        assertFalse(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isMoreSpecificThan(compactible("key2#value2")));
+        assertFalse(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isMoreSpecificThan(literal("key2#value2")));
+        assertFalse(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isMoreSpecificThan(wildcard("key2#value2")));
 
-        assertFalse(compactible("key1#_ANY_#key2#_ANY_").isStrictlyMoreSpecificThan(compactible("key2#value2")));
-        assertFalse(compactible("key1#_ANY_#key2#_ANY_").isStrictlyMoreSpecificThan(literal("key2#value2")));
-        assertFalse(compactible("key1#_ANY_#key2#_ANY_").isStrictlyMoreSpecificThan(wildcard("key2#value2")));
+        assertFalse(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(compactible("key2#value2")));
+        assertFalse(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(literal("key2#value2")));
+        assertFalse(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE).isStrictlyMoreSpecificThan(wildcard("key2#value2")));
 
         assertFalse(compactible("key1#value1").isMoreSpecificThan(compactible("key1#value1#key2#value2")));
         assertFalse(compactible("key1#value1").isMoreSpecificThan(literal("key1#value1#key2#value2")));
@@ -227,13 +228,13 @@ public class CompactiblePropertiesImplTest {
         assertFalse(compactible("key1#value1#key2#value2").isStrictlyMoreSpecificThan(literal("key1#value1")));
         assertTrue(compactible("key1#value1#key2#value2").isStrictlyMoreSpecificThan(wildcard("key1#value1")));
 
-        assertTrue(compactible("key1#value1#key2#value2").isMoreSpecificThan(compactible("key1#value1#key2#_ANY_")));
-        assertTrue(compactible("key1#value1#key2#value2").isMoreSpecificThan(literal("key1#value1#key2#_ANY_")));
-        assertTrue(compactible("key1#value1#key2#value2").isMoreSpecificThan(wildcard("key1#value1#key2#_ANY_")));
+        assertTrue(compactible("key1#value1#key2#value2").isMoreSpecificThan(compactible("key1#value1#key2#"+ANY_VALUE)));
+        assertTrue(compactible("key1#value1#key2#value2").isMoreSpecificThan(literal("key1#value1#key2#"+ANY_VALUE)));
+        assertTrue(compactible("key1#value1#key2#value2").isMoreSpecificThan(wildcard("key1#value1#key2#"+ANY_VALUE)));
 
-        assertTrue(compactible("key1#value1#key2#value2").isStrictlyMoreSpecificThan(compactible("key1#value1#key2#_ANY_")));
-        assertTrue(compactible("key1#value1#key2#value2").isStrictlyMoreSpecificThan(literal("key1#value1#key2#_ANY_")));
-        assertTrue(compactible("key1#value1#key2#value2").isStrictlyMoreSpecificThan(wildcard("key1#value1#key2#_ANY_")));
+        assertTrue(compactible("key1#value1#key2#value2").isStrictlyMoreSpecificThan(compactible("key1#value1#key2#"+ANY_VALUE)));
+        assertTrue(compactible("key1#value1#key2#value2").isStrictlyMoreSpecificThan(literal("key1#value1#key2#"+ANY_VALUE)));
+        assertTrue(compactible("key1#value1#key2#value2").isStrictlyMoreSpecificThan(wildcard("key1#value1#key2#"+ANY_VALUE)));
 
         assertFalse(compactible("key1#value1#key2#value2").isMoreSpecificThan(compactible("")));
         assertFalse(compactible("key1#value1#key2#value2").isMoreSpecificThan(literal("")));
@@ -275,13 +276,13 @@ public class CompactiblePropertiesImplTest {
         assertEquals(8, result.size());
         Iterator<CompactibleProperties> iterator = result.iterator();
         assertEquals(iterator.next(), compactible("key1#value1#key2#value2#key3#value3"));
-        assertEquals(iterator.next(), compactible("key1#_ANY_#key2#value2#key3#value3"));
-        assertEquals(iterator.next(), compactible("key1#value1#key2#_ANY_#key3#value3"));
-        assertEquals(iterator.next(), compactible("key1#_ANY_#key2#_ANY_#key3#value3"));
-        assertEquals(iterator.next(), compactible("key1#value1#key2#value2#key3#_ANY_"));
-        assertEquals(iterator.next(), compactible("key1#_ANY_#key2#value2#key3#_ANY_"));
-        assertEquals(iterator.next(), compactible("key1#value1#key2#_ANY_#key3#_ANY_"));
-        assertEquals(iterator.next(), compactible("key1#_ANY_#key2#_ANY_#key3#_ANY_"));
+        assertEquals(iterator.next(), compactible("key1#"+ANY_VALUE+"#key2#value2#key3#value3"));
+        assertEquals(iterator.next(), compactible("key1#value1#key2#"+ANY_VALUE+"#key3#value3"));
+        assertEquals(iterator.next(), compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE+"#key3#value3"));
+        assertEquals(iterator.next(), compactible("key1#value1#key2#value2#key3#"+ANY_VALUE));
+        assertEquals(iterator.next(), compactible("key1#"+ANY_VALUE+"#key2#value2#key3#"+ANY_VALUE));
+        assertEquals(iterator.next(), compactible("key1#value1#key2#"+ANY_VALUE+"#key3#"+ANY_VALUE));
+        assertEquals(iterator.next(), compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE+"#key3#"+ANY_VALUE));
     }
 
     @Test
@@ -291,9 +292,9 @@ public class CompactiblePropertiesImplTest {
         assertEquals(4, result.size());
         Iterator<CompactibleProperties> iterator = result.iterator();
         assertEquals(iterator.next(), compactible("key1#value1#key2#value2#key3#value3"));
-        assertEquals(iterator.next(), compactible("key1#_ANY_#key2#value2#key3#value3"));
-        assertEquals(iterator.next(), compactible("key1#value1#key2#_ANY_#key3#value3"));
-        assertEquals(iterator.next(), compactible("key1#value1#key2#value2#key3#_ANY_"));
+        assertEquals(iterator.next(), compactible("key1#"+ANY_VALUE+"#key2#value2#key3#value3"));
+        assertEquals(iterator.next(), compactible("key1#value1#key2#"+ANY_VALUE+"#key3#value3"));
+        assertEquals(iterator.next(), compactible("key1#value1#key2#value2#key3#"+ANY_VALUE));
     }
 
     @Test
@@ -303,15 +304,15 @@ public class CompactiblePropertiesImplTest {
         assertEquals(2, result.size());
         Iterator<CompactibleProperties> iterator = result.iterator();
         assertEquals(iterator.next(), compactible("key1#value1"));
-        assertEquals(iterator.next(), compactible("key1#_ANY_"));
+        assertEquals(iterator.next(), compactible("key1#"+ANY_VALUE));
     }
 
     @Test
     public void equalityTest() {
         assertTrue(compactible("key1#value1").equals(compactible("key1#value1")));
-        assertTrue(compactible("key1#_ANY_").equals(compactible("key1#_ANY_")));
+        assertTrue(compactible("key1#"+ANY_VALUE).equals(compactible("key1#"+ANY_VALUE)));
         assertFalse(compactible("key1#value1").equals(compactible("key1#value2")));
-        assertFalse(compactible("key1#value1").equals(compactible("key1#_ANY_")));
+        assertFalse(compactible("key1#value1").equals(compactible("key1#"+ANY_VALUE)));
         assertFalse(compactible("key1#value1").equals(compactible("")));
     }
 
@@ -320,17 +321,17 @@ public class CompactiblePropertiesImplTest {
         Set<CompactibleProperties> properties = new TreeSet<>();
 
         properties.add(compactible("key1#value1#key2#value2"));
-        properties.add(compactible("key1#_ANY_#key2#value2"));
-        properties.add(compactible("key1#_ANY_#key2#value2"));
-        properties.add(compactible("key1#_ANY_#key2#value2"));
-        properties.add(compactible("key1#_ANY_#key2#_ANY_"));
+        properties.add(compactible("key1#"+ANY_VALUE+"#key2#value2"));
+        properties.add(compactible("key1#"+ANY_VALUE+"#key2#value2"));
+        properties.add(compactible("key1#"+ANY_VALUE+"#key2#value2"));
+        properties.add(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE));
         properties.add(compactible(""));
 
         Iterator<CompactibleProperties> iterator = properties.iterator();
         assertEquals(compactible(""), iterator.next());
         assertEquals(compactible("key1#value1#key2#value2"), iterator.next());
-        assertEquals(compactible("key1#_ANY_#key2#value2"), iterator.next());
-        assertEquals(compactible("key1#_ANY_#key2#_ANY_"), iterator.next());
+        assertEquals(compactible("key1#"+ANY_VALUE+"#key2#value2"), iterator.next());
+        assertEquals(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE), iterator.next());
         assertFalse(iterator.hasNext());
     }
 
@@ -338,20 +339,20 @@ public class CompactiblePropertiesImplTest {
     public void propertiesShouldBehaveProperlyInTreeSets() {
         Set<CompactibleProperties> properties = new TreeSet<>();
 
-        properties.add(compactible("key1#_ANY_#key2#_ANY_"));
+        properties.add(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE));
         properties.add(compactible("key1#value1#key2#value2"));
-        properties.add(compactible("key1#_ANY_#key2#value2"));
-        properties.add(compactible("key2#_ANY_#key1#value2"));
-        properties.add(compactible("key2#value1#key1#_ANY_"));
+        properties.add(compactible("key1#"+ANY_VALUE+"#key2#value2"));
+        properties.add(compactible("key2#"+ANY_VALUE+"#key1#value2"));
+        properties.add(compactible("key2#value1#key1#"+ANY_VALUE));
         properties.add(compactible(""));
 
-        assertTrue(properties.contains(compactible("key1#_ANY_#key2#_ANY_")));
+        assertTrue(properties.contains(compactible("key1#"+ANY_VALUE+"#key2#"+ANY_VALUE)));
         assertTrue(properties.contains(compactible("key1#value1#key2#value2")));
-        assertTrue(properties.contains(compactible("key1#_ANY_#key2#value2")));
-        assertTrue(properties.contains(compactible("key1#value2#key2#_ANY_#")));
-        assertTrue(properties.contains(compactible("key1#_ANY_#key2#value1")));
+        assertTrue(properties.contains(compactible("key1#"+ANY_VALUE+"#key2#value2")));
+        assertTrue(properties.contains(compactible("key1#value2#key2#"+ANY_VALUE+"#")));
+        assertTrue(properties.contains(compactible("key1#"+ANY_VALUE+"#key2#value1")));
         assertTrue(properties.contains(compactible("")));
-        assertFalse(properties.contains(compactible("key1#value1#key2#_ANY_#")));
+        assertFalse(properties.contains(compactible("key1#value1#key2#"+ANY_VALUE+"#")));
     }
 
     @Test
@@ -376,21 +377,21 @@ public class CompactiblePropertiesImplTest {
         assertTrue(compactible("").isMutuallyExclusive(literal("key1#value1")));
         assertTrue(compactible("").isMutuallyExclusive(wildcard("key1#value1")));
 
-        assertFalse(compactible("key1#value1").isMutuallyExclusive(compactible("key1#_ANY_")));
-        assertFalse(compactible("key1#value1").isMutuallyExclusive(literal("key1#_ANY_")));
-        assertFalse(compactible("key1#value1").isMutuallyExclusive(wildcard("key1#_ANY_")));
+        assertFalse(compactible("key1#value1").isMutuallyExclusive(compactible("key1#"+ANY_VALUE)));
+        assertFalse(compactible("key1#value1").isMutuallyExclusive(literal("key1#"+ANY_VALUE)));
+        assertFalse(compactible("key1#value1").isMutuallyExclusive(wildcard("key1#"+ANY_VALUE)));
 
-        assertFalse(compactible("key1#_ANY_").isMutuallyExclusive(compactible("key1#value1")));
-        assertFalse(compactible("key1#_ANY_").isMutuallyExclusive(literal("key1#value1")));
-        assertFalse(compactible("key1#_ANY_").isMutuallyExclusive(wildcard("key1#value1")));
+        assertFalse(compactible("key1#"+ANY_VALUE).isMutuallyExclusive(compactible("key1#value1")));
+        assertFalse(compactible("key1#"+ANY_VALUE).isMutuallyExclusive(literal("key1#value1")));
+        assertFalse(compactible("key1#"+ANY_VALUE).isMutuallyExclusive(wildcard("key1#value1")));
 
-        assertFalse(compactible("key1#value1#key2#value2").isMutuallyExclusive(compactible("key1#_ANY_#key2#value2")));
-        assertFalse(compactible("key1#value1#key2#value2").isMutuallyExclusive(literal("key1#_ANY_#key2#value2")));
-        assertFalse(compactible("key1#value1#key2#value2").isMutuallyExclusive(wildcard("key1#_ANY_#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#value2").isMutuallyExclusive(compactible("key1#"+ANY_VALUE+"#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#value2").isMutuallyExclusive(literal("key1#"+ANY_VALUE+"#key2#value2")));
+        assertFalse(compactible("key1#value1#key2#value2").isMutuallyExclusive(wildcard("key1#"+ANY_VALUE+"#key2#value2")));
 
-        assertTrue(compactible("key1#value1#key2#value3").isMutuallyExclusive(compactible("key1#_ANY_#key2#value2")));
-        assertTrue(compactible("key1#value1#key2#value3").isMutuallyExclusive(literal("key1#_ANY_#key2#value2")));
-        assertTrue(compactible("key1#value1#key2#value3").isMutuallyExclusive(wildcard("key1#_ANY_#key2#value2")));
+        assertTrue(compactible("key1#value1#key2#value3").isMutuallyExclusive(compactible("key1#" + ANY_VALUE + "#key2#value2")));
+        assertTrue(compactible("key1#value1#key2#value3").isMutuallyExclusive(literal("key1#" + ANY_VALUE + "#key2#value2")));
+        assertTrue(compactible("key1#value1#key2#value3").isMutuallyExclusive(wildcard("key1#" + ANY_VALUE + "#key2#value2")));
     }
 
     /**

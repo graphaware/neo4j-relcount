@@ -18,6 +18,9 @@ package com.graphaware.neo4j.relcount.full.dto.common;
 
 /**
  * Component that can determine, whether it is mutually exclusive with another instance.
+ * <p/>
+ * In the context of this project, mutually exclusive instances are instances that are {@link PartiallyComparable}
+ * and do not share a common more specific instance in the lattice formed by the partial order.
  *
  * @param <T> type of object this can be mutually exclusive with.
  */

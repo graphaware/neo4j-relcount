@@ -26,9 +26,8 @@ import org.neo4j.graphdb.RelationshipType;
 import java.util.Map;
 
 /**
- * A {@link com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationship} in which a missing property is treated as a concrete value (undefined) as opposed
- * to "any". This is for situations where a relationship is explicitly created without some property that other relationships
- * of the same type might have. In such case, this relationship should not be treated as more general than the others.
+ * A {@link RelationshipDescription} in which a missing property is treated as a wildcard ("any") as opposed
+ * to "undefined".
  */
 public class WildcardRelationshipDescription extends BaseCopyMakingSerializableDirectedRelationship<PropertiesDescription, RelationshipDescription> implements RelationshipDescription {
 

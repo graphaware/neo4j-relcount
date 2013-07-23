@@ -45,8 +45,8 @@ import static com.graphaware.neo4j.relcount.full.Constants.FULL_RELCOUNT_DEFAULT
  * This counter always returns a count, never throws {@link com.graphaware.neo4j.relcount.common.api.UnableToCountException}.
  * <p/>
  * About fallback: Fallback to naive approach only happens if it is detected that compaction has taken place
- * (see {@link com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountCache}) and the relationship being counted
- * is more specific than corresponding generalized cached counts. There is a performance penalty to this fallback.
+ * (see {@link com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountCache}) and the needed granularity has
+ * been compacted out. There is a performance penalty to this fallback.
  * To avoid it, make sure the compaction threshold is set correctly. No fallback happens when a {@link com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy} has been used that explicitly excludes
  * the relationships being counted (0 is returned). If you prefer an exception to fallback, use {@link FullCachedRelationshipCounter}.
  */
@@ -95,22 +95,12 @@ public class FullFallingBackRelationshipCounter extends BaseFullRelationshipCoun
      */
     @Override
     public int count(Node node) {
-        if (Direction.BOTH.equals(getDirection())) {
-            int outgoingCount = doCount(node, Direction.OUTGOING);
-            int incomingCount = doCount(node, Direction.INCOMING);
-            return outgoingCount + incomingCount;
-        }
-
-        return doCount(node, getDirection());
-    }
-
-    private int doCount(Node node, Direction direction) {
         try {
-            return new FullCachedRelationshipCounter(getType(), direction, getProperties(), id, config).count(node);
+            return new FullCachedRelationshipCounter(getType(), getDirection(), getProperties(), id, config).count(node);
         } catch (UnableToCountException e) {
             LOG.warn("Unable to count relationships with description: " + new WildcardRelationshipDescription(this).toString() +
                     " for node " + node.toString() + ". Falling back to naive approach");
-            return new FullNaiveRelationshipCounter(getType(), direction, getProperties(), strategies).count(node);
+            return new FullNaiveRelationshipCounter(getType(), getDirection(), getProperties(), strategies).count(node);
         }
     }
 
@@ -119,22 +109,12 @@ public class FullFallingBackRelationshipCounter extends BaseFullRelationshipCoun
      */
     @Override
     public int countLiterally(Node node) {
-        if (Direction.BOTH.equals(getDirection())) {
-            int outgoingCount = doCountLiterally(node, Direction.OUTGOING);
-            int incomingCount = doCountLiterally(node, Direction.INCOMING);
-            return outgoingCount + incomingCount;
-        }
-
-        return doCountLiterally(node, getDirection());
-    }
-
-    private int doCountLiterally(Node node, Direction direction) {
         try {
-            return new FullCachedRelationshipCounter(getType(), direction, getProperties(), id, config).countLiterally(node);
+            return new FullCachedRelationshipCounter(getType(), getDirection(), getProperties(), id, config).countLiterally(node);
         } catch (UnableToCountException e) {
             LOG.warn("Unable to count relationships with description: " + new LiteralRelationshipDescription(this).toString() +
                     " for node " + node.toString() + ". Falling back to naive approach");
-            return new FullNaiveRelationshipCounter(getType(), direction, getProperties(), strategies).countLiterally(node);
+            return new FullNaiveRelationshipCounter(getType(), getDirection(), getProperties(), strategies).countLiterally(node);
         }
     }
 

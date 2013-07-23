@@ -20,7 +20,7 @@ import com.graphaware.neo4j.dto.string.relationship.CopyMakingSerializableDirect
 import com.graphaware.neo4j.relcount.full.dto.property.PropertiesDescription;
 
 /**
- *
+ * Description of a relationship to be used for relationship counting.
  */
 public interface RelationshipDescription extends CopyMakingSerializableDirectedRelationship<PropertiesDescription, RelationshipDescription> {
 }

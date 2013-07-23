@@ -21,7 +21,7 @@ import com.graphaware.neo4j.dto.string.property.BaseCopyMakingSerializableProper
 import java.util.Map;
 
 /**
- *
+ *  {@link PropertiesDescription} where a missing property means "undefined".
  */
 public class LiteralPropertiesDescription extends BaseCopyMakingSerializableProperties<PropertiesDescription> implements PropertiesDescription {
 

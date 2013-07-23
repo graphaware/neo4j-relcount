@@ -124,6 +124,9 @@ public class FullCachedRelationshipCounter extends BaseFullRelationshipCounter i
         return new FullCachedRelationshipCountReader(id, config).getRelationshipCount(new WildcardRelationshipDescription(this), node);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int countLiterally(Node node) {
         return new FullCachedRelationshipCountReader(id, config).getRelationshipCount(new LiteralRelationshipDescription(this), node);

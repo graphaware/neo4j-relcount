@@ -26,7 +26,7 @@ import com.graphaware.neo4j.relcount.full.dto.property.CompactibleProperties;
 
 /**
  * A description of a {@link org.neo4j.graphdb.Relationship}
- * for the purposes of counting {@link org.neo4j.graphdb.Relationship}s, caching such counts, etc.
+ * for the purposes of caching {@link org.neo4j.graphdb.Relationship}s.
  */
 public interface CompactibleRelationship extends
         CopyMakingSerializableDirectedRelationship<CompactibleProperties, CompactibleRelationship>,

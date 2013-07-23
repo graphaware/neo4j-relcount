@@ -48,7 +48,11 @@ public class FullCachedRelationshipCountReader extends CachedRelationshipCountRe
         boolean matches = candidate.isMoreSpecificThan(description);
 
         if (!matches && !candidate.isMutuallyExclusive(description)) {
-            throw new UnableToCountException();
+            throw new UnableToCountException("Unable to count relationships with the following description: "
+                    + description.toString(FrameworkConfiguration.DEFAULT_SEPARATOR)
+                    + " Since there are potentially compacted out cached matches," +
+                    " it looks like compaction has taken away the granularity you need. Please try to count this kind " +
+                    "of relationship with a naive counter. Alternatively, increase the compaction threshold.");
         }
 
         return matches;
@@ -61,28 +65,4 @@ public class FullCachedRelationshipCountReader extends CachedRelationshipCountRe
     protected CompactibleRelationship newCachedRelationship(String string, String prefix, String separator) {
         return new CompactibleRelationshipImpl(string, prefix, separator);
     }
-
-//    /**
-//     * {@inheritDoc}
-//     */
-//    @Override
-//    protected void handleZeroResult(CompactibleRelationship description, Node node) {
-//        for (Map.Entry<CompactibleRelationship, Integer> candidateWithCount : getCandidates(description, node).entrySet()) {
-//            CompactibleRelationship candidate = candidateWithCount.getKey();
-//
-//            if (candidate instanceof LiteralRelationshipDescription) {
-//                continue;
-//            }
-//
-//            for (CompactibleRelationship candidateGeneralization : candidate.generateAllMoreGeneral()) {
-//                if (candidateGeneralization.isMoreGeneralThan(description)) {
-//                    throw new UnableToCountException("Unable to count relationships with the following description: "
-//                            + description.toString(FrameworkConfiguration.DEFAULT_SEPARATOR)
-//                            + " for node " + node.toString() + ". Since there are potentially compacted out cached matches," +
-//                            " it looks like compaction has taken away the granularity you need. Please try to count this kind " +
-//                            "of relationship with a naive counter. Alternatively, increase the compaction threshold.");
-//                }
-//            }
-//        }
-//    }
 }

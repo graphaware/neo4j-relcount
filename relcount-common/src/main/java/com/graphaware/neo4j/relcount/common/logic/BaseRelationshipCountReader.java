@@ -30,9 +30,8 @@ import java.util.Map;
 public abstract class BaseRelationshipCountReader<CANDIDATE extends HasTypeAndDirection, DESCRIPTION extends HasTypeAndDirection> {
 
     /**
-     * Get a relationship count for a node. The count is the sum of all the counts where {@link #candidateMatchesDescription(com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection, com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection)},
-     * unless {@link #continueAfterFirstLookupMatch()} returns <code>false</code>, in which case it is just the first
-     * matching value found.
+     * Get a relationship count for a node. The count is the sum of all the counts where
+     * {@link #candidateMatchesDescription(com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection, com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection)},
      *
      * @param description of the relationship for which to get count.
      * @param node        for which to get relationship count.

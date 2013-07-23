@@ -22,13 +22,14 @@ import com.graphaware.neo4j.dto.string.property.BaseCopyMakingSerializableProper
 import java.util.*;
 
 import static com.graphaware.neo4j.framework.config.FrameworkConfiguration.DEFAULT_SEPARATOR;
+import static com.graphaware.neo4j.framework.config.FrameworkConfiguration.GA_PREFIX;
 
 /**
- * Abstract base-class for {@link CompactibleProperties} implementations.
+ * Base-class for {@link CompactibleProperties} implementations.
  */
 public class CompactiblePropertiesImpl extends BaseCopyMakingSerializableProperties<CompactibleProperties> implements CompactibleProperties {
 
-    public static final String ANY_VALUE = "_ANY_";
+    public static final String ANY_VALUE = GA_PREFIX + "*";
 
     /**
      * Construct a description from a {@link java.util.Map}.
@@ -50,11 +51,9 @@ public class CompactiblePropertiesImpl extends BaseCopyMakingSerializablePropert
     }
 
     /**
-     * Is this instance more general than (or at least as general as) the given instance?
-     *
-     * @param properties to compare.
-     * @return true iff this instance is more general than or as general as the provided instance.
+     * {@inheritDoc}
      */
+    @Override
     public boolean isMoreGeneralThan(ImmutableProperties<String> properties) {
         for (String thisKey : keySet()) {
             String value = get(thisKey);
@@ -82,21 +81,17 @@ public class CompactiblePropertiesImpl extends BaseCopyMakingSerializablePropert
     }
 
     /**
-     * Is this instance strictly more general than the given instance?
-     *
-     * @param properties to compare.
-     * @return true iff this instance is strictly more general than the provided instance.
+     * {@inheritDoc}
      */
+    @Override
     public boolean isStrictlyMoreGeneralThan(ImmutableProperties<String> properties) {
         return isMoreGeneralThan(properties) && !isMoreSpecificThan(properties);
     }
 
     /**
-     * Is this instance more specific than (or at least as specific as) the given instance?
-     *
-     * @param properties to compare.
-     * @return true iff this instance is more specific than or as specific as the provided instance.
+     * {@inheritDoc}
      */
+    @Override
     public boolean isMoreSpecificThan(ImmutableProperties<String> properties) {
         for (String thatKey : properties.keySet()) {
             String value = properties.get(thatKey);
@@ -124,18 +119,17 @@ public class CompactiblePropertiesImpl extends BaseCopyMakingSerializablePropert
     }
 
     /**
-     * Is this instance strictly more specific than the given instance?
-     *
-     * @param properties to compare.
-     * @return true iff this instance is strictly more specific than the provided instance.
+     * {@inheritDoc}
      */
+    @Override
     public boolean isStrictlyMoreSpecificThan(ImmutableProperties<String> properties) {
         return isMoreSpecificThan(properties) && !isMoreGeneralThan(properties);
     }
 
     /**
-     * @see {@link Comparable#compareTo(Object)}.
+     * {@inheritDoc}
      */
+    @Override
     public int compareTo(CompactibleProperties that) {
         if (equals(that)) {
             return 0;
@@ -150,10 +144,9 @@ public class CompactiblePropertiesImpl extends BaseCopyMakingSerializablePropert
     }
 
     /**
-     * Generate items one step more general than (or as general as) this instance.
-     *
-     * @return set of one-level more/equally general instances, ordered by decreasing generality.
+     * {@inheritDoc}
      */
+    @Override
     public Set<CompactibleProperties> generateOneMoreGeneral() {
         Set<CompactibleProperties> result = new TreeSet<>();
         result.add(this);
@@ -164,10 +157,9 @@ public class CompactiblePropertiesImpl extends BaseCopyMakingSerializablePropert
     }
 
     /**
-     * Generate all items more general than (or as general as) this instance.
-     *
-     * @return set of all more/equally general instances, ordered by decreasing generality.
+     * {@inheritDoc}
      */
+    @Override
     public Set<CompactibleProperties> generateAllMoreGeneral() {
         return generateAllMoreGeneral(this);
     }
