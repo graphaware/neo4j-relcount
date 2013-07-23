@@ -19,16 +19,19 @@ package com.graphaware.neo4j.relcount.full.logic;
 import com.graphaware.neo4j.tx.single.KeepCalmAndCarryOn;
 import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.tx.single.VoidReturningCallback;
+import org.apache.log4j.Logger;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * {@link ThresholdBasedRelationshipCountCompactor} that performs compaction in a separate thread.
  */
 public class AsyncThresholdBasedRelationshipCountCompactor extends ThresholdBasedRelationshipCountCompactor {
+    private static final Logger LOG = Logger.getLogger(AsyncThresholdBasedRelationshipCountCompactor.class);
 
     private final ExecutorService executor;
 
@@ -59,5 +62,17 @@ public class AsyncThresholdBasedRelationshipCountCompactor extends ThresholdBase
                 }, KeepCalmAndCarryOn.getInstance());
             }
         });
+    }
+
+    /**
+     * Terminate all running compactions
+     */
+    public void shutdown() {
+        executor.shutdown();
+        try {
+            executor.awaitTermination(1, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            LOG.warn("Did not finish all compactions", e);
+        }
     }
 }

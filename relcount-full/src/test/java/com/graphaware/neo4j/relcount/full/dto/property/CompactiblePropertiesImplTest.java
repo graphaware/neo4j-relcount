@@ -278,9 +278,9 @@ public class CompactiblePropertiesImplTest {
         assertTrue(compactible("key1#value1#key2#value3").isMutuallyExclusive(wildcard("key1#" + ANY_VALUE + "#key2#value2")));
     }
 
-    /**
-     * just for readability
-     */
+
+    // just for readability
+
     private CompactibleProperties compactible(String s) {
         return new CompactiblePropertiesImpl(s, "#");
     }

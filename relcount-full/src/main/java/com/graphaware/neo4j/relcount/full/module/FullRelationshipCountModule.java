@@ -117,4 +117,12 @@ public class FullRelationshipCountModule extends RelationshipCountModule impleme
     public InclusionStrategies getInclusionStrategies() {
         return relationshipCountStrategies;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void shutdown() {
+        ((FullRelationshipCountCache) relationshipCountCache).shutdown();
+    }
 }

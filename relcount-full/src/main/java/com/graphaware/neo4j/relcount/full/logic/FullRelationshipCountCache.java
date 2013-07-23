@@ -82,7 +82,7 @@ public class FullRelationshipCountCache extends BaseRelationshipCountCache<Compa
         CompactibleRelationship createdRelationship = new CompactibleRelationshipImpl(relationship.getType(), resolveDirection(relationship, pointOfView, defaultDirection), extractedProperties);
 
         if (incrementCount(createdRelationship, pointOfView, relationshipWeight)) {
-            relationshipCountCompactor.compactRelationshipCounts(pointOfView); //todo async
+            relationshipCountCompactor.compactRelationshipCounts(pointOfView);
         }
     }
 
@@ -100,6 +100,12 @@ public class FullRelationshipCountCache extends BaseRelationshipCountCache<Compa
 
         if (!decrementCount(deletedRelationship, pointOfView, relationshipWeight)) {
             LOG.warn(deletedRelationship.toString() + " was out of sync on node " + pointOfView.getId());
+        }
+    }
+
+    public void shutdown() {
+        if (relationshipCountCompactor instanceof AsyncThresholdBasedRelationshipCountCompactor) {
+            ((AsyncThresholdBasedRelationshipCountCompactor) relationshipCountCompactor).shutdown();
         }
     }
 }
