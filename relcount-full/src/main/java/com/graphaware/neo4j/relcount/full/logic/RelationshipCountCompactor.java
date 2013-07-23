@@ -11,7 +11,7 @@ import org.neo4j.graphdb.Node;
  * - FRIEND_OF#OUTGOING#timestamp#7.4.2013 - 5x
  * <p/>
  * The compactor might decide to compact this into:
- * - FRIEND_OF#OUTGOING - 9x
+ * - FRIEND_OF#OUTGOING#timestamp#_GA_* - 9x
  */
 public interface RelationshipCountCompactor {
 

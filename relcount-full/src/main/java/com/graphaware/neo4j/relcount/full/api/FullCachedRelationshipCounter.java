@@ -36,11 +36,12 @@ import static com.graphaware.neo4j.relcount.full.Constants.FULL_RELCOUNT_DEFAULT
  * It must be used in conjunction with {@link com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule}
  * registered with {@link com.graphaware.neo4j.framework.GraphAwareFramework}.
  * <p/>
- * This counter throws {@link com.graphaware.neo4j.relcount.common.api.UnableToCountException} in case the relationship
- * being counted is more specific than any cached count, but there is a more general cached count and at the same time.
- * This means compaction has taken place and this counter can't serve a request for relationship count this specific.
- * If you still want to count the relationship, either use {@link FullNaiveRelationshipCounter} or consider increasing
- * the compaction threshold.
+ * This counter throws {@link com.graphaware.neo4j.relcount.common.api.UnableToCountException} if it detects it can not
+ * reliably answer the question. This means compaction has taken place and this counter can't serve a request for
+ * relationship count this specific. If you still want to count the relationship, either use {@link FullNaiveRelationshipCounter}
+ * or consider increasing the compaction threshold.
+ *
+ * @see com.graphaware.neo4j.relcount.full.logic.RelationshipCountCompactor
  */
 public class FullCachedRelationshipCounter extends BaseFullRelationshipCounter implements FullRelationshipCounter {
 

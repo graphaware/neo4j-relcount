@@ -25,7 +25,7 @@ import org.neo4j.graphdb.RelationshipType;
 import java.util.Map;
 
 /**
- * Abstract base-class for {@link FullRelationshipCounter} implementations.
+ * Base-class for {@link FullRelationshipCounter} implementations.
  */
 public abstract class BaseFullRelationshipCounter extends BaseDirectedRelationship<String, CopyMakingSerializableProperties<?>> {
 
