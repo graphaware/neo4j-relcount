@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * A {@link RelationshipPropertiesExtractionStrategy} that uses extracts nothing. Singleton.
+ * A {@link RelationshipPropertiesExtractionStrategy} that extracts nothing. Singleton.
  */
 public final class ExtractNoRelationshipProperties implements RelationshipPropertiesExtractionStrategy {
 

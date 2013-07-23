@@ -5,7 +5,7 @@ import com.graphaware.neo4j.framework.strategy.IncludeAllRelationships;
 import com.graphaware.neo4j.tx.event.strategy.*;
 
 /**
- * {@link InclusionStrategies}, providing static factory method for default a configuration and "with"
+ * {@link RelationshipCountStrategies}, providing static factory method for a default configuration and "with"
  * methods for fluently overriding these with custom strategies.
  */
 public class RelationshipCountStrategiesImpl extends BaseInclusionStrategies<RelationshipCountStrategiesImpl> implements RelationshipCountStrategies {

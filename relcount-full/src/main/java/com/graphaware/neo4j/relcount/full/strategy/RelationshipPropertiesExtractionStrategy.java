@@ -32,17 +32,30 @@ public interface RelationshipPropertiesExtractionStrategy {
      * Extract properties from a {@link org.neo4j.graphdb.Relationship}.
      *
      * @param relationship from which to extract properties.
-     * @param pointOfView  {@link org.neo4j.graphdb.Node} from whose point of view the relationships is being looked at. This is intended
-     *                     to be used for deriving relationship properties from participating nodes' properties and
-     *                     labels. Can be <code>null</code> if the strategy doesn't use participating nodes.
+     * @param pointOfView  {@link org.neo4j.graphdb.Node} from whose point of view the relationships is being looked at.
+     *                     This is intended to be used for deriving relationship properties from participating nodes'
+     *                     properties and labels. Can be <code>null</code> if the strategy doesn't use participating nodes.
      * @return read-only map of extracted properties.
      */
     Map<String, String> extractProperties(Relationship relationship, Node pointOfView);
 
+    /**
+     * Convenience adapter for strategies that with to include properties of the "other" node participating in the relationship.
+     */
     public abstract class OtherNodeIncludingAdapter implements RelationshipPropertiesExtractionStrategy {
 
+        /**
+         * Extract properties from a {@link org.neo4j.graphdb.Relationship}.
+         *
+         * @param properties of the relationship.
+         * @param otherNode  other {@link org.neo4j.graphdb.Node} participating in the relationship.
+         * @return read-only map of extracted properties.
+         */
         protected abstract Map<String, String> extractProperties(Map<String, String> properties, Node otherNode);
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public Map<String, String> extractProperties(Relationship relationship, Node pointOfView) {
             if (pointOfView == null) {
@@ -53,10 +66,24 @@ public interface RelationshipPropertiesExtractionStrategy {
         }
     }
 
+    /**
+     * Convenience adapter for strategies that with to somehow manipulate the properties before returning them.
+     * Please note that if the manipulation only excludes certain properties, it is advisable to use a cusom
+     * {@link com.graphaware.neo4j.tx.event.strategy.RelationshipPropertyInclusionStrategy} instead.
+     */
     public abstract class SimpleAdapter implements RelationshipPropertiesExtractionStrategy {
 
+        /**
+         * Extract properties from a {@link org.neo4j.graphdb.Relationship}.
+         *
+         * @param properties of the relationship.
+         * @return read-only map of extracted properties.
+         */
         protected abstract Map<String, String> extractProperties(Map<String, String> properties);
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public Map<String, String> extractProperties(Relationship relationship, Node pointOfView) {
             return extractProperties(propertiesToStringMap(relationship));

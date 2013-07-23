@@ -59,14 +59,15 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
             generalizations.addAll(cached.generateAllMoreGeneral());
         }
 
-        //Find the most specific generalization that has a chance to result in some compaction
+        //Find the most specific generalization that has a chance to result in the best compaction
         Set<CompactibleRelationship> bestCandidates = Collections.emptySet();
         CompactibleRelationship bestGeneralization = null;
 
         for (CompactibleRelationship generalization : generalizations) {
             if (bestGeneralization != null && generalization.isMoreGeneralThan(bestGeneralization)) {
-                break;
+                break; //already reached a generalization that is not the least general one
             }
+
             Set<CompactibleRelationship> candidates = new HashSet<>();
             for (CompactibleRelationship potentialCandidate : cachedCounts.keySet()) {
                 if (generalization.isMoreGeneralThan(potentialCandidate)) {
