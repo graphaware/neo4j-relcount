@@ -16,6 +16,7 @@
 
 package com.graphaware.neo4j.relcount.simple.logic;
 
+import com.graphaware.neo4j.framework.NeedsInitializationException;
 import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
 import com.graphaware.neo4j.relcount.common.logic.BaseRelationshipCountCache;
 import com.graphaware.neo4j.relcount.common.logic.RelationshipCountCache;
@@ -29,7 +30,7 @@ import org.neo4j.graphdb.Relationship;
 
 /**
  * A simple implementation of {@link com.graphaware.neo4j.relcount.common.logic.RelationshipCountCache}. It is simple in
- * the sense that it only cares about {@link org.neo4j.graphdb.RelationshipType}s and {@link org.neo4j.graphdb.Direction};
+ * the sense that it only cares about {@link org.neo4j.graphdb.RelationshipType}s and {@link org.neo4j.graphdb.Direction}s;
  * it completely ignores {@link org.neo4j.graphdb.Relationship} properties.
  */
 public class SimpleRelationshipCountCache extends BaseRelationshipCountCache<TypeAndDirectionDescription> implements RelationshipCountCache {
@@ -84,6 +85,7 @@ public class SimpleRelationshipCountCache extends BaseRelationshipCountCache<Typ
 
         if (!decrementCount(deletedRelationship, pointOfView, 1)) {
             LOG.warn(deletedRelationship.toString(FrameworkConfiguration.DEFAULT_SEPARATOR) + " was out of sync on node " + pointOfView.getId());
+            throw new NeedsInitializationException(deletedRelationship.toString(FrameworkConfiguration.DEFAULT_SEPARATOR) + " was out of sync on node " + pointOfView.getId());
         }
     }
 }

@@ -10,7 +10,8 @@ import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
 
 /**
  * {@link com.graphaware.neo4j.framework.GraphAwareModule} providing caching capabilities for simple relationship counting.
- * By simple, it is meant type-and-direction-based with properties ignored.
+ * "Simple" means it only cares about {@link org.neo4j.graphdb.RelationshipType}s and {@link org.neo4j.graphdb.Direction}s,
+ * properties are ignored.
  * <p/>
  * Once registered with {@link com.graphaware.neo4j.framework.GraphAwareFramework}, per-type-and-direction relationship
  * counts will be cached on nodes properties. {@link com.graphaware.neo4j.relcount.simple.api.SimpleCachedRelationshipCounter} can then be used to

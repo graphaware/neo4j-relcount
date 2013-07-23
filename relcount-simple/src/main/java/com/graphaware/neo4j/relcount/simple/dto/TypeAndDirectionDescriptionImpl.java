@@ -10,7 +10,7 @@ import org.neo4j.graphdb.RelationshipType;
 import static com.graphaware.neo4j.framework.config.FrameworkConfiguration.DEFAULT_SEPARATOR;
 
 /**
- * An simple implementation of {@link TypeAndDirectionDescription}.
+ * A simple implementation of {@link TypeAndDirectionDescription}.
  */
 public class TypeAndDirectionDescriptionImpl extends SerializableTypeAndDirectionImpl implements TypeAndDirectionDescription {
 

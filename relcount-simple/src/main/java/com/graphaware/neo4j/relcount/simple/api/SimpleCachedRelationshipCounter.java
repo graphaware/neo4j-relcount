@@ -28,13 +28,13 @@ import org.neo4j.graphdb.RelationshipType;
 import static com.graphaware.neo4j.relcount.simple.module.SimpleRelationshipCountModule.SIMPLE_RELCOUNT_ID;
 
 /**
- * A {@link SimpleRelationshipCounter} that counts matching relationships by by looking them up cached in {@link org.neo4j.graphdb.Node}'s properties.
+ * A {@link SimpleRelationshipCounter} that counts matching relationships by looking them up cached in {@link org.neo4j.graphdb.Node}'s properties.
  * <p/>
  * <b>Simple</b> relationship counter means that it inspects relationship types and directions, but <b>not</b> properties.
  * <p/>
- * Matching relationships are all relationships that are exactly the same as the relationship description provided to this counter.
+ * Matching relationships are all relationships that are of the same {@link RelationshipType} and {@link Direction} as the relationship description provided to this counter.
  * <p/>
- * It must be used in conjunction with {@link com.graphaware.neo4j.relcount.simple.module.SimpleRelationshipCountModule}
+ * This counter must be used in conjunction with {@link com.graphaware.neo4j.relcount.simple.module.SimpleRelationshipCountModule}
  * registered with {@link com.graphaware.neo4j.framework.GraphAwareFramework}.
  * <p/>
  * This counter always returns a count, never throws {@link com.graphaware.neo4j.relcount.common.api.UnableToCountException}.
@@ -48,7 +48,7 @@ public class SimpleCachedRelationshipCounter extends TypeAndDirection implements
     private final FrameworkConfiguration config;
 
     /**
-     * Construct a new relationship counter. Use if {@link com.graphaware.neo4j.framework.GraphAwareFramework} is used
+     * Construct a new relationship counter. Use this constructor if {@link com.graphaware.neo4j.framework.GraphAwareFramework} is used
      * with default configuration (typical use case).
      *
      * @param type      type of the relationships to count.
@@ -59,12 +59,12 @@ public class SimpleCachedRelationshipCounter extends TypeAndDirection implements
     }
 
     /**
-     * Construct a new relationship counter. Use if {@link com.graphaware.neo4j.framework.GraphAwareFramework} is used
+     * Construct a new relationship counter. Use this constructor if {@link com.graphaware.neo4j.framework.GraphAwareFramework} is used
      * with custom configuration (will rarely be the case).
      *
-     * @param type          type of the relationships to count.
-     * @param direction     direction of the relationships to count.
-     * @param config used with the {@link com.graphaware.neo4j.framework.GraphAwareFramework}.
+     * @param type      type of the relationships to count.
+     * @param direction direction of the relationships to count.
+     * @param config    used with the {@link com.graphaware.neo4j.framework.GraphAwareFramework}.
      */
     public SimpleCachedRelationshipCounter(RelationshipType type, Direction direction, FrameworkConfiguration config) {
         super(type, direction);

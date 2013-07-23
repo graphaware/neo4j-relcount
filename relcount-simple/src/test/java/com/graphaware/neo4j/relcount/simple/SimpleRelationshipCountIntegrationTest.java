@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 import static org.neo4j.graphdb.Direction.*;
 
 /**
- *
+ * Integration test for simple relationship counting.
  */
 public class SimpleRelationshipCountIntegrationTest extends IntegrationTest {
 

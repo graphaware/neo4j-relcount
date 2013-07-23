@@ -28,7 +28,7 @@ import org.neo4j.graphdb.RelationshipType;
  * <p/>
  * <b>Simple</b> relationship counter means that it inspects relationship types and directions, but <b>not</b> properties.
  * <p/>
- * Matching relationships are all relationships that are exactly the same as the relationship description provided to this counter.
+ * Matching relationships are all relationships that are of the same {@link RelationshipType} and {@link Direction} as the relationship description provided to this counter.
  * <p/>
  * Because relationships are counted on the fly (no caching performed), this can be used on any graph without any
  * {@link com.graphaware.neo4j.framework.GraphAwareModule}s registered and even without the

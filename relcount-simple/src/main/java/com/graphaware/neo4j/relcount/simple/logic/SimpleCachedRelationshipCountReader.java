@@ -21,7 +21,6 @@ import com.graphaware.neo4j.relcount.common.logic.CachedRelationshipCountReader;
 import com.graphaware.neo4j.relcount.common.logic.RelationshipCountReader;
 import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescription;
 import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
-import org.apache.log4j.Logger;
 
 /**
  * A simple {@link CachedRelationshipCountReader}. It must be used in conjunction with {@link com.graphaware.neo4j.relcount.simple.module.SimpleRelationshipCountModule}
@@ -31,8 +30,6 @@ import org.apache.log4j.Logger;
  * and {@link org.neo4j.graphdb.Direction}; it completely ignores {@link org.neo4j.graphdb.Relationship} properties.
  */
 public class SimpleCachedRelationshipCountReader extends CachedRelationshipCountReader<TypeAndDirectionDescription, TypeAndDirectionDescription> implements RelationshipCountReader<TypeAndDirectionDescription> {
-
-    private static final Logger LOG = Logger.getLogger(SimpleCachedRelationshipCountReader.class);
 
     /**
      * Construct a new reader.
