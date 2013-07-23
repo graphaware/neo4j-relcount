@@ -18,7 +18,6 @@ package com.graphaware.neo4j.relcount.full.dto.property;
 
 import com.graphaware.neo4j.dto.common.property.ImmutableProperties;
 import com.graphaware.neo4j.dto.string.property.BaseCopyMakingSerializableProperties;
-import org.neo4j.graphdb.PropertyContainer;
 
 import java.util.*;
 
@@ -30,15 +29,6 @@ import static com.graphaware.neo4j.framework.config.FrameworkConfiguration.DEFAU
 public class CompactiblePropertiesImpl extends BaseCopyMakingSerializableProperties<CompactibleProperties> implements CompactibleProperties {
 
     public static final String ANY_VALUE = "_ANY_";
-
-    /**
-     * Construct a description from a {@link org.neo4j.graphdb.PropertyContainer}.
-     *
-     * @param propertyContainer to take (copy) properties from.
-     */
-    public CompactiblePropertiesImpl(PropertyContainer propertyContainer) {
-        super(propertyContainer);
-    }
 
     /**
      * Construct a description from a {@link java.util.Map}.

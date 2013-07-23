@@ -31,6 +31,7 @@ import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.tx.single.TransactionCallback;
 import com.graphaware.neo4j.tx.single.TransactionExecutor;
 import com.graphaware.neo4j.tx.single.VoidReturningCallback;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -73,6 +74,11 @@ public class CompactionIntegrationTest {
         });
 
         reader = new FullCachedRelationshipCountReader(FULL_RELCOUNT_DEFAULT_ID, DefaultFrameworkConfiguration.getInstance());
+    }
+
+    @After
+    public void tearDown() {
+        database.shutdown();
     }
 
     @Test

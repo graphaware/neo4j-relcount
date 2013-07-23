@@ -39,17 +39,6 @@ import static com.graphaware.neo4j.framework.config.FrameworkConfiguration.DEFAU
 public class CompactibleRelationshipImpl extends BaseCopyMakingSerializableDirectedRelationship<CompactibleProperties, CompactibleRelationship> implements CompactibleRelationship {
 
     /**
-     * Construct a description. If the start node of this relationship is the same as the end node,
-     * the direction will be resolved as {@link org.neo4j.graphdb.Direction#BOTH}.
-     *
-     * @param relationship Neo4j relationship to describe.
-     * @param pointOfView  node which is looking at this relationship and thus determines its direction.
-     */
-    public CompactibleRelationshipImpl(Relationship relationship, Node pointOfView) {
-        super(relationship, pointOfView);
-    }
-
-    /**
      * Construct a description. Please note that using this constructor, the actual properties on the
      * relationship are ignored! The provided properties are used instead. If the start node of this relationship is the same as the end node,
      * the direction will be resolved as {@link org.neo4j.graphdb.Direction#BOTH}.
@@ -83,15 +72,6 @@ public class CompactibleRelationshipImpl extends BaseCopyMakingSerializableDirec
      */
     public CompactibleRelationshipImpl(String string, String prefix, String separator) {
         super(string, prefix, separator);
-    }
-
-    /**
-     * Construct a description from another one.
-     *
-     * @param relationship relationships representation.
-     */
-    public CompactibleRelationshipImpl(HasTypeDirectionAndProperties<String, ?> relationship) {
-        super(relationship);
     }
 
     /**
