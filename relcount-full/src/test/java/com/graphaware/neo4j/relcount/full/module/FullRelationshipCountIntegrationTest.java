@@ -2,23 +2,32 @@ package com.graphaware.neo4j.relcount.full.module;
 
 import com.graphaware.neo4j.framework.GraphAwareFramework;
 import com.graphaware.neo4j.relcount.common.IntegrationTest;
+import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
 import com.graphaware.neo4j.relcount.full.api.FullCachedRelationshipCounter;
+import com.graphaware.neo4j.relcount.full.api.FullFallingBackRelationshipCounter;
 import com.graphaware.neo4j.relcount.full.api.FullNaiveRelationshipCounter;
 import com.graphaware.neo4j.relcount.full.api.FullRelationshipCounter;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategiesImpl;
+import com.graphaware.neo4j.relcount.full.strategy.RelationshipPropertiesExtractionStrategy;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipWeighingStrategy;
+import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
+import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertyInclusionStrategy;
 import org.junit.Test;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 
+import java.util.Map;
+
 import static com.graphaware.neo4j.relcount.common.IntegrationTest.RelationshipTypes.ONE;
+import static com.graphaware.neo4j.relcount.common.IntegrationTest.RelationshipTypes.TWO;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.neo4j.graphdb.Direction.*;
 
 /**
- *
+ * Integration test for full relationship counting.
  */
 @SuppressWarnings("PointlessArithmeticExpression")
 public class FullRelationshipCountIntegrationTest extends IntegrationTest {
@@ -28,22 +37,9 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         setUpTwoNodes();
         simulateUsage();
 
-        CounterCreator naiveCounterCreator = new CounterCreator() {
-            @Override
-            public FullRelationshipCounter createCounter(RelationshipType type, Direction direction) {
-                return new FullNaiveRelationshipCounter(type, direction);
-            }
-        };
-
-        CounterCreator cachedCounterCreator = new CounterCreator() {
-            @Override
-            public FullRelationshipCounter createCounter(RelationshipType type, Direction direction) {
-                return new FullCachedRelationshipCounter(type, direction);
-            }
-        };
-
-        verifyCounts(1, naiveCounterCreator);
-        verifyCounts(0, cachedCounterCreator);
+        verifyCounts(1, defaultNaiveCounterCreator());
+        verifyCounts(0, defaultCachedCounterCreator());
+        verifyCounts(0, defaultFallbackCounterCreator());
     }
 
     @Test
@@ -52,22 +48,26 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         simulateUsage();
         simulateUsage();
 
-        CounterCreator naiveCounterCreator = new CounterCreator() {
-            @Override
-            public FullRelationshipCounter createCounter(RelationshipType type, Direction direction) {
-                return new FullNaiveRelationshipCounter(type, direction);
-            }
-        };
+        verifyCounts(2, defaultNaiveCounterCreator());
+        verifyCounts(0, defaultCachedCounterCreator());
+        verifyCounts(0, defaultFallbackCounterCreator());
+    }
 
-        CounterCreator cachedCounterCreator = new CounterCreator() {
-            @Override
-            public FullRelationshipCounter createCounter(RelationshipType type, Direction direction) {
-                return new FullCachedRelationshipCounter(type, direction);
-            }
-        };
+    @Test
+    public void cachedCountsCanBeRebuilt() {
+        GraphAwareFramework framework = new GraphAwareFramework(database);
+        final FullRelationshipCountModule module = new FullRelationshipCountModule();
+        framework.registerModule(module);
+        framework.start();
 
-        verifyCounts(2, naiveCounterCreator);
-        verifyCounts(0, cachedCounterCreator);
+        setUpTwoNodes();
+        simulateUsage();
+
+        module.reinitialize(database);
+
+        verifyCounts(1, naiveCounterCreator(module));
+        verifyCounts(1, cachedCounterCreator(module));
+        verifyCounts(1, fallbackCounterCreator(module));
     }
 
     @Test
@@ -82,6 +82,7 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
         verifyCounts(1, naiveCounterCreator(module));
         verifyCounts(1, cachedCounterCreator(module));
+        verifyCounts(1, fallbackCounterCreator(module));
     }
 
     @Test
@@ -96,6 +97,7 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
         verifyCounts(1, naiveCounterCreator(module));
         verifyCounts(1, cachedCounterCreator(module));
+        verifyCounts(1, fallbackCounterCreator(module));
     }
 
     @Test
@@ -110,6 +112,7 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
         verifyCounts(1, naiveCounterCreator(module));
         verifyCounts(1, cachedCounterCreator(module));
+        verifyCounts(1, fallbackCounterCreator(module));
     }
 
     @Test
@@ -124,110 +127,43 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
         verifyCounts(1, naiveCounterCreator(module));
         verifyCounts(1, cachedCounterCreator(module));
+        verifyCounts(1, fallbackCounterCreator(module));
     }
 
     @Test
     public void weightedRelationships() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
-        final FullRelationshipCountModule module = new FullRelationshipCountModule(
-                RelationshipCountStrategiesImpl.defaultStrategies()
-                        .with(new RelationshipWeighingStrategy() {
-                            @Override
-                            public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
-                                return (int) relationship.getProperty(WEIGHT, 1);
-                            }
-                        }));
+        for (int numberOfRounds = 1; numberOfRounds <= 10; numberOfRounds++) {
+            setUp();
 
-        framework.registerModule(module);
-        framework.start();
+            GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+            final FullRelationshipCountModule module = new FullRelationshipCountModule(
+                    RelationshipCountStrategiesImpl.defaultStrategies()
+                            .with(new RelationshipWeighingStrategy() {
+                                @Override
+                                public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
+                                    return (int) relationship.getProperty(WEIGHT, 1);
+                                }
+                            }));
 
-        setUpTwoNodes();
-        simulateUsage();
+            framework.registerModule(module);
+            framework.start();
 
-        verifyWeightedCounts(1, naiveCounterCreator(module));
-        verifyWeightedCounts(1, cachedCounterCreator(module));
+            setUpTwoNodes();
+
+            for (int i = 0; i < numberOfRounds; i++) {
+                simulateUsage();
+            }
+
+            verifyWeightedCounts(numberOfRounds, naiveCounterCreator(module));
+            verifyWeightedCounts(numberOfRounds, cachedCounterCreator(module));
+            verifyWeightedCounts(numberOfRounds, fallbackCounterCreator(module));
+
+            tearDown();
+        }
     }
 
     @Test
-    public void weightedRelationships2() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
-        final FullRelationshipCountModule module = new FullRelationshipCountModule(
-                RelationshipCountStrategiesImpl.defaultStrategies()
-                        .with(new RelationshipWeighingStrategy() {
-                            @Override
-                            public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
-                                return (int) relationship.getProperty(WEIGHT, 1);
-                            }
-                        }));
-
-        framework.registerModule(module);
-        framework.start();
-
-        setUpTwoNodes();
-        simulateUsage();
-        simulateUsage();
-
-        verifyWeightedCounts(2, naiveCounterCreator(module));
-        verifyWeightedCounts(2, cachedCounterCreator(module));
-    }
-
-    @Test
-    public void weightedRelationships3() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
-        final FullRelationshipCountModule module = new FullRelationshipCountModule(
-                RelationshipCountStrategiesImpl.defaultStrategies()
-                        .with(new RelationshipWeighingStrategy() {
-                            @Override
-                            public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
-                                return (int) relationship.getProperty(WEIGHT, 1);
-                            }
-                        }));
-
-        framework.registerModule(module);
-        framework.start();
-
-        setUpTwoNodes();
-        simulateUsage();
-        simulateUsage();
-        simulateUsage();
-
-        verifyWeightedCounts(3, naiveCounterCreator(module));
-        verifyWeightedCounts(3, cachedCounterCreator(module));
-    }
-
-    @Test
-    public void weightedRelationships10() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
-        final FullRelationshipCountModule module = new FullRelationshipCountModule(
-                RelationshipCountStrategiesImpl.defaultStrategies()
-                        .with(new RelationshipWeighingStrategy() {
-                            @Override
-                            public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
-                                return (int) relationship.getProperty(WEIGHT, 1);
-                            }
-                        }));
-
-        framework.registerModule(module);
-        framework.start();
-
-        setUpTwoNodes();
-        simulateUsage();
-        simulateUsage();
-        simulateUsage();
-        simulateUsage();
-        simulateUsage();
-        simulateUsage();
-        simulateUsage();
-        simulateUsage();
-        simulateUsage();
-        simulateUsage();
-
-        verifyWeightedCounts(10, naiveCounterCreator(module));
-        verifyWeightedCounts(10, cachedCounterCreator(module));
-    }
-
-    @Test
-    public void fallbackWithCompaction() {
+    public void defaultStrategiesWithLowerThreshold() {
         GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
         final FullRelationshipCountModule module = new FullRelationshipCountModule(
                 RelationshipCountStrategiesImpl.defaultStrategies().with(5)
@@ -238,14 +174,16 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         setUpTwoNodes();
         simulateUsage();
 
+        verifyCounts(1, naiveCounterCreator(module));
+        verifyCompactedCounts(1, cachedCounterCreator(module));
         verifyCounts(1, fallbackCounterCreator(module));
     }
 
     @Test
-    public void fallbackWithCompaction2() {
+    public void defaultStrategiesWithLowerThreshold2() {
         GraphAwareFramework framework = new GraphAwareFramework(database);
         final FullRelationshipCountModule module = new FullRelationshipCountModule(
-                RelationshipCountStrategiesImpl.defaultStrategies().with(3)
+                RelationshipCountStrategiesImpl.defaultStrategies().with(5)
         );
         framework.registerModule(module);
         framework.start();
@@ -254,28 +192,57 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         simulateUsage();
         simulateUsage();
 
+        verifyCounts(2, naiveCounterCreator(module));
+        verifyCompactedCounts(2, cachedCounterCreator(module));
         verifyCounts(2, fallbackCounterCreator(module));
     }
 
     @Test
-    public void fallbackWithCompaction3() {
+    public void defaultStrategiesWithLowerThreshold3() {
         GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
         final FullRelationshipCountModule module = new FullRelationshipCountModule(
-                RelationshipCountStrategiesImpl.defaultStrategies().with(8)
+                RelationshipCountStrategiesImpl.defaultStrategies().with(4)
         );
         framework.registerModule(module);
         framework.start();
 
         setUpTwoNodes();
         simulateUsage();
-        simulateUsage();
-        simulateUsage();
 
-        verifyCounts(3, fallbackCounterCreator(module));
+        try {
+            cachedCounterCreator(module).createCounter(ONE, OUTGOING).with(WEIGHT, 2).with(TIMESTAMP, "123").with(K1, "V1").count(database.getNodeById(1));
+            fail();
+        } catch (UnableToCountException e) {
+            //OK
+        }
     }
 
     @Test
-    public void fallbackWithCompactionAndWeighting() {
+    public void defaultStrategiesWithLowerThreshold20() {
+        for (int threshold = 3; threshold <= 20; threshold++) {
+            setUp();
+
+            GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+            final FullRelationshipCountModule module = new FullRelationshipCountModule(
+                    RelationshipCountStrategiesImpl.defaultStrategies().with(threshold)
+            );
+            framework.registerModule(module);
+            framework.start();
+
+            setUpTwoNodes();
+            simulateUsage();
+            simulateUsage();
+            simulateUsage();
+
+            verifyCounts(3, fallbackCounterCreator(module));
+            verifyCounts(3, naiveCounterCreator(module));
+
+            tearDown();
+        }
+    }
+
+    @Test
+    public void weightedRelationshipsWithCompaction() {
         GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
         final FullRelationshipCountModule module = new FullRelationshipCountModule(
                 RelationshipCountStrategiesImpl.defaultStrategies()
@@ -297,9 +264,145 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         simulateUsage();
 
         verifyWeightedCounts(4, fallbackCounterCreator(module));
+        verifyWeightedCounts(4, naiveCounterCreator(module));
+    }
+
+    @Test
+    public void twoSimultaneousModules() {
+        GraphAwareFramework framework = new GraphAwareFramework(database);
+        final FullRelationshipCountModule module1 = new FullRelationshipCountModule("M1", RelationshipCountStrategiesImpl.defaultStrategies());
+        final FullRelationshipCountModule module2 = new FullRelationshipCountModule("M2",
+                RelationshipCountStrategiesImpl.defaultStrategies()
+                        .with(new RelationshipWeighingStrategy() {
+                            @Override
+                            public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
+                                return (int) relationship.getProperty(WEIGHT, 1);
+                            }
+                        }));
+
+        framework.registerModule(module1);
+        framework.registerModule(module2);
+        framework.start();
+
+        setUpTwoNodes();
+        simulateUsage();
+        simulateUsage();
+
+        verifyCounts(2, naiveCounterCreator(module1));
+        verifyCounts(2, cachedCounterCreator(module1));
+        verifyCounts(2, fallbackCounterCreator(module1));
+
+        verifyWeightedCounts(2, naiveCounterCreator(module2));
+        verifyWeightedCounts(2, cachedCounterCreator(module2));
+        verifyWeightedCounts(2, fallbackCounterCreator(module2));
+    }
+
+    @Test
+    public void customRelationshipPropertiesExtractionStrategy() {
+        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        final FullRelationshipCountModule module = new FullRelationshipCountModule(
+                RelationshipCountStrategiesImpl.defaultStrategies()
+                        .with(new RelationshipPropertiesExtractionStrategy.OtherNodeIncludingAdapter() {
+                            @Override
+                            protected Map<String, String> extractProperties(Map<String, String> properties, Node otherNode) {
+                                properties.put("otherNodeName", otherNode.getProperty(NAME, "UNKNOWN").toString());
+                                return properties;
+                            }
+                        }));
+
+        framework.registerModule(module);
+        framework.start();
+
+        setUpTwoNodes();
+        simulateUsage();
+        simulateUsage();
+
+        assertEquals(4, naiveCounterCreator(module).createCounter(ONE, INCOMING).with(K1, "V1").with("otherNodeName", "Two").count(database.getNodeById(1)));
+        assertEquals(4, fallbackCounterCreator(module).createCounter(ONE, INCOMING).with(K1, "V1").with("otherNodeName", "Two").count(database.getNodeById(1)));
+        assertEquals(4, cachedCounterCreator(module).createCounter(ONE, INCOMING).with(K1, "V1").with("otherNodeName", "Two").count(database.getNodeById(1)));
+    }
+
+    @Test
+    public void customRelationshipInclusionStrategy() {
+        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        final FullRelationshipCountModule module = new FullRelationshipCountModule(
+                RelationshipCountStrategiesImpl.defaultStrategies()
+                        .with(new RelationshipInclusionStrategy() {
+                            @Override
+                            public boolean include(Relationship relationship) {
+                                return !relationship.isType(TWO);
+                            }
+                        }));
+
+        framework.registerModule(module);
+        framework.start();
+
+        setUpTwoNodes();
+        simulateUsage();
+        simulateUsage();
+
+        //naive doesn't care about this strategy
+        assertEquals(2, naiveCounterCreator(module).createCounter(TWO, OUTGOING).count(database.getNodeById(1)));
+        assertEquals(0, fallbackCounterCreator(module).createCounter(TWO, OUTGOING).count(database.getNodeById(1)));
+        assertEquals(0, cachedCounterCreator(module).createCounter(TWO, OUTGOING).count(database.getNodeById(1)));
+    }
+
+    @Test
+    public void customRelationshipPropertiesInclusionStrategy() {
+        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        final FullRelationshipCountModule module = new FullRelationshipCountModule(
+                RelationshipCountStrategiesImpl.defaultStrategies()
+                        .with(new RelationshipPropertyInclusionStrategy() {
+                            @Override
+                            public boolean include(String key, Relationship propertyContainer) {
+                                return !WEIGHT.equals(key);
+                            }
+                        }));
+
+        framework.registerModule(module);
+        framework.start();
+
+        setUpTwoNodes();
+        simulateUsage();
+        simulateUsage();
+
+        //naive doesn't care about this strategy
+        assertEquals(2, naiveCounterCreator(module).createCounter(ONE, INCOMING).with(WEIGHT, 7).count(database.getNodeById(1)));
+        assertEquals(2, naiveCounterCreator(module).createCounter(ONE, INCOMING).with(WEIGHT, 7).countLiterally(database.getNodeById(1)));
+        assertEquals(0, cachedCounterCreator(module).createCounter(ONE, INCOMING).with(WEIGHT, 7).count(database.getNodeById(1)));
+        assertEquals(0, cachedCounterCreator(module).createCounter(ONE, INCOMING).with(WEIGHT, 7).countLiterally(database.getNodeById(1)));
+        assertEquals(0, fallbackCounterCreator(module).createCounter(ONE, INCOMING).with(WEIGHT, 7).count(database.getNodeById(1)));
+        assertEquals(0, fallbackCounterCreator(module).createCounter(ONE, INCOMING).with(WEIGHT, 7).countLiterally(database.getNodeById(1)));
     }
 
     //helpers
+
+    private CounterCreator defaultNaiveCounterCreator() {
+        return new CounterCreator() {
+            @Override
+            public FullRelationshipCounter createCounter(RelationshipType type, Direction direction) {
+                return new FullNaiveRelationshipCounter(type, direction);
+            }
+        };
+    }
+
+    private CounterCreator defaultFallbackCounterCreator() {
+        return new CounterCreator() {
+            @Override
+            public FullRelationshipCounter createCounter(RelationshipType type, Direction direction) {
+                return new FullFallingBackRelationshipCounter(type, direction);
+            }
+        };
+    }
+
+    private CounterCreator defaultCachedCounterCreator() {
+        return new CounterCreator() {
+            @Override
+            public FullRelationshipCounter createCounter(RelationshipType type, Direction direction) {
+                return new FullCachedRelationshipCounter(type, direction);
+            }
+        };
+    }
 
     private CounterCreator naiveCounterCreator(final FullRelationshipCountModule module) {
         return new CounterCreator() {
@@ -612,6 +715,8 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         assertEquals(14 * factor, counterCreator.createCounter(ONE, OUTGOING).count(one));
         assertEquals(0 * factor, counterCreator.createCounter(ONE, OUTGOING).countLiterally(one));
 
+        assertEquals(1 * factor, counterCreator.createCounter(TWO, OUTGOING).count(one));
+
         assertEquals(2 * factor, counterCreator.createCounter(ONE, OUTGOING).with(WEIGHT, 1).count(one));
         assertEquals(1 * factor, counterCreator.createCounter(ONE, OUTGOING).with(WEIGHT, 1).countLiterally(one));
         assertEquals(2 * factor, counterCreator.createCounter(ONE, OUTGOING).with(WEIGHT, 2).count(one));
@@ -800,6 +905,156 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         assertEquals(1 * factor, counterCreator.createCounter(ONE, BOTH).with(WEIGHT, 1).with(K1, "V1").countLiterally(two));
         assertEquals(0 * factor, counterCreator.createCounter(ONE, BOTH).with(WEIGHT, 2).with(K2, "V2").count(two));
         assertEquals(0 * factor, counterCreator.createCounter(ONE, BOTH).with(WEIGHT, 2).with(K2, "V2").countLiterally(two));
+    }
+
+    private void verifyCompactedCounts(int factor, CounterCreator counterCreator) {
+        Node one = database.getNodeById(1);
+        Node two = database.getNodeById(2);
+
+        //Node one incoming
+
+        assertEquals(3 * factor, counterCreator.createCounter(ONE, INCOMING).count(one));
+
+        try {
+            counterCreator.createCounter(ONE, INCOMING).countLiterally(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, INCOMING).with(WEIGHT, 1).count(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, INCOMING).with(WEIGHT, 1).countLiterally(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, INCOMING).with(WEIGHT, 2).count(one);
+
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, INCOMING).with(WEIGHT, 2).countLiterally(one);
+
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, INCOMING).with(WEIGHT, 7).count(one);
+
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, INCOMING).with(WEIGHT, 7).countLiterally(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, INCOMING).with(K1, "V1").count(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, INCOMING).with(K1, "V1").countLiterally(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, INCOMING).with(K2, "V1").count(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, INCOMING).with(K2, "V1").countLiterally(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, INCOMING).with(WEIGHT, 2).with(K1, "V1").count(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, INCOMING).with(WEIGHT, 2).with(K1, "V1").countLiterally(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, INCOMING).with(WEIGHT, 2).with(K2, "V2").count(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, INCOMING).with(WEIGHT, 2).with(K2, "V2").countLiterally(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        assertEquals(1 * factor, counterCreator.createCounter(ONE, OUTGOING).with(WEIGHT, 2).with(TIMESTAMP, "123").with(K1, "V1").count(one));
+
+        //Node one both
+
+        assertEquals(10 * factor, counterCreator.createCounter(ONE, BOTH).count(one));
+
+        try {
+            counterCreator.createCounter(ONE, BOTH).countLiterally(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, BOTH).with(WEIGHT, 1).count(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, BOTH).with(WEIGHT, 1).countLiterally(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, BOTH).with(WEIGHT, 7).count(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, BOTH).with(WEIGHT, 7).countLiterally(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, BOTH).with(K1, "V1").count(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
+
+        try {
+            counterCreator.createCounter(ONE, BOTH).with(K1, "V1").countLiterally(one);
+            fail();
+        } catch (UnableToCountException e) {
+        }
     }
 
     interface CounterCreator {

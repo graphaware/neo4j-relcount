@@ -26,7 +26,7 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
 
-import static com.graphaware.neo4j.relcount.full.Constants.FULL_RELCOUNT_DEFAULT_ID;
+import static com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID;
 
 /**
  * {@link FullRelationshipCounter} that counts matching relationships by looking them up cached in {@link org.neo4j.graphdb.Node}'s properties.

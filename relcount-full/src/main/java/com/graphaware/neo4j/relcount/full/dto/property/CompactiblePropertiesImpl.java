@@ -131,25 +131,12 @@ public class CompactiblePropertiesImpl extends BaseCopyMakingSerializablePropert
      * {@inheritDoc}
      */
     @Override
-    public Set<CompactibleProperties> generateOneMoreGeneral() {
-        Set<CompactibleProperties> result = new TreeSet<>();
-        result.add(this);
-        for (String key : keySet()) {
-            result.add(with(key, ANY_VALUE));
-        }
-        return result;
+    public Set<CompactibleProperties> generateAllMoreGeneral(Collection<String> unknownKeys) {
+        return generateAllMoreGeneral(this, unknownKeys);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Set<CompactibleProperties> generateAllMoreGeneral() {
-        return generateAllMoreGeneral(this);
-    }
-
-    protected Set<CompactibleProperties> generateAllMoreGeneral(CompactibleProperties properties) {
-        Set<String> nonWildcardKeys = nonWildcardKeys(properties);
+    protected Set<CompactibleProperties> generateAllMoreGeneral(CompactibleProperties properties, Collection<String> unknownKeys) {
+        Set<String> nonWildcardKeys = nonWildcardKeys(properties, unknownKeys);
 
         //base case
         if (nonWildcardKeys.isEmpty()) {
@@ -159,19 +146,26 @@ public class CompactiblePropertiesImpl extends BaseCopyMakingSerializablePropert
         //recursion
         Set<CompactibleProperties> result = new TreeSet<>();
         for (String key : nonWildcardKeys) {
-            for (CompactibleProperties moreGeneral : generateAllMoreGeneral(properties.with(key, ANY_VALUE))) {
+            for (CompactibleProperties moreGeneral : generateAllMoreGeneral(properties.with(key, ANY_VALUE), unknownKeys)) {
                 result.add(moreGeneral);
-                result.add(moreGeneral.with(key, get(key)));
+                result.add(properties);
             }
         }
 
         return result;
     }
 
-    private Set<String> nonWildcardKeys(CompactibleProperties compactibleProperties) {
+    private Set<String> nonWildcardKeys(CompactibleProperties compactibleProperties, Collection<String> unknownKeys) {
         Set<String> result = new HashSet<>();
+
         for (String key : compactibleProperties.keySet()) {
             if (!ANY_VALUE.equals(compactibleProperties.get(key))) {
+                result.add(key);
+            }
+        }
+
+        for (String key : unknownKeys) {
+            if (!compactibleProperties.containsKey(key)) {
                 result.add(key);
             }
         }

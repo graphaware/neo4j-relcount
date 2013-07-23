@@ -1,5 +1,7 @@
 package com.graphaware.neo4j.relcount.full.logic;
 
+import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
+import com.graphaware.neo4j.dto.common.relationship.TypeAndDirection;
 import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationship;
 import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Node;
@@ -53,10 +55,22 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
             return true;
         }
 
+        //Find all possible keys for each relationship type + direction
+        Map<HasTypeAndDirection, Collection<String>> keys = new HashMap<>();
+        for (CompactibleRelationship cachedCount : cachedCounts.keySet()) {
+            HasTypeAndDirection typeAndDirection = new TypeAndDirection(cachedCount);
+            if (!keys.containsKey(typeAndDirection)) {
+                keys.put(typeAndDirection, new HashSet<String>());
+            }
+            for (String key : cachedCount.getProperties().keySet()) {
+                keys.get(typeAndDirection).add(key);
+            }
+        }
+
         //Generate all possible generalizations
         Set<CompactibleRelationship> generalizations = new TreeSet<>();
         for (CompactibleRelationship cached : cachedCounts.keySet()) {
-            generalizations.addAll(cached.generateAllMoreGeneral());
+            generalizations.addAll(cached.generateAllMoreGeneral(keys.get(new TypeAndDirection(cached))));
         }
 
         //Find the most specific generalization that has a chance to result in the best compaction

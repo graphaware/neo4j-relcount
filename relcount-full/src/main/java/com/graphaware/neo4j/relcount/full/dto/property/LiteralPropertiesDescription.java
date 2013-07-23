@@ -16,14 +16,14 @@
 
 package com.graphaware.neo4j.relcount.full.dto.property;
 
-import com.graphaware.neo4j.dto.string.property.BaseCopyMakingSerializableProperties;
+import com.graphaware.neo4j.dto.string.property.SerializablePropertiesImpl;
 
 import java.util.Map;
 
 /**
  *  {@link PropertiesDescription} where a missing property means "undefined".
  */
-public class LiteralPropertiesDescription extends BaseCopyMakingSerializableProperties<PropertiesDescription> implements PropertiesDescription {
+public class LiteralPropertiesDescription extends SerializablePropertiesImpl implements PropertiesDescription {
 
     /**
      * Construct a representation of properties from a {@link java.util.Map}.
@@ -42,13 +42,5 @@ public class LiteralPropertiesDescription extends BaseCopyMakingSerializableProp
      */
     LiteralPropertiesDescription(String string, String separator) {
         super(string, separator);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected LiteralPropertiesDescription newInstance(Map<String, String> props) {
-        return new LiteralPropertiesDescription(props);
     }
 }

@@ -27,6 +27,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -94,16 +95,8 @@ public class CompactibleRelationshipImpl extends BaseCopyMakingSerializableDirec
      * {@inheritDoc}
      */
     @Override
-    public Set<CompactibleRelationship> generateOneMoreGeneral() {
-        return withDifferentProperties(getProperties().generateOneMoreGeneral());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Set<CompactibleRelationship> generateAllMoreGeneral() {
-        return withDifferentProperties(getProperties().generateAllMoreGeneral());
+    public Set<CompactibleRelationship> generateAllMoreGeneral(Collection<String> unknownKeys) {
+        return withDifferentProperties(getProperties().generateAllMoreGeneral(unknownKeys));
     }
 
     private Set<CompactibleRelationship> withDifferentProperties(Set<CompactibleProperties> propertySets) {

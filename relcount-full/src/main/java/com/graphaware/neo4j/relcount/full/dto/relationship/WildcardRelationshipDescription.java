@@ -17,11 +17,9 @@
 package com.graphaware.neo4j.relcount.full.dto.relationship;
 
 import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
-import com.graphaware.neo4j.dto.string.relationship.BaseCopyMakingSerializableDirectedRelationship;
+import com.graphaware.neo4j.dto.string.relationship.BaseSerializableDirectedRelationship;
 import com.graphaware.neo4j.relcount.full.dto.property.PropertiesDescription;
 import com.graphaware.neo4j.relcount.full.dto.property.WildcardPropertiesDescription;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.RelationshipType;
 
 import java.util.Map;
 
@@ -29,18 +27,7 @@ import java.util.Map;
  * A {@link RelationshipDescription} in which a missing property is treated as a wildcard ("any") as opposed
  * to "undefined".
  */
-public class WildcardRelationshipDescription extends BaseCopyMakingSerializableDirectedRelationship<PropertiesDescription, RelationshipDescription> implements RelationshipDescription {
-
-    /**
-     * Construct a description.
-     *
-     * @param type       type.
-     * @param direction  direction.
-     * @param properties props.
-     */
-    public WildcardRelationshipDescription(RelationshipType type, Direction direction, Map<String, ?> properties) {
-        super(type, direction, properties);
-    }
+public class WildcardRelationshipDescription extends BaseSerializableDirectedRelationship<PropertiesDescription> implements RelationshipDescription {
 
     /**
      * Construct a description from a string.
@@ -61,14 +48,6 @@ public class WildcardRelationshipDescription extends BaseCopyMakingSerializableD
      */
     public WildcardRelationshipDescription(HasTypeDirectionAndProperties<String, ?> relationship) {
         super(relationship);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected RelationshipDescription newRelationship(RelationshipType type, Direction direction, Map<String, ?> properties) {
-        return new WildcardRelationshipDescription(type, direction, properties);
     }
 
     /**

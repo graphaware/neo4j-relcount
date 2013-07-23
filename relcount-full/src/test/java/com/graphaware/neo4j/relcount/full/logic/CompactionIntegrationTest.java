@@ -277,6 +277,42 @@ public class CompactionIntegrationTest {
         }
     }
 
+    @Test
+    public void compactionIncludingWildcards() {
+        compactor = new ThresholdBasedRelationshipCountCompactor(2, cache);
+
+        executor.executeInTransaction(new VoidReturningCallback() {
+            @Override
+            public void doInTx(GraphDatabaseService database) {
+                Node root = database.getNodeById(0);
+                root.setProperty(wildcard("ONE#INCOMING#k1#v1#k2#v2").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#k1#"+ANY_VALUE+"#w#"+ANY_VALUE).toString(prefix(), hash()), 2);
+
+                compactor.compactRelationshipCounts(root);
+            }
+        });
+
+        assertEquals(1, cache.getRelationshipCounts(database.getNodeById(0)).size());
+    }
+
+    @Test
+    public void compactionIncludingWildcards2() {
+        compactor = new ThresholdBasedRelationshipCountCompactor(2, cache);
+
+        executor.executeInTransaction(new VoidReturningCallback() {
+            @Override
+            public void doInTx(GraphDatabaseService database) {
+                Node root = database.getNodeById(0);
+                root.setProperty(wildcard("ONE#INCOMING#k1#"+ANY_VALUE).toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#k2#"+ANY_VALUE).toString(prefix(), hash()), 2);
+
+                compactor.compactRelationshipCounts(root);
+            }
+        });
+
+        assertEquals(1, cache.getRelationshipCounts(database.getNodeById(0)).size());
+    }
+
     /**
      * just for readability
      */

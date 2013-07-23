@@ -30,6 +30,6 @@ public interface CompactibleProperties extends
         CopyMakingSerializableProperties<CompactibleProperties>,
         PartiallyComparable<ImmutableProperties<String>>,
         Comparable<CompactibleProperties>,
-        Generalizing<CompactibleProperties>,
+        Generalizing<CompactibleProperties, String>,
         MutuallyExclusive<ImmutableProperties<String>> {
 }

@@ -3,6 +3,7 @@ package com.graphaware.neo4j.relcount.common;
 import com.graphaware.neo4j.framework.config.BaseFrameworkConfiguration;
 import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.tx.single.VoidReturningCallback;
+import org.junit.After;
 import org.junit.Before;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -37,6 +38,11 @@ public abstract class IntegrationTest {
     @Before
     public void setUp() {
         database = new TestGraphDatabaseFactory().newImpermanentDatabase();
+    }
+
+    @After
+    public void tearDown() {
+        database.shutdown();
     }
 
     protected void simulateUsage() {

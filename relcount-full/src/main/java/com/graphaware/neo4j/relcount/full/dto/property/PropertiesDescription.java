@@ -16,10 +16,10 @@
 
 package com.graphaware.neo4j.relcount.full.dto.property;
 
-import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
+import com.graphaware.neo4j.dto.string.property.SerializableProperties;
 
 /**
  * Description of properties to be used for relationship counting.
  */
-public interface PropertiesDescription extends CopyMakingSerializableProperties<PropertiesDescription> {
+public interface PropertiesDescription extends SerializableProperties {
 }

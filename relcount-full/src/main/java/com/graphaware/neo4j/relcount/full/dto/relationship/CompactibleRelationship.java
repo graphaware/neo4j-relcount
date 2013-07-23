@@ -32,6 +32,6 @@ public interface CompactibleRelationship extends
         CopyMakingSerializableDirectedRelationship<CompactibleProperties, CompactibleRelationship>,
         PartiallyComparable<HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>>>,
         Comparable<CompactibleRelationship>,
-        Generalizing<CompactibleRelationship>,
+        Generalizing<CompactibleRelationship, String>,
         MutuallyExclusive<HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>>> {
 }

@@ -16,11 +16,11 @@
 
 package com.graphaware.neo4j.relcount.full.dto.relationship;
 
-import com.graphaware.neo4j.dto.string.relationship.CopyMakingSerializableDirectedRelationship;
+import com.graphaware.neo4j.dto.string.relationship.SerializableDirectedRelationship;
 import com.graphaware.neo4j.relcount.full.dto.property.PropertiesDescription;
 
 /**
  * Description of a relationship to be used for relationship counting.
  */
-public interface RelationshipDescription extends CopyMakingSerializableDirectedRelationship<PropertiesDescription, RelationshipDescription> {
+public interface RelationshipDescription extends SerializableDirectedRelationship<PropertiesDescription> {
 }

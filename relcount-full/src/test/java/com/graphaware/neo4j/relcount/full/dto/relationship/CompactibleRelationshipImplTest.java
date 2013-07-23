@@ -18,6 +18,7 @@ package com.graphaware.neo4j.relcount.full.dto.relationship;
 
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -73,7 +74,7 @@ public class CompactibleRelationshipImplTest {
 
     @Test
     public void shouldGenerateAllMoreGeneral() {
-        Set<CompactibleRelationship> result = compactible("test#INCOMING#key1#value1#key2#value2").generateAllMoreGeneral();
+        Set<CompactibleRelationship> result = compactible("test#INCOMING#key1#value1#key2#value2").generateAllMoreGeneral(Collections.<String>emptySet());
 
         assertEquals(4, result.size());
         Iterator<CompactibleRelationship> iterator = result.iterator();
@@ -84,14 +85,15 @@ public class CompactibleRelationshipImplTest {
     }
 
     @Test
-    public void shouldGenerateOneMoreGeneral() {
-        Set<CompactibleRelationship> result = compactible("test#INCOMING#key1#value1#key2#value2").generateOneMoreGeneral();
+    public void shouldGenerateAllMoreGeneralWithUnknownKeys() {
+        Set<CompactibleRelationship> result = compactible("test#INCOMING#key1#value1").generateAllMoreGeneral(Collections.singleton("key2"));
 
-        assertEquals(3, result.size());
+        assertEquals(4, result.size());
         Iterator<CompactibleRelationship> iterator = result.iterator();
-        assertEquals(iterator.next(), compactible("test#INCOMING#key1#value1#key2#value2"));
-        assertEquals(iterator.next(), compactible("test#INCOMING#key1#" + ANY_VALUE + "#key2#value2"));
+        assertEquals(iterator.next(), compactible("test#INCOMING#key1#value1"));
+        assertEquals(iterator.next(), compactible("test#INCOMING#key1#" + ANY_VALUE));
         assertEquals(iterator.next(), compactible("test#INCOMING#key1#value1#key2#" + ANY_VALUE));
+        assertEquals(iterator.next(), compactible("test#INCOMING#key1#" + ANY_VALUE + "#key2#" + ANY_VALUE));
     }
 
     @Test

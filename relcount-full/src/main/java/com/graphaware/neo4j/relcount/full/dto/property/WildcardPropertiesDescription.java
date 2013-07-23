@@ -16,7 +16,7 @@
 
 package com.graphaware.neo4j.relcount.full.dto.property;
 
-import com.graphaware.neo4j.dto.string.property.BaseCopyMakingSerializableProperties;
+import com.graphaware.neo4j.dto.string.property.SerializablePropertiesImpl;
 
 import java.util.Map;
 
@@ -25,7 +25,7 @@ import static com.graphaware.neo4j.relcount.full.dto.property.CompactiblePropert
 /**
  *  {@link PropertiesDescription} where a missing property means "any".
  */
-public class WildcardPropertiesDescription extends BaseCopyMakingSerializableProperties<PropertiesDescription> implements PropertiesDescription {
+public class WildcardPropertiesDescription extends SerializablePropertiesImpl implements PropertiesDescription {
 
     /**
      * Construct a representation of properties from a {@link java.util.Map}.
@@ -44,14 +44,6 @@ public class WildcardPropertiesDescription extends BaseCopyMakingSerializablePro
      */
     WildcardPropertiesDescription(String string, String separator) {
         super(string, separator);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected PropertiesDescription newInstance(Map<String, String> props) {
-        return new WildcardPropertiesDescription(props);
     }
 
     /**
