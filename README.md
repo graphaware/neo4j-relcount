@@ -1,5 +1,3 @@
-//todo  then tests (incl BOTH), then different weights per relationship
-
 Neo4j Relationship Count Cache
 ------------------------------
 
@@ -197,12 +195,6 @@ of some properties and `RelationshipPropertiesExtractionStrategy.OtherNodeInclud
 
 As you can see, this gives you access to the "other" node participating in the relationship, which gives you an opportunity
 to implement requirements like "would like to count outgoing relationships based on the end node's type".
-
-### TODO
-
-* Create a method that rebuilds cached counts for the entire database
-* Do we need to explicitly lock nodes?
-* Measure and improve performance (always! :-))
 
 ### License
 
