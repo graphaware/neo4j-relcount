@@ -44,12 +44,12 @@ public class RelationshipCountingSmokeTest {
     private static final Logger LOGGER = Logger.getLogger(RelationshipCountingSmokeTest.class);
 
     private GraphDatabaseService database;
-    private static final int STEPS = 1000;
+    private static final int STEPS = 10;
 
     @Before
     public void setUp() {
-        database = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("/tmp/relcount2")
-                .loadPropertiesFromFile("/Users/bachmanm/DEV/graphaware/neo4j-relcount/src/test/resources/neo4j.properties")
+        database = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("/tmp/relcount5")
+                .loadPropertiesFromFile("/Users/bachmanm/DEV/graphaware/neo4j-relcount/relcount-full/src/test/resources/neo4j.properties")
                 .newGraphDatabase();
 
         registerShutdownHook(database);

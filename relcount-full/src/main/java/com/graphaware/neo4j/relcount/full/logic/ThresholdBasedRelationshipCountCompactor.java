@@ -65,7 +65,7 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
 
         for (CompactibleRelationship generalization : generalizations) {
             if (bestGeneralization != null && generalization.isMoreGeneralThan(bestGeneralization)) {
-                break; //already reached a generalization that is not the least general one
+                break; //already reached a generalization that is not the
             }
 
             Set<CompactibleRelationship> candidates = new HashSet<>();

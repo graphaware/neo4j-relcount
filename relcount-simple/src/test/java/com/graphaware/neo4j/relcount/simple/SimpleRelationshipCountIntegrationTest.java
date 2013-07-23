@@ -1,18 +1,24 @@
 package com.graphaware.neo4j.relcount.simple;
 
 import com.graphaware.neo4j.framework.GraphAwareFramework;
-import com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration;
 import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
 import com.graphaware.neo4j.relcount.common.IntegrationTest;
 import com.graphaware.neo4j.relcount.simple.api.SimpleCachedRelationshipCounter;
 import com.graphaware.neo4j.relcount.simple.api.SimpleNaiveRelationshipCounter;
+import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
 import com.graphaware.neo4j.relcount.simple.module.SimpleRelationshipCountModule;
+import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
+import com.graphaware.neo4j.tx.single.VoidReturningCallback;
 import org.junit.Test;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 
+import static com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration.*;
 import static com.graphaware.neo4j.relcount.common.IntegrationTest.RelationshipTypes.ONE;
 import static com.graphaware.neo4j.relcount.common.IntegrationTest.RelationshipTypes.TWO;
+import static com.graphaware.neo4j.relcount.simple.module.SimpleRelationshipCountModule.SIMPLE_RELCOUNT_ID;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.neo4j.graphdb.Direction.*;
 
 /**
@@ -93,6 +99,30 @@ public class SimpleRelationshipCountIntegrationTest extends IntegrationTest {
         verifyCountsUsingCachingCounter(1, new CustomConfig());
     }
 
+    @Test
+    public void countsOutOfSync() {
+        GraphAwareFramework framework = new GraphAwareFramework(database);
+
+        framework.registerModule(new SimpleRelationshipCountModule());
+        framework.start();
+
+        setUpTwoNodes();
+        simulateUsage();
+
+        new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
+            @Override
+            protected void doInTx(GraphDatabaseService database) {
+                Node one = database.getNodeById(1);
+                String key = new TypeAndDirectionDescriptionImpl(ONE, INCOMING).toString(getInstance().createPrefix(SIMPLE_RELCOUNT_ID), DEFAULT_SEPARATOR);
+                one.setProperty(key, (int) one.getProperty(key) - 7);
+            }
+        });
+
+        simulateUsage();
+
+        assertTrue(database.getNodeById(0).getProperty(GA_PREFIX + SIMPLE_RELCOUNT_ID).toString().startsWith("FORCE_INIT:"));
+    }
+
     private void verifyCountsUsingNaiveCounter(int factor) {
         Node one = database.getNodeById(1);
         Node two = database.getNodeById(2);
@@ -113,12 +143,19 @@ public class SimpleRelationshipCountIntegrationTest extends IntegrationTest {
     }
 
     private void verifyCountsUsingCachingCounter(int factor) {
-        verifyCountsUsingCachingCounter(factor, DefaultFrameworkConfiguration.getInstance());
+        verifyCountsUsingCachingCounter(factor, getInstance());
     }
 
     private void verifyCountsUsingCachingCounter(int factor, FrameworkConfiguration config) {
         Node one = database.getNodeById(1);
         Node two = database.getNodeById(2);
+
+        //just verifying the constructor with default config
+        if (config.equals(getInstance())) {
+            assertEquals(3 * factor, new SimpleCachedRelationshipCounter(ONE, INCOMING).count(one));
+            assertEquals(7 * factor, new SimpleCachedRelationshipCounter(ONE, OUTGOING).count(one));
+            assertEquals(10 * factor, new SimpleCachedRelationshipCounter(ONE, BOTH).count(one));
+        }
 
         assertEquals(3 * factor, new SimpleCachedRelationshipCounter(ONE, INCOMING, config).count(one));
         assertEquals(7 * factor, new SimpleCachedRelationshipCounter(ONE, OUTGOING, config).count(one));

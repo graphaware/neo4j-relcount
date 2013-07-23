@@ -59,7 +59,7 @@ public class AnotherRandomUsageSimulator {
     }
 
     public void batchSimulate(int steps) {
-        deleteRoot();
+        //deleteRoot();                               //todo check GA does not allow this
 
         new NoInputBatchExecutor(database, 1000, NODES, new UnitOfWork<NullItem>() {
             @Override

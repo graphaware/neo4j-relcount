@@ -20,7 +20,7 @@ import static org.neo4j.graphdb.Direction.*;
 
 /**
  *
- */
+ */               //todo test different hascode with different config and same with same
 @SuppressWarnings("PointlessArithmeticExpression")
 public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
