@@ -1,9 +1,9 @@
-package com.graphaware.neo4j.relcount.full.api;
+package com.graphaware.neo4j.relcount.full.counter;
 
 import com.graphaware.neo4j.dto.common.property.ImmutableProperties;
 import com.graphaware.neo4j.dto.common.propertycontainer.MakesCopyWithProperty;
 import com.graphaware.neo4j.dto.common.relationship.HasTypeDirectionAndProperties;
-import com.graphaware.neo4j.relcount.common.api.RelationshipCounter;
+import com.graphaware.neo4j.relcount.common.counter.RelationshipCounter;
 import org.neo4j.graphdb.Node;
 
 /**
@@ -35,7 +35,7 @@ public interface FullRelationshipCounter extends RelationshipCounter, HasTypeDir
      *
      * @param node on which to count relationships.
      * @return number of relationships.
-     * @throws com.graphaware.neo4j.relcount.common.api.UnableToCountException
+     * @throws com.graphaware.neo4j.relcount.common.counter.UnableToCountException
      *          indicating that for some reason, relationships could not be counted.
      *          For example, when asking for a count purely based on cached values and the cached
      *          values are not present (e.g. have been compacted-out).
@@ -48,7 +48,7 @@ public interface FullRelationshipCounter extends RelationshipCounter, HasTypeDir
      *
      * @param node on which to count relationships.
      * @return number of relationships.
-     * @throws com.graphaware.neo4j.relcount.common.api.UnableToCountException
+     * @throws com.graphaware.neo4j.relcount.common.counter.UnableToCountException
      *          indicating that for some reason, relationships could not be counted.
      *          For example, when asking for a count purely based on cached values and the cached
      *          values are not present (e.g. have been compacted-out).

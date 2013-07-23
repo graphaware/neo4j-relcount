@@ -1,7 +1,7 @@
 package com.graphaware.neo4j.relcount.common.logic;
 
 import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
-import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
+import com.graphaware.neo4j.relcount.common.counter.UnableToCountException;
 import org.neo4j.graphdb.Node;
 
 /**

@@ -18,8 +18,8 @@ package com.graphaware.neo4j.relcount.full.module;
 
 import com.graphaware.neo4j.framework.GraphAwareFramework;
 import com.graphaware.neo4j.relcount.common.AnotherRandomUsageSimulator;
-import com.graphaware.neo4j.relcount.full.api.FullCachedRelationshipCounter;
-import com.graphaware.neo4j.relcount.full.api.FullRelationshipCounter;
+import com.graphaware.neo4j.relcount.full.counter.FullCachedRelationshipCounter;
+import com.graphaware.neo4j.relcount.full.counter.FullRelationshipCounter;
 import com.graphaware.neo4j.utils.TestUtils;
 import org.apache.log4j.Logger;
 import org.junit.Before;

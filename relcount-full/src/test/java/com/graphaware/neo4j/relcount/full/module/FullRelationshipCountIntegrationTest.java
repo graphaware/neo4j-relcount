@@ -2,11 +2,11 @@ package com.graphaware.neo4j.relcount.full.module;
 
 import com.graphaware.neo4j.framework.GraphAwareFramework;
 import com.graphaware.neo4j.relcount.common.IntegrationTest;
-import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
-import com.graphaware.neo4j.relcount.full.api.FullCachedRelationshipCounter;
-import com.graphaware.neo4j.relcount.full.api.FullFallingBackRelationshipCounter;
-import com.graphaware.neo4j.relcount.full.api.FullNaiveRelationshipCounter;
-import com.graphaware.neo4j.relcount.full.api.FullRelationshipCounter;
+import com.graphaware.neo4j.relcount.common.counter.UnableToCountException;
+import com.graphaware.neo4j.relcount.full.counter.FullCachedRelationshipCounter;
+import com.graphaware.neo4j.relcount.full.counter.FullFallingBackRelationshipCounter;
+import com.graphaware.neo4j.relcount.full.counter.FullNaiveRelationshipCounter;
+import com.graphaware.neo4j.relcount.full.counter.FullRelationshipCounter;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategiesImpl;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipPropertiesExtractionStrategy;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipWeighingStrategy;

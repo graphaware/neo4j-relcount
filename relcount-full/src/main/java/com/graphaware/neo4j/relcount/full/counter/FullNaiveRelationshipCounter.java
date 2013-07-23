@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.full.api;
+package com.graphaware.neo4j.relcount.full.counter;
 
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
@@ -36,7 +36,7 @@ import org.neo4j.graphdb.RelationshipType;
  * Because relationships are counted on the fly (no caching performed), this can be used without the
  * {@link com.graphaware.neo4j.framework.GraphAwareFramework} and/or any {@link com.graphaware.neo4j.framework.GraphAwareModule}s.
  * <p/>
- * This counter always returns a count, never throws {@link com.graphaware.neo4j.relcount.common.api.UnableToCountException}.
+ * This counter always returns a count, never throws {@link com.graphaware.neo4j.relcount.common.counter.UnableToCountException}.
  */
 public class FullNaiveRelationshipCounter extends BaseFullRelationshipCounter implements FullRelationshipCounter {
 

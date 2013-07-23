@@ -14,12 +14,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.full.api;
+package com.graphaware.neo4j.relcount.full.counter;
 
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration;
 import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
-import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
+import com.graphaware.neo4j.relcount.common.counter.UnableToCountException;
 import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.dto.relationship.WildcardRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategies;
@@ -42,7 +42,7 @@ import static com.graphaware.neo4j.relcount.full.module.FullRelationshipCountMod
  * registered with {@link com.graphaware.neo4j.framework.GraphAwareFramework}. The easiest and recommended way to create
  * and instance of this counter is through the corresponding {@link com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule#fallingBackCounter(org.neo4j.graphdb.RelationshipType, org.neo4j.graphdb.Direction)}.
  * <p/>
- * This counter always returns a count, never throws {@link com.graphaware.neo4j.relcount.common.api.UnableToCountException}.
+ * This counter always returns a count, never throws {@link com.graphaware.neo4j.relcount.common.counter.UnableToCountException}.
  * <p/>
  * About fallback: Fallback to naive approach only happens if it is detected that compaction has taken place
  * (see {@link com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountCache}) and the needed granularity has

@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.simple.api;
+package com.graphaware.neo4j.relcount.simple.counter;
 
 import com.graphaware.neo4j.dto.common.relationship.TypeAndDirection;
 import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
@@ -34,7 +34,7 @@ import org.neo4j.graphdb.RelationshipType;
  * {@link com.graphaware.neo4j.framework.GraphAwareModule}s registered and even without the
  * {@link com.graphaware.neo4j.framework.GraphAwareFramework} running at all.
  * <p/>
- * This counter always returns a count, never throws {@link com.graphaware.neo4j.relcount.common.api.UnableToCountException}.
+ * This counter always returns a count, never throws {@link com.graphaware.neo4j.relcount.common.counter.UnableToCountException}.
  */
 public class SimpleNaiveRelationshipCounter extends TypeAndDirection implements SimpleRelationshipCounter {
 

@@ -1,6 +1,6 @@
-package com.graphaware.neo4j.relcount.simple.api;
+package com.graphaware.neo4j.relcount.simple.counter;
 
-import com.graphaware.neo4j.relcount.common.api.RelationshipCounter;
+import com.graphaware.neo4j.relcount.common.counter.RelationshipCounter;
 
 /**
  * A {@link RelationshipCounter} capable of counting relationships based on their "simple" description, i.e. type and

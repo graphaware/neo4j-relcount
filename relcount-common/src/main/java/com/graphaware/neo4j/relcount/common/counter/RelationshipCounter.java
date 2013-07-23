@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.common.api;
+package com.graphaware.neo4j.relcount.common.counter;
 
 import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
 import org.neo4j.graphdb.Node;

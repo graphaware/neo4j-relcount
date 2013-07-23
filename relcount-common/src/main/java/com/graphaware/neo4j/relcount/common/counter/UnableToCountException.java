@@ -1,4 +1,4 @@
-package com.graphaware.neo4j.relcount.common.api;
+package com.graphaware.neo4j.relcount.common.counter;
 
 /**
  * {@link RuntimeException} indicating that for some reason, relationships could not be counted. For example, when asking

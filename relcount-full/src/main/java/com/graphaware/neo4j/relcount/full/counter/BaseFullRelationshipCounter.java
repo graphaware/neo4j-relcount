@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.full.api;
+package com.graphaware.neo4j.relcount.full.counter;
 
 import com.graphaware.neo4j.dto.common.relationship.BaseDirectedRelationship;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;

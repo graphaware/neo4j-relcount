@@ -17,7 +17,7 @@
 package com.graphaware.neo4j.relcount.full.logic;
 
 import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
-import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
+import com.graphaware.neo4j.relcount.common.counter.UnableToCountException;
 import com.graphaware.neo4j.relcount.common.logic.CachedRelationshipCountReader;
 import com.graphaware.neo4j.relcount.common.logic.RelationshipCountReader;
 import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationship;

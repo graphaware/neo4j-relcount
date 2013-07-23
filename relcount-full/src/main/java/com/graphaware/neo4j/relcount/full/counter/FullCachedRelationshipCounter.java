@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.full.api;
+package com.graphaware.neo4j.relcount.full.counter;
 
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration;
@@ -36,7 +36,7 @@ import static com.graphaware.neo4j.relcount.full.module.FullRelationshipCountMod
  * It must be used in conjunction with {@link com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule}
  * registered with {@link com.graphaware.neo4j.framework.GraphAwareFramework}.
  * <p/>
- * This counter throws {@link com.graphaware.neo4j.relcount.common.api.UnableToCountException} if it detects it can not
+ * This counter throws {@link com.graphaware.neo4j.relcount.common.counter.UnableToCountException} if it detects it can not
  * reliably answer the question. This means compaction has taken place and this counter can't serve a request for
  * relationship count this specific. If you still want to count the relationship, either use {@link FullNaiveRelationshipCounter}
  * or consider increasing the compaction threshold.
