@@ -297,7 +297,7 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         simulateUsage();
         simulateUsage();
 
-        verifyCounts(4, fallbackCounterCreator(module));
+        verifyWeightedCounts(4, fallbackCounterCreator(module));
     }
 
     //helpers

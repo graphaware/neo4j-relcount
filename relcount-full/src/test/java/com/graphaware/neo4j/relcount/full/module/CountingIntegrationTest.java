@@ -122,24 +122,24 @@ public class CountingIntegrationTest {
         //also testing order
 
         Map.Entry<CompactibleRelationship, Integer> next = iterator.next();
-        assertEquals(gen("test#OUTGOING#key1#value1#key2#value2"), next.getKey());
-        assertEquals(3, (int) next.getValue());
+        assertEquals(comp("test#OUTGOING"), next.getKey());
+        assertEquals(13, (int) next.getValue());
 
         next = iterator.next();
-        assertEquals(gen("test#OUTGOING#key1#value1#key2#value3"), next.getKey());
-        assertEquals(5, (int) next.getValue());
-
-        next = iterator.next();
-        assertEquals(gen("test#OUTGOING#key1#value1"), next.getKey());
+        assertEquals(comp("test#OUTGOING#key1#value1"), next.getKey());
         assertEquals(7, (int) next.getValue());
 
         next = iterator.next();
-        assertEquals(gen("test#OUTGOING#key1#value2"), next.getKey());
-        assertEquals(11, (int) next.getValue());
+        assertEquals(comp("test#OUTGOING#key1#value1#key2#value2"), next.getKey());
+        assertEquals(3, (int) next.getValue());
 
         next = iterator.next();
-        assertEquals(gen("test#OUTGOING"), next.getKey());
-        assertEquals(13, (int) next.getValue());
+        assertEquals(comp("test#OUTGOING#key1#value1#key2#value3"), next.getKey());
+        assertEquals(5, (int) next.getValue());
+
+        next = iterator.next();
+        assertEquals(comp("test#OUTGOING#key1#value2"), next.getKey());
+        assertEquals(11, (int) next.getValue());
 
         assertEquals(5, relationshipCounts.size());
     }
@@ -226,8 +226,8 @@ public class CountingIntegrationTest {
             }
         });
 
-        assertEquals(12, (int) cache.getRelationshipCounts(root).get(gen("test#OUTGOING#key1#value1")));
-        assertEquals(13, (int) cache.getRelationshipCounts(root).get(gen("test#OUTGOING")));
+        assertEquals(12, (int) cache.getRelationshipCounts(root).get(comp("test#OUTGOING#key1#value1")));
+        assertEquals(13, (int) cache.getRelationshipCounts(root).get(comp("test#OUTGOING")));
     }
 
     @Test
@@ -316,8 +316,8 @@ public class CountingIntegrationTest {
             }
         });
 
-        assertEquals(2, (int) cache.getRelationshipCounts(root).get(gen("test#OUTGOING#key1#value1")));
-        assertEquals(13, (int) cache.getRelationshipCounts(root).get(gen("test#OUTGOING")));
+        assertEquals(2, (int) cache.getRelationshipCounts(root).get(comp("test#OUTGOING#key1#value1")));
+        assertEquals(13, (int) cache.getRelationshipCounts(root).get(comp("test#OUTGOING")));
     }
 
     @Test
@@ -334,9 +334,9 @@ public class CountingIntegrationTest {
             }
         });
 
-        assertFalse(cache.getRelationshipCounts(root).containsKey(gen("test#OUTGOING#key1#value1")));
+        assertFalse(cache.getRelationshipCounts(root).containsKey(comp("test#OUTGOING#key1#value1")));
         assertEquals(8, reader.getRelationshipCount(gen("test#OUTGOING#key1#value1"), root));
-        assertEquals(13, (int) cache.getRelationshipCounts(root).get(gen("test#OUTGOING")));
+        assertEquals(13, (int) cache.getRelationshipCounts(root).get(comp("test#OUTGOING")));
     }
 
     @Test
@@ -353,9 +353,9 @@ public class CountingIntegrationTest {
             }
         });
 
-        assertFalse(cache.getRelationshipCounts(root).containsKey(gen("test#OUTGOING#key1#value1")));
+        assertFalse(cache.getRelationshipCounts(root).containsKey(comp("test#OUTGOING#key1#value1")));
         assertEquals(8, reader.getRelationshipCount(gen("test#OUTGOING#key1#value1"), root));
-        assertEquals(13, (int) cache.getRelationshipCounts(root).get(gen("test#OUTGOING")));
+        assertEquals(13, (int) cache.getRelationshipCounts(root).get(comp("test#OUTGOING")));
     }
 
     @Test
@@ -373,7 +373,7 @@ public class CountingIntegrationTest {
         });
 
         assertEquals(26, reader.getRelationshipCount(gen("test#OUTGOING"), root));
-        assertFalse(cache.getRelationshipCounts(root).containsKey(gen("test#OUTGOING")));
+        assertFalse(cache.getRelationshipCounts(root).containsKey(comp("test#OUTGOING")));
 
         assertEquals(11, reader.getRelationshipCount(gen("test#OUTGOING#key1#value2"), root));
         assertEquals(15, reader.getRelationshipCount(gen("test#OUTGOING#key1#value1"), root));
@@ -387,8 +387,8 @@ public class CountingIntegrationTest {
             }
         });
 
-        assertFalse(cache.getRelationshipCounts(root).containsKey(gen("test#OUTGOING")));
-        assertFalse(cache.getRelationshipCounts(root).containsKey(gen("test#OUTGOING#key1#value2")));
+        assertFalse(cache.getRelationshipCounts(root).containsKey(comp("test#OUTGOING")));
+        assertFalse(cache.getRelationshipCounts(root).containsKey(comp("test#OUTGOING#key1#value2")));
 
         assertEquals(15, reader.getRelationshipCount(gen("test#OUTGOING#key1#value1"), root));
         assertEquals(3, reader.getRelationshipCount(gen("test#OUTGOING#key1#value1#key2#value2"), root));
@@ -399,9 +399,9 @@ public class CountingIntegrationTest {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
                 Node root = database.getNodeById(0);
-                root.setProperty(lit("test#OUTGOING#key1#value1").toString(prefix(), "#"), 2);
-                root.setProperty(lit("test#OUTGOING#key1#value2").toString(prefix(), "#"), 3);
-                root.setProperty(lit("test#OUTGOING#key2#value2").toString(prefix(), "#"), 4);
+                root.setProperty(comp("test#OUTGOING#key1#value1").toString(prefix(), "#"), 2);
+                root.setProperty(comp("test#OUTGOING#key1#value2").toString(prefix(), "#"), 3);
+                root.setProperty(comp("test#OUTGOING#key2#value2").toString(prefix(), "#"), 4);
                 return null;
             }
         });
@@ -412,11 +412,11 @@ public class CountingIntegrationTest {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
                 Node root = database.getNodeById(0);
-                root.setProperty(gen("test#OUTGOING#key1#value1#key2#value2").toString(prefix(), "#"), 3);
-                root.setProperty(gen("test#OUTGOING#key1#value1#key2#value3").toString(prefix(), "#"), 5);
-                root.setProperty(gen("test#OUTGOING#key1#value1").toString(prefix(), "#"), 7);
-                root.setProperty(gen("test#OUTGOING#key1#value2").toString(prefix(), "#"), 11);
-                root.setProperty(gen("test#OUTGOING").toString(prefix(), "#"), 13);
+                root.setProperty(comp("test#OUTGOING#key1#value1#key2#value2").toString(prefix(), "#"), 3);
+                root.setProperty(comp("test#OUTGOING#key1#value1#key2#value3").toString(prefix(), "#"), 5);
+                root.setProperty(comp("test#OUTGOING#key1#value1").toString(prefix(), "#"), 7);
+                root.setProperty(comp("test#OUTGOING#key1#value2").toString(prefix(), "#"), 11);
+                root.setProperty(comp("test#OUTGOING").toString(prefix(), "#"), 13);
                 return null;
             }
         });
