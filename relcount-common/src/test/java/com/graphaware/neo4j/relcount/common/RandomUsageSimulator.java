@@ -14,17 +14,15 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j;
+package com.graphaware.neo4j.relcount.common;
 
 import com.graphaware.neo4j.misc.NullItem;
-import com.graphaware.neo4j.tx.batch.IterableInputBatchExecutor;
 import com.graphaware.neo4j.tx.batch.NoInputBatchExecutor;
 import com.graphaware.neo4j.tx.batch.UnitOfWork;
 import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.tx.single.TransactionCallback;
 import com.graphaware.neo4j.tx.single.TransactionExecutor;
 import com.graphaware.neo4j.utils.DeleteUtils;
-import org.apache.log4j.Logger;
 import org.neo4j.graphdb.*;
 import org.neo4j.tooling.GlobalGraphOperations;
 
@@ -36,15 +34,13 @@ import java.util.concurrent.atomic.AtomicLong;
 import static com.graphaware.neo4j.utils.IterableUtils.random;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class AnotherRandomUsageSimulator {
-    private static final Logger LOG = Logger.getLogger(AnotherRandomUsageSimulator.class);
+public class RandomUsageSimulator {
 
     public static final String USER = "user";
     public static final String TYPE = "type";
     public static final RelationshipType FRIEND_OF = DynamicRelationshipType.withName("FRIEND_OF");
     public static final String TIMESTAMP = "timestamp";
     public static final String LEVEL = "level";
-    public static final int NODES = 1000;
 
     private final GraphDatabaseService database;
     private final TransactionExecutor txExecutor;
@@ -53,41 +49,42 @@ public class AnotherRandomUsageSimulator {
     private final AtomicLong noNodes = new AtomicLong(0);
     private final AtomicLong noRels = new AtomicLong(0);
 
-    public AnotherRandomUsageSimulator(GraphDatabaseService database) {
+    public RandomUsageSimulator(GraphDatabaseService database) {
         this.database = database;
         txExecutor = new SimpleTransactionExecutor(database);
     }
 
     public void batchSimulate(int steps) {
-        //deleteRoot();                               //todo check GA does not allow this
+        deleteRoot();
 
-        new NoInputBatchExecutor(database, 1000, NODES, new UnitOfWork<NullItem>() {
+        txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
-            public void execute(GraphDatabaseService database, NullItem input) {
-                doCreateUser();
-            }
-        }).execute();
-
-        new IterableInputBatchExecutor<>(database, 10, GlobalGraphOperations.at(database).getAllNodes(), new UnitOfWork<Node>() {
-            @Override
-            public void execute(GraphDatabaseService database, Node node) {
-                int friends = random.nextInt(901) + 100;
-                for (Node potentialFriend : GlobalGraphOperations.at(database).getAllNodes()) {
-                    if (random.nextInt(NODES / friends) == 0 && !potentialFriend.equals(node)) {
-                        doCreateFriendship(node, potentialFriend);
-                    }
-
+            public Void doInTransaction(GraphDatabaseService database) {
+                for (int i = 0; i < 1000; i++) {
+                    doCreateUser();
                 }
-                LOG.info("Created " + friends + " friends for node " + node.getId());
+                return null;
             }
-        }).execute();
+        });
 
-        new NoInputBatchExecutor(database, 10, steps, new UnitOfWork<NullItem>() {
+        new NoInputBatchExecutor(database, 100, steps, new UnitOfWork<NullItem>() {
             @Override
             public void execute(GraphDatabaseService database, NullItem input) {
                 performStep();
             }
         }).execute();
+    }
+
+    public void simulate(int steps) {
+        deleteRoot();
+
+        for (int i = 0; i < 1000; i++) {
+            createUser();
+        }
+
+        for (int i = 0; i < steps; i++) {
+            performStep();
+        }
     }
 
     private void performStep() {
@@ -161,15 +158,16 @@ public class AnotherRandomUsageSimulator {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                Node node1 = findRandomNode(USER);
-                Node node2 = findRandomNodeOtherThan(USER, node1);
-                doCreateFriendship(node1, node2);
+                doCreateFriendship();
                 return null;
             }
         });
     }
 
-    private void doCreateFriendship(Node node1, Node node2) {
+    private void doCreateFriendship() {
+        Node node1 = findRandomNode(USER);
+        Node node2 = findRandomNodeOtherThan(USER, node1);
+
         Relationship friendship = node1.createRelationshipTo(node2, FRIEND_OF);
         friendship.setProperty(TIMESTAMP, System.currentTimeMillis());
         friendship.setProperty(LEVEL, random.nextInt(5));

@@ -14,14 +14,13 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount;
+package com.graphaware.neo4j.relcount.full.module;
 
 import com.graphaware.neo4j.framework.GraphAwareFramework;
 import com.graphaware.neo4j.relcount.common.api.UnableToCountException;
 import com.graphaware.neo4j.relcount.full.api.FullCachedRelationshipCounter;
 import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationshipImpl;
 import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
-import com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategiesImpl;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipPropertiesExtractionStrategy;
 import com.graphaware.neo4j.tx.event.strategy.IncludeNoRelationships;

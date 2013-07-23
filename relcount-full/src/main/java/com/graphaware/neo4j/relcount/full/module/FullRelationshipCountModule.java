@@ -125,4 +125,27 @@ public class FullRelationshipCountModule extends RelationshipCountModule impleme
     public void shutdown() {
         ((FullRelationshipCountCache) relationshipCountCache).shutdown();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FullRelationshipCountModule that = (FullRelationshipCountModule) o;
+
+        if (!relationshipCountStrategies.equals(that.relationshipCountStrategies)) return false;
+
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return relationshipCountStrategies.hashCode();
+    }
 }
