@@ -269,6 +269,14 @@ public class CompactiblePropertiesImplTest {
         assertFalse(compactible("key1#" + ANY_VALUE).isMutuallyExclusive(literal("key1#value1")));
         assertFalse(compactible("key1#" + ANY_VALUE).isMutuallyExclusive(wildcard("key1#value1")));
 
+        assertFalse(compactible("").isMutuallyExclusive(compactible("key1#" + ANY_VALUE)));
+        assertFalse(compactible("").isMutuallyExclusive(literal("key1#" + ANY_VALUE)));
+        assertFalse(compactible("").isMutuallyExclusive(wildcard("key1#" + ANY_VALUE)));
+
+        assertFalse(compactible("key1#" + ANY_VALUE).isMutuallyExclusive(compactible("")));
+        assertFalse(compactible("key1#" + ANY_VALUE).isMutuallyExclusive(literal("")));
+        assertFalse(compactible("key1#" + ANY_VALUE).isMutuallyExclusive(wildcard("")));
+
         assertFalse(compactible("key1#value1#key2#value2").isMutuallyExclusive(compactible("key1#" + ANY_VALUE + "#key2#value2")));
         assertFalse(compactible("key1#value1#key2#value2").isMutuallyExclusive(literal("key1#" + ANY_VALUE + "#key2#value2")));
         assertFalse(compactible("key1#value1#key2#value2").isMutuallyExclusive(wildcard("key1#" + ANY_VALUE + "#key2#value2")));
