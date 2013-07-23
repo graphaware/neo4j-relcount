@@ -9,13 +9,13 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Abstract base-class for {@link RelationshipCountReader} implementations that read relationship counts cached as
+ * Base-class for {@link RelationshipCountReader} implementations that read relationship counts cached as
  * {@link Node}'s properties, written by a subclass of {@link BaseRelationshipCountCache}.
  *
- * @param <DESCRIPTION> type of relationship representation that can be used as a relationship description for querying.
- *                      Must be {@link Comparable}; the resulting order is the order in which candidates are evaluated.
+ * @param <CACHED>      type of cached relationship representation.
+ * @param <DESCRIPTION> type of relationship description that can be used to query relationship counts for nodes.
  */
-public abstract class CachedRelationshipCountReader<CANDIDATE extends HasTypeAndDirection & Comparable<CANDIDATE>, DESCRIPTION extends HasTypeAndDirection> extends BaseRelationshipCountReader<CANDIDATE, DESCRIPTION> {
+public abstract class CachedRelationshipCountReader<CACHED extends HasTypeAndDirection & Comparable<CACHED>, DESCRIPTION extends HasTypeAndDirection> extends BaseRelationshipCountReader<CACHED, DESCRIPTION> {
 
     private final String id;
     private final FrameworkConfiguration config;
@@ -37,11 +37,11 @@ public abstract class CachedRelationshipCountReader<CANDIDATE extends HasTypeAnd
      * Gets all relationship counts cached as the node's properties. Ignores the description, always returns all cached
      * counts. No aggregation is performed, this is the raw data as stored
      * (as opposed to {@link #getRelationshipCount(com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection, org.neo4j.graphdb.Node)}).
-     * The returned map is sorted so that it can be iterated in order (e.g. alphabetic or specific to general).
+     * The returned map is sorted so that it can be iterated in order (e.g. specific to general).
      */
     @Override
-    public Map<CANDIDATE, Integer> getCandidates(DESCRIPTION description, Node node) {
-        Map<CANDIDATE, Integer> result = new TreeMap<>();
+    public Map<CACHED, Integer> getCandidates(DESCRIPTION description, Node node) {
+        Map<CACHED, Integer> result = new TreeMap<>();
         for (String key : node.getPropertyKeys()) {
             if (key.startsWith(config.createPrefix(id))) {
                 result.put(newCachedRelationship(key, config.createPrefix(id), config.separator()), (Integer) node.getProperty(key));
@@ -59,5 +59,5 @@ public abstract class CachedRelationshipCountReader<CANDIDATE extends HasTypeAnd
      * @param separator delimiter of information in the string.
      * @return object representation of the cached relationship.
      */
-    protected abstract CANDIDATE newCachedRelationship(String string, String prefix, String separator);
+    protected abstract CACHED newCachedRelationship(String string, String prefix, String separator);
 }

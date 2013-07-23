@@ -74,6 +74,8 @@ public class FullRelationshipCountCache extends BaseRelationshipCountCache<Compa
      */
     @Override
     public void handleCreatedRelationship(Relationship relationship, Node pointOfView, Direction defaultDirection) {
+        throwExceptionIfDirectionIsNullOrBoth(defaultDirection);
+
         Map<String, String> extractedProperties = relationshipCountStrategies.getRelationshipPropertiesExtractionStrategy().extractProperties(relationship, pointOfView);
         int relationshipWeight = relationshipCountStrategies.getRelationshipWeighingStrategy().getRelationshipWeight(relationship, pointOfView);
 
@@ -89,6 +91,8 @@ public class FullRelationshipCountCache extends BaseRelationshipCountCache<Compa
      */
     @Override
     public void handleDeletedRelationship(Relationship relationship, Node pointOfView, Direction defaultDirection) {
+        throwExceptionIfDirectionIsNullOrBoth(defaultDirection);
+
         Map<String, String> extractedProperties = relationshipCountStrategies.getRelationshipPropertiesExtractionStrategy().extractProperties(relationship, pointOfView);
         int relationshipWeight = relationshipCountStrategies.getRelationshipWeighingStrategy().getRelationshipWeight(relationship, pointOfView);
 

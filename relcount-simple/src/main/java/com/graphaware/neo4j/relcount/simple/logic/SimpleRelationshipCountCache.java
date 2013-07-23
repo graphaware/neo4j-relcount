@@ -66,6 +66,8 @@ public class SimpleRelationshipCountCache extends BaseRelationshipCountCache<Typ
      */
     @Override
     public void handleCreatedRelationship(Relationship relationship, Node pointOfView, Direction defaultDirection) {
+        throwExceptionIfDirectionIsNullOrBoth(defaultDirection);
+
         TypeAndDirectionDescription createdRelationship = new TypeAndDirectionDescriptionImpl(relationship.getType(), DirectionUtils.resolveDirection(relationship, pointOfView, defaultDirection));
 
         incrementCount(createdRelationship, pointOfView, 1);
@@ -76,6 +78,8 @@ public class SimpleRelationshipCountCache extends BaseRelationshipCountCache<Typ
      */
     @Override
     public void handleDeletedRelationship(Relationship relationship, Node pointOfView, Direction defaultDirection) {
+        throwExceptionIfDirectionIsNullOrBoth(defaultDirection);
+
         TypeAndDirectionDescription deletedRelationship = new TypeAndDirectionDescriptionImpl(relationship.getType(), DirectionUtils.resolveDirection(relationship, pointOfView, defaultDirection));
 
         if (!decrementCount(deletedRelationship, pointOfView, 1)) {

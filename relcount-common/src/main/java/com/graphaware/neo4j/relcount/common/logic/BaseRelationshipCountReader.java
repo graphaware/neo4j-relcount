@@ -24,8 +24,8 @@ import java.util.Map;
 /**
  * Base class for {@link RelationshipCountReader} implementations.
  *
+ * @param <CANDIDATE>   type of candidate relationship representation.
  * @param <DESCRIPTION> type of relationship description that can be used to query relationship counts for nodes.
- * @param <CANDIDATE>   type if candidate relationship representation.
  */
 public abstract class BaseRelationshipCountReader<CANDIDATE extends HasTypeAndDirection, DESCRIPTION extends HasTypeAndDirection> {
 

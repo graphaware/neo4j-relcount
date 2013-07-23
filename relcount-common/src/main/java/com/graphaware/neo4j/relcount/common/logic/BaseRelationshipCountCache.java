@@ -14,14 +14,14 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Abstract base-class for {@link RelationshipCountCache} implementations that cache relationship counts as properties
+ * Base-class for {@link RelationshipCountCache} implementations that cache relationship counts as properties
  * on {@link Node}s.
  *
- * @param <DESCRIPTION> type of relationship representation that can be used as a relationship description for caching.
- *                      Must be {@link Comparable}; the resulting order is essential for determining, which property
- *                      corresponds to an about-to-be-cached relationship count.
+ * @param <CACHED> type of relationship representation that can be used as a cached relationship description.
+ *                 Must be {@link Comparable}; the resulting order is essential for determining, which representation
+ *                 corresponds to an about-to-be-cached relationship count.
  */
-public abstract class BaseRelationshipCountCache<DESCRIPTION extends SerializableTypeAndDirection & Comparable<DESCRIPTION>> extends BaseFrameworkConfigured {
+public abstract class BaseRelationshipCountCache<CACHED extends SerializableTypeAndDirection & Comparable<CACHED>> extends BaseFrameworkConfigured {
 
     private final String id;
 
@@ -39,10 +39,10 @@ public abstract class BaseRelationshipCountCache<DESCRIPTION extends Serializabl
      *
      * @param node from which to get cached relationship counts.
      * @return cached relationship counts (key = relationship representation, value = count). The map is sorted
-     *         so that it can be iterated in order (e.g. alphabetic or specific to general).
+     *         so that it can be iterated in order (e.g. specific to general).
      */
-    public Map<DESCRIPTION, Integer> getRelationshipCounts(Node node) {
-        Map<DESCRIPTION, Integer> result = new TreeMap<>();
+    public Map<CACHED, Integer> getRelationshipCounts(Node node) {
+        Map<CACHED, Integer> result = new TreeMap<>();
         for (String key : node.getPropertyKeys()) {
             if (key.startsWith(getConfig().createPrefix(id))) {
                 result.put(newCachedRelationship(key, getConfig().createPrefix(id), getConfig().separator()), (Integer) node.getProperty(key));
@@ -60,7 +60,7 @@ public abstract class BaseRelationshipCountCache<DESCRIPTION extends Serializabl
      * @param separator delimiter of information in the string.
      * @return object representation of the cached relationship.
      */
-    protected abstract DESCRIPTION newCachedRelationship(String string, String prefix, String separator);
+    protected abstract CACHED newCachedRelationship(String string, String prefix, String separator);
 
     /**
      * Handle (i.e. cache) a created relationship.
@@ -70,10 +70,7 @@ public abstract class BaseRelationshipCountCache<DESCRIPTION extends Serializabl
      *                         the relationship count should be cached.
      * @param defaultDirection in case the relationship direction would be resolved to {@link org.neo4j.graphdb.Direction#BOTH}, what
      *                         should it actually be resolved to? This must be {@link org.neo4j.graphdb.Direction#OUTGOING} or {@link org.neo4j.graphdb.Direction#INCOMING},
-     *                         never cache {@link org.neo4j.graphdb.Direction#BOTH}! (because its meaning would be unclear - is it just the
-     *                         cyclical relationships, or all? Also, there would be trouble during compaction and eventually,
-     *                         incoming and outgoing relationships could be compacted to BOTH, so it would be impossible
-     *                         to find only incoming or outgoing.
+     *                         never cache {@link org.neo4j.graphdb.Direction#BOTH}!
      */
     protected abstract void handleCreatedRelationship(Relationship relationship, Node pointOfView, Direction defaultDirection);
 
@@ -85,10 +82,7 @@ public abstract class BaseRelationshipCountCache<DESCRIPTION extends Serializabl
      *                         the relationship count should be cached.
      * @param defaultDirection in case the relationship direction would be resolved to {@link Direction#BOTH}, what
      *                         should it actually be resolved to? This must be {@link Direction#OUTGOING} or {@link Direction#INCOMING},
-     *                         never cache {@link Direction#BOTH}! (because its meaning would be unclear - is it just the
-     *                         cyclical relationships, or all? Also, there would be trouble during compaction and eventually,
-     *                         incoming and outgoing relationships could be compacted to BOTH, so it would be impossible
-     *                         to find only incoming or outgoing.
+     *                         never cache {@link Direction#BOTH}!
      */
     protected abstract void handleDeletedRelationship(Relationship relationship, Node pointOfView, Direction defaultDirection);
 
@@ -122,9 +116,7 @@ public abstract class BaseRelationshipCountCache<DESCRIPTION extends Serializabl
      *
      * @param databaseService to perform the operation on.
      */
-    public void rebuildCachedCounts(GraphDatabaseService databaseService) {
-        clearCachedCounts(databaseService);
-
+    public void buildCachedCounts(GraphDatabaseService databaseService) {
         new IterableInputBatchExecutor<>(
                 databaseService,
                 1000,
@@ -147,16 +139,16 @@ public abstract class BaseRelationshipCountCache<DESCRIPTION extends Serializabl
      * @param delta        increment.
      * @return true iff the cached value did not exist and had to be created.
      */
-    public boolean incrementCount(DESCRIPTION relationship, Node node, int delta) {
-        for (DESCRIPTION cachedRelationship : getRelationshipCounts(node).keySet()) {
+    public boolean incrementCount(CACHED relationship, Node node, int delta) {
+        for (CACHED cachedRelationship : getRelationshipCounts(node).keySet()) {
             if (cachedMatch(cachedRelationship, relationship)) {
-                String key = cachedRelationship.toString(getConfig().createPrefix(id), getConfig().separator());
+                String key = relationshipToString(cachedRelationship);
                 node.setProperty(key, (Integer) node.getProperty(key) + delta);
                 return false;
             }
         }
 
-        node.setProperty(relationship.toString(getConfig().createPrefix(id), getConfig().separator()), delta);
+        node.setProperty(relationshipToString(relationship), delta);
         return true;
 
     }
@@ -170,10 +162,10 @@ public abstract class BaseRelationshipCountCache<DESCRIPTION extends Serializabl
      * @param delta        increment.
      * @return true iff the cached value existed and was >= delta.
      */
-    public boolean decrementCount(DESCRIPTION relationship, Node node, int delta) {
-        for (DESCRIPTION cachedRelationship : getRelationshipCounts(node).keySet()) {
+    public boolean decrementCount(CACHED relationship, Node node, int delta) {
+        for (CACHED cachedRelationship : getRelationshipCounts(node).keySet()) {
             if (cachedMatch(cachedRelationship, relationship)) {
-                String key = cachedRelationship.toString(getConfig().createPrefix(id), getConfig().separator());
+                String key = relationshipToString(cachedRelationship);
                 int newValue = (Integer) node.getProperty(key) - delta;
                 node.setProperty(key, newValue);
 
@@ -194,8 +186,18 @@ public abstract class BaseRelationshipCountCache<DESCRIPTION extends Serializabl
      * @param relationship representation of the relationship to stop tracking.
      * @param node         on which to stop tracking.
      */
-    public void deleteCount(DESCRIPTION relationship, Node node) {
-        node.removeProperty(relationship.toString(getConfig().createPrefix(id), getConfig().separator()));
+    public void deleteCount(CACHED relationship, Node node) {
+        node.removeProperty(relationshipToString(relationship));
+    }
+
+    /**
+     * Convert a relationship to String.
+     *
+     * @param cachedRelationship to convert.
+     * @return relationship as String.
+     */
+    protected final String relationshipToString(CACHED cachedRelationship) {
+        return cachedRelationship.toString(getConfig().createPrefix(id), getConfig().separator());
     }
 
     /**
@@ -205,5 +207,17 @@ public abstract class BaseRelationshipCountCache<DESCRIPTION extends Serializabl
      * @param relationship representation being updated.
      * @return true iff the cached relationship is to be treated as the about-to-be-updated relationship's representation.
      */
-    protected abstract boolean cachedMatch(DESCRIPTION cached, DESCRIPTION relationship);
+    protected abstract boolean cachedMatch(CACHED cached, CACHED relationship);
+
+    /**
+     * Check that the given direction is not null or {@link Direction#BOTH} and throw an exception if it is.
+     *
+     * @param direction to check.
+     * @throws IllegalArgumentException in case direction is null or {@link Direction#BOTH}.
+     */
+    protected final void throwExceptionIfDirectionIsNullOrBoth(Direction direction) {
+        if (direction == null || direction.equals(Direction.BOTH)) {
+            throw new IllegalArgumentException("Default direction must not be null or BOTH. This is a bug.");
+        }
+    }
 }

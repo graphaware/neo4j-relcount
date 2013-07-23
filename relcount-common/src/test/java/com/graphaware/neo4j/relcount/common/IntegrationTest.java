@@ -17,9 +17,9 @@ import static com.graphaware.neo4j.relcount.common.IntegrationTest.RelationshipT
 import static org.neo4j.graphdb.Direction.INCOMING;
 
 /**
- *
+ * Base class for integration tests.
  */
-public class IntegrationTest {
+public abstract class IntegrationTest {
 
     public static final String WEIGHT = "weight";
     public static final String NAME = "name";
@@ -37,10 +37,6 @@ public class IntegrationTest {
     @Before
     public void setUp() {
         database = new TestGraphDatabaseFactory().newImpermanentDatabase();
-    }
-
-    private void verifySimpleCounts() {
-
     }
 
     protected void simulateUsage() {

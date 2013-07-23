@@ -23,7 +23,8 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 /**
- * Internal component that caches relationship counts.
+ * Internal component that caches relationship counts. Relationships must be cached by {@link org.neo4j.graphdb.RelationshipType},
+ * {@link Direction} (only {@link Direction#INCOMING} or {@link Direction#OUTGOING}), and potentially properties.
  */
 public interface RelationshipCountCache extends FrameworkConfigured {
 
@@ -62,10 +63,10 @@ public interface RelationshipCountCache extends FrameworkConfigured {
     void clearCachedCounts(GraphDatabaseService databaseService);
 
     /**
-     * Clear and rebuild all cached counts. NOTE: This is a potentially very expensive operation as it traverses the
+     * Build all cached counts. NOTE: This is a potentially very expensive operation as it traverses the
      * entire graph! Use with care.
      *
      * @param databaseService to perform the operation on.
      */
-    void rebuildCachedCounts(GraphDatabaseService databaseService);
+    void buildCachedCounts(GraphDatabaseService databaseService);
 }

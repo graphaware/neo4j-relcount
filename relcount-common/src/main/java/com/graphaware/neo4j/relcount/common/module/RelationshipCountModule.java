@@ -16,7 +16,7 @@ import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 /**
- * Abstract base-class for {@link GraphAwareModule}s that wish to provide caching capabilities for relationship counting.
+ * Base-class for {@link GraphAwareModule}s that wish to provide caching capabilities for relationship counting.
  */
 public abstract class RelationshipCountModule extends BaseFrameworkConfigured implements GraphAwareModule, FrameworkConfigured {
 
@@ -51,7 +51,16 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
      */
     @Override
     public void initialize(GraphDatabaseService database) {
-        getRelationshipCountCache().rebuildCachedCounts(database);
+        getRelationshipCountCache().buildCachedCounts(database);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void reinitialize(GraphDatabaseService database) {
+        getRelationshipCountCache().clearCachedCounts(database);
+        initialize(database);
     }
 
     /**
@@ -72,6 +81,9 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
         super.configurationChanged(configuration);
         getRelationshipCountCache().configurationChanged(configuration);
     }
+
+    //All explicit directions below are just for the case where we're dealing with a self-relationship (same start
+    //and end node). It doesn't matter which one goes where, as long as both are present).
 
     private void handleCreatedRelationships(ImprovedTransactionData data) {
         for (Relationship createdRelationship : data.getAllCreatedRelationships()) {

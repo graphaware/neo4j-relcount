@@ -10,12 +10,13 @@ import java.util.Map;
 import static org.neo4j.graphdb.Direction.BOTH;
 
 /**
- * Abstract base-class for naive {@link RelationshipCountReader} implementations that count matching relationships by
+ * Base-class for naive {@link RelationshipCountReader} implementations that count matching relationships by
  * iterating through all {@link org.neo4j.graphdb.Node}'s {@link org.neo4j.graphdb.Relationship}s.
  *
+ * @param <CANDIDATE>   type of candidate relationship representation.
  * @param <DESCRIPTION> type of relationship description that can be used to query relationship counts for nodes.
  */
-public abstract class NaiveRelationshipCountReader<CANDIDATE extends  HasTypeAndDirection, DESCRIPTION extends HasTypeAndDirection> extends BaseRelationshipCountReader<CANDIDATE, DESCRIPTION> {
+public abstract class NaiveRelationshipCountReader<CANDIDATE extends HasTypeAndDirection, DESCRIPTION extends HasTypeAndDirection> extends BaseRelationshipCountReader<CANDIDATE, DESCRIPTION> {
 
     /**
      * {@inheritDoc}
