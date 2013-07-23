@@ -36,26 +36,10 @@ public interface PartiallyComparable<T> {
     boolean isMoreGeneralThan(T o);
 
     /**
-     * Is this instance strictly more general than the given instance?
-     *
-     * @param o to compare.
-     * @return true iff this instance is strictly more general than the provided instance.
-     */
-    boolean isStrictlyMoreGeneralThan(T o);
-
-    /**
      * Is this instance more specific than (or at least as specific as) the given instance?
      *
      * @param o to compare.
      * @return true iff this instance is more specific than or as specific as the provided instance.
      */
     boolean isMoreSpecificThan(T o);
-
-    /**
-     * Is this instance strictly more specific than the given instance?
-     *
-     * @param o to compare.
-     * @return true iff this instance is strictly more specific than the provided instance.
-     */
-    boolean isStrictlyMoreSpecificThan(T o);
 }

@@ -86,24 +86,8 @@ public class CompactibleRelationshipImpl extends BaseCopyMakingSerializableDirec
      * {@inheritDoc}
      */
     @Override
-    public boolean isStrictlyMoreGeneralThan(HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>> relationship) {
-        return matches((HasTypeAndDirection) relationship) && getProperties().isStrictlyMoreGeneralThan(relationship.getProperties());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public boolean isMoreSpecificThan(HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>> relationship) {
         return matches((HasTypeAndDirection) relationship) && getProperties().isMoreSpecificThan(relationship.getProperties());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isStrictlyMoreSpecificThan(HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>> relationship) {
-        return matches((HasTypeAndDirection) relationship) && getProperties().isStrictlyMoreSpecificThan(relationship.getProperties());
     }
 
     /**

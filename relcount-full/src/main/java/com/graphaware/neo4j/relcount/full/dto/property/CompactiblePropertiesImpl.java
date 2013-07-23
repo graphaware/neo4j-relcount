@@ -84,14 +84,6 @@ public class CompactiblePropertiesImpl extends BaseCopyMakingSerializablePropert
      * {@inheritDoc}
      */
     @Override
-    public boolean isStrictlyMoreGeneralThan(ImmutableProperties<String> properties) {
-        return isMoreGeneralThan(properties) && !isMoreSpecificThan(properties);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public boolean isMoreSpecificThan(ImmutableProperties<String> properties) {
         for (String thatKey : properties.keySet()) {
             String value = properties.get(thatKey);
@@ -116,14 +108,6 @@ public class CompactiblePropertiesImpl extends BaseCopyMakingSerializablePropert
         }
 
         return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isStrictlyMoreSpecificThan(ImmutableProperties<String> properties) {
-        return isMoreSpecificThan(properties) && !isMoreGeneralThan(properties);
     }
 
     /**

@@ -21,7 +21,6 @@ import com.graphaware.neo4j.relcount.common.logic.RelationshipCountReader;
 import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationship;
 import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationshipImpl;
 import com.graphaware.neo4j.relcount.full.dto.relationship.RelationshipDescription;
-import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategiesImpl;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipPropertiesExtractionStrategy;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipWeighingStrategy;
 import org.neo4j.graphdb.Node;
@@ -30,38 +29,14 @@ import org.neo4j.graphdb.Relationship;
 import java.util.Map;
 
 /**
- * {@link com.graphaware.neo4j.relcount.common.logic.RelationshipCountReader} that counts relationships by traversing them (performs no caching). It is "full" in
- * the sense that it cares about {@link org.neo4j.graphdb.RelationshipType}s, {@link org.neo4j.graphdb.Direction}s, and properties.
+ * {@link com.graphaware.neo4j.relcount.common.logic.RelationshipCountReader} that counts relationships by traversing
+ * them (performs no caching). It is "full" in the sense that it cares about {@link org.neo4j.graphdb.RelationshipType}s,
+ * {@link org.neo4j.graphdb.Direction}s, and properties.
  */
 public class FullNaiveRelationshipCountReader extends NaiveRelationshipCountReader<CompactibleRelationship, RelationshipDescription> implements RelationshipCountReader<RelationshipDescription> {
 
     private final RelationshipPropertiesExtractionStrategy extractionStrategy;
     private final RelationshipWeighingStrategy weighingStrategy;
-
-    /**
-     * Construct a new counter with default strategies for extracting properties and weighing relationships.
-     */
-    public FullNaiveRelationshipCountReader() {
-        this(RelationshipCountStrategiesImpl.defaultStrategies().getRelationshipPropertiesExtractionStrategy());
-    }
-
-    /**
-     * Construct a new counter with default properties extraction strategy.
-     *
-     * @param weighingStrategy strategy for weighing each relationship.
-     */
-    public FullNaiveRelationshipCountReader(RelationshipWeighingStrategy weighingStrategy) {
-        this(RelationshipCountStrategiesImpl.defaultStrategies().getRelationshipPropertiesExtractionStrategy(), weighingStrategy);
-    }
-
-    /**
-     * Construct a new counter with default relationship weighing strategy.
-     *
-     * @param extractionStrategy strategy for extracting properties from relationships.
-     */
-    public FullNaiveRelationshipCountReader(RelationshipPropertiesExtractionStrategy extractionStrategy) {
-        this(extractionStrategy, RelationshipCountStrategiesImpl.defaultStrategies().getRelationshipWeighingStrategy());
-    }
 
     /**
      * Construct a new counter.
