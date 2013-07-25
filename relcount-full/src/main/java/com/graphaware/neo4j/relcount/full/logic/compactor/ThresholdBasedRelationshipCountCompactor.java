@@ -1,19 +1,20 @@
-package com.graphaware.neo4j.relcount.full.logic;
+package com.graphaware.neo4j.relcount.full.logic.compactor;
 
-import com.graphaware.neo4j.dto.common.relationship.HasTypeAndDirection;
-import com.graphaware.neo4j.dto.common.relationship.TypeAndDirection;
 import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationship;
+import com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountCache;
 import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Node;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Default production implementation of {@link RelationshipCountCompactor} which compacts relationship counts based
  * on a threshold.
  * <p/>
  * More specifically, if there are more than {@link #compactionThreshold} distinct cached relationship counts,
- * least general generalizations (or equivalently most specific generalizations) are created until the number of cached
+ * generalizations are created according to a {@link GeneralizationStrategy} until the number of cached
  * relationship counts is below the threshold again. If unable to reach such state, a meaningful message is logged.
  */
 public class ThresholdBasedRelationshipCountCompactor implements RelationshipCountCompactor {
@@ -55,33 +56,9 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
             return true;
         }
 
-        //Find all possible keys for each relationship type + direction
-        Map<HasTypeAndDirection, Collection<String>> keys = new HashMap<>();
-        for (CompactibleRelationship cachedCount : cachedCounts.keySet()) {
-            HasTypeAndDirection typeAndDirection = new TypeAndDirection(cachedCount);
-            if (!keys.containsKey(typeAndDirection)) {
-                keys.put(typeAndDirection, new HashSet<String>());
-            }
-            for (String key : cachedCount.getProperties().keySet()) {
-                keys.get(typeAndDirection).add(key);
-            }
-        }
+        for (CompactibleRelationship generalization : new AverageCardinalityGeneralizationStrategy().produceGeneralizations(cachedCounts)) {
 
-        //Generate all possible generalizations
-        Set<CompactibleRelationship> generalizations = new TreeSet<>();
-        for (CompactibleRelationship cached : cachedCounts.keySet()) {
-            generalizations.addAll(cached.generateAllMoreGeneral(keys.get(new TypeAndDirection(cached))));
-        }
-
-        //Find the most specific generalization that has a chance to result in the best compaction
-        Set<CompactibleRelationship> bestCandidates = Collections.emptySet();
-        CompactibleRelationship bestGeneralization = null;
-
-        for (CompactibleRelationship generalization : generalizations) {
-            if (bestGeneralization != null && generalization.isMoreGeneralThan(bestGeneralization)) {
-                break; //already reached a generalization that is not the
-            }
-
+            //Find all the candidates to be eliminated by the generalization
             Set<CompactibleRelationship> candidates = new HashSet<>();
             for (CompactibleRelationship potentialCandidate : cachedCounts.keySet()) {
                 if (generalization.isMoreGeneralThan(potentialCandidate)) {
@@ -89,26 +66,23 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
                 }
             }
 
-            if (candidates.size() > 1 && candidates.size() > bestCandidates.size()) {
-                bestCandidates = candidates;
-                bestGeneralization = generalization;
+            //See if the generalization will result in compaction
+            if (candidates.size() > 1) {
+
+                //It will, do it!
+                int candidateCachedCount = 0;
+                for (CompactibleRelationship candidate : candidates) {
+                    candidateCachedCount += cachedCounts.get(candidate);
+                    countCache.deleteCount(candidate, node);
+                }
+
+                countCache.incrementCount(generalization, node, candidateCachedCount);
+
+                //After the compaction, see if more is needed using a recursive call
+                performCompaction(node);
+
+                break;
             }
-        }
-
-        //See if the generalization will result in compaction
-        if (bestCandidates.size() > 1) {
-
-            //It will, do it!
-            int candidateCachedCount = 0;
-            for (CompactibleRelationship candidate : bestCandidates) {
-                candidateCachedCount += cachedCounts.get(candidate);
-                countCache.deleteCount(candidate, node);
-            }
-
-            countCache.incrementCount(bestGeneralization, node, candidateCachedCount);
-
-            //After the compaction, see if more is needed using a recursive call
-            performCompaction(node);
         }
 
         //If we reached this point and haven't compacted enough, we can't!

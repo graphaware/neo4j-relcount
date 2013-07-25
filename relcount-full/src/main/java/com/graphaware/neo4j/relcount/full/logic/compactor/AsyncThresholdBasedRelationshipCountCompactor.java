@@ -14,8 +14,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.full.logic;
+package com.graphaware.neo4j.relcount.full.logic.compactor;
 
+import com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountCache;
 import com.graphaware.neo4j.tx.single.KeepCalmAndCarryOn;
 import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.tx.single.VoidReturningCallback;

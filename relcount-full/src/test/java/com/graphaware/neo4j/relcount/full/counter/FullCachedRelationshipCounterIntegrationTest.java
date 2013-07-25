@@ -17,6 +17,8 @@
 package com.graphaware.neo4j.relcount.full.counter;
 
 import com.graphaware.neo4j.framework.GraphAwareFramework;
+import com.graphaware.neo4j.framework.strategy.IncludeAllNodeProperties;
+import com.graphaware.neo4j.framework.strategy.IncludeAllNodes;
 import com.graphaware.neo4j.relcount.common.counter.UnableToCountException;
 import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationshipImpl;
 import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
@@ -557,7 +559,9 @@ public class FullCachedRelationshipCounterIntegrationTest {
                         result.put("otherNodeName", relationship.getOtherNode(pointOfView).getProperty("name", "default").toString());
                         return result;
                     }
-                })));
+                })
+                .with(IncludeAllNodes.getInstance())
+                .with(IncludeAllNodeProperties.getInstance())));
 
         framework.start();
 
@@ -590,7 +594,9 @@ public class FullCachedRelationshipCounterIntegrationTest {
                         properties.put("otherNodeName", otherNode.getProperty("name", "default").toString());
                         return properties;
                     }
-                })));
+                })
+                .with(IncludeAllNodes.getInstance())
+                .with(IncludeAllNodeProperties.getInstance())));
 
         framework.start();
 

@@ -132,24 +132,25 @@ public class CompactiblePropertiesImpl extends BaseCopyMakingSerializablePropert
      */
     @Override
     public Set<CompactibleProperties> generateAllMoreGeneral(Collection<String> unknownKeys) {
-        return generateAllMoreGeneral(this, unknownKeys);
+        Set<CompactibleProperties> result = generateAllMoreGeneral(this, unknownKeys);
+        result.remove(this);
+        return result;
     }
 
     protected Set<CompactibleProperties> generateAllMoreGeneral(CompactibleProperties properties, Collection<String> unknownKeys) {
         Set<String> nonWildcardKeys = nonWildcardKeys(properties, unknownKeys);
 
+        Set<CompactibleProperties> result = new TreeSet<>();
+        result.add(properties);
+
         //base case
         if (nonWildcardKeys.isEmpty()) {
-            return Collections.singleton(properties);
+            return result;
         }
 
         //recursion
-        Set<CompactibleProperties> result = new TreeSet<>();
         for (String key : nonWildcardKeys) {
-            for (CompactibleProperties moreGeneral : generateAllMoreGeneral(properties.with(key, ANY_VALUE), unknownKeys)) {
-                result.add(moreGeneral);
-                result.add(properties);
-            }
+            result.addAll(generateAllMoreGeneral(properties.with(key, ANY_VALUE), unknownKeys));
         }
 
         return result;

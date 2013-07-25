@@ -20,6 +20,9 @@ import com.graphaware.neo4j.relcount.common.logic.BaseRelationshipCountCache;
 import com.graphaware.neo4j.relcount.common.logic.RelationshipCountCache;
 import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationship;
 import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationshipImpl;
+import com.graphaware.neo4j.relcount.full.logic.compactor.AsyncThresholdBasedRelationshipCountCompactor;
+import com.graphaware.neo4j.relcount.full.logic.compactor.RelationshipCountCompactor;
+import com.graphaware.neo4j.relcount.full.logic.compactor.ThresholdBasedRelationshipCountCompactor;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategies;
 import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Direction;
@@ -81,8 +84,8 @@ public class FullRelationshipCountCache extends BaseRelationshipCountCache<Compa
 
         CompactibleRelationship createdRelationship = new CompactibleRelationshipImpl(relationship.getType(), resolveDirection(relationship, pointOfView, defaultDirection), extractedProperties);
 
-        if (incrementCount(createdRelationship, pointOfView, relationshipWeight)) {
-            relationshipCountCompactor.compactRelationshipCounts(pointOfView);
+        if (incrementCount(createdRelationship, unwrap(pointOfView), relationshipWeight)) {
+            relationshipCountCompactor.compactRelationshipCounts(unwrap(pointOfView));
         }
     }
 
@@ -98,14 +101,27 @@ public class FullRelationshipCountCache extends BaseRelationshipCountCache<Compa
 
         CompactibleRelationship deletedRelationship = new CompactibleRelationshipImpl(relationship.getType(), resolveDirection(relationship, pointOfView, defaultDirection), extractedProperties);
 
-        if (!decrementCount(deletedRelationship, pointOfView, relationshipWeight)) {
+        if (!decrementCount(deletedRelationship, unwrap(pointOfView), relationshipWeight)) {
             LOG.warn(deletedRelationship.toString() + " was out of sync on node " + pointOfView.getId());
         }
     }
 
+    /**
+     * Shutdown this cache by waiting on the asynchronous compactor to finish (if used).
+     */
     public void shutdown() {
         if (relationshipCountCompactor instanceof AsyncThresholdBasedRelationshipCountCompactor) {
             ((AsyncThresholdBasedRelationshipCountCompactor) relationshipCountCompactor).shutdown();
         }
+    }
+
+    /**
+     * Unwrap a potentially decorated node.
+     *
+     * @param node to unwrap (un-decorate).
+     * @return raw node.
+     */
+    private Node unwrap(Node node) {
+        return node.getGraphDatabase().getNodeById(node.getId());
     }
 }

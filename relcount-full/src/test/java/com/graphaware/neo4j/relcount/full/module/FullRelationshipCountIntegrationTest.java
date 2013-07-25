@@ -1,6 +1,8 @@
 package com.graphaware.neo4j.relcount.full.module;
 
 import com.graphaware.neo4j.framework.GraphAwareFramework;
+import com.graphaware.neo4j.framework.strategy.IncludeAllNodeProperties;
+import com.graphaware.neo4j.framework.strategy.IncludeAllNodes;
 import com.graphaware.neo4j.relcount.common.IntegrationTest;
 import com.graphaware.neo4j.relcount.common.counter.UnableToCountException;
 import com.graphaware.neo4j.relcount.full.counter.FullCachedRelationshipCounter;
@@ -308,7 +310,9 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
                                 properties.put("otherNodeName", otherNode.getProperty(NAME, "UNKNOWN").toString());
                                 return properties;
                             }
-                        }));
+                        })
+                        .with(IncludeAllNodes.getInstance())
+                        .with(IncludeAllNodeProperties.getInstance()));
 
         framework.registerModule(module);
         framework.start();
@@ -1007,8 +1011,6 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
             fail();
         } catch (UnableToCountException e) {
         }
-
-        assertEquals(1 * factor, counterCreator.createCounter(ONE, OUTGOING).with(WEIGHT, 2).with(TIMESTAMP, "123").with(K1, "V1").count(one));
 
         //Node one both
 

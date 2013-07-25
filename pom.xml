@@ -111,8 +111,8 @@
         <neo4j.version>1.9.1</neo4j.version>
         <graphaware.framework.version>1.9-1.1-SNAPSHOT</graphaware.framework.version>
         <graphaware.utils.version>1.9-1.3</graphaware.utils.version>
-        <graphaware.tx-event-api.version>1.9-1.2</graphaware.tx-event-api.version>
-        <graphaware.dto.version>1.9-1.1</graphaware.dto.version>
+        <graphaware.tx-event-api.version>1.9-1.3-SNAPSHOT</graphaware.tx-event-api.version>
+        <graphaware.dto.version>1.9-1.2-SNAPSHOT</graphaware.dto.version>
     </properties>
 
     <dependencyManagement>

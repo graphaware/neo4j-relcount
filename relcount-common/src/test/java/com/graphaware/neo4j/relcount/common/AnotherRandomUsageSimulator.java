@@ -28,9 +28,7 @@ import org.apache.log4j.Logger;
 import org.neo4j.graphdb.*;
 import org.neo4j.tooling.GlobalGraphOperations;
 
-import java.util.Iterator;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.graphaware.neo4j.utils.IterableUtils.random;
@@ -50,17 +48,16 @@ public class AnotherRandomUsageSimulator {
     private final TransactionExecutor txExecutor;
 
     private final Random random = new Random(50L);
-    private final AtomicLong noNodes = new AtomicLong(0);
     private final AtomicLong noRels = new AtomicLong(0);
+
+    final List<Long> allNodeIds = new ArrayList<>();
 
     public AnotherRandomUsageSimulator(GraphDatabaseService database) {
         this.database = database;
         txExecutor = new SimpleTransactionExecutor(database);
     }
 
-    public void batchSimulate(int steps) {
-        //deleteRoot();                               //todo check GA does not allow this
-
+    public void populateDatabase() {
         new NoInputBatchExecutor(database, 1000, NODES, new UnitOfWork<NullItem>() {
             @Override
             public void execute(GraphDatabaseService database, NullItem input) {
@@ -68,21 +65,38 @@ public class AnotherRandomUsageSimulator {
             }
         }).execute();
 
-        new IterableInputBatchExecutor<>(database, 10, GlobalGraphOperations.at(database).getAllNodes(), new UnitOfWork<Node>() {
+        new IterableInputBatchExecutor<>(database, 100, GlobalGraphOperations.at(database).getAllNodes(), new UnitOfWork<Node>() {
             @Override
             public void execute(GraphDatabaseService database, Node node) {
-                int friends = random.nextInt(901) + 100;
-                for (Node potentialFriend : GlobalGraphOperations.at(database).getAllNodes()) {
-                    if (random.nextInt(NODES / friends) == 0 && !potentialFriend.equals(node)) {
-                        doCreateFriendship(node, potentialFriend);
-                    }
-
+                if (node.getId() == 0L) {
+                    return;
                 }
+
+                int friends = random.nextInt(NODES + 1 - NODES / 10) + NODES / 10;
+
+                List<Long> nodeIds = new LinkedList<>(allNodeIds);
+                Collections.shuffle(nodeIds, random);
+
+                for (int i = 0; i < friends; i++) {
+                    doCreateFriendship(node, database.getNodeById(nodeIds.remove(0)));
+                }
+
                 LOG.info("Created " + friends + " friends for node " + node.getId());
             }
         }).execute();
+    }
 
-        new NoInputBatchExecutor(database, 10, steps, new UnitOfWork<NullItem>() {
+    public void loadIds() {
+        allNodeIds.clear();
+        for (Node node : GlobalGraphOperations.at(database).getAllNodes()) {
+            if (node.getId() != 0L) {
+                allNodeIds.add(node.getId());
+            }
+        }
+    }
+
+    public void batchSimulate(int steps) {
+        new NoInputBatchExecutor(database, 2, steps, new UnitOfWork<NullItem>() {
             @Override
             public void execute(GraphDatabaseService database, NullItem input) {
                 performStep();
@@ -125,7 +139,7 @@ public class AnotherRandomUsageSimulator {
         user.setProperty("age", random.nextInt(50) + 18);
         user.setProperty("location", randomString());
         user.setProperty(TIMESTAMP, System.currentTimeMillis());
-        noNodes.incrementAndGet();
+        allNodeIds.add(user.getId());
     }
 
     private void deleteUser() {
@@ -139,8 +153,9 @@ public class AnotherRandomUsageSimulator {
     }
 
     private void doDeleteUser() {
-        noRels.addAndGet(-DeleteUtils.deleteNodeAndRelationships(findRandomNode(USER)));
-        noNodes.decrementAndGet();
+        Node randomNode = findRandomNode(USER);
+        noRels.addAndGet(-DeleteUtils.deleteNodeAndRelationships(randomNode));
+        allNodeIds.remove(randomNode.getId());
     }
 
     private void updateUser() {
@@ -171,7 +186,7 @@ public class AnotherRandomUsageSimulator {
 
     private void doCreateFriendship(Node node1, Node node2) {
         Relationship friendship = node1.createRelationshipTo(node2, FRIEND_OF);
-        friendship.setProperty(TIMESTAMP, System.currentTimeMillis());
+        friendship.setProperty(TIMESTAMP, friendship.getId());
         friendship.setProperty(LEVEL, random.nextInt(5));
 
         noRels.incrementAndGet();
@@ -231,42 +246,14 @@ public class AnotherRandomUsageSimulator {
     }
 
     private Node findRandomNode(String type) {
-        long number = random.nextInt(noNodes.intValue());
+        List<Long> nodeIds = new LinkedList<>(allNodeIds);
+        Collections.shuffle(nodeIds, random);
 
-        Iterator<Node> nodes = GlobalGraphOperations.at(database).getAllNodes().iterator();
-        for (int i = 0; i < number; i++) {
-            if (nodes.hasNext()) {
-                nodes.next();
-            }
-        }
-
-        while (nodes.hasNext()) {
-            Node next = nodes.next();
-            if (next.getProperty(TYPE, "").equals(type)) {  //todo investigate why some nodes don't have this, tx isolation?
+        while (true) {
+            Node next = database.getNodeById(nodeIds.remove(0));
+            if (next.getProperty(TYPE, "").equals(type)) {
                 return next;
             }
         }
-
-        return findRandomNode(type);
     }
-
-    private void deleteRoot() {
-        txExecutor.executeInTransaction(new TransactionCallback<Object>() {
-            @Override
-            public Object doInTransaction(GraphDatabaseService database) {
-                database.getNodeById(0).delete();
-                return null;
-            }
-        });
-    }
-
-//    private void tt() {
-//        txExecutor.executeInTransaction(new TransactionCallback<Void>() {
-//            @Override
-//            public Void doInTransaction(GraphDatabaseService database) {
-//                return null;
-//            }
-//        });
-//    }
-
 }

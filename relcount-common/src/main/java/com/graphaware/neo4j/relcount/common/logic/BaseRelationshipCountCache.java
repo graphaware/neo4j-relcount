@@ -2,13 +2,9 @@ package com.graphaware.neo4j.relcount.common.logic;
 
 import com.graphaware.neo4j.dto.common.relationship.SerializableTypeAndDirection;
 import com.graphaware.neo4j.framework.config.BaseFrameworkConfigured;
-import com.graphaware.neo4j.tx.batch.IterableInputBatchExecutor;
-import com.graphaware.neo4j.tx.batch.UnitOfWork;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.tooling.GlobalGraphOperations;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -85,51 +81,6 @@ public abstract class BaseRelationshipCountCache<CACHED extends SerializableType
      *                         never cache {@link Direction#BOTH}!
      */
     protected abstract void handleDeletedRelationship(Relationship relationship, Node pointOfView, Direction defaultDirection);
-
-    /**
-     * Clear all cached counts. NOTE: This is a potentially very expensive operation as it traverses the
-     * entire graph! Use with care.
-     *
-     * @param databaseService to perform the operation on.
-     */
-    public void clearCachedCounts(GraphDatabaseService databaseService) {
-        new IterableInputBatchExecutor<>(
-                databaseService,
-                1000,
-                GlobalGraphOperations.at(databaseService).getAllNodes(),
-                new UnitOfWork<Node>() {
-                    @Override
-                    public void execute(GraphDatabaseService database, Node node) {
-                        for (String key : node.getPropertyKeys()) {
-                            if (key.startsWith(getConfig().createPrefix(id))) {
-                                node.removeProperty(key);
-                            }
-                        }
-                    }
-                }
-        ).execute();
-    }
-
-    /**
-     * Clear and rebuild all cached counts. NOTE: This is a potentially very expensive operation as it traverses the
-     * entire graph! Use with care.
-     *
-     * @param databaseService to perform the operation on.
-     */
-    public void buildCachedCounts(GraphDatabaseService databaseService) {
-        new IterableInputBatchExecutor<>(
-                databaseService,
-                1000,
-                GlobalGraphOperations.at(databaseService).getAllRelationships(),
-                new UnitOfWork<Relationship>() {
-                    @Override
-                    public void execute(GraphDatabaseService database, Relationship relationship) {
-                        handleCreatedRelationship(relationship, relationship.getStartNode(), Direction.INCOMING);
-                        handleCreatedRelationship(relationship, relationship.getEndNode(), Direction.OUTGOING);
-                    }
-                }).execute();
-
-    }
 
     /**
      * Increment the cached relationship count on the given node by delta.

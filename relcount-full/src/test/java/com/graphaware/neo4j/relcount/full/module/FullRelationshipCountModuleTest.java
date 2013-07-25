@@ -18,6 +18,7 @@ package com.graphaware.neo4j.relcount.full.module;
 
 import com.graphaware.neo4j.relcount.common.module.RelationshipCountModule;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategiesImpl;
+import com.graphaware.neo4j.tx.event.strategy.IncludeNoNodes;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -32,8 +33,8 @@ public class FullRelationshipCountModuleTest {
     @Test
     public void sameConfigShouldHaveSameHashCode() {
         RelationshipCountStrategiesImpl strategies = RelationshipCountStrategiesImpl.defaultStrategies();
-        RelationshipCountModule module1 = new FullRelationshipCountModule(strategies.with(5));
-        RelationshipCountModule module2 = new FullRelationshipCountModule(strategies.with(5));
+        RelationshipCountModule module1 = new FullRelationshipCountModule(strategies.with(5).with(IncludeNoNodes.getInstance()));
+        RelationshipCountModule module2 = new FullRelationshipCountModule(strategies.with(5).with(IncludeNoNodes.getInstance()));
 
         assertEquals(module1.hashCode(), module2.hashCode());
     }

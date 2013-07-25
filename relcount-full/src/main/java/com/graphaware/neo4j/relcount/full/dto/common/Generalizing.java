@@ -27,11 +27,11 @@ import java.util.Set;
 public interface Generalizing<G extends Generalizing<G, H>, H> {
 
     /**
-     * Generate all items more general than (or as general as) this instance.
+     * Generate all items strictly more general than this instance.
      *
      * @param helpers a collection of objects that can help with generating all more general instances for implementations
      *                that aren't aware of all the generalizing possibilities. For example, if a set of properties,
-     *                in which a missing property means "undefined", should generalize themselves, it can only do so by
+     *                in which a missing property means "undefined", should generalize itself, it can only do so by
      *                generalizing known properties to "any". This argument would be used to provide additional unknown
      *                properties that are relevant to the rest of the system.
      * @return set of all more/equally general instances, ordered by decreasing generality.

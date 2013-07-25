@@ -41,7 +41,7 @@ import static com.graphaware.neo4j.relcount.full.module.FullRelationshipCountMod
  * relationship count this specific. If you still want to count the relationship, either use {@link FullNaiveRelationshipCounter}
  * or consider increasing the compaction threshold.
  *
- * @see com.graphaware.neo4j.relcount.full.logic.RelationshipCountCompactor
+ * @see com.graphaware.neo4j.relcount.full.logic.compactor.RelationshipCountCompactor
  */
 public class FullCachedRelationshipCounter extends BaseFullRelationshipCounter implements FullRelationshipCounter {
 

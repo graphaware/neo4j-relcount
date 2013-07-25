@@ -1,4 +1,4 @@
-package com.graphaware.neo4j.relcount.full.logic;
+package com.graphaware.neo4j.relcount.full.logic.compactor;
 
 import org.neo4j.graphdb.Node;
 

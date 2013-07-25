@@ -6,11 +6,15 @@ import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
 import com.graphaware.neo4j.framework.config.FrameworkConfigured;
 import com.graphaware.neo4j.misc.Change;
 import com.graphaware.neo4j.relcount.common.logic.RelationshipCountCache;
+import com.graphaware.neo4j.tx.batch.IterableInputBatchExecutor;
+import com.graphaware.neo4j.tx.batch.UnitOfWork;
 import com.graphaware.neo4j.tx.event.api.ImprovedTransactionData;
+import com.graphaware.neo4j.tx.event.propertycontainer.filtered.FilteredRelationship;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.tooling.GlobalGraphOperations;
 
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -51,7 +55,7 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
      */
     @Override
     public void initialize(GraphDatabaseService database) {
-        getRelationshipCountCache().buildCachedCounts(database);
+        buildCachedCounts(database);
     }
 
     /**
@@ -59,7 +63,7 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
      */
     @Override
     public void reinitialize(GraphDatabaseService database) {
-        getRelationshipCountCache().clearCachedCounts(database);
+        clearCachedCounts(database);
         initialize(database);
     }
 
@@ -116,5 +120,51 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
             getRelationshipCountCache().handleCreatedRelationship(current, current.getStartNode(), Direction.INCOMING);
             getRelationshipCountCache().handleCreatedRelationship(current, current.getEndNode(), Direction.OUTGOING);
         }
+    }
+
+    /**
+     * Clear all cached counts. NOTE: This is a potentially very expensive operation as it traverses the
+     * entire graph! Use with care.
+     *
+     * @param databaseService to perform the operation on.
+     */
+    private void clearCachedCounts(GraphDatabaseService databaseService) {
+        new IterableInputBatchExecutor<>(
+                databaseService,
+                1000,
+                GlobalGraphOperations.at(databaseService).getAllNodes(),
+                new UnitOfWork<Node>() {
+                    @Override
+                    public void execute(GraphDatabaseService database, Node node) {
+                        for (String key : node.getPropertyKeys()) {
+                            if (key.startsWith(getConfig().createPrefix(id))) {
+                                node.removeProperty(key);
+                            }
+                        }
+                    }
+                }
+        ).execute();
+    }
+
+    /**
+     * Clear and rebuild all cached counts. NOTE: This is a potentially very expensive operation as it traverses the
+     * entire graph! Use with care.
+     *
+     * @param databaseService to perform the operation on.
+     */
+    private void buildCachedCounts(GraphDatabaseService databaseService) {
+        new IterableInputBatchExecutor<>(
+                databaseService,
+                100,
+                GlobalGraphOperations.at(databaseService).getAllRelationships(),
+                new UnitOfWork<Relationship>() {
+                    @Override
+                    public void execute(GraphDatabaseService database, Relationship relationship) {
+                        Relationship filtered = new FilteredRelationship(relationship, getInclusionStrategies());
+                        getRelationshipCountCache().handleCreatedRelationship(filtered, filtered.getStartNode(), Direction.INCOMING);
+                        getRelationshipCountCache().handleCreatedRelationship(filtered, filtered.getEndNode(), Direction.OUTGOING);
+                    }
+                }).execute();
+
     }
 }

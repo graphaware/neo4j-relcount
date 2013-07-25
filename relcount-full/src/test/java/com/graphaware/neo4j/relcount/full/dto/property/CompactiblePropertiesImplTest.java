@@ -19,10 +19,7 @@ package com.graphaware.neo4j.relcount.full.dto.property;
 import com.graphaware.neo4j.dto.common.property.ImmutableProperties;
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import static com.graphaware.neo4j.relcount.full.dto.property.CompactiblePropertiesImpl.ANY_VALUE;
 import static junit.framework.Assert.*;
@@ -160,9 +157,8 @@ public class CompactiblePropertiesImplTest {
     public void shouldGenerateAllMoreGeneral() {
         Set<CompactibleProperties> result = compactible("key1#value1#key2#value2#key3#value3").generateAllMoreGeneral(Collections.<String>emptySet());
 
-        assertEquals(8, result.size());
+        assertEquals(7, result.size());
         Iterator<CompactibleProperties> iterator = result.iterator();
-        assertEquals(iterator.next(), compactible("key1#value1#key2#value2#key3#value3"));
         assertEquals(iterator.next(), compactible("key1#" + ANY_VALUE + "#key2#value2#key3#value3"));
         assertEquals(iterator.next(), compactible("key1#value1#key2#" + ANY_VALUE + "#key3#value3"));
         assertEquals(iterator.next(), compactible("key1#" + ANY_VALUE + "#key2#" + ANY_VALUE + "#key3#value3"));
@@ -176,9 +172,8 @@ public class CompactiblePropertiesImplTest {
     public void shouldGenerateAllMoreGeneralWithExtraKeys() {
         Set<CompactibleProperties> result = compactible("key1#value1#key2#value2").generateAllMoreGeneral(Collections.singleton("key3"));
 
-        assertEquals(8, result.size());
+        assertEquals(7, result.size());
         Iterator<CompactibleProperties> iterator = result.iterator();
-        assertEquals(iterator.next(), compactible("key1#value1#key2#value2"));
         assertEquals(iterator.next(), compactible("key1#" + ANY_VALUE + "#key2#value2"));
         assertEquals(iterator.next(), compactible("key1#value1#key2#" + ANY_VALUE));
         assertEquals(iterator.next(), compactible("key1#" + ANY_VALUE + "#key2#" + ANY_VALUE));
@@ -186,6 +181,28 @@ public class CompactiblePropertiesImplTest {
         assertEquals(iterator.next(), compactible("key1#" + ANY_VALUE + "#key2#value2#key3#" + ANY_VALUE));
         assertEquals(iterator.next(), compactible("key1#value1#key2#" + ANY_VALUE + "#key3#" + ANY_VALUE));
         assertEquals(iterator.next(), compactible("key1#" + ANY_VALUE + "#key2#" + ANY_VALUE + "#key3#" + ANY_VALUE));
+    }
+
+    @Test
+    public void shouldGenerateAllMoreGeneralWithRedundantKeys() {
+        Set<CompactibleProperties> result = compactible("key1#value1#key2#value2").generateAllMoreGeneral(new HashSet<>(Arrays.asList("key1","key2","key3")));
+
+        assertEquals(7, result.size());
+        Iterator<CompactibleProperties> iterator = result.iterator();
+        assertEquals(iterator.next(), compactible("key1#" + ANY_VALUE + "#key2#value2"));
+        assertEquals(iterator.next(), compactible("key1#value1#key2#" + ANY_VALUE));
+        assertEquals(iterator.next(), compactible("key1#" + ANY_VALUE + "#key2#" + ANY_VALUE));
+        assertEquals(iterator.next(), compactible("key1#value1#key2#value2#key3#" + ANY_VALUE));
+        assertEquals(iterator.next(), compactible("key1#" + ANY_VALUE + "#key2#value2#key3#" + ANY_VALUE));
+        assertEquals(iterator.next(), compactible("key1#value1#key2#" + ANY_VALUE + "#key3#" + ANY_VALUE));
+        assertEquals(iterator.next(), compactible("key1#" + ANY_VALUE + "#key2#" + ANY_VALUE + "#key3#" + ANY_VALUE));
+    }
+
+    @Test
+    public void shouldGenerateNoneWhenItIsTheMostGeneral() {
+        Set<CompactibleProperties> result = compactible("\"key1#" + ANY_VALUE + "#key2#" + ANY_VALUE).generateAllMoreGeneral(Collections.<String>emptySet());
+
+        assertEquals(0, result.size());
     }
 
     @Test

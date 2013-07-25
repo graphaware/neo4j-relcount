@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.neo4j.relcount.full.logic;
+package com.graphaware.neo4j.relcount.full.logic.compactor;
 
 import com.graphaware.neo4j.framework.GraphAwareFramework;
 import com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration;
@@ -23,6 +23,8 @@ import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationsh
 import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.dto.relationship.RelationshipDescription;
 import com.graphaware.neo4j.relcount.full.dto.relationship.WildcardRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.logic.FullCachedRelationshipCountReader;
+import com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountCache;
 import com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategiesImpl;
 import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
@@ -311,6 +313,63 @@ public class CompactionIntegrationTest {
         });
 
         assertEquals(1, cache.getRelationshipCounts(database.getNodeById(0)).size());
+    }
+
+    @Test
+    public void ttt() {
+        compactor = new ThresholdBasedRelationshipCountCompactor(10, cache);
+
+        executor.executeInTransaction(new VoidReturningCallback() {
+            @Override
+            public void doInTx(GraphDatabaseService database) {
+                Node root = database.getNodeById(0);
+                root.setProperty(wildcard("ONE#INCOMING#level#1#timestamp#123345135123").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#2#timestamp#121432135123").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#0#timestamp#127682135123").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#1#timestamp#123139855123").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#0#timestamp#123133445123").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#0#timestamp#123872575123").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#1#timestamp#123114335123").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#2#timestamp#123132135362").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#2#timestamp#123132135766").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#1#timestamp#123132135763").toString(prefix(), hash()), 1);
+
+                compactor.compactRelationshipCounts(root);
+            }
+        });
+
+        assertEquals(8, cache.getRelationshipCounts(database.getNodeById(0)).size());
+    }
+
+    @Test
+    public void tttt() {
+        compactor = new ThresholdBasedRelationshipCountCompactor(4, cache);
+
+        executor.executeInTransaction(new VoidReturningCallback() {
+            @Override
+            public void doInTx(GraphDatabaseService database) {
+                Node root = database.getNodeById(0);
+                root.setProperty(wildcard("ONE#INCOMING#level#1#timestamp#123345135123").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#2#timestamp#121432135123").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#0#timestamp#127682135123").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#1#timestamp#123139855123").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#0#timestamp#123133445123").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#0#timestamp#123872575123").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#1#timestamp#123114335123").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#2#timestamp#123132135362").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#2#timestamp#123132135766").toString(prefix(), hash()), 1);
+                root.setProperty(wildcard("ONE#INCOMING#level#1#timestamp#123132135763").toString(prefix(), hash()), 1);
+
+                compactor.compactRelationshipCounts(root);
+            }
+        });
+
+        assertEquals(3, cache.getRelationshipCounts(database.getNodeById(0)).size());
+
+        assertEquals(3, reader.getRelationshipCount(wildcard("ONE#INCOMING#level#0"), database.getNodeById(0)));
+        assertEquals(4, reader.getRelationshipCount(wildcard("ONE#INCOMING#level#1"), database.getNodeById(0)));
+        assertEquals(3, reader.getRelationshipCount(wildcard("ONE#INCOMING#level#2"), database.getNodeById(0)));
+
     }
 
     /**

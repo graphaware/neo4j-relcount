@@ -18,7 +18,6 @@ package com.graphaware.neo4j.relcount.common.logic;
 
 import com.graphaware.neo4j.framework.config.FrameworkConfigured;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -53,20 +52,4 @@ public interface RelationshipCountCache extends FrameworkConfigured {
     // Explanation of the relationship direction above: The meaning of BOTH can be unclear - is it just the cyclical relationship
     // or all? Also, there would be trouble during compaction and eventually, incoming and outgoing relationships could
     // be compacted to BOTH, so it would be impossible to find only incoming or outgoing.
-
-    /**
-     * Clear all cached counts. NOTE: This is a potentially very expensive operation as it traverses the
-     * entire graph! Use with care.
-     *
-     * @param databaseService to perform the operation on.
-     */
-    void clearCachedCounts(GraphDatabaseService databaseService);
-
-    /**
-     * Build all cached counts. NOTE: This is a potentially very expensive operation as it traverses the
-     * entire graph! Use with care.
-     *
-     * @param databaseService to perform the operation on.
-     */
-    void buildCachedCounts(GraphDatabaseService databaseService);
 }
