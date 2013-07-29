@@ -17,9 +17,9 @@
 package com.graphaware.neo4j.relcount.full.counter;
 
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
-import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
-import com.graphaware.neo4j.relcount.full.dto.relationship.WildcardRelationshipDescription;
-import com.graphaware.neo4j.relcount.full.logic.FullNaiveRelationshipCountReader;
+import com.graphaware.neo4j.relcount.full.internal.dto.relationship.LiteralRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.internal.dto.relationship.WildcardRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.internal.node.FullNaiveRelationshipCountingNode;
 import com.graphaware.neo4j.relcount.full.strategy.ExtractAllRelationshipProperties;
 import com.graphaware.neo4j.relcount.full.strategy.ExtractNoRelationshipProperties;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategies;
@@ -73,10 +73,10 @@ public class FullNaiveRelationshipCounter extends BaseFullRelationshipCounter im
     public int count(Node node) {
         //optimization - don't load properties if it is unnecessary
         if (getProperties().isEmpty() && relationshipCountStrategies.getRelationshipPropertiesExtractionStrategy().equals(ExtractAllRelationshipProperties.getInstance())) {
-            return new FullNaiveRelationshipCountReader(ExtractNoRelationshipProperties.getInstance(), relationshipCountStrategies.getRelationshipWeighingStrategy()).getRelationshipCount(new WildcardRelationshipDescription(this), node);
+            return new FullNaiveRelationshipCountingNode(node, ExtractNoRelationshipProperties.getInstance(), relationshipCountStrategies.getRelationshipWeighingStrategy()).getRelationshipCount(new WildcardRelationshipDescription(this));
         }
 
-        return new FullNaiveRelationshipCountReader(relationshipCountStrategies.getRelationshipPropertiesExtractionStrategy(), relationshipCountStrategies.getRelationshipWeighingStrategy()).getRelationshipCount(new WildcardRelationshipDescription(this), node);
+        return new FullNaiveRelationshipCountingNode(node, relationshipCountStrategies.getRelationshipPropertiesExtractionStrategy(), relationshipCountStrategies.getRelationshipWeighingStrategy()).getRelationshipCount(new WildcardRelationshipDescription(this));
     }
 
     /**
@@ -84,7 +84,7 @@ public class FullNaiveRelationshipCounter extends BaseFullRelationshipCounter im
      */
     @Override
     public int countLiterally(Node node) {
-        return new FullNaiveRelationshipCountReader(relationshipCountStrategies.getRelationshipPropertiesExtractionStrategy(), relationshipCountStrategies.getRelationshipWeighingStrategy()).getRelationshipCount(new LiteralRelationshipDescription(this), node);
+        return new FullNaiveRelationshipCountingNode(node, relationshipCountStrategies.getRelationshipPropertiesExtractionStrategy(), relationshipCountStrategies.getRelationshipWeighingStrategy()).getRelationshipCount(new LiteralRelationshipDescription(this));
     }
 
     /**

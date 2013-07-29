@@ -17,11 +17,12 @@
 package com.graphaware.neo4j.relcount.full.counter;
 
 import com.graphaware.neo4j.framework.GraphAwareFramework;
+import com.graphaware.neo4j.framework.config.BaseFrameworkConfiguration;
 import com.graphaware.neo4j.framework.strategy.IncludeAllNodeProperties;
 import com.graphaware.neo4j.framework.strategy.IncludeAllNodes;
 import com.graphaware.neo4j.relcount.common.counter.UnableToCountException;
-import com.graphaware.neo4j.relcount.full.dto.relationship.CompactibleRelationshipImpl;
-import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.internal.dto.relationship.CompactibleRelationshipImpl;
+import com.graphaware.neo4j.relcount.full.internal.dto.relationship.LiteralRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategiesImpl;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipPropertiesExtractionStrategy;
@@ -473,7 +474,7 @@ public class FullCachedRelationshipCounterIntegrationTest {
         database = new TestGraphDatabaseFactory().newImpermanentDatabase();
         txExecutor = new SimpleTransactionExecutor(database);
 
-        GraphAwareFramework framework = new GraphAwareFramework(database);
+        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
         framework.registerModule(new FullRelationshipCountModule(RelationshipCountStrategiesImpl.defaultStrategies()
                 .with(5)
                 .with(new RelationshipPropertiesExtractionStrategy() {
@@ -503,9 +504,9 @@ public class FullCachedRelationshipCounterIntegrationTest {
             }
         });
 
-        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("test", "value1").count(database.getNodeById(0)));
-        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(0)));
-        assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(0)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING, new CustomConfig()).with("test", "value1").count(database.getNodeById(0)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING, new CustomConfig()).with("key1", "value1").count(database.getNodeById(0)));
+        assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING, new CustomConfig()).count(database.getNodeById(0)));
     }
 
     @Test
@@ -754,5 +755,16 @@ public class FullCachedRelationshipCounterIntegrationTest {
                 return null;
             }
         });
+    }
+
+    public class CustomConfig extends BaseFrameworkConfiguration {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String separator() {
+            return ";";
+        }
     }
 }

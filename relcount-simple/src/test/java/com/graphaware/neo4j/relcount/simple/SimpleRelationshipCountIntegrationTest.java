@@ -1,11 +1,11 @@
 package com.graphaware.neo4j.relcount.simple;
 
+import com.graphaware.neo4j.dto.common.relationship.SerializableTypeAndDirectionImpl;
 import com.graphaware.neo4j.framework.GraphAwareFramework;
 import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
 import com.graphaware.neo4j.relcount.common.IntegrationTest;
 import com.graphaware.neo4j.relcount.simple.counter.SimpleCachedRelationshipCounter;
 import com.graphaware.neo4j.relcount.simple.counter.SimpleNaiveRelationshipCounter;
-import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
 import com.graphaware.neo4j.relcount.simple.module.SimpleRelationshipCountModule;
 import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
 import com.graphaware.neo4j.tx.single.VoidReturningCallback;
@@ -13,7 +13,9 @@ import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 
-import static com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration.*;
+import static com.graphaware.neo4j.framework.GraphAwareFramework.CORE;
+import static com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration.DEFAULT_SEPARATOR;
+import static com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration.getInstance;
 import static com.graphaware.neo4j.relcount.common.IntegrationTest.RelationshipTypes.ONE;
 import static com.graphaware.neo4j.relcount.common.IntegrationTest.RelationshipTypes.TWO;
 import static com.graphaware.neo4j.relcount.simple.module.SimpleRelationshipCountModule.SIMPLE_RELCOUNT_ID;
@@ -113,14 +115,14 @@ public class SimpleRelationshipCountIntegrationTest extends IntegrationTest {
             @Override
             protected void doInTx(GraphDatabaseService database) {
                 Node one = database.getNodeById(1);
-                String key = new TypeAndDirectionDescriptionImpl(ONE, INCOMING).toString(getInstance().createPrefix(SIMPLE_RELCOUNT_ID), DEFAULT_SEPARATOR);
+                String key = new SerializableTypeAndDirectionImpl(ONE, INCOMING).toString(getInstance().createPrefix(SIMPLE_RELCOUNT_ID), DEFAULT_SEPARATOR);
                 one.setProperty(key, (int) one.getProperty(key) - 7);
             }
         });
 
         simulateUsage();
 
-        assertTrue(database.getNodeById(0).getProperty(GA_PREFIX + SIMPLE_RELCOUNT_ID).toString().startsWith("FORCE_INIT:"));
+        assertTrue(database.getNodeById(0).getProperty(getInstance().createPrefix(CORE) + SIMPLE_RELCOUNT_ID).toString().startsWith("FORCE_INIT:"));
     }
 
     private void verifyCountsUsingNaiveCounter(int factor) {

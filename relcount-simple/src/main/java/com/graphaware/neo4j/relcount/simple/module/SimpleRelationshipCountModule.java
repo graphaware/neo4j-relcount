@@ -2,9 +2,9 @@ package com.graphaware.neo4j.relcount.simple.module;
 
 import com.graphaware.neo4j.framework.strategy.IncludeAllRelationships;
 import com.graphaware.neo4j.framework.strategy.InclusionStrategiesImpl;
-import com.graphaware.neo4j.relcount.common.logic.RelationshipCountCache;
+import com.graphaware.neo4j.relcount.common.internal.cache.BatchFriendlyRelationshipCountCache;
 import com.graphaware.neo4j.relcount.common.module.RelationshipCountModule;
-import com.graphaware.neo4j.relcount.simple.logic.SimpleRelationshipCountCache;
+import com.graphaware.neo4j.relcount.simple.internal.cache.SimpleRelationshipCountCache;
 import com.graphaware.neo4j.tx.event.strategy.InclusionStrategies;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
 
@@ -24,7 +24,7 @@ public class SimpleRelationshipCountModule extends RelationshipCountModule {
      */
     public static final String SIMPLE_RELCOUNT_ID = "SRC";
 
-    private final RelationshipCountCache relationshipCountCache;
+    private final BatchFriendlyRelationshipCountCache relationshipCountCache;
     private final InclusionStrategies inclusionStrategies;
 
     /**
@@ -53,7 +53,7 @@ public class SimpleRelationshipCountModule extends RelationshipCountModule {
      * {@inheritDoc}
      */
     @Override
-    protected RelationshipCountCache getRelationshipCountCache() {
+    protected BatchFriendlyRelationshipCountCache getRelationshipCountCache() {
         return relationshipCountCache;
     }
 

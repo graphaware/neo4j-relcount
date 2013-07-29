@@ -20,8 +20,8 @@ import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties
 import com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration;
 import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
 import com.graphaware.neo4j.relcount.common.counter.UnableToCountException;
-import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
-import com.graphaware.neo4j.relcount.full.dto.relationship.WildcardRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.internal.dto.relationship.LiteralRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.internal.dto.relationship.WildcardRelationshipDescription;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategies;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategiesImpl;
 import org.apache.log4j.Logger;
@@ -45,7 +45,7 @@ import static com.graphaware.neo4j.relcount.full.module.FullRelationshipCountMod
  * This counter always returns a count, never throws {@link com.graphaware.neo4j.relcount.common.counter.UnableToCountException}.
  * <p/>
  * About fallback: Fallback to naive approach only happens if it is detected that compaction has taken place
- * (see {@link com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountCache}) and the needed granularity has
+ * (see {@link com.graphaware.neo4j.relcount.full.internal.cache.FullRelationshipCountCache}) and the needed granularity has
  * been compacted out. There is a performance penalty to this fallback.
  * To avoid it, make sure the compaction threshold is set correctly. No fallback happens when a {@link com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy} has been used that explicitly excludes
  * the relationships being counted (0 is returned). If you prefer an exception to fallback, use {@link FullCachedRelationshipCounter}.

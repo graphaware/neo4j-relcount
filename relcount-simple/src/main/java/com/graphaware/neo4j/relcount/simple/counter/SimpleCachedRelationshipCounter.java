@@ -19,8 +19,7 @@ package com.graphaware.neo4j.relcount.simple.counter;
 import com.graphaware.neo4j.dto.common.relationship.TypeAndDirection;
 import com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration;
 import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
-import com.graphaware.neo4j.relcount.simple.dto.TypeAndDirectionDescriptionImpl;
-import com.graphaware.neo4j.relcount.simple.logic.SimpleCachedRelationshipCountReader;
+import com.graphaware.neo4j.relcount.simple.internal.node.SimpleCachedRelationshipCountingNode;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
@@ -76,6 +75,6 @@ public class SimpleCachedRelationshipCounter extends TypeAndDirection implements
      */
     @Override
     public int count(Node node) {
-        return new SimpleCachedRelationshipCountReader(SIMPLE_RELCOUNT_ID, config).getRelationshipCount(new TypeAndDirectionDescriptionImpl(this), node);
+        return new SimpleCachedRelationshipCountingNode(node, config.createPrefix(SIMPLE_RELCOUNT_ID), config.separator()).getRelationshipCount(new TypeAndDirection(this));
     }
 }

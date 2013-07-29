@@ -1,13 +1,13 @@
 package com.graphaware.neo4j.relcount.full.module;
 
 import com.graphaware.neo4j.framework.GraphAwareModule;
-import com.graphaware.neo4j.relcount.common.logic.RelationshipCountCache;
+import com.graphaware.neo4j.relcount.common.internal.cache.BatchFriendlyRelationshipCountCache;
 import com.graphaware.neo4j.relcount.common.module.RelationshipCountModule;
 import com.graphaware.neo4j.relcount.full.counter.FullCachedRelationshipCounter;
 import com.graphaware.neo4j.relcount.full.counter.FullFallingBackRelationshipCounter;
 import com.graphaware.neo4j.relcount.full.counter.FullNaiveRelationshipCounter;
 import com.graphaware.neo4j.relcount.full.counter.FullRelationshipCounter;
-import com.graphaware.neo4j.relcount.full.logic.FullRelationshipCountCache;
+import com.graphaware.neo4j.relcount.full.internal.cache.FullRelationshipCountCache;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategies;
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipCountStrategiesImpl;
 import com.graphaware.neo4j.tx.event.strategy.InclusionStrategies;
@@ -31,7 +31,7 @@ public class FullRelationshipCountModule extends RelationshipCountModule impleme
     public static final String FULL_RELCOUNT_DEFAULT_ID = "FRC";
 
     private final RelationshipCountStrategies relationshipCountStrategies;
-    private final RelationshipCountCache relationshipCountCache;
+    private final FullRelationshipCountCache relationshipCountCache;
 
     /**
      * Create a module with default ID and configuration. Use this constructor when you wish to register a single
@@ -106,7 +106,7 @@ public class FullRelationshipCountModule extends RelationshipCountModule impleme
      * {@inheritDoc}
      */
     @Override
-    protected RelationshipCountCache getRelationshipCountCache() {
+    protected BatchFriendlyRelationshipCountCache getRelationshipCountCache() {
         return relationshipCountCache;
     }
 
@@ -123,7 +123,7 @@ public class FullRelationshipCountModule extends RelationshipCountModule impleme
      */
     @Override
     public void shutdown() {
-        ((FullRelationshipCountCache) relationshipCountCache).shutdown();
+        //do nothing
     }
 
     /**

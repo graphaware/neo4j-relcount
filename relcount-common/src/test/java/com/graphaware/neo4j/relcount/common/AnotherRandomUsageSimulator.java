@@ -65,7 +65,30 @@ public class AnotherRandomUsageSimulator {
             }
         }).execute();
 
-        new IterableInputBatchExecutor<>(database, 100, GlobalGraphOperations.at(database).getAllNodes(), new UnitOfWork<Node>() {
+//        SimpleTransactionExecutor simpleTransactionExecutor = new SimpleTransactionExecutor(database);
+//        for (final Node node : GlobalGraphOperations.at(database).getAllNodes()) {
+//            if (node.getId() == 0L) {
+//                continue;
+//            }
+//
+//            int friends = random.nextInt(NODES + 1 - NODES / 10) + NODES / 10;
+//
+//            final List<Long> nodeIds = new LinkedList<>(allNodeIds);
+//            Collections.shuffle(nodeIds, random);
+//
+//            for (int i = 0; i < friends; i++) {
+//                 simpleTransactionExecutor.executeInTransaction(new VoidReturningCallback() {
+//                     @Override
+//                     protected void doInTx(GraphDatabaseService database) {
+//                         doCreateFriendship(node, database.getNodeById(nodeIds.remove(0)));
+//                     }
+//                 });
+//            }
+//
+//            LOG.info("Created " + friends + " friends for node " + node.getId());
+//        }
+
+        IterableInputBatchExecutor<Node> executor = new IterableInputBatchExecutor<>(database, 10, GlobalGraphOperations.at(database).getAllNodes(), new UnitOfWork<Node>() {
             @Override
             public void execute(GraphDatabaseService database, Node node) {
                 if (node.getId() == 0L) {
@@ -83,7 +106,11 @@ public class AnotherRandomUsageSimulator {
 
                 LOG.info("Created " + friends + " friends for node " + node.getId());
             }
-        }).execute();
+        });
+
+        executor.execute();
+
+        //new MultiThreadedBatchExecutor(executor, 4).execute();
     }
 
     public void loadIds() {

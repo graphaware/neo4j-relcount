@@ -14,11 +14,10 @@ import com.graphaware.neo4j.relcount.full.strategy.RelationshipPropertiesExtract
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipWeighingStrategy;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertyInclusionStrategy;
+import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
+import com.graphaware.neo4j.tx.single.VoidReturningCallback;
 import org.junit.Test;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.*;
 
 import java.util.Map;
 
@@ -377,6 +376,29 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         assertEquals(0, cachedCounterCreator(module).createCounter(ONE, INCOMING).with(WEIGHT, 7).countLiterally(database.getNodeById(1)));
         assertEquals(0, fallbackCounterCreator(module).createCounter(ONE, INCOMING).with(WEIGHT, 7).count(database.getNodeById(1)));
         assertEquals(0, fallbackCounterCreator(module).createCounter(ONE, INCOMING).with(WEIGHT, 7).countLiterally(database.getNodeById(1)));
+    }
+
+    @Test
+    public void batchTest() {
+        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        final FullRelationshipCountModule module = new FullRelationshipCountModule();
+        framework.registerModule(module);
+        framework.start();
+
+        setUpTwoNodes();
+
+        new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
+            @Override
+            protected void doInTx(GraphDatabaseService database) {
+                for (int i = 0; i < 100; i++) {
+                    simulateUsage();
+                }
+            }
+        });
+
+        verifyCounts(100, naiveCounterCreator(module));
+        verifyCounts(100, cachedCounterCreator(module));
+        verifyCounts(100, fallbackCounterCreator(module));
     }
 
     //helpers

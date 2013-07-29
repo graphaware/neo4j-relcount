@@ -19,9 +19,9 @@ package com.graphaware.neo4j.relcount.full.counter;
 import com.graphaware.neo4j.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.neo4j.framework.config.DefaultFrameworkConfiguration;
 import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
-import com.graphaware.neo4j.relcount.full.dto.relationship.LiteralRelationshipDescription;
-import com.graphaware.neo4j.relcount.full.dto.relationship.WildcardRelationshipDescription;
-import com.graphaware.neo4j.relcount.full.logic.FullCachedRelationshipCountReader;
+import com.graphaware.neo4j.relcount.full.internal.dto.relationship.LiteralRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.internal.dto.relationship.WildcardRelationshipDescription;
+import com.graphaware.neo4j.relcount.full.internal.node.FullCachedRelationshipCountingNode;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
@@ -41,7 +41,7 @@ import static com.graphaware.neo4j.relcount.full.module.FullRelationshipCountMod
  * relationship count this specific. If you still want to count the relationship, either use {@link FullNaiveRelationshipCounter}
  * or consider increasing the compaction threshold.
  *
- * @see com.graphaware.neo4j.relcount.full.logic.compactor.RelationshipCountCompactor
+ * @see com.graphaware.neo4j.relcount.full.internal.cache.RelationshipCountCompactor
  */
 public class FullCachedRelationshipCounter extends BaseFullRelationshipCounter implements FullRelationshipCounter {
 
@@ -121,7 +121,7 @@ public class FullCachedRelationshipCounter extends BaseFullRelationshipCounter i
      */
     @Override
     public int count(Node node) {
-        return new FullCachedRelationshipCountReader(id, config).getRelationshipCount(new WildcardRelationshipDescription(this), node);
+        return new FullCachedRelationshipCountingNode(node, config.createPrefix(id), config.separator()).getRelationshipCount(new WildcardRelationshipDescription(this));
     }
 
     /**
@@ -129,7 +129,7 @@ public class FullCachedRelationshipCounter extends BaseFullRelationshipCounter i
      */
     @Override
     public int countLiterally(Node node) {
-        return new FullCachedRelationshipCountReader(id, config).getRelationshipCount(new LiteralRelationshipDescription(this), node);
+        return new FullCachedRelationshipCountingNode(node, config.createPrefix(id), config.separator()).getRelationshipCount(new LiteralRelationshipDescription(this));
     }
 
     /**

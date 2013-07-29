@@ -5,7 +5,8 @@ import com.graphaware.neo4j.framework.config.BaseFrameworkConfigured;
 import com.graphaware.neo4j.framework.config.FrameworkConfiguration;
 import com.graphaware.neo4j.framework.config.FrameworkConfigured;
 import com.graphaware.neo4j.misc.Change;
-import com.graphaware.neo4j.relcount.common.logic.RelationshipCountCache;
+import com.graphaware.neo4j.relcount.common.internal.cache.BatchFriendlyRelationshipCountCache;
+import com.graphaware.neo4j.relcount.common.internal.cache.RelationshipCountCache;
 import com.graphaware.neo4j.tx.batch.IterableInputBatchExecutor;
 import com.graphaware.neo4j.tx.batch.UnitOfWork;
 import com.graphaware.neo4j.tx.event.api.ImprovedTransactionData;
@@ -16,6 +17,8 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.tooling.GlobalGraphOperations;
 
+import java.util.Collection;
+
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
@@ -24,6 +27,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
  */
 public abstract class RelationshipCountModule extends BaseFrameworkConfigured implements GraphAwareModule, FrameworkConfigured {
 
+    public static final int BATCH_THRESHOLD = 100;
     private final String id;
 
     /**
@@ -40,7 +44,7 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
      *
      * @return relationship count cache.
      */
-    protected abstract RelationshipCountCache getRelationshipCountCache();
+    protected abstract BatchFriendlyRelationshipCountCache getRelationshipCountCache();
 
     /**
      * {@inheritDoc}
@@ -72,9 +76,23 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
      */
     @Override
     public void beforeCommit(ImprovedTransactionData transactionData) {
+        if (isBatch(transactionData)) {
+            getRelationshipCountCache().startBatchMode();
+        }
+
         handleCreatedRelationships(transactionData);
         handleDeletedRelationships(transactionData);
         handleChangedRelationships(transactionData);
+
+        if (isBatch(transactionData)) {
+            getRelationshipCountCache().endBatchMode();
+        }
+    }
+
+    private boolean isBatch(ImprovedTransactionData transactionData) {
+        return transactionData.getAllChangedRelationships().size() > BATCH_THRESHOLD
+                || transactionData.getAllDeletedRelationships().size() > BATCH_THRESHOLD
+                || transactionData.getAllChangedRelationships().size() > BATCH_THRESHOLD;
     }
 
     /**
@@ -90,14 +108,18 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
     //and end node). It doesn't matter which one goes where, as long as both are present).
 
     private void handleCreatedRelationships(ImprovedTransactionData data) {
-        for (Relationship createdRelationship : data.getAllCreatedRelationships()) {
+        Collection<Relationship> allCreatedRelationships = data.getAllCreatedRelationships();
+
+        for (Relationship createdRelationship : allCreatedRelationships) {
             getRelationshipCountCache().handleCreatedRelationship(createdRelationship, createdRelationship.getStartNode(), INCOMING);
             getRelationshipCountCache().handleCreatedRelationship(createdRelationship, createdRelationship.getEndNode(), OUTGOING);
         }
     }
 
     private void handleDeletedRelationships(ImprovedTransactionData data) {
-        for (Relationship deletedRelationship : data.getAllDeletedRelationships()) {
+        Collection<Relationship> allDeletedRelationships = data.getAllDeletedRelationships();
+
+        for (Relationship deletedRelationship : allDeletedRelationships) {
             Node startNode = deletedRelationship.getStartNode();
             if (!data.hasBeenDeleted(startNode)) {
                 getRelationshipCountCache().handleDeletedRelationship(deletedRelationship, startNode, INCOMING);
@@ -111,7 +133,9 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
     }
 
     private void handleChangedRelationships(ImprovedTransactionData data) {
-        for (Change<Relationship> changedRelationship : data.getAllChangedRelationships()) {
+        Collection<Change<Relationship>> allChangedRelationships = data.getAllChangedRelationships();
+
+        for (Change<Relationship> changedRelationship : allChangedRelationships) {
             Relationship current = changedRelationship.getCurrent();
             Relationship previous = changedRelationship.getPrevious();
 
@@ -120,6 +144,7 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
             getRelationshipCountCache().handleCreatedRelationship(current, current.getStartNode(), Direction.INCOMING);
             getRelationshipCountCache().handleCreatedRelationship(current, current.getEndNode(), Direction.OUTGOING);
         }
+
     }
 
     /**
@@ -131,7 +156,7 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
     private void clearCachedCounts(GraphDatabaseService databaseService) {
         new IterableInputBatchExecutor<>(
                 databaseService,
-                1000,
+                500,
                 GlobalGraphOperations.at(databaseService).getAllNodes(),
                 new UnitOfWork<Node>() {
                     @Override
@@ -156,13 +181,23 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
         new IterableInputBatchExecutor<>(
                 databaseService,
                 100,
-                GlobalGraphOperations.at(databaseService).getAllRelationships(),
-                new UnitOfWork<Relationship>() {
+                GlobalGraphOperations.at(databaseService).getAllNodes(),
+                new UnitOfWork<Node>() {
                     @Override
-                    public void execute(GraphDatabaseService database, Relationship relationship) {
-                        Relationship filtered = new FilteredRelationship(relationship, getInclusionStrategies());
-                        getRelationshipCountCache().handleCreatedRelationship(filtered, filtered.getStartNode(), Direction.INCOMING);
-                        getRelationshipCountCache().handleCreatedRelationship(filtered, filtered.getEndNode(), Direction.OUTGOING);
+                    public void execute(GraphDatabaseService database, Node node) {
+                        getRelationshipCountCache().startBatchMode();
+
+                        for (Relationship relationship : node.getRelationships(OUTGOING)) {
+                            Relationship filtered = new FilteredRelationship(relationship, getInclusionStrategies());
+                            getRelationshipCountCache().handleCreatedRelationship(filtered, filtered.getStartNode(), Direction.OUTGOING);
+                        }
+
+                        for (Relationship relationship : node.getRelationships(INCOMING)) {
+                            Relationship filtered = new FilteredRelationship(relationship, getInclusionStrategies());
+                            getRelationshipCountCache().handleCreatedRelationship(filtered, filtered.getEndNode(), Direction.INCOMING);
+                        }
+
+                        getRelationshipCountCache().endBatchMode();
                     }
                 }).execute();
 
