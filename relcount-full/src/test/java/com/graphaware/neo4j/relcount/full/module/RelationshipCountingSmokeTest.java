@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.test.TestGraphDatabaseFactory;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.tooling.GlobalGraphOperations;
 
 import static com.graphaware.neo4j.relcount.common.AnotherRandomUsageSimulator.FRIEND_OF;
@@ -50,11 +50,11 @@ public class RelationshipCountingSmokeTest {
 
     @Before
     public void setUp() {
-//        database = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("/tmp/relcount25")
-//                .loadPropertiesFromFile("/Users/bachmanm/DEV/graphaware/neo4j-relcount/relcount-full/src/test/resources/neo4j.properties")
-//                .newGraphDatabase();
+        database = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("/tmp/relcount-50k-1000-5000-each")
+                .loadPropertiesFromFile("/Users/bachmanm/DEV/graphaware/neo4j-relcount/relcount-full/src/test/resources/neo4j.properties")
+                .newGraphDatabase();
 
-        database = new TestGraphDatabaseFactory().newImpermanentDatabase();
+//        database = new TestGraphDatabaseFactory().newImpermanentDatabase();
 
         registerShutdownHook(database);
 
@@ -80,14 +80,14 @@ public class RelationshipCountingSmokeTest {
 //        simulator.loadIds();
         simulator.populateDatabase();
 
-        long load = TestUtils.time(new TestUtils.Timed() {
-            @Override
-            public void time() {
-                simulator.batchSimulate(STEPS);
-            }
-        });
+//        long load = TestUtils.time(new TestUtils.Timed() {
+//            @Override
+//            public void time() {
+//                simulator.batchSimulate(STEPS);
+//            }
+//        });
 
-        LOGGER.info("Took " + load / 1000 + "s to simulate usage");
+//        LOGGER.info("Took " + load / 1000 + "s to simulate usage");
 
         int fakeCount = IterableUtils.count(GlobalGraphOperations.at(database).getAllRelationships());
 

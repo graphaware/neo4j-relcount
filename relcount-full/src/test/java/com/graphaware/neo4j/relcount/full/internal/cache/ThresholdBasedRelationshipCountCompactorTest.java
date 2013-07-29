@@ -273,7 +273,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
     }
 
     @Test
-    public void ttt() {
+    public void anotherCompactionSmokeTest() {
         final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(10);
 
         executor.executeInTransaction(new VoidReturningCallback() {
@@ -299,7 +299,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
     }
 
     @Test
-    public void tttt() {
+    public void anotherCompactionSmokeTest2() {
         final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(4);
 
         executor.executeInTransaction(new VoidReturningCallback() {

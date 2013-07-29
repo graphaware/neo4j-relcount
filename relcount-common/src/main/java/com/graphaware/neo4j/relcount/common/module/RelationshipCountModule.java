@@ -27,7 +27,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
  */
 public abstract class RelationshipCountModule extends BaseFrameworkConfigured implements GraphAwareModule, FrameworkConfigured {
 
-    public static final int BATCH_THRESHOLD = 100;
+    public static final int BATCH_THRESHOLD = 50;
     private final String id;
 
     /**
@@ -90,7 +90,7 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
     }
 
     private boolean isBatch(ImprovedTransactionData transactionData) {
-        return transactionData.getAllChangedRelationships().size() > BATCH_THRESHOLD
+        return transactionData.getAllCreatedRelationships().size() > BATCH_THRESHOLD
                 || transactionData.getAllDeletedRelationships().size() > BATCH_THRESHOLD
                 || transactionData.getAllChangedRelationships().size() > BATCH_THRESHOLD;
     }

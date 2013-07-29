@@ -3,7 +3,9 @@ package com.graphaware.neo4j.relcount.common.internal.cache;
 import org.neo4j.graphdb.*;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A {@link Node} decorator that keeps track of properties itself, until {@link #flush()} is called, which is when they
@@ -13,6 +15,8 @@ class BatchFriendlyNode implements Node {
 
     private final Node node;
     private final Map<String, Object> properties = new HashMap<>();
+    private final Set<String> updatedProperties = new HashSet<>();
+    private final Set<String> removedProperties = new HashSet<>();
 
     /**
      * Construct a new batch friendly node.
@@ -37,7 +41,11 @@ class BatchFriendlyNode implements Node {
      * Copy all properties from this instance to the backing node.
      */
     private void copyPropertiesToNode() {
-        for (String key : properties.keySet()) {
+        for (String key : removedProperties) {
+            node.removeProperty(key);
+        }
+
+        for (String key : updatedProperties) {
             node.setProperty(key, properties.get(key));
         }
     }
@@ -75,12 +83,16 @@ class BatchFriendlyNode implements Node {
     @Override
     public void setProperty(String key, Object value) {
         properties.put(key, value);
+        updatedProperties.add(key);
+        removedProperties.remove(key);
     }
 
     @Override
     public Object removeProperty(String key) {
         Object oldValue = properties.get(key);
         properties.remove(key);
+        updatedProperties.remove(key);
+        removedProperties.add(key);
         return oldValue;
     }
 

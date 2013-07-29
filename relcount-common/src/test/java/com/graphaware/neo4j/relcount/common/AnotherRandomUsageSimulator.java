@@ -42,7 +42,9 @@ public class AnotherRandomUsageSimulator {
     public static final RelationshipType FRIEND_OF = DynamicRelationshipType.withName("FRIEND_OF");
     public static final String TIMESTAMP = "timestamp";
     public static final String LEVEL = "level";
-    public static final int NODES = 1000;
+    public static final int NODES = 50000;
+    public static final int MIN_FRIENDS = 1000;
+    public static final int MAX_FRIENDS = 5000;
 
     private final GraphDatabaseService database;
     private final TransactionExecutor txExecutor;
@@ -95,7 +97,7 @@ public class AnotherRandomUsageSimulator {
                     return;
                 }
 
-                int friends = random.nextInt(NODES + 1 - NODES / 10) + NODES / 10;
+                int friends = random.nextInt(MAX_FRIENDS - MIN_FRIENDS) + MIN_FRIENDS;
 
                 List<Long> nodeIds = new LinkedList<>(allNodeIds);
                 Collections.shuffle(nodeIds, random);

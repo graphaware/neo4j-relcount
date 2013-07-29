@@ -401,6 +401,35 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         verifyCounts(100, fallbackCounterCreator(module));
     }
 
+    @Test
+    public void batchTestWithMultipleModulesAndLowerThreshold() {
+        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        final FullRelationshipCountModule module1 = new FullRelationshipCountModule("M1", RelationshipCountStrategiesImpl.defaultStrategies().with(5));
+        final FullRelationshipCountModule module2 = new FullRelationshipCountModule("M2", RelationshipCountStrategiesImpl.defaultStrategies().with(5));
+        framework.registerModule(module1);
+        framework.registerModule(module2);
+        framework.start();
+
+        setUpTwoNodes();
+
+        new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
+            @Override
+            protected void doInTx(GraphDatabaseService database) {
+                for (int i = 0; i < 20; i++) {
+                    simulateUsage();
+                }
+            }
+        });
+
+        verifyCounts(20, naiveCounterCreator(module1));
+        verifyCompactedCounts(20, cachedCounterCreator(module1));
+        verifyCounts(20, fallbackCounterCreator(module1));
+
+        verifyCounts(20, naiveCounterCreator(module2));
+        verifyCompactedCounts(20, cachedCounterCreator(module2));
+        verifyCounts(20, fallbackCounterCreator(module2));
+    }
+
     //helpers
 
     private CounterCreator defaultNaiveCounterCreator() {
