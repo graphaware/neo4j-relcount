@@ -17,7 +17,6 @@
 package com.graphaware.neo4j.relcount.full.module;
 
 import com.graphaware.neo4j.framework.GraphAwareFramework;
-import com.graphaware.neo4j.relcount.common.AnotherRandomUsageSimulator;
 import com.graphaware.neo4j.relcount.common.counter.UnableToCountException;
 import com.graphaware.neo4j.relcount.full.counter.FullCachedRelationshipCounter;
 import com.graphaware.neo4j.relcount.full.counter.FullRelationshipCounter;
@@ -34,6 +33,9 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.tooling.GlobalGraphOperations;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.graphaware.neo4j.relcount.common.AnotherRandomUsageSimulator.FRIEND_OF;
 import static com.graphaware.neo4j.relcount.common.AnotherRandomUsageSimulator.LEVEL;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -48,13 +50,21 @@ public class RelationshipCountingSmokeTest {
     private GraphDatabaseService database;
     private static final int STEPS = 10000;
 
+    private static final String DBNAME = "/tmp/relcount-50k-1000-5000-each";
+    private static final String CONFIG = "/Users/bachmanm/DEV/graphaware/neo4j-relcount/relcount-full/src/test/resources/neo4j.properties";
+
     @Before
     public void setUp() {
-        database = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("/tmp/relcount-50k-1000-5000-each")
-                .loadPropertiesFromFile("/Users/bachmanm/DEV/graphaware/neo4j-relcount/relcount-full/src/test/resources/neo4j.properties")
+
+
+
+        database = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(DBNAME)
+                .loadPropertiesFromFile(CONFIG)
                 .newGraphDatabase();
 
 //        database = new TestGraphDatabaseFactory().newImpermanentDatabase();
+
+        //database = new TransactionSimulatingBatchGraphDatabase(DBNAME, getDefaultParams());
 
         registerShutdownHook(database);
 
@@ -71,14 +81,21 @@ public class RelationshipCountingSmokeTest {
 //                return 123;
 //            }
 //        })));
-        framework.start();
+        framework.start(true);
+//        framework.start();
     }
 
     @Test
     public void smokeTest() {
-        final AnotherRandomUsageSimulator simulator = new AnotherRandomUsageSimulator(database);
+//        final AnotherRandomUsageSimulator simulator = new AnotherRandomUsageSimulator(database);
 //        simulator.loadIds();
-        simulator.populateDatabase();
+//        simulator.populateDatabase();
+
+//        database.shutdown();
+
+//        database = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(DBNAME)
+//                .loadPropertiesFromFile(CONFIG)
+//                .newGraphDatabase();
 
 //        long load = TestUtils.time(new TestUtils.Timed() {
 //            @Override
@@ -91,7 +108,7 @@ public class RelationshipCountingSmokeTest {
 
         int fakeCount = IterableUtils.count(GlobalGraphOperations.at(database).getAllRelationships());
 
-        System.out.println("Ultrafake count: "+fakeCount);
+        System.out.println("Ultrafake count: " + fakeCount);
 //        FullRelationshipCounter relationshipCounter = new FullCachedRelationshipCounter(FRIEND_OF, OUTGOING);
 
         long fake = TestUtils.time(new TestUtils.Timed() {
@@ -109,7 +126,7 @@ public class RelationshipCountingSmokeTest {
             }
         });
 
-        LOGGER.info("Took " + fake  + "ms to count fake");
+        LOGGER.info("Took " + fake + "ms to count fake");
 
         long real = TestUtils.time(new TestUtils.Timed() {
             @Override
@@ -144,5 +161,17 @@ public class RelationshipCountingSmokeTest {
                 graphDb.shutdown();
             }
         });
+    }
+
+    private Map<String, String> getDefaultParams() {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("neostore.nodestore.db.mapped_memory", "20M");
+        params.put("neostore.propertystore.db.mapped_memory", "500M");
+        params.put("neostore.propertystore.db.index.mapped_memory", "10M");
+        params.put("neostore.propertystore.db.index.keys.mapped_memory", "10M");
+        params.put("neostore.propertystore.db.strings.mapped_memory", "500M");
+        params.put("neostore.propertystore.db.arrays.mapped_memory", "10M");
+        params.put("neostore.relationshipstore.db.mapped_memory", "50M");
+        return params;
     }
 }
