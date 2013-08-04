@@ -3,6 +3,8 @@ package com.graphaware.neo4j.relcount.common.internal.cache;
 import com.graphaware.neo4j.dto.common.relationship.SerializableTypeAndDirection;
 import com.graphaware.neo4j.framework.config.BaseFrameworkConfigured;
 import com.graphaware.neo4j.relcount.common.internal.node.RelationshipCountCachingNode;
+import com.graphaware.neo4j.wrapper.NodeWrapper;
+import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -15,6 +17,7 @@ import org.neo4j.graphdb.Relationship;
  *                 corresponds to an about-to-be-cached relationship count.
  */
 public abstract class BaseRelationshipCountCache<CACHED extends SerializableTypeAndDirection> extends BaseFrameworkConfigured {
+    private static final Logger LOG = Logger.getLogger(BaseRelationshipCountCache.class);
 
     protected final String id;
 
@@ -92,6 +95,11 @@ public abstract class BaseRelationshipCountCache<CACHED extends SerializableType
      * @return node with no filtering decorators around it.
      */
     protected Node unwrap(Node node) {
+        if (node instanceof NodeWrapper) {
+            return ((NodeWrapper) node).getWrapped();
+        }
+
+        LOG.warn("Unwrapping a non-wrapper node...");
         return node.getGraphDatabase().getNodeById(node.getId());
     }
 

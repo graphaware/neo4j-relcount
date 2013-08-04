@@ -26,7 +26,6 @@ import com.graphaware.neo4j.tx.single.TransactionExecutor;
 import com.graphaware.neo4j.utils.DeleteUtils;
 import org.apache.log4j.Logger;
 import org.neo4j.graphdb.*;
-import org.neo4j.tooling.GlobalGraphOperations;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -90,10 +89,10 @@ public class AnotherRandomUsageSimulator {
 //            LOG.info("Created " + friends + " friends for node " + node.getId());
 //        }
 
-        IterableInputBatchExecutor<Node> executor = new IterableInputBatchExecutor<>(database, 10, GlobalGraphOperations.at(database).getAllNodes(), new UnitOfWork<Node>() {
+        IterableInputBatchExecutor<Long> executor = new IterableInputBatchExecutor<>(database, 10, allNodeIds, new UnitOfWork<Long>() {
             @Override
-            public void execute(GraphDatabaseService database, Node node) {
-                if (node.getId() == 0L) {
+            public void execute(GraphDatabaseService database, Long nodeId) {
+                if (nodeId == 0L) {
                     return;
                 }
 
@@ -103,26 +102,25 @@ public class AnotherRandomUsageSimulator {
                 Collections.shuffle(nodeIds, random);
 
                 for (int i = 0; i < friends; i++) {
-                    doCreateFriendship(node, database.getNodeById(nodeIds.remove(0)));
+                    doCreateFriendship(database.getNodeById(nodeId), database.getNodeById(nodeIds.remove(0)));
                 }
 
-                LOG.info("Created " + friends + " friends for node " + node.getId());
+                LOG.info("Created " + friends + " friends for node " + nodeId);
             }
         });
 
         executor.execute();
-
         //new MultiThreadedBatchExecutor(executor, 4).execute();
     }
 
-    public void loadIds() {
-        allNodeIds.clear();
-        for (Node node : GlobalGraphOperations.at(database).getAllNodes()) {
-            if (node.getId() != 0L) {
-                allNodeIds.add(node.getId());
-            }
-        }
-    }
+//    public void loadIds() {
+//        allNodeIds.clear();
+//        for (Node node : GlobalGraphOperations.at(database).getAllNodes()) {
+//            if (node.getId() != 0L) {
+//                allNodeIds.add(node.getId());
+//            }
+//        }
+//    }
 
     public void batchSimulate(int steps) {
         new NoInputBatchExecutor(database, 2, steps, new UnitOfWork<NullItem>() {

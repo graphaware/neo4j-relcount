@@ -1,6 +1,9 @@
 package com.graphaware.neo4j.relcount.common.internal.cache;
 
-import org.neo4j.graphdb.*;
+import com.graphaware.neo4j.wrapper.BasePropertyContainerWrapper;
+import com.graphaware.neo4j.wrapper.NodeWrapper;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.NotFoundException;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,9 +14,9 @@ import java.util.Set;
  * A {@link Node} decorator that keeps track of properties itself, until {@link #flush()} is called, which is when they
  * are actually written to the database.
  */
-class BatchFriendlyNode implements Node {
+class BatchFriendlyNode extends BasePropertyContainerWrapper<Node> implements Node, NodeWrapper {
 
-    private final Node node;
+    private final Node wrapped;
     private final Map<String, Object> properties = new HashMap<>();
     private final Set<String> updatedProperties = new HashSet<>();
     private final Set<String> removedProperties = new HashSet<>();
@@ -24,7 +27,7 @@ class BatchFriendlyNode implements Node {
      * @param node real Neo4j node the instance will be backed by.
      */
     public BatchFriendlyNode(Node node) {
-        this.node = node;
+        this.wrapped = node;
         copyPropertiesFromNode();
     }
 
@@ -32,8 +35,8 @@ class BatchFriendlyNode implements Node {
      * Copy all properties from the backing node to this instance.
      */
     private void copyPropertiesFromNode() {
-        for (String key : node.getPropertyKeys()) {
-            properties.put(key, node.getProperty(key));
+        for (String key : wrapped.getPropertyKeys()) {
+            properties.put(key, wrapped.getProperty(key));
         }
     }
 
@@ -42,11 +45,11 @@ class BatchFriendlyNode implements Node {
      */
     private void copyPropertiesToNode() {
         for (String key : removedProperties) {
-            node.removeProperty(key);
+            wrapped.removeProperty(key);
         }
 
         for (String key : updatedProperties) {
-            node.setProperty(key, properties.get(key));
+            wrapped.setProperty(key, properties.get(key));
         }
     }
 
@@ -57,13 +60,33 @@ class BatchFriendlyNode implements Node {
         copyPropertiesToNode();
     }
 
-    //properly overridden
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected Node self() {
+        return this;
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Node getWrapped() {
+        return wrapped;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean hasProperty(String key) {
         return properties.containsKey(key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Object getProperty(String key) {
         if (!hasProperty(key)) {
@@ -72,14 +95,9 @@ class BatchFriendlyNode implements Node {
         return properties.get(key);
     }
 
-    @Override
-    public Object getProperty(String key, Object defaultValue) {
-        if (!hasProperty(key)) {
-            return defaultValue;
-        }
-        return properties.get(key);
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setProperty(String key, Object value) {
         properties.put(key, value);
@@ -87,6 +105,9 @@ class BatchFriendlyNode implements Node {
         removedProperties.remove(key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Object removeProperty(String key) {
         Object oldValue = properties.get(key);
@@ -96,123 +117,11 @@ class BatchFriendlyNode implements Node {
         return oldValue;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Iterable<String> getPropertyKeys() {
         return properties.keySet();
-    }
-
-    @Override
-    @Deprecated
-    public Iterable<Object> getPropertyValues() {
-        return properties.values();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        BatchFriendlyNode batchFriendlyNode = (BatchFriendlyNode) o;
-
-        if (!node.equals(batchFriendlyNode.node)) return false;
-
-        return true;
-    }
-
-    //just delegated
-
-    @Override
-    public int hashCode() {
-        return node.hashCode();
-    }
-
-    @Override
-    public long getId() {
-        return node.getId();
-    }
-
-    @Override
-    public void delete() {
-        node.delete();
-    }
-
-    @Override
-    public Iterable<Relationship> getRelationships() {
-        return node.getRelationships();
-    }
-
-    @Override
-    public boolean hasRelationship() {
-        return node.hasRelationship();
-    }
-
-    @Override
-    public Iterable<Relationship> getRelationships(RelationshipType... types) {
-        return node.getRelationships(types);
-    }
-
-    @Override
-    public Iterable<Relationship> getRelationships(Direction direction, RelationshipType... types) {
-        return node.getRelationships(direction, types);
-    }
-
-    @Override
-    public boolean hasRelationship(RelationshipType... types) {
-        return node.hasRelationship(types);
-    }
-
-    @Override
-    public boolean hasRelationship(Direction direction, RelationshipType... types) {
-        return node.hasRelationship(direction, types);
-    }
-
-    @Override
-    public Iterable<Relationship> getRelationships(Direction dir) {
-        return node.getRelationships(dir);
-    }
-
-    @Override
-    public boolean hasRelationship(Direction dir) {
-        return node.hasRelationship(dir);
-    }
-
-    @Override
-    public Iterable<Relationship> getRelationships(RelationshipType type, Direction dir) {
-        return node.getRelationships(type, dir);
-    }
-
-    @Override
-    public boolean hasRelationship(RelationshipType type, Direction dir) {
-        return node.hasRelationship(type, dir);
-    }
-
-    @Override
-    public Relationship getSingleRelationship(RelationshipType type, Direction dir) {
-        return node.getSingleRelationship(type, dir);
-    }
-
-    @Override
-    public Relationship createRelationshipTo(Node otherNode, RelationshipType type) {
-        return node.createRelationshipTo(otherNode, type);
-    }
-
-    @Override
-    public Traverser traverse(Traverser.Order traversalOrder, StopEvaluator stopEvaluator, ReturnableEvaluator returnableEvaluator, RelationshipType relationshipType, Direction direction) {
-        return node.traverse(traversalOrder, stopEvaluator, returnableEvaluator, relationshipType, direction);
-    }
-
-    @Override
-    public Traverser traverse(Traverser.Order traversalOrder, StopEvaluator stopEvaluator, ReturnableEvaluator returnableEvaluator, RelationshipType firstRelationshipType, Direction firstDirection, RelationshipType secondRelationshipType, Direction secondDirection) {
-        return node.traverse(traversalOrder, stopEvaluator, returnableEvaluator, firstRelationshipType, firstDirection, secondRelationshipType, secondDirection);
-    }
-
-    @Override
-    public Traverser traverse(Traverser.Order traversalOrder, StopEvaluator stopEvaluator, ReturnableEvaluator returnableEvaluator, Object... relationshipTypesAndDirections) {
-        return node.traverse(traversalOrder, stopEvaluator, returnableEvaluator, relationshipTypesAndDirections);
-    }
-
-    @Override
-    public GraphDatabaseService getGraphDatabase() {
-        return node.getGraphDatabase();
     }
 }

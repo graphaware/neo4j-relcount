@@ -9,7 +9,8 @@ In some Neo4j applications, it is useful to know how many relationships of a giv
 are present on a node. Naive on-demand relationship counting quickly becomes inefficient with large numbers of relationships
 per node.
 
-The aim of this GraphAware module is to provide an easy-to-use, transparent cache for relationship counts on nodes.
+The aim of this [GraphAware Framework](https://github.com/graphaware/neo4j-framework) module is to provide an easy-to-use,
+transparent cache for relationship counts on nodes.
 
 ### Download
 
@@ -21,7 +22,7 @@ in your pom.xml:
         <dependency>
             <groupId>com.graphaware</groupId>
             <artifactId>neo4j-relcount</artifactId>
-            <version>1.2</version>
+            <version>1.9-1.0</version>
         </dependency>
         ...
      </dependencies>

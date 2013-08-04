@@ -9,8 +9,10 @@ import com.graphaware.neo4j.relcount.common.internal.cache.BatchFriendlyRelation
 import com.graphaware.neo4j.relcount.common.internal.cache.RelationshipCountCache;
 import com.graphaware.neo4j.tx.batch.IterableInputBatchExecutor;
 import com.graphaware.neo4j.tx.batch.UnitOfWork;
+import com.graphaware.neo4j.tx.batch.api.TransactionSimulatingBatchInserter;
+import com.graphaware.neo4j.tx.batch.propertycontainer.inserter.BatchInserterNode;
 import com.graphaware.neo4j.tx.event.api.ImprovedTransactionData;
-import com.graphaware.neo4j.tx.event.propertycontainer.filtered.FilteredRelationship;
+import com.graphaware.neo4j.tx.event.propertycontainer.filtered.FilteredNode;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -69,6 +71,23 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
     public void reinitialize(GraphDatabaseService database) {
         clearCachedCounts(database);
         initialize(database);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void initialize(TransactionSimulatingBatchInserter batchInserter) {
+        buildCachedCounts(batchInserter);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void reinitialize(TransactionSimulatingBatchInserter batchInserter) {
+        clearCachedCounts(batchInserter);
+        initialize(batchInserter);
     }
 
     /**
@@ -144,7 +163,6 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
             getRelationshipCountCache().handleCreatedRelationship(current, current.getStartNode(), Direction.INCOMING);
             getRelationshipCountCache().handleCreatedRelationship(current, current.getEndNode(), Direction.OUTGOING);
         }
-
     }
 
     /**
@@ -172,6 +190,22 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
     }
 
     /**
+     * Clear all cached counts. NOTE: This is a potentially very expensive operation as it traverses the
+     * entire graph! Use with care.
+     *
+     * @param batchInserter to perform the operation on.
+     */
+    private void clearCachedCounts(TransactionSimulatingBatchInserter batchInserter) {
+        for (long nodeId : batchInserter.getAllNodes()) {
+            for (String key : batchInserter.getNodeProperties(nodeId).keySet()) {
+                if (key.startsWith(getConfig().createPrefix(id))) {
+                    batchInserter.removeNodeProperty(nodeId, key);
+                }
+            }
+        }
+    }
+
+    /**
      * Clear and rebuild all cached counts. NOTE: This is a potentially very expensive operation as it traverses the
      * entire graph! Use with care.
      *
@@ -185,21 +219,44 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
                 new UnitOfWork<Node>() {
                     @Override
                     public void execute(GraphDatabaseService database, Node node) {
-                        getRelationshipCountCache().startBatchMode();
+                        Node filteredNode = new FilteredNode(node, getInclusionStrategies());
 
-                        for (Relationship relationship : node.getRelationships(OUTGOING)) {
-                            Relationship filtered = new FilteredRelationship(relationship, getInclusionStrategies());
-                            getRelationshipCountCache().handleCreatedRelationship(filtered, filtered.getStartNode(), Direction.OUTGOING);
-                        }
+                        buildCachedCounts(filteredNode);
 
-                        for (Relationship relationship : node.getRelationships(INCOMING)) {
-                            Relationship filtered = new FilteredRelationship(relationship, getInclusionStrategies());
-                            getRelationshipCountCache().handleCreatedRelationship(filtered, filtered.getEndNode(), Direction.INCOMING);
-                        }
-
-                        getRelationshipCountCache().endBatchMode();
                     }
                 }).execute();
+    }
 
+    /**
+     * Clear and rebuild all cached counts. NOTE: This is a potentially very expensive operation as it traverses the
+     * entire graph! Use with care.
+     *
+     * @param batchInserter to perform the operation on.
+     */
+    private void buildCachedCounts(TransactionSimulatingBatchInserter batchInserter) {
+        for (long nodeId : batchInserter.getAllNodes()) {
+            Node filteredNode = new FilteredNode(new BatchInserterNode(nodeId, batchInserter), getInclusionStrategies());
+
+            buildCachedCounts(filteredNode);
+        }
+    }
+
+    /**
+     * Build cached counts for a node.
+     *
+     * @param filteredNode filtered node.
+     */
+    private void buildCachedCounts(Node filteredNode) {
+        getRelationshipCountCache().startBatchMode();
+
+        for (Relationship relationship : filteredNode.getRelationships()) {
+            getRelationshipCountCache().handleCreatedRelationship(relationship, filteredNode, Direction.OUTGOING);
+
+            if (relationship.getStartNode().getId() == relationship.getEndNode().getId()) {
+                getRelationshipCountCache().handleCreatedRelationship(relationship, filteredNode, Direction.INCOMING);
+            }
+        }
+
+        getRelationshipCountCache().endBatchMode();
     }
 }

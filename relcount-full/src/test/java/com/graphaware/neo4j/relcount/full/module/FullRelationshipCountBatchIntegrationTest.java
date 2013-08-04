@@ -1,9 +1,9 @@
 package com.graphaware.neo4j.relcount.full.module;
 
-import com.graphaware.neo4j.framework.GraphAwareFramework;
+import com.graphaware.neo4j.framework.BatchGraphAwareFramework;
 import com.graphaware.neo4j.framework.strategy.IncludeAllNodeProperties;
 import com.graphaware.neo4j.framework.strategy.IncludeAllNodes;
-import com.graphaware.neo4j.relcount.common.IntegrationTest;
+import com.graphaware.neo4j.relcount.common.BatchIntegrationTest;
 import com.graphaware.neo4j.relcount.common.counter.UnableToCountException;
 import com.graphaware.neo4j.relcount.full.counter.FullCachedRelationshipCounter;
 import com.graphaware.neo4j.relcount.full.counter.FullFallingBackRelationshipCounter;
@@ -14,12 +14,12 @@ import com.graphaware.neo4j.relcount.full.strategy.RelationshipPropertiesExtract
 import com.graphaware.neo4j.relcount.full.strategy.RelationshipWeighingStrategy;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipInclusionStrategy;
 import com.graphaware.neo4j.tx.event.strategy.RelationshipPropertyInclusionStrategy;
-import com.graphaware.neo4j.tx.single.SimpleTransactionExecutor;
-import com.graphaware.neo4j.tx.single.VoidReturningCallback;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.unsafe.batchinsert.TransactionSimulatingBatchInserterImpl;
 
 import java.io.IOException;
 import java.util.Map;
@@ -31,15 +31,16 @@ import static org.junit.Assert.fail;
 import static org.neo4j.graphdb.Direction.*;
 
 /**
- * Integration test for full relationship counting.
+ * Integration test for full relationship counting with batch inserter.
  */
 @SuppressWarnings("PointlessArithmeticExpression")
-public class FullRelationshipCountIntegrationTest extends IntegrationTest {
+public class FullRelationshipCountBatchIntegrationTest extends BatchIntegrationTest {
 
     @Test
     public void noFramework() {
         setUpTwoNodes();
-        simulateUsage();
+        simulateInserts();
+        startDatabase();
 
         verifyCounts(1, defaultNaiveCounterCreator());
         verifyCounts(0, defaultCachedCounterCreator());
@@ -49,8 +50,9 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
     @Test
     public void noFramework2() {
         setUpTwoNodes();
-        simulateUsage();
-        simulateUsage();
+        simulateInserts();
+        simulateInserts();
+        startDatabase();
 
         verifyCounts(2, defaultNaiveCounterCreator());
         verifyCounts(0, defaultCachedCounterCreator());
@@ -59,15 +61,25 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
     @Test
     public void cachedCountsCanBeRebuilt() {
-        GraphAwareFramework framework = new GraphAwareFramework(database);
-        final FullRelationshipCountModule module = new FullRelationshipCountModule();
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter);
+        FullRelationshipCountModule module = new FullRelationshipCountModule();
         framework.registerModule(module);
         framework.start();
 
         setUpTwoNodes();
-        simulateUsage();
+        simulateInserts();
 
-        module.reinitialize(database);
+        batchInserter.shutdown();
+
+        batchInserter = new TransactionSimulatingBatchInserterImpl(temporaryFolder.getRoot().getAbsolutePath());
+        framework = new BatchGraphAwareFramework(batchInserter);
+        module = new FullRelationshipCountModule();
+        framework.registerModule(module);
+        framework.start();
+
+        module.reinitialize(batchInserter);
+
+        startDatabase();
 
         verifyCounts(1, naiveCounterCreator(module));
         verifyCounts(1, cachedCounterCreator(module));
@@ -76,13 +88,14 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
     @Test
     public void defaultFrameworkOnNewDatabase() {
-        GraphAwareFramework framework = new GraphAwareFramework(database);
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter);
         final FullRelationshipCountModule module = new FullRelationshipCountModule();
         framework.registerModule(module);
         framework.start();
 
         setUpTwoNodes();
-        simulateUsage();
+        simulateInserts();
+        startDatabase();
 
         verifyCounts(1, naiveCounterCreator(module));
         verifyCounts(1, cachedCounterCreator(module));
@@ -91,17 +104,14 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
     @Test
     public void defaultFrameworkWithChangedModule() throws IOException {
-        TemporaryFolder temporaryFolder = new TemporaryFolder();
-        temporaryFolder.create();
-        database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
-
-        GraphAwareFramework framework = new GraphAwareFramework(database);
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter);
         FullRelationshipCountModule module = new FullRelationshipCountModule();
         framework.registerModule(module);
         framework.start();
 
         setUpTwoNodes();
-        simulateUsage();
+        simulateInserts();
+        startDatabase();
 
         verifyCounts(1, naiveCounterCreator(module));
         verifyCounts(1, cachedCounterCreator(module));
@@ -109,12 +119,14 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
         database.shutdown();
 
-        database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
+        batchInserter = new TransactionSimulatingBatchInserterImpl(temporaryFolder.getRoot().getAbsolutePath());
 
-        framework = new GraphAwareFramework(database);
+        framework = new BatchGraphAwareFramework(batchInserter);
         module = new FullRelationshipCountModule(RelationshipCountStrategiesImpl.defaultStrategies().with(5));
         framework.registerModule(module);
         framework.start();
+
+        startDatabase();
 
         verifyCounts(1, naiveCounterCreator(module));
         verifyCompactedCounts(1, cachedCounterCreator(module));
@@ -122,12 +134,14 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
         database.shutdown();
 
-        database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
+        batchInserter = new TransactionSimulatingBatchInserterImpl(temporaryFolder.getRoot().getAbsolutePath());
 
-        framework = new GraphAwareFramework(database);
+        framework = new BatchGraphAwareFramework(batchInserter);
         module = new FullRelationshipCountModule(RelationshipCountStrategiesImpl.defaultStrategies().with(20));
         framework.registerModule(module);
         framework.start();
+
+        startDatabase();
 
         verifyCounts(1, naiveCounterCreator(module));
         verifyCounts(1, cachedCounterCreator(module));
@@ -137,12 +151,14 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
     @Test
     public void defaultFrameworkOnExistingDatabase() {
         setUpTwoNodes();
-        simulateUsage();
+        simulateInserts();
 
-        GraphAwareFramework framework = new GraphAwareFramework(database);
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter);
         final FullRelationshipCountModule module = new FullRelationshipCountModule();
         framework.registerModule(module);
         framework.start();
+
+        startDatabase();
 
         verifyCounts(1, naiveCounterCreator(module));
         verifyCounts(1, cachedCounterCreator(module));
@@ -151,13 +167,14 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
     @Test
     public void customFrameworkOnNewDatabase() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
         final FullRelationshipCountModule module = new FullRelationshipCountModule();
         framework.registerModule(module);
         framework.start();
 
         setUpTwoNodes();
-        simulateUsage();
+        simulateInserts();
+        startDatabase();
 
         verifyCounts(1, naiveCounterCreator(module));
         verifyCounts(1, cachedCounterCreator(module));
@@ -167,12 +184,14 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
     @Test
     public void customFrameworkOnExistingDatabase() {
         setUpTwoNodes();
-        simulateUsage();
+        simulateInserts();
 
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
         final FullRelationshipCountModule module = new FullRelationshipCountModule();
         framework.registerModule(module);
         framework.start();
+
+        startDatabase();
 
         verifyCounts(1, naiveCounterCreator(module));
         verifyCounts(1, cachedCounterCreator(module));
@@ -181,39 +200,32 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
     @Test
     public void weightedRelationships() {
-        for (int numberOfRounds = 1; numberOfRounds <= 10; numberOfRounds++) {
-            setUp();
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
+        final FullRelationshipCountModule module = new FullRelationshipCountModule(
+                RelationshipCountStrategiesImpl.defaultStrategies()
+                        .with(new RelationshipWeighingStrategy() {
+                            @Override
+                            public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
+                                return (int) relationship.getProperty(WEIGHT, 1);
+                            }
+                        }));
 
-            GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
-            final FullRelationshipCountModule module = new FullRelationshipCountModule(
-                    RelationshipCountStrategiesImpl.defaultStrategies()
-                            .with(new RelationshipWeighingStrategy() {
-                                @Override
-                                public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
-                                    return (int) relationship.getProperty(WEIGHT, 1);
-                                }
-                            }));
+        framework.registerModule(module);
+        framework.start();
 
-            framework.registerModule(module);
-            framework.start();
+        setUpTwoNodes();
+        simulateInserts();
+        startDatabase();
 
-            setUpTwoNodes();
-
-            for (int i = 0; i < numberOfRounds; i++) {
-                simulateUsage();
-            }
-
-            verifyWeightedCounts(numberOfRounds, naiveCounterCreator(module));
-            verifyWeightedCounts(numberOfRounds, cachedCounterCreator(module));
-            verifyWeightedCounts(numberOfRounds, fallbackCounterCreator(module));
-
-            tearDown();
-        }
+        verifyWeightedCounts(1, naiveCounterCreator(module));
+        verifyWeightedCounts(1, cachedCounterCreator(module));
+        verifyWeightedCounts(1, fallbackCounterCreator(module));
     }
+
 
     @Test
     public void defaultStrategiesWithLowerThreshold() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
         final FullRelationshipCountModule module = new FullRelationshipCountModule(
                 RelationshipCountStrategiesImpl.defaultStrategies().with(5)
         );
@@ -221,7 +233,8 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         framework.start();
 
         setUpTwoNodes();
-        simulateUsage();
+        simulateInserts();
+        startDatabase();
 
         verifyCounts(1, naiveCounterCreator(module));
         verifyCompactedCounts(1, cachedCounterCreator(module));
@@ -230,7 +243,7 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
     @Test
     public void defaultStrategiesWithLowerThreshold2() {
-        GraphAwareFramework framework = new GraphAwareFramework(database);
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter);
         final FullRelationshipCountModule module = new FullRelationshipCountModule(
                 RelationshipCountStrategiesImpl.defaultStrategies().with(5)
         );
@@ -238,8 +251,9 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         framework.start();
 
         setUpTwoNodes();
-        simulateUsage();
-        simulateUsage();
+        simulateInserts();
+        simulateInserts();
+        startDatabase();
 
         verifyCounts(2, naiveCounterCreator(module));
         verifyCompactedCounts(2, cachedCounterCreator(module));
@@ -248,7 +262,7 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
     @Test
     public void defaultStrategiesWithLowerThreshold3() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
         final FullRelationshipCountModule module = new FullRelationshipCountModule(
                 RelationshipCountStrategiesImpl.defaultStrategies().with(4)
         );
@@ -256,7 +270,8 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         framework.start();
 
         setUpTwoNodes();
-        simulateUsage();
+        simulateInserts();
+        startDatabase();
 
         try {
             cachedCounterCreator(module).createCounter(ONE, OUTGOING).with(WEIGHT, 2).with(TIMESTAMP, "123").with(K1, "V1").count(database.getNodeById(1));
@@ -267,32 +282,8 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    public void defaultStrategiesWithLowerThreshold20() {
-        for (int threshold = 3; threshold <= 20; threshold++) {
-            setUp();
-
-            GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
-            final FullRelationshipCountModule module = new FullRelationshipCountModule(
-                    RelationshipCountStrategiesImpl.defaultStrategies().with(threshold)
-            );
-            framework.registerModule(module);
-            framework.start();
-
-            setUpTwoNodes();
-            simulateUsage();
-            simulateUsage();
-            simulateUsage();
-
-            verifyCounts(3, fallbackCounterCreator(module));
-            verifyCounts(3, naiveCounterCreator(module));
-
-            tearDown();
-        }
-    }
-
-    @Test
     public void weightedRelationshipsWithCompaction() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
         final FullRelationshipCountModule module = new FullRelationshipCountModule(
                 RelationshipCountStrategiesImpl.defaultStrategies()
                         .with(new RelationshipWeighingStrategy() {
@@ -307,10 +298,11 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         framework.start();
 
         setUpTwoNodes();
-        simulateUsage();
-        simulateUsage();
-        simulateUsage();
-        simulateUsage();
+        simulateInserts();
+        simulateInserts();
+        simulateInserts();
+        simulateInserts();
+        startDatabase();
 
         verifyWeightedCounts(4, fallbackCounterCreator(module));
         verifyWeightedCounts(4, naiveCounterCreator(module));
@@ -318,7 +310,7 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
     @Test
     public void twoSimultaneousModules() {
-        GraphAwareFramework framework = new GraphAwareFramework(database);
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter);
         final FullRelationshipCountModule module1 = new FullRelationshipCountModule("M1", RelationshipCountStrategiesImpl.defaultStrategies());
         final FullRelationshipCountModule module2 = new FullRelationshipCountModule("M2",
                 RelationshipCountStrategiesImpl.defaultStrategies()
@@ -334,8 +326,9 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         framework.start();
 
         setUpTwoNodes();
-        simulateUsage();
-        simulateUsage();
+        simulateInserts();
+        simulateInserts();
+        startDatabase();
 
         verifyCounts(2, naiveCounterCreator(module1));
         verifyCounts(2, cachedCounterCreator(module1));
@@ -348,7 +341,7 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
     @Test
     public void customRelationshipPropertiesExtractionStrategy() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
         final FullRelationshipCountModule module = new FullRelationshipCountModule(
                 RelationshipCountStrategiesImpl.defaultStrategies()
                         .with(new RelationshipPropertiesExtractionStrategy.OtherNodeIncludingAdapter() {
@@ -365,8 +358,9 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         framework.start();
 
         setUpTwoNodes();
-        simulateUsage();
-        simulateUsage();
+        simulateInserts();
+        simulateInserts();
+        startDatabase();
 
         assertEquals(4, naiveCounterCreator(module).createCounter(ONE, INCOMING).with(K1, "V1").with("otherNodeName", "Two").count(database.getNodeById(1)));
         assertEquals(4, fallbackCounterCreator(module).createCounter(ONE, INCOMING).with(K1, "V1").with("otherNodeName", "Two").count(database.getNodeById(1)));
@@ -375,7 +369,7 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
     @Test
     public void customRelationshipInclusionStrategy() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
         final FullRelationshipCountModule module = new FullRelationshipCountModule(
                 RelationshipCountStrategiesImpl.defaultStrategies()
                         .with(new RelationshipInclusionStrategy() {
@@ -389,8 +383,9 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         framework.start();
 
         setUpTwoNodes();
-        simulateUsage();
-        simulateUsage();
+        simulateInserts();
+        simulateInserts();
+        startDatabase();
 
         //naive doesn't care about this strategy
         assertEquals(2, naiveCounterCreator(module).createCounter(TWO, OUTGOING).count(database.getNodeById(1)));
@@ -400,7 +395,7 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
     @Test
     public void customRelationshipPropertiesInclusionStrategy() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
         final FullRelationshipCountModule module = new FullRelationshipCountModule(
                 RelationshipCountStrategiesImpl.defaultStrategies()
                         .with(new RelationshipPropertyInclusionStrategy() {
@@ -414,8 +409,9 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         framework.start();
 
         setUpTwoNodes();
-        simulateUsage();
-        simulateUsage();
+        simulateInserts();
+        simulateInserts();
+        startDatabase();
 
         //naive doesn't care about this strategy
         assertEquals(2, naiveCounterCreator(module).createCounter(ONE, INCOMING).with(WEIGHT, 7).count(database.getNodeById(1)));
@@ -428,21 +424,18 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
     @Test
     public void batchTest() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
         final FullRelationshipCountModule module = new FullRelationshipCountModule();
         framework.registerModule(module);
         framework.start();
 
         setUpTwoNodes();
 
-        new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
-            @Override
-            protected void doInTx(GraphDatabaseService database) {
-                for (int i = 0; i < 100; i++) {
-                    simulateUsage();
-                }
-            }
-        });
+        for (int i = 0; i < 100; i++) {
+            simulateInserts();
+        }
+
+        startDatabase();
 
         verifyCounts(100, naiveCounterCreator(module));
         verifyCounts(100, cachedCounterCreator(module));
@@ -451,7 +444,7 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
     @Test
     public void batchTestWithMultipleModulesAndLowerThreshold() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
         final FullRelationshipCountModule module1 = new FullRelationshipCountModule("M1", RelationshipCountStrategiesImpl.defaultStrategies().with(5));
         final FullRelationshipCountModule module2 = new FullRelationshipCountModule("M2", RelationshipCountStrategiesImpl.defaultStrategies().with(5));
         framework.registerModule(module1);
@@ -460,14 +453,11 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
 
         setUpTwoNodes();
 
-        new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
-            @Override
-            protected void doInTx(GraphDatabaseService database) {
-                for (int i = 0; i < 20; i++) {
-                    simulateUsage();
-                }
-            }
-        });
+        for (int i = 0; i < 20; i++) {
+            simulateInserts();
+        }
+
+        startDatabase();
 
         verifyCounts(20, naiveCounterCreator(module1));
         verifyCompactedCounts(20, cachedCounterCreator(module1));
