@@ -72,4 +72,30 @@ public class SimpleRelationshipCountModule extends RelationshipCountModule {
     public void shutdown() {
         //do nothing
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        SimpleRelationshipCountModule that = (SimpleRelationshipCountModule) o;
+
+        if (!inclusionStrategies.equals(that.inclusionStrategies)) return false;
+
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + inclusionStrategies.hashCode();
+        return result;
+    }
 }
