@@ -43,21 +43,5 @@
             <classifier>tests</classifier>
         </dependency>
 
-        <!-- GraphAware -->
-        <dependency>
-            <groupId>com.graphaware</groupId>
-            <artifactId>neo4j-framework</artifactId>
-        </dependency>
-
-        <!-- Neo4j -->
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-kernel</artifactId>
-            <type>test-jar</type>
-        </dependency>
     </dependencies>
 </project>

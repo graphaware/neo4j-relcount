@@ -30,34 +30,6 @@
     <name>GraphAware Neo4j Relationship Counter - Common Classes</name>
     <description>Common Classes for Efficient Relationship Count Cache</description>
 
-    <dependencies>
-
-        <!-- GraphAware -->
-        <dependency>
-            <groupId>com.graphaware</groupId>
-            <artifactId>neo4j-framework</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.graphaware</groupId>
-            <artifactId>neo4j-tx-event-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.graphaware</groupId>
-            <artifactId>neo4j-dto</artifactId>
-        </dependency>
-
-        <!-- Neo4j -->
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.neo4j</groupId>
-            <artifactId>neo4j-kernel</artifactId>
-            <type>test-jar</type>
-        </dependency>
-    </dependencies>
-
     <build>
         <plugins>
             <plugin>
