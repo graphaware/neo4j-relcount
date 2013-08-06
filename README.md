@@ -1,21 +1,24 @@
-Neo4j Relationship Count Cache
-------------------------------
+GraphAware Relationship Count Module
+------------------------------------
 
 [![Build Status](https://travis-ci.org/graphaware/neo4j-relcount.png)](https://travis-ci.org/graphaware/neo4j-relcount)
-
-### Introduction
 
 In some Neo4j applications, it is useful to know how many relationships of a given type, perhaps with different properties,
 are present on a node. Naive on-demand relationship counting quickly becomes inefficient with large numbers of relationships
 per node.
 
-The aim of this [GraphAware Framework](https://github.com/graphaware/neo4j-framework) module is to provide an easy-to-use,
+The aim of this [GraphAware](https://github.com/graphaware/neo4j-framework) module is to provide an easy-to-use,
 transparent cache for relationship counts on nodes.
 
-### Download
+Download
+--------
 
-Releases are synced to Maven Central repository. In order to use the latest release, include the following snippet
-in your pom.xml:
+Node: In order to use this module, you will also need the [GraphAware Framework](https://github.com/graphaware/neo4j-framework).
+
+### Releases
+
+Releases are synced to Maven Central repository. To use the latest release, [download it](http://search.maven.org/remotecontent?filepath=com/graphaware/neo4j-relcount/1.9-1.0/neo4j-relcount-1.9-1.0.jar)
+and put it on your classpath. When using Maven, include the following snippet in your pom.xml:
 
     <dependencies>
         ...
@@ -25,21 +28,55 @@ in your pom.xml:
             <version>1.9-1.0</version>
         </dependency>
         ...
-     </dependencies>
+    </dependencies>
 
-### Usage
+### Snapshots
 
+To use the latest development version, just clone this repository, run `mvn clean install` and put the produced .jar
+file (found in target) into your classpath. If using Maven for your own development, include the following snippet in
+your pom.xml instead of copying the .jar:
 
-Once set up (read below), it is very simple to use the API. To count `OUTGOING` relationships of type `FRIEND_OF` with property
- `level` equal to `2`, write:
+    <dependencies>
+        ...
+        <dependency>
+            <groupId>com.graphaware</groupId>
+            <artifactId>neo4j-relcount</artifactId>
+            <version>1.9-1.1-SNAPSHOT</version>
+        </dependency>
+        ...
+    </dependencies>
+
+### Note on Versioning Scheme
+
+The version number has two parts, separated by a dash. The first part indicates compatibility with a Neo4j version.
+ The second part is the version of the module. For example, version 1.9-1.2 is a 1.2 version of the module
+ compatible with Neo4j 1.9.x.
+
+### Compatibility
+
+ This module is compatible with Neo4j v. 1.9.x and GraphAware Framework v. 1.9-1.3.
+
+Usage
+-----
+
+Once set up (read below), it is very simple to use the API.
 
 ```java
-    Node node =... //find a node somewhere, perhaps in an index
+    Node node = ... //find a node somewhere, perhaps in an index
 
-    RelationshipCounter counter = new RelationshipCounterImpl(FRIEND_OF, OUTGOING).with("level", "2");
+    RelationshipCounter relationshipCounter = ... //instantiate some kind of relationship counter
 
-    int count = counter.count(node); //DONE!
+    int count = relationshipCounter.count(node); //DONE!
 ```
+
+A few different kinds of relationship counters are provided. There are two categories: _full_ relationship counters,
+which are the most powerful ones, and _simple_ relationship counters, which only deal with relationship types and
+directions, but ignore relationship properties. Let's have a look at the full relationship counters first to demonstrate
+the power of this module.
+
+### Full Relationship Counters
+
+
 
 #### Embedded Mode
 
