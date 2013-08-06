@@ -69,26 +69,29 @@ Once set up (read below), it is very simple to use the API.
     int count = relationshipCounter.count(node); //DONE!
 ```
 
-A few different kinds of relationship counters are provided. There are two categories: _full_ relationship counters,
-found in `com.graphaware.relcount.full`, which are the most powerful ones, and _simple_ relationship counters, found
- in `com.graphaware.relcount.simple`, which only deal with relationship types and directions, but ignore relationship
- properties. Let's have a look at the full relationship counters first to demonstrate the power of this module.
+A few different kinds of relationship counters are provided. There are two categories: [_simple_ relationship counters](#simple),
+found in `com.graphaware.relcount.simple`, only deal with relationship types and directions, but ignore relationship
+properties. [_Full_ relationship counters](#full), found in `com.graphaware.relcount.full`, on the other hand, are more powerful
+as they take relationship properties into account as well.
 
-### Simple Relationship Counters
+<a name="simple"/>
+Simple Relationship Counters
+----------------------------
 
 If the only thing of interest are relationship counts per type and direction (relationship properties don't matter),
-it is best (from simplicity and performance point of view) to use simple relationship counters.
+it is best to use simple relationship counters, from simplicity and performance point of view.
 
-#### Simple Caching Relationship Counter
+### Simple Caching Relationship Counter
 
-The most efficient (at count-time) counter is the `SimpleCachedRelationshipCounter`. As the name suggests, it counts
-relationships reading them from "cache", which happens to be nodes' properties. In order for this caching mechanism to
-work, you need to be using the [GraphAware Framework](https://github.com/graphaware/neo4j-framework) with
-`SimpleRelationshipCountModule` registered.
+The most efficient simple counter is the `SimpleCachedRelationshipCounter`. As the name suggests, it counts relationships
+by reading them from "cache", i.e. nodes' properties. In order for this caching mechanism to work, you need to be using
+the [GraphAware Framework](https://github.com/graphaware/neo4j-framework) with `SimpleRelationshipCountModule` registered.
 
 When using Neo4j in _embedded_ mode, the simplest default setup looks like this:
 
 ```java
+    GraphDatabaseService database = ... //your database
+
     GraphAwareFramework framework = new GraphAwareFramework(database);
     framework.registerModule(new SimpleRelationshipCountModule());
     framework.start();
@@ -96,7 +99,7 @@ When using Neo4j in _embedded_ mode, the simplest default setup looks like this:
 
 (For _server_mode, stay tuned, coming very soon!)
 
-Now, let's say we have a very simple graph with 10 people and 2 cities. Each person lives in one of the cities (relationship
+Now, let's say you have a very simple graph with 10 people and 2 cities. Each person lives in one of the cities (relationship
  type LIVES_IN), and each person follows every other person on Twitter (relationship type FOLLOWS).
 
 In order to count all followers of a person named Tracy, who is represented by node with ID = 2 in Neo4j, you would write
@@ -107,34 +110,33 @@ In order to count all followers of a person named Tracy, who is represented by n
     RelationshipCounter followers = new SimpleCachedRelationshipCounter(FOLLOWS, INCOMING);
     followers.count(tracy); //returns 9
 ```
-For graphs with more than thousands of relationships per node, this way of counting relationships can be an significantly
- faster than a naive approach of traversing all relationships.
+For graphs with thousands (or more) relationships per node, this way of counting relationships can be an significantly
+ faster than the "naive" approach of traversing all relationships.
 
-#### Simple Naive Relationship Counter
+### Simple Naive Relationship Counter
 
-It is possible to use the `RelationshipCounter` API without any caching at all.
+It is possible to use the `RelationshipCounter` API without any caching at all, using the "naive" approach.
 
 The following snippet will count all Tracy's followers by traversing and inspecting all relationships:
 
 ```java
-   SimpleRelationshipCountModule module = new SimpleRelationshipCountModule();
-
    Node tracy = database.getNodeById(2);
 
-   RelationshipCounter followers = new SimpleCachedRelationshipCounter(FOLLOWS, INCOMING);
+   RelationshipCounter followers = new SimpleNaiveRelationshipCounter(FOLLOWS, INCOMING);
    followers.count(tracy);
 ```
 
-### Full Relationship Counters
+<a name="full"/>
+Full Relationship Counters
+--------------------------
 
 Full relationship counters are capable of counting relationships based on their types, directions, and properties.
 
-#### Full Caching Relationship Counter
+### Full Caching Relationship Counter
 
-The most efficient (at count-time) full counter is the `FullCachedRelationshipCounter`. As the name suggests, it counts
-relationships by reading them from "cache", which happens to be nodes' properties. In order for this caching mechanism
-to work, you need to be using the [GraphAware Framework](https://github.com/graphaware/neo4j-framework) with
-`FullRelationshipCountModule` registered.
+The most efficient full counter is the `FullCachedRelationshipCounter`. As the name suggests, it counts relationships by
+reading them from "cache", i.e. nodes' properties. In order for this caching mechanism to work, you need to be using the
+[GraphAware Framework](https://github.com/graphaware/neo4j-framework) with `FullRelationshipCountModule` registered.
 
 When using Neo4j in _embedded_ mode, the simplest default setup looks like this:
 
@@ -147,17 +149,17 @@ When using Neo4j in _embedded_ mode, the simplest default setup looks like this:
 
 (For _server_mode, stay tuned, coming very soon!)
 
-Now, let's say we have a very simple graph with 10 people and 2 cities. Each person lives in one of the cities (relationship
- type LIVES_IN), and each person follows every other person on Twitter (relationship type FOLLOWS). Furthermore, there
- can be an optional "strength" property on each FOLLOWS relationship indicating the strength of a person's interest into
- the other person (1 or 2).
+Now, let's say you have a very simple graph with 10 people and 2 cities. Each person lives in one of the cities (relationship
+type LIVES_IN), and each person follows every other person on Twitter (relationship type FOLLOWS). Furthermore, there
+can be an optional "strength" property on each FOLLOWS relationship indicating the strength of a person's interest into
+the other person (1 or 2).
 
 In order to count all followers of a person named Tracy, who is represented by node with ID = 2 in Neo4j, you would write
-  the following:
+the following:
 
 ```java
     Node tracy = database.getNodeById(2);
-    RelationshipCounter followers = module.cachedCounter(FOLLOWS, INCOMING);
+    FullRelationshipCounter followers = module.cachedCounter(FOLLOWS, INCOMING);
     followers.count(tracy); //returns 9
 ```
 Alternatively, if you don't have access to the module object from when you've set things up, you can instantiate the counter
@@ -165,21 +167,33 @@ directly:
 
 ```java
     Node tracy = database.getNodeById(2);
-    RelationshipCounter followers = new FullCachedRelationshipCounter(FOLLOWS, INCOMING);
+    FullRelationshipCounter followers = new FullCachedRelationshipCounter(FOLLOWS, INCOMING);
     followers.count(tracy); //returns 9
 ```
 
-The first approach is preferred, however, because it simplifies things when using the module with custom configuration.
+The first approach is preferred, however, because it simplifies things when using the module (or the Framework)
+with custom configuration.
 
-If we wanted to know, how many of those followers are very interested in Tracy (strength = 2):
+If you wanted to know, how many of those followers are very interested in Tracy (strength = 2):
 
 ```java
     Node tracy = database.getNodeById(2);
-    RelationshipCounter followersStrength2 = module.cachedCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
+    FullRelationshipCounter followersStrength2 = module.cachedCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
     followersStrength2.count(tracy);
 ```
 
-For graphs with more than thousands of relationships per node, this way of counting relationships can be an order of
+When counting using `module.cachedCounter(FOLLOWS, INCOMING)`, all incoming relationships of type FOLLOWS are taken into
+account, including those with and without the strength property. What if, however, the lack of the strength property has
+some meaning, i.e. if we want to consider "undefined" as a separate case? This kind of counting is referred to as "literal"
+counting and would be done like this:
+
+```java
+    Node tracy = database.getNodeById(2);
+    FullRelationshipCounter followers = module.cachedCounter(FOLLOWS, INCOMING);
+    followers.countLiterally(tracy);
+```
+
+For graphs with thousands (or more) relationships per node, this way of counting relationships can be an order of
 magnitude faster than a naive approach of traversing all relationships and inspecting their properties.
 
 #### How does it work?
@@ -191,7 +205,7 @@ It caches the relationship counts as properties on each node, both for incoming 
 to pollute nodes with meaningless properties, a `RelationshipCountCompactor`, as the name suggests, compacts the cached
 information.
 
-Let's illustrate that on an example. Suppose that a node has no relationships to start with. When we create the first
+Let's illustrate that on an example. Suppose that a node has no relationships to start with. When you create the first
 outgoing relationship of type `FRIEND_OF` with properties `level` equal to `2` and `timestamp` equal to `1368206683579`,
 the following property is automatically written to the node:
 
@@ -230,9 +244,10 @@ Right, at some point, after our node makes more friends, the situation will look
     _GA_FRC_FRIEND_OF#OUTGOING#level#2#timestamp#1368254232452 = 1
     _GA_FRC_FRIEND_OF#OUTGOING#level#1#timestamp#1368546532344 = 1
     _GA_FRC_FRIEND_OF#OUTGOING#level#0#timestamp#1363234542345 = 1
+    _GA_FRC_FRIEND_OF#OUTGOING#level#0#timestamp#1363234555555 = 1
 
 At that point, the compactor looks at the situation finds out there are too many cached relationship counts. More specifically,
-there is a threshold called the _compaction threshold_ which by default is set to 20. We will illustrate with 10.
+there is a threshold called the _compaction threshold_ which by default is set to 20. Let's illustrate with 10.
 
 The compactor thus tries to generalize the cached relationships. One such generalization might involve replacing the
  timestamp with a wildcard (_GA_*), generating representations like this:
@@ -243,7 +258,7 @@ The compactor thus tries to generalize the cached relationships. One such genera
 
 Then it compacts the cached relationship counts that match these representations. In our example, it results in this:
 
-     _GA_FRC_FRIEND_OF#OUTGOING#level#0#timestamp#_GA_* = 2
+     _GA_FRC_FRIEND_OF#OUTGOING#level#0#timestamp#_GA_* = 3
      _GA_FRC_FRIEND_OF#OUTGOING#level#1#timestamp#_GA_* = 3
      _GA_FRC_FRIEND_OF#OUTGOING#level#2#timestamp#_GA_* = 5
 
@@ -253,7 +268,7 @@ After that, timestamp will always be ignored for these relationships, so if the 
 
 it will result in
 
-    _GA_FRC_FRIEND_OF#OUTGOING#level#0#timestamp#_GA_* = 3
+    _GA_FRC_FRIEND_OF#OUTGOING#level#0#timestamp#_GA_* = 4
     _GA_FRC_FRIEND_OF#OUTGOING#level#1#timestamp#_GA_* = 3
     _GA_FRC_FRIEND_OF#OUTGOING#level#2#timestamp#_GA_* = 5
 
@@ -278,6 +293,15 @@ on a node with the following cache counts
 
 the result will be... you guessed it... 36.
 
+On the other hand, counting pure outgoing FRIEND_OF relationships with no properties would be done like this:
+
+```java
+    FullRelationshipCounter counter = new FullCachedRelationshipCounter(FRIEND_OF, OUTGOING);
+    int count = counter.countLiterally(node);
+```
+
+and result in 5.
+
 However, if you now issue the following query:
 ```java
     RelationshipCounter counter = module.cachedCounter(FRIEND_OF, OUTGOING)
@@ -288,25 +312,26 @@ However, if you now issue the following query:
 ```
 an `UnableToCountException` will be thrown, because the granularity needed for answering such query has been compacted
 away. There are three ways to deal with this problem, either
-* configure the threshold so that this doesn't happen, or
-* manually fallback to naive counting, using a `FullNaiveRelationshipCounter`, or
-* use `FullFallingBackRelationshipCounter`, which falls back to naive counting approach automatically
+* [configure the compaction threshold](#compaction) so that this doesn't happen, or
+* [manually fallback to naive counting](#naive), using a `FullNaiveRelationshipCounter`, or
+* [use `FullFallingBackRelationshipCounter`](#fallback), which falls back to naive counting approach automatically
 
-#### Advanced Usage
+### Advanced Usage
 
 There are a number of things that can be tweaked here. Let's talk about the compaction threshold first.
 
-##### Compaction Threshold Level
+<a name="compaction"/>
+#### Compaction Threshold Level
 
-What should the compaction threshold be set to? That depends entirely on the use-case. Let's use the people/place example
+What should the compaction threshold be set to? That depends entirely on the use-case. Let's use the people/places example
 from earlier with FOLLOWS and LIVES_IN relationships. Each node will have a number of LIVES_IN relationships, but only
-INCOMING (places) or OUTGOING (people). These relationships have no properties, so that's 1 property for each node.
+incoming (places) or outgoing (people). These relationships have no properties, so that's 1 property for each node.
 
-Furthermore, each person will have INCOMING and OUTGOING FOLLOWS relationships with 3 possible "strengths": none, 1, and 2.
+Furthermore, each person will have incoming and outgoing FOLLOWS relationships with 3 possible "strengths": none, 1, and 2.
 That's 6 more properties. A compaction threshold of 7 would, therefore be appropriate for this use-case.
 
-If we know, however, that we are not going to be interested in the strength of the FOLLOWS relationships, we could well
-set the threshold to 3. One for the LIVES_IN relationships, and 2 for INCOMING and OUTGOING FOLLOWS relationships.
+If you know, however, that you are not going to be interested in the strength of the FOLLOWS relationships, you could well
+set the threshold to 3. One for the LIVES_IN relationships, and 2 for incoming and outgoing FOLLOWS relationships.
 
 The threshold can be set when constructing the module by passing in a custom configuration:
 
@@ -321,7 +346,7 @@ The threshold can be set when constructing the module by passing in a custom con
     framework.start();
 ```
 
-##### Relationship Weights
+#### Relationship Weights
 
 Let's say you would like each relationship to have a different "weight", i.e. some relationships should count for more
 than one. This is entirely possible by implementing a custom `RelationshipWeighingStrategy`.
@@ -349,7 +374,7 @@ Building on the previous example, let's say you would like the FOLLOWS relations
    framework.start();
 ```
 
-##### Excluding Relationships
+#### Excluding Relationships
 
 To exclude certain relationships from the count caching process altogether, create a strategy that implements the
 `RelationshipInclusionStrategy`. For example, if you're only interested in FOLLOWS relationship counts and nothing else,
@@ -374,7 +399,7 @@ you could configure the module as follows:
     framework.start();
 ```
 
-##### Excluding Relationship Properties
+#### Excluding Relationship Properties
 
 Whilst the compaction mechanism eventually excludes frequently changing properties anyway, it might be useful (at least
 for performance reasons) to exclude them explicitly, if you know up front that these properties are not going to be used
@@ -403,7 +428,7 @@ setting up the module in the following fashion:
     framework.start();
 ```
 
-##### Deriving Relationship Properties
+#### Deriving Relationship Properties
 
 Sometimes, it might be useful to derive relationship properties that are not explicitly there for the purposes of
 relationship counting. Let's say, for example, that you want to count the number of followers based on
@@ -450,7 +475,8 @@ Counting would be done as usual:
    femaleFollowers.count(tracy); //returns only female followers count
 ```
 
-#### Full Naive Relationship Counter
+<a name="naive"/>
+### Full Naive Relationship Counter
 
 It is possible to use the `RelationshipCounter` API without any caching at all. You might want to fall back to the
 naive approach of traversing through all relationships because you caught an `UnableToCountException`, or maybe you
@@ -481,7 +507,8 @@ using the following code, although the former approach is preferable.
     following.count(tracy);
 ```
 
-#### Full Falling Back Relationship Counter
+<a name="fallback"/>
+### Full Falling Back Relationship Counter
 
 Although it is recommended to avoid getting `UnableToCountException`s by configuring things properly, there is an option
 of an automatic fallback to the naive approach when the caching approach has failed, because the needed granularity for

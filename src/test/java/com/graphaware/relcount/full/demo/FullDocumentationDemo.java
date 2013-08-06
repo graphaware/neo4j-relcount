@@ -2,11 +2,11 @@ package com.graphaware.relcount.full.demo;
 
 import com.graphaware.framework.GraphAwareFramework;
 import com.graphaware.propertycontainer.util.PropertyContainerUtils;
-import com.graphaware.relcount.common.counter.RelationshipCounter;
 import com.graphaware.relcount.common.counter.UnableToCountException;
 import com.graphaware.relcount.common.demo.BaseDocumentationDemo;
 import com.graphaware.relcount.full.counter.FullCachedRelationshipCounter;
 import com.graphaware.relcount.full.counter.FullNaiveRelationshipCounter;
+import com.graphaware.relcount.full.counter.FullRelationshipCounter;
 import com.graphaware.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.relcount.full.strategy.RelationshipCountStrategies;
 import com.graphaware.relcount.full.strategy.RelationshipCountStrategiesImpl;
@@ -43,17 +43,18 @@ public class FullDocumentationDemo extends BaseDocumentationDemo {
 
         Node tracy = database.getNodeById(2);
 
-        RelationshipCounter followers = module.cachedCounter(FOLLOWS, INCOMING);
+        FullRelationshipCounter followers = module.cachedCounter(FOLLOWS, INCOMING);
         assertEquals(9, followers.count(tracy));
+        assertEquals(1, followers.countLiterally(tracy));
 
-        RelationshipCounter followersStrength2 = module.cachedCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
+        FullRelationshipCounter followersStrength2 = module.cachedCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
         assertEquals(3, followersStrength2.count(tracy));
 
         //alternative counter instantiation
-        RelationshipCounter following = new FullCachedRelationshipCounter(FOLLOWS, OUTGOING);
+        FullRelationshipCounter following = new FullCachedRelationshipCounter(FOLLOWS, OUTGOING);
         assertEquals(9, following.count(tracy));
 
-        RelationshipCounter followingStrength1 = new FullCachedRelationshipCounter(FOLLOWS, OUTGOING).with(STRENGTH, 1);
+        FullRelationshipCounter followingStrength1 = new FullCachedRelationshipCounter(FOLLOWS, OUTGOING).with(STRENGTH, 1);
         assertEquals(4, followingStrength1.count(tracy));
     }
 
@@ -71,16 +72,16 @@ public class FullDocumentationDemo extends BaseDocumentationDemo {
 
         Node tracy = database.getNodeById(2);
 
-        RelationshipCounter followers = module.cachedCounter(FOLLOWS, INCOMING);
+        FullRelationshipCounter followers = module.cachedCounter(FOLLOWS, INCOMING);
         assertEquals(9, followers.count(tracy));
 
-        RelationshipCounter followersStrength2 = module.cachedCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
+        FullRelationshipCounter followersStrength2 = module.cachedCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
         assertEquals(3, followersStrength2.count(tracy));
 
-        RelationshipCounter following = module.cachedCounter(FOLLOWS, OUTGOING);
+        FullRelationshipCounter following = module.cachedCounter(FOLLOWS, OUTGOING);
         assertEquals(9, following.count(tracy));
 
-        RelationshipCounter followingStrength1 = module.cachedCounter(FOLLOWS, OUTGOING).with(STRENGTH, 1);
+        FullRelationshipCounter followingStrength1 = module.cachedCounter(FOLLOWS, OUTGOING).with(STRENGTH, 1);
         assertEquals(4, followingStrength1.count(tracy));
     }
 
@@ -98,10 +99,10 @@ public class FullDocumentationDemo extends BaseDocumentationDemo {
 
         Node tracy = database.getNodeById(2);
 
-        RelationshipCounter followers = module.cachedCounter(FOLLOWS, INCOMING);
+        FullRelationshipCounter followers = module.cachedCounter(FOLLOWS, INCOMING);
         assertEquals(9, followers.count(tracy));
 
-        RelationshipCounter followersStrength2 = module.cachedCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
+        FullRelationshipCounter followersStrength2 = module.cachedCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
 
         try {
             followersStrength2.count(tracy);
@@ -110,7 +111,7 @@ public class FullDocumentationDemo extends BaseDocumentationDemo {
             //ok
         }
 
-        RelationshipCounter following = module.cachedCounter(FOLLOWS, OUTGOING);
+        FullRelationshipCounter following = module.cachedCounter(FOLLOWS, OUTGOING);
         assertEquals(9, following.count(tracy));
     }
 
@@ -138,16 +139,16 @@ public class FullDocumentationDemo extends BaseDocumentationDemo {
 
         Node tracy = database.getNodeById(2);
 
-        RelationshipCounter followers = module.cachedCounter(FOLLOWS, INCOMING);
+        FullRelationshipCounter followers = module.cachedCounter(FOLLOWS, INCOMING);
         assertEquals(12, followers.count(tracy));
 
-        RelationshipCounter followersStrength2 = module.cachedCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
+        FullRelationshipCounter followersStrength2 = module.cachedCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
         assertEquals(6, followersStrength2.count(tracy));
 
-        RelationshipCounter following = module.cachedCounter(FOLLOWS, OUTGOING);
+        FullRelationshipCounter following = module.cachedCounter(FOLLOWS, OUTGOING);
         assertEquals(11, following.count(tracy));
 
-        RelationshipCounter followingStrength1 = module.cachedCounter(FOLLOWS, OUTGOING).with(STRENGTH, 1);
+        FullRelationshipCounter followingStrength1 = module.cachedCounter(FOLLOWS, OUTGOING).with(STRENGTH, 1);
         assertEquals(4, followingStrength1.count(tracy));
     }
 
@@ -174,16 +175,16 @@ public class FullDocumentationDemo extends BaseDocumentationDemo {
 
         Node tracy = database.getNodeById(2);
 
-        RelationshipCounter followers = module.cachedCounter(FOLLOWS, INCOMING);
+        FullRelationshipCounter followers = module.cachedCounter(FOLLOWS, INCOMING);
         assertEquals(9, followers.count(tracy));
 
-        RelationshipCounter followersStrength2 = module.cachedCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
+        FullRelationshipCounter followersStrength2 = module.cachedCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
         assertEquals(3, followersStrength2.count(tracy));
 
-        RelationshipCounter following = module.cachedCounter(FOLLOWS, OUTGOING);
+        FullRelationshipCounter following = module.cachedCounter(FOLLOWS, OUTGOING);
         assertEquals(9, following.count(tracy));
 
-        RelationshipCounter followingStrength1 = module.cachedCounter(FOLLOWS, OUTGOING).with(STRENGTH, 1);
+        FullRelationshipCounter followingStrength1 = module.cachedCounter(FOLLOWS, OUTGOING).with(STRENGTH, 1);
         assertEquals(4, followingStrength1.count(tracy));
     }
 
@@ -210,16 +211,16 @@ public class FullDocumentationDemo extends BaseDocumentationDemo {
 
         Node tracy = database.getNodeById(2);
 
-        RelationshipCounter followers = module.cachedCounter(FOLLOWS, INCOMING);
+        FullRelationshipCounter followers = module.cachedCounter(FOLLOWS, INCOMING);
         assertEquals(9, followers.count(tracy));
 
-        RelationshipCounter followersStrength2 = module.cachedCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
+        FullRelationshipCounter followersStrength2 = module.cachedCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
         assertEquals(3, followersStrength2.count(tracy));
 
-        RelationshipCounter following = module.cachedCounter(FOLLOWS, OUTGOING);
+        FullRelationshipCounter following = module.cachedCounter(FOLLOWS, OUTGOING);
         assertEquals(9, following.count(tracy));
 
-        RelationshipCounter followingStrength1 = module.cachedCounter(FOLLOWS, OUTGOING).with(STRENGTH, 1);
+        FullRelationshipCounter followingStrength1 = module.cachedCounter(FOLLOWS, OUTGOING).with(STRENGTH, 1);
         assertEquals(4, followingStrength1.count(tracy));
     }
 
@@ -255,10 +256,10 @@ public class FullDocumentationDemo extends BaseDocumentationDemo {
 
         Node tracy = database.getNodeById(2);
 
-        RelationshipCounter maleFollowers = module.cachedCounter(FOLLOWS, INCOMING).with(GENDER, MALE);
+        FullRelationshipCounter maleFollowers = module.cachedCounter(FOLLOWS, INCOMING).with(GENDER, MALE);
         assertEquals(6, maleFollowers.count(tracy));
 
-        RelationshipCounter femaleFollowers = module.cachedCounter(FOLLOWS, INCOMING).with(GENDER, FEMALE);
+        FullRelationshipCounter femaleFollowers = module.cachedCounter(FOLLOWS, INCOMING).with(GENDER, FEMALE);
         assertEquals(3, femaleFollowers.count(tracy));
     }
 
@@ -270,17 +271,17 @@ public class FullDocumentationDemo extends BaseDocumentationDemo {
 
         Node tracy = database.getNodeById(2);
 
-        RelationshipCounter followers = module.naiveCounter(FOLLOWS, INCOMING);
+        FullRelationshipCounter followers = module.naiveCounter(FOLLOWS, INCOMING);
         assertEquals(9, followers.count(tracy));
 
-        RelationshipCounter followersStrength2 = module.naiveCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
+        FullRelationshipCounter followersStrength2 = module.naiveCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
         assertEquals(3, followersStrength2.count(tracy));
 
         //alternative counter instantiation
-        RelationshipCounter following = new FullNaiveRelationshipCounter(FOLLOWS, OUTGOING);
+        FullRelationshipCounter following = new FullNaiveRelationshipCounter(FOLLOWS, OUTGOING);
         assertEquals(9, following.count(tracy));
 
-        RelationshipCounter followingStrength1 = new FullNaiveRelationshipCounter(FOLLOWS, OUTGOING).with(STRENGTH, 1);
+        FullRelationshipCounter followingStrength1 = new FullNaiveRelationshipCounter(FOLLOWS, OUTGOING).with(STRENGTH, 1);
         assertEquals(4, followingStrength1.count(tracy));
     }
 
@@ -298,10 +299,10 @@ public class FullDocumentationDemo extends BaseDocumentationDemo {
 
         Node tracy = database.getNodeById(2);
 
-        RelationshipCounter followers = module.fallingBackCounter(FOLLOWS, INCOMING);
+        FullRelationshipCounter followers = module.fallingBackCounter(FOLLOWS, INCOMING);
         assertEquals(9, followers.count(tracy));           //uses cache
 
-        RelationshipCounter followersStrength2 = module.fallingBackCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
+        FullRelationshipCounter followersStrength2 = module.fallingBackCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
         assertEquals(3, followersStrength2.count(tracy));  //falls back to naive
     }
 }
