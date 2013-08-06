@@ -32,7 +32,6 @@ import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
 import com.graphaware.tx.executor.single.TransactionCallback;
 import com.graphaware.tx.executor.single.TransactionExecutor;
 import com.graphaware.tx.executor.single.VoidReturningCallback;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -49,7 +48,8 @@ import static com.graphaware.framework.config.FrameworkConfiguration.GA_PREFIX;
 import static com.graphaware.propertycontainer.util.PropertyContainerUtils.*;
 import static java.lang.String.valueOf;
 import static java.lang.System.currentTimeMillis;
-import static org.junit.Assert.fail;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.fail;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
@@ -74,16 +74,16 @@ public class FullCachedRelationshipCounterIntegrationTest {
 
     @Test
     public void noRelationshipsShouldExistInEmptyDatabase() {
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(0)));
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).countLiterally(database.getNodeById(0)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(0)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).countLiterally(database.getNodeById(0)));
     }
 
     @Test
     public void noRelationshipsShouldExistInDatabaseWithNoRelationships() {
         createNodes();
 
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(0)));
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).countLiterally(database.getNodeById(0)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(0)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).countLiterally(database.getNodeById(0)));
     }
 
     @Test
@@ -91,12 +91,12 @@ public class FullCachedRelationshipCounterIntegrationTest {
         createNodes();
         createFirstRelationships();
 
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
-        Assert.assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
-        Assert.assertEquals(4, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).with("key2", "value1").count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
+        assertEquals(4, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).with("key2", "value1").count(database.getNodeById(1)));
     }
 
     @Test
@@ -126,8 +126,8 @@ public class FullCachedRelationshipCounterIntegrationTest {
             //OK
         }
 
-        Assert.assertEquals(8, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(8, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
     }
 
     @Test
@@ -148,11 +148,11 @@ public class FullCachedRelationshipCounterIntegrationTest {
             }
         });
 
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
-        Assert.assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
-        Assert.assertEquals(3, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
+        assertEquals(3, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
     }
 
     @Test
@@ -195,8 +195,8 @@ public class FullCachedRelationshipCounterIntegrationTest {
             //OK
         }
 
-        Assert.assertEquals(7, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(7, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
     }
 
     @Test
@@ -225,11 +225,11 @@ public class FullCachedRelationshipCounterIntegrationTest {
             }
         });
 
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
-        Assert.assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
-        Assert.assertEquals(3, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
+        assertEquals(3, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
     }
 
     @Test
@@ -261,12 +261,12 @@ public class FullCachedRelationshipCounterIntegrationTest {
             }
         });
 
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
-        Assert.assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
-        Assert.assertEquals(4, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).with("key2", "value1").count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
+        assertEquals(4, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).with("key2", "value1").count(database.getNodeById(1)));
     }
 
     @Test
@@ -275,8 +275,8 @@ public class FullCachedRelationshipCounterIntegrationTest {
         createFirstRelationships();
         createSecondRelationships();
 
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(2)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(3)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(2)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(3)));
 
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
@@ -286,8 +286,8 @@ public class FullCachedRelationshipCounterIntegrationTest {
             }
         });
 
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(2)));
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(3)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(2)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(3)));
     }
 
     @Test
@@ -308,11 +308,11 @@ public class FullCachedRelationshipCounterIntegrationTest {
             }
         });
 
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
-        Assert.assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
-        Assert.assertEquals(4, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
+        assertEquals(4, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
     }
 
     @Test
@@ -332,11 +332,11 @@ public class FullCachedRelationshipCounterIntegrationTest {
             }
         });
 
-        Assert.assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
-        Assert.assertEquals(4, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value2").count(database.getNodeById(1)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value3").count(database.getNodeById(1)));
+        assertEquals(4, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
     }
 
     @Test
@@ -379,8 +379,8 @@ public class FullCachedRelationshipCounterIntegrationTest {
             //OK
         }
 
-        Assert.assertEquals(8, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(8, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
     }
 
     @Test
@@ -423,8 +423,8 @@ public class FullCachedRelationshipCounterIntegrationTest {
             //OK
         }
 
-        Assert.assertEquals(8, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
+        assertEquals(8, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).count(database.getNodeById(1)));
     }
 
     @Test
@@ -439,7 +439,7 @@ public class FullCachedRelationshipCounterIntegrationTest {
             }
         });
 
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName(GA_PREFIX + "IGNORED"), OUTGOING).count(database.getNodeById(0)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName(GA_PREFIX + "IGNORED"), OUTGOING).count(database.getNodeById(0)));
 
     }
 
@@ -465,7 +465,7 @@ public class FullCachedRelationshipCounterIntegrationTest {
             }
         });
 
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(0)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(0)));
     }
 
     @Test
@@ -503,9 +503,9 @@ public class FullCachedRelationshipCounterIntegrationTest {
             }
         });
 
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING, new CustomConfig()).with("test", "value1").count(database.getNodeById(0)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING, new CustomConfig()).with("key1", "value1").count(database.getNodeById(0)));
-        Assert.assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING, new CustomConfig()).count(database.getNodeById(0)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING, new CustomConfig()).with("test", "value1").count(database.getNodeById(0)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING, new CustomConfig()).with("key1", "value1").count(database.getNodeById(0)));
+        assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING, new CustomConfig()).count(database.getNodeById(0)));
     }
 
     @Test
@@ -538,9 +538,9 @@ public class FullCachedRelationshipCounterIntegrationTest {
             }
         });
 
-        Assert.assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("test", "value1").count(database.getNodeById(0)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(0)));
-        Assert.assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(0)));
+        assertEquals(0, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("test", "value1").count(database.getNodeById(0)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").count(database.getNodeById(0)));
+        assertEquals(2, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(0)));
     }
 
     @Test
@@ -575,9 +575,9 @@ public class FullCachedRelationshipCounterIntegrationTest {
             }
         });
 
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").with("otherNodeName", "node 1").count(database.getNodeById(0)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).with("key1", "value1").with("otherNodeName", "default").count(database.getNodeById(1)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(0)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").with("otherNodeName", "node 1").count(database.getNodeById(0)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).with("key1", "value1").with("otherNodeName", "default").count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(0)));
     }
 
     @Test
@@ -610,9 +610,9 @@ public class FullCachedRelationshipCounterIntegrationTest {
             }
         });
 
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").with("otherNodeName", "node 1").count(database.getNodeById(0)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).with("key1", "value1").with("otherNodeName", "default").count(database.getNodeById(1)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(0)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).with("key1", "value1").with("otherNodeName", "node 1").count(database.getNodeById(0)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), INCOMING).with("key1", "value1").with("otherNodeName", "default").count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("test"), OUTGOING).count(database.getNodeById(0)));
     }
 
     @Test
@@ -639,10 +639,10 @@ public class FullCachedRelationshipCounterIntegrationTest {
                 .relationshipTo(8, "FRIEND_OF").setProp("level", "2").setProp("timestamp", valueOf(currentTimeMillis()))
                 .relationshipTo(9, "FRIEND_OF").setProp("level", "2").setProp("timestamp", valueOf(currentTimeMillis()));
 
-        Assert.assertEquals(5, new FullCachedRelationshipCounter(withName("FRIEND_OF"), OUTGOING).with("level", "1").count(database.getNodeById(10)));
-        Assert.assertEquals(3, new FullCachedRelationshipCounter(withName("FRIEND_OF"), OUTGOING).with("level", "2").count(database.getNodeById(10)));
-        Assert.assertEquals(1, new FullCachedRelationshipCounter(withName("FRIEND_OF"), OUTGOING).with("level", "3").count(database.getNodeById(10)));
-        Assert.assertEquals(9, new FullCachedRelationshipCounter(withName("FRIEND_OF"), OUTGOING).count(database.getNodeById(10)));
+        assertEquals(5, new FullCachedRelationshipCounter(withName("FRIEND_OF"), OUTGOING).with("level", "1").count(database.getNodeById(10)));
+        assertEquals(3, new FullCachedRelationshipCounter(withName("FRIEND_OF"), OUTGOING).with("level", "2").count(database.getNodeById(10)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("FRIEND_OF"), OUTGOING).with("level", "3").count(database.getNodeById(10)));
+        assertEquals(9, new FullCachedRelationshipCounter(withName("FRIEND_OF"), OUTGOING).count(database.getNodeById(10)));
 
         builder.relationshipTo(1, "FRIEND_OF").setProp("level", "4").setProp("timestamp", valueOf(currentTimeMillis()));
         builder.relationshipTo(2, "FRIEND_OF").setProp("level", "5").setProp("timestamp", valueOf(currentTimeMillis()));
@@ -698,7 +698,7 @@ public class FullCachedRelationshipCounterIntegrationTest {
             //ok
         }
 
-        Assert.assertEquals(13, new FullCachedRelationshipCounter(withName("FRIEND_OF"), OUTGOING).count(database.getNodeById(10)));
+        assertEquals(13, new FullCachedRelationshipCounter(withName("FRIEND_OF"), OUTGOING).count(database.getNodeById(10)));
     }
 
     private void createFirstRelationships() {

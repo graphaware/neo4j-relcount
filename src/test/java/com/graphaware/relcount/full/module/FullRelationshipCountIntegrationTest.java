@@ -110,7 +110,7 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
 
         framework = new GraphAwareFramework(database);
-        module = new FullRelationshipCountModule(RelationshipCountStrategiesImpl.defaultStrategies().with(5));
+        module = new FullRelationshipCountModule(RelationshipCountStrategiesImpl.defaultStrategies().with(4));
         framework.registerModule(module);
         framework.start();
 
@@ -213,7 +213,7 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
     public void defaultStrategiesWithLowerThreshold() {
         GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
         final FullRelationshipCountModule module = new FullRelationshipCountModule(
-                RelationshipCountStrategiesImpl.defaultStrategies().with(5)
+                RelationshipCountStrategiesImpl.defaultStrategies().with(4)
         );
         framework.registerModule(module);
         framework.start();
@@ -230,7 +230,7 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
     public void defaultStrategiesWithLowerThreshold2() {
         GraphAwareFramework framework = new GraphAwareFramework(database);
         final FullRelationshipCountModule module = new FullRelationshipCountModule(
-                RelationshipCountStrategiesImpl.defaultStrategies().with(5)
+                RelationshipCountStrategiesImpl.defaultStrategies().with(4)
         );
         framework.registerModule(module);
         framework.start();
@@ -248,7 +248,7 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
     public void defaultStrategiesWithLowerThreshold3() {
         GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
         final FullRelationshipCountModule module = new FullRelationshipCountModule(
-                RelationshipCountStrategiesImpl.defaultStrategies().with(4)
+                RelationshipCountStrategiesImpl.defaultStrategies().with(3)
         );
         framework.registerModule(module);
         framework.start();
@@ -450,8 +450,8 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
     @Test
     public void batchTestWithMultipleModulesAndLowerThreshold() {
         GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
-        final FullRelationshipCountModule module1 = new FullRelationshipCountModule("M1", RelationshipCountStrategiesImpl.defaultStrategies().with(5));
-        final FullRelationshipCountModule module2 = new FullRelationshipCountModule("M2", RelationshipCountStrategiesImpl.defaultStrategies().with(5));
+        final FullRelationshipCountModule module1 = new FullRelationshipCountModule("M1", RelationshipCountStrategiesImpl.defaultStrategies().with(4));
+        final FullRelationshipCountModule module2 = new FullRelationshipCountModule("M2", RelationshipCountStrategiesImpl.defaultStrategies().with(4));
         framework.registerModule(module1);
         framework.registerModule(module2);
         framework.start();

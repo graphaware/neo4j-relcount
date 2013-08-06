@@ -68,7 +68,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
 
     @Test
     public void nothingShouldBeCompactedBeforeThresholdIsReached() {
-        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(5);
+        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(4);
 
         executor.executeInTransaction(new VoidReturningCallback() {
             @Override
@@ -93,7 +93,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
 
     @Test
     public void countShouldBeCompactedWhenThresholdIsReached() {
-        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(5);
+        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(4);
 
         executor.executeInTransaction(new VoidReturningCallback() {
             @Override
@@ -123,7 +123,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
 
     @Test
     public void verifyMultipleCompactions() {
-        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(5);
+        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(4);
 
         executor.executeInTransaction(new VoidReturningCallback() {
             @Override
@@ -157,7 +157,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
 
     @Test
     public void verifyMultiLevelCompaction() {
-        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(5);
+        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(4);
 
         executor.executeInTransaction(new VoidReturningCallback() {
             @Override
@@ -202,7 +202,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
 
     @Test
     public void verifyImpossibleCompaction() {
-        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(5);
+        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(4);
 
         executor.executeInTransaction(new VoidReturningCallback() {
             @Override
@@ -240,7 +240,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
 
     @Test
     public void compactionIncludingWildcards() {
-        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(2);
+        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(1);
 
         executor.executeInTransaction(new VoidReturningCallback() {
             @Override
@@ -258,7 +258,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
 
     @Test
     public void compactionIncludingWildcards2() {
-        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(2);
+        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(1);
 
         executor.executeInTransaction(new VoidReturningCallback() {
             @Override
@@ -276,7 +276,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
 
     @Test
     public void anotherCompactionSmokeTest() {
-        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(10);
+        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(9);
 
         executor.executeInTransaction(new VoidReturningCallback() {
             @Override
@@ -302,7 +302,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
 
     @Test
     public void anotherCompactionSmokeTest2() {
-        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(4);
+        final ThresholdBasedRelationshipCountCompactor compactor = new ThresholdBasedRelationshipCountCompactor(3);
 
         executor.executeInTransaction(new VoidReturningCallback() {
             @Override
