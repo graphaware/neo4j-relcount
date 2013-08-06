@@ -25,7 +25,7 @@
 
     <groupId>com.graphaware</groupId>
     <artifactId>neo4j-relcount</artifactId>
-    <version>1.9-1.0</version>
+    <version>1.9-1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>GraphAware Relationship Count Module</name>
