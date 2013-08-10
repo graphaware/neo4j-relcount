@@ -7,9 +7,6 @@ import com.graphaware.relcount.full.internal.dto.relationship.CompactibleRelatio
 import com.graphaware.relcount.full.internal.dto.relationship.CompactibleRelationshipImpl;
 import org.neo4j.graphdb.Node;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 /**
  * {@link RelationshipCountCachingNode} that caches relationship counts with their "full" details, i.e. {@link org.neo4j.graphdb.RelationshipType},
  * {@link org.neo4j.graphdb.Direction}, and properties.
@@ -29,14 +26,6 @@ public class FullRelationshipCountCachingNode extends BaseRelationshipCountCachi
     public FullRelationshipCountCachingNode(Node node, String prefix, String separator, RelationshipCountCompactor relationshipCountCompactor) {
         super(node, prefix, separator);
         this.relationshipCountCompactor = relationshipCountCompactor;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Map<CompactibleRelationship, Integer> newMap() {
-        return new TreeMap<>();
     }
 
     /**

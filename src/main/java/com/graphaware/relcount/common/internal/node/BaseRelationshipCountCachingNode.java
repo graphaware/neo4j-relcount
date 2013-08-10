@@ -5,10 +5,7 @@ import com.graphaware.propertycontainer.dto.common.relationship.SerializableType
 import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Node;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Base-class for {@link BaseRelationshipCountCachingNode} implementations. For efficiency, it keeps track of all the
@@ -38,7 +35,8 @@ public abstract class BaseRelationshipCountCachingNode<CACHED extends Serializab
         this.prefix = prefix;
         this.separator = separator;
 
-        cachedCounts = newMap();
+        cachedCounts = new HashMap<>();
+
         for (String key : node.getPropertyKeys()) {
             if (key.startsWith(prefix)) {
                 cachedCounts.put(newCachedRelationship(key), (Integer) node.getProperty(key));
@@ -48,13 +46,6 @@ public abstract class BaseRelationshipCountCachingNode<CACHED extends Serializab
         updatedCounts = new HashSet<>();
         removedCounts = new HashSet<>();
     }
-
-    /**
-     * Create a new empty map that cached counts will be put into.
-     *
-     * @return new map.
-     */
-    protected abstract Map<CACHED, Integer> newMap();
 
     /**
      * Create a cached relationship representation from a String representation of the cached relationship, coming from

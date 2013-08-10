@@ -29,14 +29,12 @@ import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
 import com.graphaware.tx.executor.single.TransactionExecutor;
 import com.graphaware.tx.executor.single.VoidReturningCallback;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -73,43 +71,43 @@ public class FullRelationshipCountCachingNodeTest {
     public void shouldCorrectlyReportBasicRelationshipCounts() {
         setUpBasicRelationshipCounts();
 
-        Assert.assertEquals(2, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1")));
-        Assert.assertEquals(2, countingNode().getRelationshipCount(literal("test#OUTGOING#key1#value1")));
-        Assert.assertEquals(3, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value2")));
-        Assert.assertEquals(3, countingNode().getRelationshipCount(literal("test#OUTGOING#key1#value2")));
-        Assert.assertEquals(4, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key2#value2")));
-        Assert.assertEquals(4, countingNode().getRelationshipCount(literal("test#OUTGOING#key2#value2")));
-        Assert.assertEquals(0, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value3")));
-        Assert.assertEquals(0, countingNode().getRelationshipCount(literal("test#OUTGOING#key1#value3")));
-        Assert.assertEquals(0, countingNode().getRelationshipCount(wildcard("test#INCOMING#key1#value1")));
-        Assert.assertEquals(0, countingNode().getRelationshipCount(literal("test#INCOMING#key1#value1")));
+        assertEquals(2, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1")));
+        assertEquals(2, countingNode().getRelationshipCount(literal("test#OUTGOING#key1#value1")));
+        assertEquals(3, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value2")));
+        assertEquals(3, countingNode().getRelationshipCount(literal("test#OUTGOING#key1#value2")));
+        assertEquals(4, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key2#value2")));
+        assertEquals(4, countingNode().getRelationshipCount(literal("test#OUTGOING#key2#value2")));
+        assertEquals(0, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value3")));
+        assertEquals(0, countingNode().getRelationshipCount(literal("test#OUTGOING#key1#value3")));
+        assertEquals(0, countingNode().getRelationshipCount(wildcard("test#INCOMING#key1#value1")));
+        assertEquals(0, countingNode().getRelationshipCount(literal("test#INCOMING#key1#value1")));
     }
 
     @Test
     public void shouldCorrectlyReportAggregatedCounts() {
         setUpBasicRelationshipCounts();
 
-        Assert.assertEquals(9, countingNode().getRelationshipCount(wildcard("test#OUTGOING")));
-        Assert.assertEquals(0, countingNode().getRelationshipCount(literal("test#OUTGOING")));
-        Assert.assertEquals(0, countingNode().getRelationshipCount(wildcard("wrong#OUTGOING")));
-        Assert.assertEquals(0, countingNode().getRelationshipCount(literal("wrong#OUTGOING")));
-        Assert.assertEquals(0, countingNode().getRelationshipCount(wildcard("test#INCOMING")));
-        Assert.assertEquals(0, countingNode().getRelationshipCount(literal("test#INCOMING")));
+        assertEquals(9, countingNode().getRelationshipCount(wildcard("test#OUTGOING")));
+        assertEquals(0, countingNode().getRelationshipCount(literal("test#OUTGOING")));
+        assertEquals(0, countingNode().getRelationshipCount(wildcard("wrong#OUTGOING")));
+        assertEquals(0, countingNode().getRelationshipCount(literal("wrong#OUTGOING")));
+        assertEquals(0, countingNode().getRelationshipCount(wildcard("test#INCOMING")));
+        assertEquals(0, countingNode().getRelationshipCount(literal("test#INCOMING")));
     }
 
     @Test
     public void shouldCorrectlyReportAggregatedCountsWhenGeneralityIsMixed() {
         setUpRelationshipCounts();
 
-        Assert.assertEquals(39, countingNode().getRelationshipCount(wildcard("test#OUTGOING")));
-        Assert.assertEquals(11, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value2")));
-        Assert.assertEquals(11, countingNode().getRelationshipCount(literal("test#OUTGOING#key1#value2")));
-        Assert.assertEquals(15, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1")));
-        Assert.assertEquals(7, countingNode().getRelationshipCount(literal("test#OUTGOING#key1#value1")));
-        Assert.assertEquals(3, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1#key2#value2")));
-        Assert.assertEquals(3, countingNode().getRelationshipCount(literal("test#OUTGOING#key1#value1#key2#value2")));
-        Assert.assertEquals(20, countingNode().getRelationshipCount(wildcard("test2#OUTGOING#key3#" + CompactiblePropertiesImpl.ANY_VALUE))); //this includes undefined => potential idea for improvement, split ANY_VALUE into ANY_VALUE_INCLUDING_UNDEF and ANY_CONCRETE_VALUE
-        Assert.assertEquals(20, countingNode().getRelationshipCount(literal("test2#OUTGOING#key3#" + CompactiblePropertiesImpl.ANY_VALUE)));
+        assertEquals(39, countingNode().getRelationshipCount(wildcard("test#OUTGOING")));
+        assertEquals(11, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value2")));
+        assertEquals(11, countingNode().getRelationshipCount(literal("test#OUTGOING#key1#value2")));
+        assertEquals(15, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1")));
+        assertEquals(7, countingNode().getRelationshipCount(literal("test#OUTGOING#key1#value1")));
+        assertEquals(3, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1#key2#value2")));
+        assertEquals(3, countingNode().getRelationshipCount(literal("test#OUTGOING#key1#value1#key2#value2")));
+        assertEquals(20, countingNode().getRelationshipCount(wildcard("test2#OUTGOING#key3#" + CompactiblePropertiesImpl.ANY_VALUE))); //this includes undefined => potential idea for improvement, split ANY_VALUE into ANY_VALUE_INCLUDING_UNDEF and ANY_CONCRETE_VALUE
+        assertEquals(20, countingNode().getRelationshipCount(literal("test2#OUTGOING#key3#" + CompactiblePropertiesImpl.ANY_VALUE)));
 
         try {
             countingNode().getRelationshipCount(wildcard("test2#OUTGOING#key3#anything"));
@@ -138,33 +136,13 @@ public class FullRelationshipCountCachingNodeTest {
         setUpRelationshipCounts();
 
         Map<CompactibleRelationship, Integer> relationshipCounts = cachingNode().getCachedCounts();
-        Iterator<Map.Entry<CompactibleRelationship, Integer>> iterator = relationshipCounts.entrySet().iterator();
 
-        //also testing order
-
-        Map.Entry<CompactibleRelationship, Integer> next = iterator.next();
-        Assert.assertEquals(compactible("test#OUTGOING"), next.getKey());
-        assertEquals(13, (int) next.getValue());
-
-        next = iterator.next();
-        Assert.assertEquals(compactible("test#OUTGOING#key1#value1"), next.getKey());
-        assertEquals(7, (int) next.getValue());
-
-        next = iterator.next();
-        Assert.assertEquals(compactible("test#OUTGOING#key1#value2"), next.getKey());
-        assertEquals(11, (int) next.getValue());
-
-        next = iterator.next();
-        Assert.assertEquals(compactible("test#OUTGOING#key1#value1#key2#value2"), next.getKey());
-        assertEquals(3, (int) next.getValue());
-
-        next = iterator.next();
-        Assert.assertEquals(compactible("test#OUTGOING#key1#value1#key2#value3"), next.getKey());
-        assertEquals(5, (int) next.getValue());
-
-        next = iterator.next();
-        Assert.assertEquals(compactible("test2#OUTGOING#key3#" + CompactiblePropertiesImpl.ANY_VALUE), next.getKey());
-        assertEquals(20, (int) next.getValue());
+        assertEquals(3, (int) relationshipCounts.get(compactible("test#OUTGOING#key1#value1#key2#value2")));
+        assertEquals(11, (int) relationshipCounts.get(compactible("test#OUTGOING#key1#value2")));
+        assertEquals(7, (int) relationshipCounts.get(compactible("test#OUTGOING#key1#value1")));
+        assertEquals(13, (int) relationshipCounts.get(compactible("test#OUTGOING")));
+        assertEquals(5, (int) relationshipCounts.get(compactible("test#OUTGOING#key1#value1#key2#value3")));
+        assertEquals(20, (int) relationshipCounts.get(compactible("test2#OUTGOING#key3#" + CompactiblePropertiesImpl.ANY_VALUE)));
 
         assertEquals(6, relationshipCounts.size());
     }
@@ -180,7 +158,7 @@ public class FullRelationshipCountCachingNodeTest {
             }
         });
 
-        Assert.assertEquals(1, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value3")));
+        assertEquals(1, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value3")));
     }
 
     @Test
@@ -194,7 +172,7 @@ public class FullRelationshipCountCachingNodeTest {
             }
         });
 
-        Assert.assertEquals(5, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value3")));
+        assertEquals(5, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value3")));
     }
 
     @Test
@@ -208,7 +186,7 @@ public class FullRelationshipCountCachingNodeTest {
             }
         });
 
-        Assert.assertEquals(4, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value2")));
+        assertEquals(4, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value2")));
     }
 
     @Test
@@ -222,7 +200,7 @@ public class FullRelationshipCountCachingNodeTest {
             }
         });
 
-        Assert.assertEquals(7, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1")));
+        assertEquals(7, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1")));
     }
 
     @Test
@@ -285,7 +263,7 @@ public class FullRelationshipCountCachingNodeTest {
             }
         });
 
-        Assert.assertEquals(2, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value2")));
+        assertEquals(2, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value2")));
     }
 
     @Test
@@ -299,7 +277,7 @@ public class FullRelationshipCountCachingNodeTest {
             }
         });
 
-        Assert.assertEquals(2, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key2#value2")));
+        assertEquals(2, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key2#value2")));
     }
 
     @Test
@@ -346,7 +324,7 @@ public class FullRelationshipCountCachingNodeTest {
         });
 
         assertFalse(cachingNode().getCachedCounts().containsKey(compactible("test#OUTGOING#key1#value1")));
-        Assert.assertEquals(8, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1")));
+        assertEquals(8, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1")));
         assertEquals(13, (int) cachingNode().getCachedCounts().get(compactible("test#OUTGOING")));
     }
 
@@ -361,12 +339,12 @@ public class FullRelationshipCountCachingNodeTest {
             }
         });
 
-        Assert.assertEquals(26, countingNode().getRelationshipCount(wildcard("test#OUTGOING")));
+        assertEquals(26, countingNode().getRelationshipCount(wildcard("test#OUTGOING")));
         assertFalse(cachingNode().getCachedCounts().containsKey(compactible("test#OUTGOING")));
 
-        Assert.assertEquals(11, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value2")));
-        Assert.assertEquals(15, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1")));
-        Assert.assertEquals(3, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1#key2#value2")));
+        assertEquals(11, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value2")));
+        assertEquals(15, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1")));
+        assertEquals(3, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1#key2#value2")));
 
         txExecutor.executeInTransaction(new VoidReturningCallback() {
             @Override
@@ -378,8 +356,8 @@ public class FullRelationshipCountCachingNodeTest {
         assertFalse(cachingNode().getCachedCounts().containsKey(compactible("test#OUTGOING")));
         assertFalse(cachingNode().getCachedCounts().containsKey(compactible("test#OUTGOING#key1#value2")));
 
-        Assert.assertEquals(15, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1")));
-        Assert.assertEquals(3, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1#key2#value2")));
+        assertEquals(15, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1")));
+        assertEquals(3, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1#key2#value2")));
     }
 
     private void setUpBasicRelationshipCounts() {

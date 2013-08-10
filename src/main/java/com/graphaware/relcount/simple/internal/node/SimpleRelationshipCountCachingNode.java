@@ -6,9 +6,6 @@ import com.graphaware.relcount.common.internal.node.BaseRelationshipCountCaching
 import com.graphaware.relcount.common.internal.node.RelationshipCountCachingNode;
 import org.neo4j.graphdb.Node;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * {@link RelationshipCountCachingNode} that caches relationship counts with their "simple" details, i.e. {@link org.neo4j.graphdb.RelationshipType}
  * and {@link org.neo4j.graphdb.Direction}. It ignores properties.
@@ -24,14 +21,6 @@ public class SimpleRelationshipCountCachingNode extends BaseRelationshipCountCac
      */
     public SimpleRelationshipCountCachingNode(Node node, String prefix, String separator) {
         super(node, prefix, separator);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Map<SerializableTypeAndDirection, Integer> newMap() {
-        return new HashMap<>();
     }
 
     /**
