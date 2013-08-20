@@ -25,8 +25,10 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import java.io.IOException;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.neo4j.graphdb.Direction.*;
+import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
 /**
  * Integration test for full relationship counting.
@@ -474,6 +476,161 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
         verifyCounts(20, naiveCounterCreator(module2));
         verifyCompactedCounts(20, cachedCounterCreator(module2));
         verifyCounts(20, fallbackCounterCreator(module2));
+    }
+
+    @Test
+    public void carefullySetupScenarioThatCouldResultInInaccurateCounts() {
+        GraphAwareFramework framework = new GraphAwareFramework(database);
+        final FullRelationshipCountModule module = new FullRelationshipCountModule(RelationshipCountStrategiesImpl.defaultStrategies().with(2));
+        framework.registerModule(module);
+        framework.start();
+
+        setUpTwoNodes();
+        new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
+            @Override
+            protected void doInTx(GraphDatabaseService database) {
+                Node one = database.getNodeById(1);
+                Node two = database.getNodeById(2);
+
+                Relationship r1 = one.createRelationshipTo(two, withName("TEST"));
+                r1.setProperty("a", 2);
+                r1.setProperty("b", "b");
+            }
+        });
+
+        assertEquals(1, new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).with("a", 2).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).with("b", "b").count(database.getNodeById(1)));
+
+        new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
+            @Override
+            protected void doInTx(GraphDatabaseService database) {
+                Node one = database.getNodeById(1);
+                Node two = database.getNodeById(2);
+
+                Relationship r1 = one.createRelationshipTo(two, withName("TEST"));
+                r1.setProperty("a", 1);
+                r1.setProperty("b", "c");
+            }
+        });
+
+        assertEquals(2, new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).with("a", 1).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).with("a", 2).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).with("b", "b").count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).with("b", "c").count(database.getNodeById(1)));
+
+        new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
+            @Override
+            protected void doInTx(GraphDatabaseService database) {
+                Node one = database.getNodeById(1);
+                Node two = database.getNodeById(2);
+
+                Relationship r1 = one.createRelationshipTo(two, withName("TEST"));
+                r1.setProperty("a", 3);
+                r1.setProperty("b", "c");
+            }
+        });
+
+        //now we should have 2b, *c
+
+        assertEquals(3, new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).count(database.getNodeById(1)));
+        assertEquals(1, new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).with("b", "b").count(database.getNodeById(1)));
+        assertEquals(2, new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).with("b", "c").count(database.getNodeById(1)));
+
+        try {
+            new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).with("a", 2).count(database.getNodeById(1));
+            fail();
+        } catch (UnableToCountException e) {
+            //ok
+        }
+
+        new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
+            @Override
+            protected void doInTx(GraphDatabaseService database) {
+                Node one = database.getNodeById(1);
+                Node two = database.getNodeById(2);
+
+                Relationship r1 = one.createRelationshipTo(two, withName("TEST"));
+                r1.setProperty("a", 2);
+                r1.setProperty("b", "d");
+            }
+        });
+
+        //now we should have 2*, *c
+
+        assertEquals(4, new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).count(database.getNodeById(1)));
+
+        try {
+            new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).with("a", 2).count(database.getNodeById(1));
+            fail();
+        } catch (UnableToCountException e) {
+            //ok
+        }
+
+        try {
+            new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).with("b", "c").count(database.getNodeById(1));
+            fail();
+        } catch (UnableToCountException e) {
+            //ok
+        }
+
+        new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
+            @Override
+            protected void doInTx(GraphDatabaseService database) {
+                Node one = database.getNodeById(1);
+                Node two = database.getNodeById(2);
+
+                Relationship r1 = one.createRelationshipTo(two, withName("TEST"));
+                r1.setProperty("a", 2);
+                r1.setProperty("b", "c");
+            }
+        });
+
+        assertEquals(5, new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).count(database.getNodeById(1)));
+
+        try {
+            new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).with("a", 2).count(database.getNodeById(1));
+            fail();
+        } catch (UnableToCountException e) {
+            //ok
+        }
+
+        try {
+            new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).with("b", "c").count(database.getNodeById(1));
+            fail();
+        } catch (UnableToCountException e) {
+            //ok
+        }
+
+        //now add one more that will cause * *
+        new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
+            @Override
+            protected void doInTx(GraphDatabaseService database) {
+                Node one = database.getNodeById(1);
+                Node two = database.getNodeById(2);
+
+                Relationship r1 = one.createRelationshipTo(two, withName("TEST"));
+                r1.setProperty("a", 3);
+                r1.setProperty("b", "d");
+            }
+        });
+
+        assertEquals(6, new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).count(database.getNodeById(1)));
+
+        try {
+            new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).with("a", 2).count(database.getNodeById(1));
+            fail();
+        } catch (UnableToCountException e) {
+            //ok
+        }
+
+        try {
+            new FullCachedRelationshipCounter(withName("TEST"), OUTGOING).with("b", "c").count(database.getNodeById(1));
+            fail();
+        } catch (UnableToCountException e) {
+            //ok
+        }
     }
 
     //helpers
