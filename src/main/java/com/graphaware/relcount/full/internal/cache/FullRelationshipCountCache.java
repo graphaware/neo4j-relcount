@@ -21,8 +21,8 @@ import com.graphaware.propertycontainer.util.DirectionUtils;
 import com.graphaware.relcount.common.internal.cache.BaseBatchFriendlyRelationshipCountCache;
 import com.graphaware.relcount.common.internal.cache.BatchFriendlyRelationshipCountCache;
 import com.graphaware.relcount.common.internal.node.RelationshipCountCachingNode;
-import com.graphaware.relcount.full.internal.dto.relationship.CompactibleRelationship;
-import com.graphaware.relcount.full.internal.dto.relationship.CompactibleRelationshipImpl;
+import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescription;
+import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescriptionImpl;
 import com.graphaware.relcount.full.internal.node.FullRelationshipCountCachingNode;
 import com.graphaware.relcount.full.strategy.RelationshipCountStrategies;
 import org.neo4j.graphdb.Direction;
@@ -35,7 +35,7 @@ import java.util.Map;
  * A full-blown implementation of {@link com.graphaware.relcount.common.internal.cache.RelationshipCountCache}.  It is "full" in
  * the sense that it cares about {@link org.neo4j.graphdb.RelationshipType}s, {@link org.neo4j.graphdb.Direction}s, and properties.
  */
-public class FullRelationshipCountCache extends BaseBatchFriendlyRelationshipCountCache<CompactibleRelationship> implements BatchFriendlyRelationshipCountCache, FrameworkConfigured {
+public class FullRelationshipCountCache extends BaseBatchFriendlyRelationshipCountCache<CacheableRelationshipDescription> implements BatchFriendlyRelationshipCountCache, FrameworkConfigured {
 
     private final RelationshipCountStrategies relationshipCountStrategies;
     private final RelationshipCountCompactor relationshipCountCompactor;
@@ -56,9 +56,9 @@ public class FullRelationshipCountCache extends BaseBatchFriendlyRelationshipCou
      * {@inheritDoc}
      */
     @Override
-    protected CompactibleRelationship newCachedRelationship(Relationship relationship, Node pointOfView, Direction defaultDirection) {
+    protected CacheableRelationshipDescription newCachedRelationship(Relationship relationship, Node pointOfView, Direction defaultDirection) {
         Map<String, String> extractedProperties = relationshipCountStrategies.getRelationshipPropertiesExtractionStrategy().extractProperties(relationship, pointOfView);
-        return new CompactibleRelationshipImpl(relationship.getType(), DirectionUtils.resolveDirection(relationship, pointOfView, defaultDirection), extractedProperties);
+        return new CacheableRelationshipDescriptionImpl(relationship.getType(), DirectionUtils.resolveDirection(relationship, pointOfView, defaultDirection), extractedProperties);
     }
 
     /**
@@ -73,7 +73,7 @@ public class FullRelationshipCountCache extends BaseBatchFriendlyRelationshipCou
      * {@inheritDoc}
      */
     @Override
-    protected RelationshipCountCachingNode<CompactibleRelationship> newCachingNode(Node node) {
+    protected RelationshipCountCachingNode<CacheableRelationshipDescription> newCachingNode(Node node) {
         return new FullRelationshipCountCachingNode(node, getConfig().createPrefix(id), getConfig().separator(), relationshipCountCompactor);
     }
 }

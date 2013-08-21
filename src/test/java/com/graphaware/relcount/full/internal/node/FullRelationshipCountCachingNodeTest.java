@@ -22,7 +22,7 @@ import com.graphaware.relcount.common.counter.UnableToCountException;
 import com.graphaware.relcount.common.internal.node.RelationshipCountCachingNode;
 import com.graphaware.relcount.common.internal.node.RelationshipCountingNode;
 import com.graphaware.relcount.full.internal.cache.ThresholdBasedRelationshipCountCompactor;
-import com.graphaware.relcount.full.internal.dto.property.CompactiblePropertiesImpl;
+import com.graphaware.relcount.full.internal.dto.property.CacheablePropertiesDescriptionImpl;
 import com.graphaware.relcount.full.internal.dto.relationship.*;
 import com.graphaware.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
@@ -62,7 +62,7 @@ public class FullRelationshipCountCachingNodeTest {
         return new FullCachedRelationshipCountingNode(database.getNodeById(0), DefaultFrameworkConfiguration.getInstance().createPrefix(FullRelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID), DefaultFrameworkConfiguration.getInstance().separator());
     }
 
-    private RelationshipCountCachingNode<CompactibleRelationship> cachingNode() {
+    private RelationshipCountCachingNode<CacheableRelationshipDescription> cachingNode() {
         return new FullRelationshipCountCachingNode(database.getNodeById(0), DefaultFrameworkConfiguration.getInstance().createPrefix(FullRelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID), DefaultFrameworkConfiguration.getInstance().separator(), new ThresholdBasedRelationshipCountCompactor(10));
     }
 
@@ -106,8 +106,8 @@ public class FullRelationshipCountCachingNodeTest {
         assertEquals(7, countingNode().getRelationshipCount(literal("test#OUTGOING#key1#value1")));
         assertEquals(3, countingNode().getRelationshipCount(wildcard("test#OUTGOING#key1#value1#key2#value2")));
         assertEquals(3, countingNode().getRelationshipCount(literal("test#OUTGOING#key1#value1#key2#value2")));
-        assertEquals(20, countingNode().getRelationshipCount(wildcard("test2#OUTGOING#key3#" + CompactiblePropertiesImpl.ANY_VALUE))); //this includes undefined => potential idea for improvement, split ANY_VALUE into ANY_VALUE_INCLUDING_UNDEF and ANY_CONCRETE_VALUE
-        assertEquals(20, countingNode().getRelationshipCount(literal("test2#OUTGOING#key3#" + CompactiblePropertiesImpl.ANY_VALUE)));
+        assertEquals(20, countingNode().getRelationshipCount(wildcard("test2#OUTGOING#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE))); //this includes undefined => potential idea for improvement, split ANY_VALUE into ANY_VALUE_INCLUDING_UNDEF and ANY_CONCRETE_VALUE
+        assertEquals(20, countingNode().getRelationshipCount(literal("test2#OUTGOING#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
 
         try {
             countingNode().getRelationshipCount(wildcard("test2#OUTGOING#key3#anything"));
@@ -135,14 +135,14 @@ public class FullRelationshipCountCachingNodeTest {
     public void shouldNotAggregateCountsWhenAskedForAll() {
         setUpRelationshipCounts();
 
-        Map<CompactibleRelationship, Integer> relationshipCounts = cachingNode().getCachedCounts();
+        Map<CacheableRelationshipDescription, Integer> relationshipCounts = cachingNode().getCachedCounts();
 
         assertEquals(3, (int) relationshipCounts.get(compactible("test#OUTGOING#key1#value1#key2#value2")));
         assertEquals(11, (int) relationshipCounts.get(compactible("test#OUTGOING#key1#value2")));
         assertEquals(7, (int) relationshipCounts.get(compactible("test#OUTGOING#key1#value1")));
         assertEquals(13, (int) relationshipCounts.get(compactible("test#OUTGOING")));
         assertEquals(5, (int) relationshipCounts.get(compactible("test#OUTGOING#key1#value1#key2#value3")));
-        assertEquals(20, (int) relationshipCounts.get(compactible("test2#OUTGOING#key3#" + CompactiblePropertiesImpl.ANY_VALUE)));
+        assertEquals(20, (int) relationshipCounts.get(compactible("test2#OUTGOING#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
 
         assertEquals(6, relationshipCounts.size());
     }
@@ -382,7 +382,7 @@ public class FullRelationshipCountCachingNodeTest {
                 root.setProperty(compactible("test#OUTGOING#key1#value1").toString(prefix(), hash()), 7);
                 root.setProperty(compactible("test#OUTGOING#key1#value2").toString(prefix(), hash()), 11);
                 root.setProperty(compactible("test#OUTGOING").toString(prefix(), hash()), 13);
-                root.setProperty(compactible("test2#OUTGOING#key3#" + CompactiblePropertiesImpl.ANY_VALUE).toString(prefix(), hash()), 20);
+                root.setProperty(compactible("test2#OUTGOING#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE).toString(prefix(), hash()), 20);
             }
         });
     }
@@ -395,8 +395,8 @@ public class FullRelationshipCountCachingNodeTest {
         return "#";
     }
 
-    private CompactibleRelationship compactible(String s) {
-        return new CompactibleRelationshipImpl(prefix() + s, prefix(), hash());
+    private CacheableRelationshipDescription compactible(String s) {
+        return new CacheableRelationshipDescriptionImpl(prefix() + s, prefix(), hash());
     }
 
     private RelationshipDescription wildcard(String s) {

@@ -20,8 +20,8 @@ import com.graphaware.propertycontainer.dto.common.property.ImmutableProperties;
 import com.graphaware.propertycontainer.dto.common.relationship.HasTypeAndDirection;
 import com.graphaware.propertycontainer.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.propertycontainer.dto.string.relationship.BaseCopyMakingSerializableDirectedRelationship;
-import com.graphaware.relcount.full.internal.dto.property.CompactibleProperties;
-import com.graphaware.relcount.full.internal.dto.property.CompactiblePropertiesImpl;
+import com.graphaware.relcount.full.internal.dto.property.CacheablePropertiesDescription;
+import com.graphaware.relcount.full.internal.dto.property.CacheablePropertiesDescriptionImpl;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -33,9 +33,9 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Base-class for {@link CompactibleRelationship} implementations.
+ * Base-class for {@link CacheableRelationshipDescription} implementations.
  */
-public class CompactibleRelationshipImpl extends BaseCopyMakingSerializableDirectedRelationship<CompactibleProperties, CompactibleRelationship> implements CompactibleRelationship {
+public class CacheableRelationshipDescriptionImpl extends BaseCopyMakingSerializableDirectedRelationship<CacheablePropertiesDescription, CacheableRelationshipDescription> implements CacheableRelationshipDescription {
 
     private String string;
 
@@ -48,7 +48,7 @@ public class CompactibleRelationshipImpl extends BaseCopyMakingSerializableDirec
      * @param pointOfView  node which is looking at this relationship and thus determines its direction.
      * @param properties   to use as if they were in the relationship.
      */
-    public CompactibleRelationshipImpl(Relationship relationship, Node pointOfView, Map<String, ?> properties) {
+    public CacheableRelationshipDescriptionImpl(Relationship relationship, Node pointOfView, Map<String, ?> properties) {
         super(relationship, pointOfView, properties);
     }
 
@@ -59,7 +59,7 @@ public class CompactibleRelationshipImpl extends BaseCopyMakingSerializableDirec
      * @param direction  direction.
      * @param properties props.
      */
-    public CompactibleRelationshipImpl(RelationshipType type, Direction direction, Map<String, ?> properties) {
+    public CacheableRelationshipDescriptionImpl(RelationshipType type, Direction direction, Map<String, ?> properties) {
         super(type, direction, properties);
     }
 
@@ -71,7 +71,7 @@ public class CompactibleRelationshipImpl extends BaseCopyMakingSerializableDirec
      * @param prefix    of the string that should be removed before conversion.
      * @param separator of information, ideally a single character, must not be null or empty.
      */
-    public CompactibleRelationshipImpl(String string, String prefix, String separator) {
+    public CacheableRelationshipDescriptionImpl(String string, String prefix, String separator) {
         super(string, prefix, separator);
         this.string = string;
     }
@@ -96,14 +96,14 @@ public class CompactibleRelationshipImpl extends BaseCopyMakingSerializableDirec
      * {@inheritDoc}
      */
     @Override
-    public Set<CompactibleRelationship> generateAllMoreGeneral(Collection<String> unknownKeys) {
+    public Set<CacheableRelationshipDescription> generateAllMoreGeneral(Collection<String> unknownKeys) {
         return withDifferentProperties(getProperties().generateAllMoreGeneral(unknownKeys));
     }
 
-    private Set<CompactibleRelationship> withDifferentProperties(Set<CompactibleProperties> propertySets) {
-        Set<CompactibleRelationship> result = new TreeSet<>();
+    private Set<CacheableRelationshipDescription> withDifferentProperties(Set<CacheablePropertiesDescription> propertySets) {
+        Set<CacheableRelationshipDescription> result = new TreeSet<>();
 
-        for (CompactibleProperties propertySet : propertySets) {
+        for (CacheablePropertiesDescription propertySet : propertySets) {
             result.add(newRelationship(getType(), getDirection(), propertySet.getProperties()));
         }
 
@@ -114,7 +114,7 @@ public class CompactibleRelationshipImpl extends BaseCopyMakingSerializableDirec
      * {@inheritDoc}
      */
     @Override
-    public int compareTo(CompactibleRelationship that) {
+    public int compareTo(CacheableRelationshipDescription that) {
         if (equals(that)) {
             return 0;
         } else if (isMoreGeneralThan(that)) {
@@ -148,16 +148,16 @@ public class CompactibleRelationshipImpl extends BaseCopyMakingSerializableDirec
      * {@inheritDoc}
      */
     @Override
-    protected CompactibleRelationship newRelationship(RelationshipType type, Direction direction, Map<String, ?> properties) {
-        return new CompactibleRelationshipImpl(type, direction, properties);
+    protected CacheableRelationshipDescription newRelationship(RelationshipType type, Direction direction, Map<String, ?> properties) {
+        return new CacheableRelationshipDescriptionImpl(type, direction, properties);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected CompactibleProperties newProperties(Map<String, ?> properties) {
-        return new CompactiblePropertiesImpl(properties);
+    protected CacheablePropertiesDescription newProperties(Map<String, ?> properties) {
+        return new CacheablePropertiesDescriptionImpl(properties);
     }
 
     @Override

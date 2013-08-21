@@ -20,8 +20,8 @@ import com.graphaware.framework.config.FrameworkConfiguration;
 import com.graphaware.relcount.common.counter.UnableToCountException;
 import com.graphaware.relcount.common.internal.node.CachedRelationshipCountingNode;
 import com.graphaware.relcount.common.internal.node.RelationshipCountingNode;
-import com.graphaware.relcount.full.internal.dto.relationship.CompactibleRelationship;
-import com.graphaware.relcount.full.internal.dto.relationship.CompactibleRelationshipImpl;
+import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescription;
+import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescriptionImpl;
 import com.graphaware.relcount.full.internal.dto.relationship.RelationshipDescription;
 import org.neo4j.graphdb.Node;
 
@@ -30,7 +30,7 @@ import org.neo4j.graphdb.Node;
  * cached as {@link org.neo4j.graphdb.Node}'s properties.  It is "full" in the sense that it cares about
  * {@link org.neo4j.graphdb.RelationshipType}s, {@link org.neo4j.graphdb.Direction}s, and properties.
  */
-public class FullCachedRelationshipCountingNode extends CachedRelationshipCountingNode<CompactibleRelationship, RelationshipDescription> implements RelationshipCountingNode<RelationshipDescription> {
+public class FullCachedRelationshipCountingNode extends CachedRelationshipCountingNode<CacheableRelationshipDescription, RelationshipDescription> implements RelationshipCountingNode<RelationshipDescription> {
 
     /**
      * Construct a new counting node.
@@ -47,7 +47,7 @@ public class FullCachedRelationshipCountingNode extends CachedRelationshipCounti
      * {@inheritDoc}
      */
     @Override
-    protected boolean candidateMatchesDescription(CompactibleRelationship candidate, RelationshipDescription description) {
+    protected boolean candidateMatchesDescription(CacheableRelationshipDescription candidate, RelationshipDescription description) {
         boolean matches = candidate.isMoreSpecificThan(description);
 
         if (!matches && !candidate.isMutuallyExclusive(description)) {
@@ -65,7 +65,7 @@ public class FullCachedRelationshipCountingNode extends CachedRelationshipCounti
      * {@inheritDoc}
      */
     @Override
-    protected CompactibleRelationship newCachedRelationship(String string) {
-        return new CompactibleRelationshipImpl(string, prefix, separator);
+    protected CacheableRelationshipDescription newCachedRelationship(String string) {
+        return new CacheableRelationshipDescriptionImpl(string, prefix, separator);
     }
 }

@@ -1,7 +1,7 @@
 package com.graphaware.relcount.full.internal.cache;
 
 import com.graphaware.relcount.common.internal.node.RelationshipCountCachingNode;
-import com.graphaware.relcount.full.internal.dto.relationship.CompactibleRelationship;
+import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescription;
 
 /**
  * Component responsible for compacting the relationship counts cached as properties on nodes.
@@ -23,5 +23,5 @@ public interface RelationshipCountCompactor {
      *
      * @param node to compact cached relationship counts on.
      */
-    void compactRelationshipCounts(RelationshipCountCachingNode<CompactibleRelationship> node);
+    void compactRelationshipCounts(RelationshipCountCachingNode<CacheableRelationshipDescription> node);
 }

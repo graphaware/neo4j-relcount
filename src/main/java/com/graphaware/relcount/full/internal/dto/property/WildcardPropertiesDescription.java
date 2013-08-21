@@ -57,7 +57,7 @@ public class WildcardPropertiesDescription extends SerializablePropertiesImpl im
     /**
      * {@inheritDoc}
      *
-     * @return the actual value or {@link CompactiblePropertiesImpl#ANY_VALUE} if the underlying properties do not contain the key.
+     * @return the actual value or {@link CacheablePropertiesDescriptionImpl#ANY_VALUE} if the underlying properties do not contain the key.
      */
     @Override
     public String get(String key) {
@@ -66,6 +66,6 @@ public class WildcardPropertiesDescription extends SerializablePropertiesImpl im
             return value;
         }
 
-        return CompactiblePropertiesImpl.ANY_VALUE;
+        return CacheablePropertiesDescriptionImpl.ANY_VALUE;
     }
 }

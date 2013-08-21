@@ -22,16 +22,16 @@ import com.graphaware.propertycontainer.dto.string.relationship.CopyMakingSerial
 import com.graphaware.relcount.full.internal.dto.common.Generalizing;
 import com.graphaware.relcount.full.internal.dto.common.MutuallyExclusive;
 import com.graphaware.relcount.full.internal.dto.common.PartiallyComparable;
-import com.graphaware.relcount.full.internal.dto.property.CompactibleProperties;
+import com.graphaware.relcount.full.internal.dto.property.CacheablePropertiesDescription;
 
 /**
  * A description of a {@link org.neo4j.graphdb.Relationship}
  * for the purposes of caching {@link org.neo4j.graphdb.Relationship}s.
  */
-public interface CompactibleRelationship extends
-        CopyMakingSerializableDirectedRelationship<CompactibleProperties, CompactibleRelationship>,
+public interface CacheableRelationshipDescription extends
+        CopyMakingSerializableDirectedRelationship<CacheablePropertiesDescription, CacheableRelationshipDescription>,
         PartiallyComparable<HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>>>,
-        Comparable<CompactibleRelationship>,
-        Generalizing<CompactibleRelationship, String>,
+        Comparable<CacheableRelationshipDescription>,
+        Generalizing<CacheableRelationshipDescription, String>,
         MutuallyExclusive<HasTypeDirectionAndProperties<String, ? extends ImmutableProperties<String>>> {
 }

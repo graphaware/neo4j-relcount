@@ -20,8 +20,8 @@ import com.graphaware.propertycontainer.dto.common.relationship.HasType;
 import com.graphaware.propertycontainer.dto.common.relationship.HasTypeAndDirection;
 import com.graphaware.propertycontainer.dto.common.relationship.Type;
 import com.graphaware.propertycontainer.dto.common.relationship.TypeAndDirection;
-import com.graphaware.relcount.full.internal.dto.property.CompactiblePropertiesImpl;
-import com.graphaware.relcount.full.internal.dto.relationship.CompactibleRelationship;
+import com.graphaware.relcount.full.internal.dto.property.CacheablePropertiesDescriptionImpl;
+import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescription;
 
 import java.util.*;
 
@@ -66,13 +66,13 @@ public class AverageCardinalityGeneralizationStrategy implements GeneralizationS
      * {@inheritDoc}
      */
     @Override
-    public List<CompactibleRelationship> produceGeneralizations(Map<CompactibleRelationship, Integer> cachedCounts) {
+    public List<CacheableRelationshipDescription> produceGeneralizations(Map<CacheableRelationshipDescription, Integer> cachedCounts) {
         populateKeysAndDegree(cachedCounts);
         populateValuesAndWildcards(cachedCounts);
 
-        List<CompactibleRelationship> result = new LinkedList<>();
+        List<CacheableRelationshipDescription> result = new LinkedList<>();
         for (ScoredCompactibleRelationship scoredGeneralization : produceScoredGeneralizations(cachedCounts)) {
-            result.add(scoredGeneralization.getCompactibleRelationship());
+            result.add(scoredGeneralization.getCacheableRelationshipDescription());
         }
 
         return result;
@@ -83,9 +83,9 @@ public class AverageCardinalityGeneralizationStrategy implements GeneralizationS
      *
      * @param cachedCounts to analyze.
      */
-    private void populateKeysAndDegree(Map<CompactibleRelationship, Integer> cachedCounts) {
-        for (Map.Entry<CompactibleRelationship, Integer> cachedCountEntry : cachedCounts.entrySet()) {
-            CompactibleRelationship cachedCount = cachedCountEntry.getKey();
+    private void populateKeysAndDegree(Map<CacheableRelationshipDescription, Integer> cachedCounts) {
+        for (Map.Entry<CacheableRelationshipDescription, Integer> cachedCountEntry : cachedCounts.entrySet()) {
+            CacheableRelationshipDescription cachedCount = cachedCountEntry.getKey();
 
             HasTypeAndDirection typeAndDirection = new TypeAndDirection(cachedCount);
             if (!keysByTypeAndDirection.containsKey(typeAndDirection)) {
@@ -111,9 +111,9 @@ public class AverageCardinalityGeneralizationStrategy implements GeneralizationS
      *
      * @param cachedCounts to analyze.
      */
-    private void populateValuesAndWildcards(Map<CompactibleRelationship, Integer> cachedCounts) {
-        for (Map.Entry<CompactibleRelationship, Integer> cachedCountEntry : cachedCounts.entrySet()) {
-            CompactibleRelationship cachedCount = cachedCountEntry.getKey();
+    private void populateValuesAndWildcards(Map<CacheableRelationshipDescription, Integer> cachedCounts) {
+        for (Map.Entry<CacheableRelationshipDescription, Integer> cachedCountEntry : cachedCounts.entrySet()) {
+            CacheableRelationshipDescription cachedCount = cachedCountEntry.getKey();
             Type cachedCountType = new Type(cachedCount);
 
             if (!valuesByTypeAndKey.containsKey(cachedCountType)) {
@@ -140,7 +140,7 @@ public class AverageCardinalityGeneralizationStrategy implements GeneralizationS
                     continue;
                 }
 
-                if (cachedCount.getProperties().get(key).equals(CompactiblePropertiesImpl.ANY_VALUE)) {
+                if (cachedCount.getProperties().get(key).equals(CacheablePropertiesDescriptionImpl.ANY_VALUE)) {
                     wildcardsByKey.put(key, wildcardsByKey.get(key) + cachedCountEntry.getValue());
                     continue;
                 }
@@ -156,16 +156,16 @@ public class AverageCardinalityGeneralizationStrategy implements GeneralizationS
      * @param cachedCounts to generalize.
      * @return scored generalizations sorted by descending score.
      */
-    private Set<ScoredCompactibleRelationship> produceScoredGeneralizations(Map<CompactibleRelationship, Integer> cachedCounts) {
+    private Set<ScoredCompactibleRelationship> produceScoredGeneralizations(Map<CacheableRelationshipDescription, Integer> cachedCounts) {
         Set<ScoredCompactibleRelationship> result = new TreeSet<>();
 
         //Generate all possible generalizations
-        Set<CompactibleRelationship> generalizations = new HashSet<>();
-        for (CompactibleRelationship cached : cachedCounts.keySet()) {
+        Set<CacheableRelationshipDescription> generalizations = new HashSet<>();
+        for (CacheableRelationshipDescription cached : cachedCounts.keySet()) {
             generalizations.addAll(cached.generateAllMoreGeneral(keysByTypeAndDirection.get(new TypeAndDirection(cached))));
         }
 
-        for (CompactibleRelationship generalization : generalizations) {
+        for (CacheableRelationshipDescription generalization : generalizations) {
             double score = 1.0;
 
             HasType type = new Type(generalization);
@@ -174,7 +174,7 @@ public class AverageCardinalityGeneralizationStrategy implements GeneralizationS
 
             Collection<String> keys = keysByType.get(type);
             for (String key : keys) {
-                if (!generalization.getProperties().containsKey(key) || !CompactiblePropertiesImpl.ANY_VALUE.equals(generalization.getProperties().get(key))) {
+                if (!generalization.getProperties().containsKey(key) || !CacheablePropertiesDescriptionImpl.ANY_VALUE.equals(generalization.getProperties().get(key))) {
                     score = score + 1;
                 } else {
                     int totalCount = degreeByType.get(type);
@@ -193,21 +193,21 @@ public class AverageCardinalityGeneralizationStrategy implements GeneralizationS
     }
 
     /**
-     * Encapsulation of a {@link CompactibleRelationship} (a generalization) and its score. Comparable so that objects
+     * Encapsulation of a {@link com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescription} (a generalization) and its score. Comparable so that objects
      * with the highest score come first.
      */
     private class ScoredCompactibleRelationship implements Comparable<ScoredCompactibleRelationship> {
 
-        private final CompactibleRelationship compactibleRelationship;
+        private final CacheableRelationshipDescription cacheableRelationshipDescription;
         private final double score;
 
-        private ScoredCompactibleRelationship(CompactibleRelationship compactibleRelationship, double score) {
-            this.compactibleRelationship = compactibleRelationship;
+        private ScoredCompactibleRelationship(CacheableRelationshipDescription cacheableRelationshipDescription, double score) {
+            this.cacheableRelationshipDescription = cacheableRelationshipDescription;
             this.score = score;
         }
 
-        public CompactibleRelationship getCompactibleRelationship() {
-            return compactibleRelationship;
+        public CacheableRelationshipDescription getCacheableRelationshipDescription() {
+            return cacheableRelationshipDescription;
         }
 
         @Override
@@ -218,7 +218,7 @@ public class AverageCardinalityGeneralizationStrategy implements GeneralizationS
             if (score < o.score) {
                 return 1;
             }
-            return compactibleRelationship.compareTo(o.compactibleRelationship);
+            return cacheableRelationshipDescription.compareTo(o.cacheableRelationshipDescription);
         }
     }
 }

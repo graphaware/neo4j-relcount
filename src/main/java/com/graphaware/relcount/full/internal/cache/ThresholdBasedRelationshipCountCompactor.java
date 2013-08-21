@@ -1,7 +1,7 @@
 package com.graphaware.relcount.full.internal.cache;
 
 import com.graphaware.relcount.common.internal.node.RelationshipCountCachingNode;
-import com.graphaware.relcount.full.internal.dto.relationship.CompactibleRelationship;
+import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescription;
 import org.apache.log4j.Logger;
 
 import java.util.HashSet;
@@ -34,7 +34,7 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
      * {@inheritDoc}
      */
     @Override
-    public void compactRelationshipCounts(RelationshipCountCachingNode<CompactibleRelationship> node) {
+    public void compactRelationshipCounts(RelationshipCountCachingNode<CacheableRelationshipDescription> node) {
         if (!performCompaction(node)) {
             LOG.warn("Compactor could not reach the desired threshold (" + compactionThreshold + ") " +
                     "on node " + node.getId() + ". This is potentially due to the fact that there are more than " + compactionThreshold +
@@ -44,19 +44,19 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
         }
     }
 
-    private boolean performCompaction(RelationshipCountCachingNode<CompactibleRelationship> node) {
-        Map<CompactibleRelationship, Integer> cachedCounts = node.getCachedCounts();
+    private boolean performCompaction(RelationshipCountCachingNode<CacheableRelationshipDescription> node) {
+        Map<CacheableRelationshipDescription, Integer> cachedCounts = node.getCachedCounts();
 
         //Not above the threshold => no need for compaction
         if (cachedCounts.size() <= compactionThreshold) {
             return true;
         }
 
-        for (CompactibleRelationship generalization : new AverageCardinalityGeneralizationStrategy().produceGeneralizations(cachedCounts)) {
+        for (CacheableRelationshipDescription generalization : new AverageCardinalityGeneralizationStrategy().produceGeneralizations(cachedCounts)) {
 
             //Find all the candidates to be eliminated by the generalization
-            Set<CompactibleRelationship> candidates = new HashSet<>();
-            for (CompactibleRelationship potentialCandidate : cachedCounts.keySet()) {
+            Set<CacheableRelationshipDescription> candidates = new HashSet<>();
+            for (CacheableRelationshipDescription potentialCandidate : cachedCounts.keySet()) {
                 if (generalization.isMoreGeneralThan(potentialCandidate)) {
                     candidates.add(potentialCandidate);
                 }
@@ -67,7 +67,7 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
 
                 //It will, do it!
                 int candidateCachedCount = 0;
-                for (CompactibleRelationship candidate : candidates) {
+                for (CacheableRelationshipDescription candidate : candidates) {
                     candidateCachedCount += cachedCounts.get(candidate);
                     node.deleteCount(candidate);
                 }

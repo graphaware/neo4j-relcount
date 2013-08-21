@@ -1,6 +1,6 @@
 package com.graphaware.relcount.full.internal.cache;
 
-import com.graphaware.relcount.full.internal.dto.relationship.CompactibleRelationship;
+import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescription;
 
 import java.util.List;
 import java.util.Map;
@@ -17,5 +17,5 @@ public interface GeneralizationStrategy {
      * @param cachedCounts cached counts that need to be compacted.
      * @return best-to-worst sorted generalizations.
      */
-    List<CompactibleRelationship> produceGeneralizations(Map<CompactibleRelationship, Integer> cachedCounts);
+    List<CacheableRelationshipDescription> produceGeneralizations(Map<CacheableRelationshipDescription, Integer> cachedCounts);
 }

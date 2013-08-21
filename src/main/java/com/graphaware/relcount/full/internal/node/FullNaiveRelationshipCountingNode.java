@@ -18,8 +18,8 @@ package com.graphaware.relcount.full.internal.node;
 
 import com.graphaware.relcount.common.internal.node.NaiveRelationshipCountingNode;
 import com.graphaware.relcount.common.internal.node.RelationshipCountingNode;
-import com.graphaware.relcount.full.internal.dto.relationship.CompactibleRelationship;
-import com.graphaware.relcount.full.internal.dto.relationship.CompactibleRelationshipImpl;
+import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescription;
+import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescriptionImpl;
 import com.graphaware.relcount.full.internal.dto.relationship.RelationshipDescription;
 import com.graphaware.relcount.full.strategy.RelationshipPropertiesExtractionStrategy;
 import com.graphaware.relcount.full.strategy.RelationshipWeighingStrategy;
@@ -33,7 +33,7 @@ import java.util.Map;
  * them (performs no caching). It is "full" in the sense that it cares about {@link org.neo4j.graphdb.RelationshipType}s,
  * {@link org.neo4j.graphdb.Direction}s, and properties.
  */
-public class FullNaiveRelationshipCountingNode extends NaiveRelationshipCountingNode<CompactibleRelationship, RelationshipDescription> implements RelationshipCountingNode<RelationshipDescription> {
+public class FullNaiveRelationshipCountingNode extends NaiveRelationshipCountingNode<CacheableRelationshipDescription, RelationshipDescription> implements RelationshipCountingNode<RelationshipDescription> {
 
     private final RelationshipPropertiesExtractionStrategy extractionStrategy;
     private final RelationshipWeighingStrategy weighingStrategy;
@@ -55,7 +55,7 @@ public class FullNaiveRelationshipCountingNode extends NaiveRelationshipCounting
      * {@inheritDoc}
      */
     @Override
-    protected boolean candidateMatchesDescription(CompactibleRelationship candidate, RelationshipDescription description) {
+    protected boolean candidateMatchesDescription(CacheableRelationshipDescription candidate, RelationshipDescription description) {
         return candidate.isMoreSpecificThan(description);
     }
 
@@ -63,9 +63,9 @@ public class FullNaiveRelationshipCountingNode extends NaiveRelationshipCounting
      * {@inheritDoc}
      */
     @Override
-    protected CompactibleRelationship newCandidate(Relationship relationship) {
+    protected CacheableRelationshipDescription newCandidate(Relationship relationship) {
         Map<String, String> extractedProperties = extractionStrategy.extractProperties(relationship, node);
-        return new CompactibleRelationshipImpl(relationship, node, extractedProperties);   //direction can resolve to both, but that's ok for non-cached relationships
+        return new CacheableRelationshipDescriptionImpl(relationship, node, extractedProperties);   //direction can resolve to both, but that's ok for non-cached relationships
     }
 
     /**
