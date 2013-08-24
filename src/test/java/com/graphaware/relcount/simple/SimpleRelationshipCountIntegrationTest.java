@@ -2,7 +2,7 @@ package com.graphaware.relcount.simple;
 
 import com.graphaware.framework.GraphAwareFramework;
 import com.graphaware.framework.config.FrameworkConfiguration;
-import com.graphaware.propertycontainer.dto.common.relationship.SerializableTypeAndDirectionImpl;
+import com.graphaware.propertycontainer.dto.string.relationship.SerializableTypeAndDirectionImpl;
 import com.graphaware.relcount.common.IntegrationTest;
 import com.graphaware.relcount.simple.counter.SimpleCachedRelationshipCounter;
 import com.graphaware.relcount.simple.counter.SimpleNaiveRelationshipCounter;

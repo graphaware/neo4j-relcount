@@ -29,7 +29,7 @@ public final class OneForEachRelationship implements RelationshipWeighingStrateg
      * {@inheritDoc}
      */
     @Override
-    public int hashCode() {
-        return this.getClass().getCanonicalName().hashCode();
+    public String asString() {
+        return this.getClass().getCanonicalName();
     }
 }

@@ -47,6 +47,11 @@ public class SimpleDocumentationDemo extends BaseDocumentationDemo {
             public boolean include(Relationship relationship) {
                 return relationship.isType(FOLLOWS);
             }
+
+            @Override
+            public String asString() {
+                return "onlyFollowsRelationships";
+            }
         };
 
         framework.registerModule(new SimpleRelationshipCountModule(customRelationshipInclusionStrategy));

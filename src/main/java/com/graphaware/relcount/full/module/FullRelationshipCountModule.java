@@ -126,23 +126,11 @@ public class FullRelationshipCountModule extends RelationshipCountModule impleme
         //do nothing
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        FullRelationshipCountModule that = (FullRelationshipCountModule) o;
-
-        if (!relationshipCountStrategies.equals(that.relationshipCountStrategies)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + relationshipCountStrategies.hashCode();
-        return result;
+    public String asString() {
+        return super.asString() + ";" + relationshipCountStrategies.asString();
     }
 }

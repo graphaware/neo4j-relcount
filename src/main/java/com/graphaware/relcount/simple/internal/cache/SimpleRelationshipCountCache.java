@@ -16,8 +16,8 @@
 
 package com.graphaware.relcount.simple.internal.cache;
 
-import com.graphaware.propertycontainer.dto.common.relationship.SerializableTypeAndDirection;
 import com.graphaware.propertycontainer.dto.string.relationship.SerializableDirectedRelationshipImpl;
+import com.graphaware.propertycontainer.dto.string.relationship.SerializableTypeAndDirection;
 import com.graphaware.propertycontainer.util.DirectionUtils;
 import com.graphaware.relcount.common.internal.cache.BaseBatchFriendlyRelationshipCountCache;
 import com.graphaware.relcount.common.internal.cache.BatchFriendlyRelationshipCountCache;

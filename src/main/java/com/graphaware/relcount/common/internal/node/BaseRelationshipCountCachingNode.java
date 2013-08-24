@@ -1,7 +1,7 @@
 package com.graphaware.relcount.common.internal.node;
 
 import com.graphaware.framework.NeedsInitializationException;
-import com.graphaware.propertycontainer.dto.common.relationship.SerializableTypeAndDirection;
+import com.graphaware.propertycontainer.dto.string.relationship.SerializableTypeAndDirection;
 import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Node;
 

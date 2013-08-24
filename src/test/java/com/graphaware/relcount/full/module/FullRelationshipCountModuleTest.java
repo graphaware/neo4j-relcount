@@ -31,20 +31,20 @@ import static org.junit.Assert.assertNotSame;
 public class FullRelationshipCountModuleTest {
 
     @Test
-    public void sameConfigShouldHaveSameHashCode() {
+    public void sameConfigShouldProduceSameString() {
         RelationshipCountStrategiesImpl strategies = RelationshipCountStrategiesImpl.defaultStrategies();
         RelationshipCountModule module1 = new FullRelationshipCountModule(strategies.with(5).with(IncludeNoNodes.getInstance()));
         RelationshipCountModule module2 = new FullRelationshipCountModule(strategies.with(5).with(IncludeNoNodes.getInstance()));
 
-        Assert.assertEquals(module1.hashCode(), module2.hashCode());
+        Assert.assertEquals(module1.asString(), module2.asString());
     }
 
     @Test
-    public void differentConfigShouldHaveADifferentHashCode() {
+    public void differentConfigShouldProduceDifferentString() {
         RelationshipCountStrategiesImpl strategies = RelationshipCountStrategiesImpl.defaultStrategies();
         RelationshipCountModule module1 = new FullRelationshipCountModule(strategies.with(5));
         RelationshipCountModule module2 = new FullRelationshipCountModule(strategies.with(6));
 
-        assertNotSame(module1.hashCode(), module2.hashCode());
+        assertNotSame(module1.asString(), module2.asString());
     }
 }

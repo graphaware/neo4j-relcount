@@ -1,7 +1,7 @@
 package com.graphaware.relcount.common.internal.cache;
 
 import com.graphaware.framework.config.BaseFrameworkConfigured;
-import com.graphaware.propertycontainer.dto.common.relationship.SerializableTypeAndDirection;
+import com.graphaware.propertycontainer.dto.string.relationship.SerializableTypeAndDirection;
 import com.graphaware.propertycontainer.wrapper.NodeWrapper;
 import com.graphaware.relcount.common.internal.node.RelationshipCountCachingNode;
 import org.apache.log4j.Logger;

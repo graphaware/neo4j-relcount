@@ -206,6 +206,11 @@ public class FullRelationshipCountBatchIntegrationTest extends BatchIntegrationT
                             public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
                                 return (int) relationship.getProperty(BatchIntegrationTest.WEIGHT, 1);
                             }
+
+                            @Override
+                            public String asString() {
+                                return "custom";
+                            }
                         }));
 
         framework.registerModule(module);
@@ -289,6 +294,11 @@ public class FullRelationshipCountBatchIntegrationTest extends BatchIntegrationT
                             public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
                                 return (int) relationship.getProperty(BatchIntegrationTest.WEIGHT, 1);
                             }
+
+                            @Override
+                            public String asString() {
+                                return "custom";
+                            }
                         })
                         .with(10));
 
@@ -316,6 +326,11 @@ public class FullRelationshipCountBatchIntegrationTest extends BatchIntegrationT
                             @Override
                             public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
                                 return (int) relationship.getProperty(BatchIntegrationTest.WEIGHT, 1);
+                            }
+
+                            @Override
+                            public String asString() {
+                                return "custom";
                             }
                         }));
 
@@ -348,6 +363,11 @@ public class FullRelationshipCountBatchIntegrationTest extends BatchIntegrationT
                                 properties.put("otherNodeName", otherNode.getProperty(BatchIntegrationTest.NAME, "UNKNOWN").toString());
                                 return properties;
                             }
+
+                            @Override
+                            public String asString() {
+                                return "custom";
+                            }
                         })
                         .with(IncludeAllNodes.getInstance())
                         .with(IncludeAllNodeProperties.getInstance()));
@@ -375,6 +395,11 @@ public class FullRelationshipCountBatchIntegrationTest extends BatchIntegrationT
                             public boolean include(Relationship relationship) {
                                 return !relationship.isType(RelationshipTypes.TWO);
                             }
+
+                            @Override
+                            public String asString() {
+                                return "custom";
+                            }
                         }));
 
         framework.registerModule(module);
@@ -400,6 +425,11 @@ public class FullRelationshipCountBatchIntegrationTest extends BatchIntegrationT
                             @Override
                             public boolean include(String key, Relationship propertyContainer) {
                                 return !BatchIntegrationTest.WEIGHT.equals(key);
+                            }
+
+                            @Override
+                            public String asString() {
+                                return "custom";
                             }
                         }));
 

@@ -124,6 +124,11 @@ public class FullDocumentationDemo extends BaseDocumentationDemo {
             public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
                 return (int) relationship.getProperty(STRENGTH, 1);
             }
+
+            @Override
+            public String asString() {
+                return "custom";
+            }
         };
 
         RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies()
@@ -161,6 +166,11 @@ public class FullDocumentationDemo extends BaseDocumentationDemo {
             public boolean include(Relationship relationship) {
                 return relationship.isType(FOLLOWS);
             }
+
+            @Override
+            public String asString() {
+                return "followsOnly";
+            }
         };
 
         RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies()
@@ -196,6 +206,11 @@ public class FullDocumentationDemo extends BaseDocumentationDemo {
             @Override
             public boolean include(String key, Relationship propertyContainer) {
                 return !"timestamp".equals(key);
+            }
+
+            @Override
+            public String asString() {
+                return "noTimestamp";
             }
         };
 
@@ -240,6 +255,11 @@ public class FullDocumentationDemo extends BaseDocumentationDemo {
                 }
 
                 return result;
+            }
+
+            @Override
+            public String asString() {
+                return "allPlusOtherNodesGender";
             }
         };
 

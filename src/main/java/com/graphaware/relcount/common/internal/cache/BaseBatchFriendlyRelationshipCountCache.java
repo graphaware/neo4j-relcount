@@ -1,6 +1,6 @@
 package com.graphaware.relcount.common.internal.cache;
 
-import com.graphaware.propertycontainer.dto.common.relationship.SerializableTypeAndDirection;
+import com.graphaware.propertycontainer.dto.string.relationship.SerializableTypeAndDirection;
 import org.neo4j.graphdb.Node;
 
 import java.util.HashMap;

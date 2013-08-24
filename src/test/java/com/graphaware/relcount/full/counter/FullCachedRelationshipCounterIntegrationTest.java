@@ -487,6 +487,11 @@ public class FullCachedRelationshipCounterIntegrationTest {
                         }
                         return result;
                     }
+
+                    @Override
+                    public String asString() {
+                        return "custom";
+                    }
                 })));
 
         framework.start();
@@ -522,6 +527,11 @@ public class FullCachedRelationshipCounterIntegrationTest {
                         Map<String, String> result = new HashMap<>(properties);
                         result.remove("test");
                         return result;
+                    }
+
+                    @Override
+                    public String asString() {
+                        return "custom";
                     }
                 })));
 
@@ -559,6 +569,11 @@ public class FullCachedRelationshipCounterIntegrationTest {
                         result.put("otherNodeName", relationship.getOtherNode(pointOfView).getProperty("name", "default").toString());
                         return result;
                     }
+
+                    @Override
+                    public String asString() {
+                        return "custom";
+                    }
                 })
                 .with(IncludeAllNodes.getInstance())
                 .with(IncludeAllNodeProperties.getInstance())));
@@ -593,6 +608,11 @@ public class FullCachedRelationshipCounterIntegrationTest {
                     protected Map<String, String> extractProperties(Map<String, String> properties, Node otherNode) {
                         properties.put("otherNodeName", otherNode.getProperty("name", "default").toString());
                         return properties;
+                    }
+
+                    @Override
+                    public String asString() {
+                        return "custom";
                     }
                 })
                 .with(IncludeAllNodes.getInstance())

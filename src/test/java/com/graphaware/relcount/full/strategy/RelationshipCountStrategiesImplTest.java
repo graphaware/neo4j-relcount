@@ -16,7 +16,6 @@
 
 package com.graphaware.relcount.full.strategy;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -24,6 +23,7 @@ import org.neo4j.graphdb.Relationship;
 import java.util.Collections;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 
 /**
@@ -32,21 +32,21 @@ import static org.junit.Assert.assertNotSame;
 public class RelationshipCountStrategiesImplTest {
 
     @Test
-    public void sameStrategiesShouldHaveSameHashCode() {
-        Assert.assertEquals(RelationshipCountStrategiesImpl.defaultStrategies().with(2).hashCode(),
-                RelationshipCountStrategiesImpl.defaultStrategies().with(2).hashCode());
+    public void sameStrategiesShouldProduceSameString() {
+        assertEquals(RelationshipCountStrategiesImpl.defaultStrategies().with(2).asString(),
+                RelationshipCountStrategiesImpl.defaultStrategies().with(2).asString());
 
-        Assert.assertEquals(RelationshipCountStrategiesImpl.defaultStrategies().with(2).with(new CustomPropertyExtractionStrategy(2)).hashCode(),
-                RelationshipCountStrategiesImpl.defaultStrategies().with(new CustomPropertyExtractionStrategy(2)).with(2).hashCode());
+        assertEquals(RelationshipCountStrategiesImpl.defaultStrategies().with(2).with(new CustomPropertyExtractionStrategy(2)).asString(),
+                RelationshipCountStrategiesImpl.defaultStrategies().with(new CustomPropertyExtractionStrategy(2)).with(2).asString());
     }
 
     @Test
     public void differentStrategiesShouldHaveADifferentHashCode() {
-        assertNotSame(RelationshipCountStrategiesImpl.defaultStrategies().with(2).hashCode(),
-                RelationshipCountStrategiesImpl.defaultStrategies().with(3).hashCode());
+        assertNotSame(RelationshipCountStrategiesImpl.defaultStrategies().with(2).asString(),
+                RelationshipCountStrategiesImpl.defaultStrategies().with(3).asString());
 
-        assertNotSame(RelationshipCountStrategiesImpl.defaultStrategies().with(2).with(new CustomPropertyExtractionStrategy(3)).hashCode(),
-                RelationshipCountStrategiesImpl.defaultStrategies().with(new CustomPropertyExtractionStrategy(2)).with(2).hashCode());
+        assertNotSame(RelationshipCountStrategiesImpl.defaultStrategies().with(2).with(new CustomPropertyExtractionStrategy(3)).asString(),
+                RelationshipCountStrategiesImpl.defaultStrategies().with(new CustomPropertyExtractionStrategy(2)).with(2).asString());
     }
 
     private class CustomPropertyExtractionStrategy implements RelationshipPropertiesExtractionStrategy {
@@ -63,20 +63,8 @@ public class RelationshipCountStrategiesImplTest {
         }
 
         @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            CustomPropertyExtractionStrategy that = (CustomPropertyExtractionStrategy) o;
-
-            if (someConfig != that.someConfig) return false;
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            return someConfig;
+        public String asString() {
+            return "custom" + someConfig;
         }
     }
 }

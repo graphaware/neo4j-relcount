@@ -45,7 +45,7 @@ public final class ExtractAllRelationshipProperties extends RelationshipProperti
      * {@inheritDoc}
      */
     @Override
-    public int hashCode() {
-        return this.getClass().getCanonicalName().hashCode();
+    public String asString() {
+        return this.getClass().getCanonicalName();
     }
 }

@@ -1,5 +1,6 @@
 package com.graphaware.relcount.full.strategy;
 
+import com.graphaware.framework.config.ConfigurationAsString;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -8,7 +9,7 @@ import org.neo4j.graphdb.Relationship;
  * example, be a property on the {@link Relationship}, or it could be computed based on the {@link Node}s the
  * relationship connects.
  */
-public interface RelationshipWeighingStrategy {
+public interface RelationshipWeighingStrategy extends ConfigurationAsString {
 
     /**
      * Get a relationship's weight.

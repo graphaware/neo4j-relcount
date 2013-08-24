@@ -1,7 +1,7 @@
 package com.graphaware.relcount.simple.internal.node;
 
-import com.graphaware.propertycontainer.dto.common.relationship.SerializableTypeAndDirection;
-import com.graphaware.propertycontainer.dto.common.relationship.SerializableTypeAndDirectionImpl;
+import com.graphaware.propertycontainer.dto.string.relationship.SerializableTypeAndDirection;
+import com.graphaware.propertycontainer.dto.string.relationship.SerializableTypeAndDirectionImpl;
 import com.graphaware.relcount.common.internal.node.BaseRelationshipCountCachingNode;
 import com.graphaware.relcount.common.internal.node.RelationshipCountCachingNode;
 import org.neo4j.graphdb.Node;

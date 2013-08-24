@@ -192,6 +192,11 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
                                 public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
                                     return (int) relationship.getProperty(IntegrationTest.WEIGHT, 1);
                                 }
+
+                                @Override
+                                public String asString() {
+                                    return "custom";
+                                }
                             }));
 
             framework.registerModule(module);
@@ -300,6 +305,11 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
                             public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
                                 return (int) relationship.getProperty(IntegrationTest.WEIGHT, 1);
                             }
+
+                            @Override
+                            public String asString() {
+                                return "custom";
+                            }
                         })
                         .with(10));
 
@@ -326,6 +336,11 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
                             @Override
                             public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
                                 return (int) relationship.getProperty(IntegrationTest.WEIGHT, 1);
+                            }
+
+                            @Override
+                            public String asString() {
+                                return "custom";
                             }
                         }));
 
@@ -357,6 +372,11 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
                                 properties.put("otherNodeName", otherNode.getProperty(IntegrationTest.NAME, "UNKNOWN").toString());
                                 return properties;
                             }
+
+                            @Override
+                            public String asString() {
+                                return "custom";
+                            }
                         })
                         .with(IncludeAllNodes.getInstance())
                         .with(IncludeAllNodeProperties.getInstance()));
@@ -383,6 +403,11 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
                             public boolean include(Relationship relationship) {
                                 return !relationship.isType(RelationshipTypes.TWO);
                             }
+
+                            @Override
+                            public String asString() {
+                                return "custom";
+                            }
                         }));
 
         framework.registerModule(module);
@@ -407,6 +432,11 @@ public class FullRelationshipCountIntegrationTest extends IntegrationTest {
                             @Override
                             public boolean include(String key, Relationship propertyContainer) {
                                 return !IntegrationTest.WEIGHT.equals(key);
+                            }
+
+                            @Override
+                            public String asString() {
+                                return "custom";
                             }
                         }));
 

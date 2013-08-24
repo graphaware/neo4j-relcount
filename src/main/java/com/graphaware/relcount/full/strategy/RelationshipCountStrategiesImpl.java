@@ -118,30 +118,10 @@ public class RelationshipCountStrategiesImpl extends BaseInclusionStrategies<Rel
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        RelationshipCountStrategiesImpl that = (RelationshipCountStrategiesImpl) o;
-
-        if (compactionThreshold != that.compactionThreshold) return false;
-        if (!relationshipPropertiesExtractionStrategy.equals(that.relationshipPropertiesExtractionStrategy))
-            return false;
-        if (!relationshipWeighingStrategy.equals(that.relationshipWeighingStrategy)) return false;
-
-        return true;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + relationshipPropertiesExtractionStrategy.hashCode();
-        result = 31 * result + relationshipWeighingStrategy.hashCode();
-        result = 31 * result + compactionThreshold;
-        return result;
+    public String asString() {
+        return super.asString() + ";"
+                + relationshipPropertiesExtractionStrategy.asString() + ";"
+                + relationshipWeighingStrategy.asString() + ";"
+                + compactionThreshold;
     }
 }
