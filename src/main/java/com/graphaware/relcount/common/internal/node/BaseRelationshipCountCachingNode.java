@@ -132,14 +132,6 @@ public abstract class BaseRelationshipCountCachingNode<CACHED extends Serializab
     protected abstract boolean cachedMatch(CACHED cached, CACHED relationship);
 
     /**
-     * @see {@link RelationshipCountCachingNode#deleteCount(com.graphaware.propertycontainer.dto.common.relationship.HasTypeAndDirection)}
-     */
-    public final void deleteCount(CACHED relationship) {
-        delete(relationship);
-        flush();
-    }
-
-    /**
      * Update the value (count) of a cached relationship.
      *
      * @param cachedRelationship to update.

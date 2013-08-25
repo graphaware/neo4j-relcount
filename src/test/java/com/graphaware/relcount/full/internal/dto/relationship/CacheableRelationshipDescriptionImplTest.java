@@ -192,11 +192,11 @@ public class CacheableRelationshipDescriptionImplTest {
         return new CacheableRelationshipDescriptionImpl(s, null, "#");
     }
 
-    private RelationshipDescription literal(String s) {
-        return new LiteralRelationshipDescription(s, null, "#");
+    private RelationshipQueryDescription literal(String s) {
+        return new LiteralRelationshipQueryDescription(s, null, "#");
     }
 
-    private RelationshipDescription wildcard(String s) {
-        return new WildcardRelationshipDescription(s, null, "#");
+    private RelationshipQueryDescription wildcard(String s) {
+        return new WildcardRelationshipQueryDescription(s, null, "#");
     }
 }

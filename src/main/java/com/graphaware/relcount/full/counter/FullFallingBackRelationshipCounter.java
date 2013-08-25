@@ -20,8 +20,8 @@ import com.graphaware.framework.config.DefaultFrameworkConfiguration;
 import com.graphaware.framework.config.FrameworkConfiguration;
 import com.graphaware.propertycontainer.dto.string.property.CopyMakingSerializableProperties;
 import com.graphaware.relcount.common.counter.UnableToCountException;
-import com.graphaware.relcount.full.internal.dto.relationship.LiteralRelationshipDescription;
-import com.graphaware.relcount.full.internal.dto.relationship.WildcardRelationshipDescription;
+import com.graphaware.relcount.full.internal.dto.relationship.LiteralRelationshipQueryDescription;
+import com.graphaware.relcount.full.internal.dto.relationship.WildcardRelationshipQueryDescription;
 import com.graphaware.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.relcount.full.strategy.RelationshipCountStrategies;
 import com.graphaware.relcount.full.strategy.RelationshipCountStrategiesImpl;
@@ -97,7 +97,7 @@ public class FullFallingBackRelationshipCounter extends BaseFullRelationshipCoun
         try {
             return new FullCachedRelationshipCounter(getType(), getDirection(), getProperties(), id, config).count(node);
         } catch (UnableToCountException e) {
-            LOG.warn("Unable to count relationships with description: " + new WildcardRelationshipDescription(this).toString() +
+            LOG.warn("Unable to count relationships with description: " + new WildcardRelationshipQueryDescription(this).toString() +
                     " for node " + node.toString() + ". Falling back to naive approach");
             return new FullNaiveRelationshipCounter(getType(), getDirection(), getProperties(), strategies).count(node);
         }
@@ -111,7 +111,7 @@ public class FullFallingBackRelationshipCounter extends BaseFullRelationshipCoun
         try {
             return new FullCachedRelationshipCounter(getType(), getDirection(), getProperties(), id, config).countLiterally(node);
         } catch (UnableToCountException e) {
-            LOG.warn("Unable to count relationships with description: " + new LiteralRelationshipDescription(this).toString() +
+            LOG.warn("Unable to count relationships with description: " + new LiteralRelationshipQueryDescription(this).toString() +
                     " for node " + node.toString() + ". Falling back to naive approach");
             return new FullNaiveRelationshipCounter(getType(), getDirection(), getProperties(), strategies).countLiterally(node);
         }

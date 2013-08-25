@@ -19,8 +19,8 @@ package com.graphaware.relcount.full.counter;
 import com.graphaware.framework.config.DefaultFrameworkConfiguration;
 import com.graphaware.framework.config.FrameworkConfiguration;
 import com.graphaware.propertycontainer.dto.string.property.CopyMakingSerializableProperties;
-import com.graphaware.relcount.full.internal.dto.relationship.LiteralRelationshipDescription;
-import com.graphaware.relcount.full.internal.dto.relationship.WildcardRelationshipDescription;
+import com.graphaware.relcount.full.internal.dto.relationship.LiteralRelationshipQueryDescription;
+import com.graphaware.relcount.full.internal.dto.relationship.WildcardRelationshipQueryDescription;
 import com.graphaware.relcount.full.internal.node.FullCachedRelationshipCountingNode;
 import com.graphaware.relcount.full.module.FullRelationshipCountModule;
 import org.neo4j.graphdb.Direction;
@@ -120,7 +120,7 @@ public class FullCachedRelationshipCounter extends BaseFullRelationshipCounter i
      */
     @Override
     public int count(Node node) {
-        return new FullCachedRelationshipCountingNode(node, config.createPrefix(id), config.separator()).getRelationshipCount(new WildcardRelationshipDescription(this));
+        return new FullCachedRelationshipCountingNode(node, config.createPrefix(id), config.separator()).getRelationshipCount(new WildcardRelationshipQueryDescription(this));
     }
 
     /**
@@ -128,7 +128,7 @@ public class FullCachedRelationshipCounter extends BaseFullRelationshipCounter i
      */
     @Override
     public int countLiterally(Node node) {
-        return new FullCachedRelationshipCountingNode(node, config.createPrefix(id), config.separator()).getRelationshipCount(new LiteralRelationshipDescription(this));
+        return new FullCachedRelationshipCountingNode(node, config.createPrefix(id), config.separator()).getRelationshipCount(new LiteralRelationshipQueryDescription(this));
     }
 
     /**

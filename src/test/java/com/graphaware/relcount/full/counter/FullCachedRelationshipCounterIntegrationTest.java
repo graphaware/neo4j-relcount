@@ -20,7 +20,7 @@ import com.graphaware.framework.GraphAwareFramework;
 import com.graphaware.framework.config.BaseFrameworkConfiguration;
 import com.graphaware.relcount.common.counter.UnableToCountException;
 import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescriptionImpl;
-import com.graphaware.relcount.full.internal.dto.relationship.LiteralRelationshipDescription;
+import com.graphaware.relcount.full.internal.dto.relationship.LiteralRelationshipQueryDescription;
 import com.graphaware.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.relcount.full.strategy.RelationshipCountStrategiesImpl;
 import com.graphaware.relcount.full.strategy.RelationshipPropertiesExtractionStrategy;
@@ -248,7 +248,7 @@ public class FullCachedRelationshipCounterIntegrationTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                database.getNodeById(2).removeProperty(new LiteralRelationshipDescription(withName("test2"), OUTGOING, Collections.singletonMap("key1", "value3")).toString());
+                database.getNodeById(2).removeProperty(new LiteralRelationshipQueryDescription(withName("test2"), OUTGOING, Collections.singletonMap("key1", "value3")).toString());
                 return null;
             }
         });

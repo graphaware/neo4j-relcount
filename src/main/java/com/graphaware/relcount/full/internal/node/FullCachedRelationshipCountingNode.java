@@ -22,7 +22,7 @@ import com.graphaware.relcount.common.internal.node.CachedRelationshipCountingNo
 import com.graphaware.relcount.common.internal.node.RelationshipCountingNode;
 import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescription;
 import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescriptionImpl;
-import com.graphaware.relcount.full.internal.dto.relationship.RelationshipDescription;
+import com.graphaware.relcount.full.internal.dto.relationship.RelationshipQueryDescription;
 import org.neo4j.graphdb.Node;
 
 /**
@@ -30,7 +30,7 @@ import org.neo4j.graphdb.Node;
  * cached as {@link org.neo4j.graphdb.Node}'s properties.  It is "full" in the sense that it cares about
  * {@link org.neo4j.graphdb.RelationshipType}s, {@link org.neo4j.graphdb.Direction}s, and properties.
  */
-public class FullCachedRelationshipCountingNode extends CachedRelationshipCountingNode<CacheableRelationshipDescription, RelationshipDescription> implements RelationshipCountingNode<RelationshipDescription> {
+public class FullCachedRelationshipCountingNode extends CachedRelationshipCountingNode<CacheableRelationshipDescription, RelationshipQueryDescription> implements RelationshipCountingNode<RelationshipQueryDescription> {
 
     /**
      * Construct a new counting node.
@@ -47,7 +47,7 @@ public class FullCachedRelationshipCountingNode extends CachedRelationshipCounti
      * {@inheritDoc}
      */
     @Override
-    protected boolean candidateMatchesDescription(CacheableRelationshipDescription candidate, RelationshipDescription description) {
+    protected boolean candidateMatchesDescription(CacheableRelationshipDescription candidate, RelationshipQueryDescription description) {
         boolean matches = candidate.isMoreSpecificThan(description);
 
         if (!matches && !candidate.isMutuallyExclusive(description)) {

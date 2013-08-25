@@ -58,7 +58,7 @@ public class FullRelationshipCountCachingNodeTest {
         database.shutdown();
     }
 
-    private RelationshipCountingNode<RelationshipDescription> countingNode() {
+    private RelationshipCountingNode<RelationshipQueryDescription> countingNode() {
         return new FullCachedRelationshipCountingNode(database.getNodeById(0), DefaultFrameworkConfiguration.getInstance().createPrefix(FullRelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID), DefaultFrameworkConfiguration.getInstance().separator());
     }
 
@@ -335,7 +335,7 @@ public class FullRelationshipCountCachingNodeTest {
         txExecutor.executeInTransaction(new VoidReturningCallback() {
             @Override
             public void doInTx(GraphDatabaseService database) {
-                cachingNode().deleteCount(compactible("test#OUTGOING"));
+                cachingNode().decrementCount(compactible("test#OUTGOING"), cachingNode().getCachedCounts().get(compactible("test#OUTGOING")));
             }
         });
 
@@ -349,7 +349,7 @@ public class FullRelationshipCountCachingNodeTest {
         txExecutor.executeInTransaction(new VoidReturningCallback() {
             @Override
             public void doInTx(GraphDatabaseService database) {
-                cachingNode().deleteCount(compactible("test#OUTGOING#key1#value2"));
+                cachingNode().decrementCount(compactible("test#OUTGOING#key1#value2"), cachingNode().getCachedCounts().get(compactible("test#OUTGOING#key1#value2")));
             }
         });
 
@@ -399,12 +399,12 @@ public class FullRelationshipCountCachingNodeTest {
         return new CacheableRelationshipDescriptionImpl(prefix() + s, prefix(), hash());
     }
 
-    private RelationshipDescription wildcard(String s) {
-        return new WildcardRelationshipDescription(s, null, hash());
+    private RelationshipQueryDescription wildcard(String s) {
+        return new WildcardRelationshipQueryDescription(s, null, hash());
     }
 
-    private RelationshipDescription literal(String s) {
-        return new LiteralRelationshipDescription(s, null, hash());
+    private RelationshipQueryDescription literal(String s) {
+        return new LiteralRelationshipQueryDescription(s, null, hash());
     }
 
 }

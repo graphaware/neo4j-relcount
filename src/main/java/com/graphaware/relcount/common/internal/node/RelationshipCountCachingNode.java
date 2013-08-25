@@ -44,11 +44,4 @@ public interface RelationshipCountCachingNode<CACHED extends HasTypeAndDirection
      *          if a count reaches below 0.
      */
     void decrementCount(CACHED relationship, int delta);
-
-    /**
-     * Delete a cached count on the node.
-     *
-     * @param relationship representation of the relationship to delete.
-     */
-    void deleteCount(CACHED relationship);
 }

@@ -62,7 +62,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
         return new FullRelationshipCountCachingNode(database.getNodeById(0), DefaultFrameworkConfiguration.getInstance().createPrefix(FullRelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID), DefaultFrameworkConfiguration.getInstance().separator(), compactor);
     }
 
-    private RelationshipCountingNode<RelationshipDescription> countingNode() {
+    private RelationshipCountingNode<RelationshipQueryDescription> countingNode() {
         return new FullCachedRelationshipCountingNode(database.getNodeById(0), DefaultFrameworkConfiguration.getInstance().createPrefix(FullRelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID), DefaultFrameworkConfiguration.getInstance().separator());
     }
 
@@ -333,12 +333,12 @@ public class ThresholdBasedRelationshipCountCompactorTest {
     /**
      * just for readability
      */
-    private RelationshipDescription wildcard(String s) {
-        return new WildcardRelationshipDescription(s, null, hash());
+    private RelationshipQueryDescription wildcard(String s) {
+        return new WildcardRelationshipQueryDescription(s, null, hash());
     }
 
-    private RelationshipDescription literal(String s) {
-        return new LiteralRelationshipDescription(s, null, hash());
+    private RelationshipQueryDescription literal(String s) {
+        return new LiteralRelationshipQueryDescription(s, null, hash());
     }
 
     private String prefix() {

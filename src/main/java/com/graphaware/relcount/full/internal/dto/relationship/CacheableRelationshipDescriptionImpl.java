@@ -96,8 +96,8 @@ public class CacheableRelationshipDescriptionImpl extends BaseCopyMakingSerializ
      * {@inheritDoc}
      */
     @Override
-    public Set<CacheableRelationshipDescription> generateAllMoreGeneral(Collection<String> unknownKeys) {
-        return withDifferentProperties(getProperties().generateAllMoreGeneral(unknownKeys));
+    public Set<CacheableRelationshipDescription> generateAllMoreGeneral(Collection<String> additionalKeys) {
+        return withDifferentProperties(getProperties().generateAllMoreGeneral(additionalKeys));
     }
 
     private Set<CacheableRelationshipDescription> withDifferentProperties(Set<CacheablePropertiesDescription> propertySets) {

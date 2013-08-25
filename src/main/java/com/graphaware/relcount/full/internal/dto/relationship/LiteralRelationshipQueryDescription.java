@@ -18,16 +18,29 @@ package com.graphaware.relcount.full.internal.dto.relationship;
 
 import com.graphaware.propertycontainer.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.propertycontainer.dto.string.relationship.BaseSerializableDirectedRelationship;
+import com.graphaware.relcount.full.internal.dto.property.LiteralPropertiesQueryDescription;
 import com.graphaware.relcount.full.internal.dto.property.PropertiesQueryDescription;
-import com.graphaware.relcount.full.internal.dto.property.WildcardPropertiesQueryDescription;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.RelationshipType;
 
 import java.util.Map;
 
 /**
- * A {@link RelationshipDescription} in which a missing property is treated as a wildcard ("any") as opposed
- * to "undefined".
+ * A {@link RelationshipQueryDescription} in which a missing property is treated as a concrete value (undefined) as opposed
+ * to "any".
  */
-public class WildcardRelationshipDescription extends BaseSerializableDirectedRelationship<PropertiesQueryDescription> implements RelationshipDescription {
+public class LiteralRelationshipQueryDescription extends BaseSerializableDirectedRelationship<PropertiesQueryDescription> implements RelationshipQueryDescription {
+
+    /**
+     * Construct a description.
+     *
+     * @param type       type.
+     * @param direction  direction.
+     * @param properties props.
+     */
+    public LiteralRelationshipQueryDescription(RelationshipType type, Direction direction, Map<String, ?> properties) {
+        super(type, direction, properties);
+    }
 
     /**
      * Construct a description from a string.
@@ -37,7 +50,7 @@ public class WildcardRelationshipDescription extends BaseSerializableDirectedRel
      * @param prefix    of the string that should be removed before conversion.
      * @param separator of information, ideally a single character, must not be null or empty.
      */
-    public WildcardRelationshipDescription(String string, String prefix, String separator) {
+    public LiteralRelationshipQueryDescription(String string, String prefix, String separator) {
         super(string, prefix, separator);
     }
 
@@ -46,7 +59,7 @@ public class WildcardRelationshipDescription extends BaseSerializableDirectedRel
      *
      * @param relationship relationships representation.
      */
-    public WildcardRelationshipDescription(HasTypeDirectionAndProperties<String, ?> relationship) {
+    public LiteralRelationshipQueryDescription(HasTypeDirectionAndProperties<String, ?> relationship) {
         super(relationship);
     }
 
@@ -55,6 +68,6 @@ public class WildcardRelationshipDescription extends BaseSerializableDirectedRel
      */
     @Override
     protected PropertiesQueryDescription newProperties(Map<String, ?> properties) {
-        return new WildcardPropertiesQueryDescription(properties);
+        return new LiteralPropertiesQueryDescription(properties);
     }
 }

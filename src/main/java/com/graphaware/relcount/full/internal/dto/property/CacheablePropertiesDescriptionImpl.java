@@ -140,14 +140,20 @@ public class CacheablePropertiesDescriptionImpl extends BaseCopyMakingSerializab
      * {@inheritDoc}
      */
     @Override
-    public Set<CacheablePropertiesDescription> generateAllMoreGeneral(Collection<String> allKeys) {
-        Set<CacheablePropertiesDescription> result = generateAllMoreGeneral(this, allKeys);
+    public Set<CacheablePropertiesDescription> generateAllMoreGeneral(
+            Collection<String> additionalKeys) {
+
+        Set<CacheablePropertiesDescription> result = generateAllMoreGeneral(this, additionalKeys);
         result.remove(this);
         return result;
     }
 
-    protected Set<CacheablePropertiesDescription> generateAllMoreGeneral(CacheablePropertiesDescription properties, Collection<String> allKeys) {
-        Set<String> nonWildcardKeys = nonWildcardKeys(properties, allKeys);
+    private Set<CacheablePropertiesDescription> generateAllMoreGeneral(
+            CacheablePropertiesDescription properties,
+            Collection<String> additionalKeys) {
+
+        Set<String> nonWildcardKeys
+                = nonWildcardKeys(properties, additionalKeys);
 
         Set<CacheablePropertiesDescription> result = new HashSet<>();
         result.add(properties);
@@ -159,23 +165,28 @@ public class CacheablePropertiesDescriptionImpl extends BaseCopyMakingSerializab
 
         //recursion
         for (String key : nonWildcardKeys) {
-            result.addAll(generateAllMoreGeneral(properties.with(key, ANY_VALUE), allKeys));
+            result.addAll(generateAllMoreGeneral(
+                    properties.with(key, ANY_VALUE),
+                    additionalKeys));
         }
 
         return result;
     }
 
-    private Set<String> nonWildcardKeys(CacheablePropertiesDescription cacheablePropertiesDescription, Collection<String> allKeys) {
+    private Set<String> nonWildcardKeys(
+            CacheablePropertiesDescription properties,
+            Collection<String> additionalKeys) {
+
         Set<String> result = new HashSet<>();
 
-        for (String key : cacheablePropertiesDescription.keySet()) {
-            if (!ANY_VALUE.equals(cacheablePropertiesDescription.get(key))) {
+        for (String key : properties.keySet()) {
+            if (!ANY_VALUE.equals(properties.get(key))) {
                 result.add(key);
             }
         }
 
-        for (String key : allKeys) {
-            if (!cacheablePropertiesDescription.containsKey(key)) {
+        for (String key : additionalKeys) {
+            if (!properties.containsKey(key)) {
                 result.add(key);
             }
         }

@@ -22,5 +22,5 @@ import com.graphaware.relcount.full.internal.dto.property.PropertiesQueryDescrip
 /**
  * Description of a relationship to be used for relationship counting.
  */
-public interface RelationshipDescription extends SerializableDirectedRelationship<PropertiesQueryDescription> {
+public interface RelationshipQueryDescription extends SerializableDirectedRelationship<PropertiesQueryDescription> {
 }
