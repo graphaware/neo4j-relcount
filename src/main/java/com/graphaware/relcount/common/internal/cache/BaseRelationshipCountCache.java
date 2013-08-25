@@ -61,6 +61,11 @@ public abstract class BaseRelationshipCountCache<CACHED extends SerializableType
         nodeCache.set(null);
     }
 
+    /**
+     * Get node cache from subclass.
+     *
+     * @return node cache.
+     */
     protected abstract ThreadLocal<Map<Long, RelationshipCountCachingNode<CACHED>>> getNodeCache();
 
     /**
@@ -113,6 +118,12 @@ public abstract class BaseRelationshipCountCache<CACHED extends SerializableType
         return 1;
     }
 
+    /**
+     * Get an instance of caching node from cache, or create a new one and put it in cache.
+     *
+     * @param node for which a caching node should be obtained.
+     * @return caching node.
+     */
     private RelationshipCountCachingNode<CACHED> cachingNode(Node node) {
         Map<Long, RelationshipCountCachingNode<CACHED>> nodeCache = getNodeCache().get();
 
@@ -136,10 +147,10 @@ public abstract class BaseRelationshipCountCache<CACHED extends SerializableType
     protected abstract RelationshipCountCachingNode<CACHED> newCachingNode(Node node);
 
     /**
-     * Unwrap a potentially filtered Neo4j node.
+     * Unwrap a potentially decorated Neo4j node.
      *
      * @param node to unwrap.
-     * @return node with no filtering decorators around it.
+     * @return node with no decorators around it.
      */
     private Node unwrap(Node node) {
         if (node instanceof NodeWrapper) {

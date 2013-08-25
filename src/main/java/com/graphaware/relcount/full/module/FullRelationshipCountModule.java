@@ -1,6 +1,5 @@
 package com.graphaware.relcount.full.module;
 
-import com.graphaware.framework.GraphAwareModule;
 import com.graphaware.relcount.common.internal.cache.RelationshipCountCache;
 import com.graphaware.relcount.common.module.RelationshipCountModule;
 import com.graphaware.relcount.full.counter.FullCachedRelationshipCounter;
@@ -23,7 +22,7 @@ import org.neo4j.graphdb.RelationshipType;
  * counts will be cached on nodes properties. {@link FullCachedRelationshipCounter} or {@link FullFallingBackRelationshipCounter} can then be used to
  * count relationships by querying these cached counts.
  */
-public class FullRelationshipCountModule extends RelationshipCountModule implements GraphAwareModule {
+public class FullRelationshipCountModule extends RelationshipCountModule {
 
     /**
      * Default ID of this module used to identify metadata written by this module.
