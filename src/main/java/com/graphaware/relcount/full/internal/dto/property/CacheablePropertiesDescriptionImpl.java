@@ -220,6 +220,9 @@ public class CacheablePropertiesDescriptionImpl extends BaseCopyMakingSerializab
         return new CacheablePropertiesDescriptionImpl(props);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString(String separator) {
         if (string == null) {
