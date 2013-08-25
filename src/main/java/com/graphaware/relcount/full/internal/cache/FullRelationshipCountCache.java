@@ -80,4 +80,12 @@ public class FullRelationshipCountCache extends BaseRelationshipCountCache<Cache
     protected RelationshipCountCachingNode<CacheableRelationshipDescription> newCachingNode(Node node) {
         return new FullRelationshipCountCachingNode(node, getConfig().createPrefix(id), getConfig().separator(), relationshipCountCompactor);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected ThreadLocal<Map<Long, RelationshipCountCachingNode<CacheableRelationshipDescription>>> getNodeCache() {
+        return nodeCache;
+    }
 }

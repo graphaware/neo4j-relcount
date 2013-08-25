@@ -62,4 +62,12 @@ public class SimpleRelationshipCountCache extends BaseRelationshipCountCache<Ser
     protected RelationshipCountCachingNode<SerializableTypeAndDirection> newCachingNode(Node node) {
         return new SimpleRelationshipCountCachingNode(node, getConfig().createPrefix(id), getConfig().separator());
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected ThreadLocal<Map<Long, RelationshipCountCachingNode<SerializableTypeAndDirection>>> getNodeCache() {
+        return nodeCache;
+    }
 }
