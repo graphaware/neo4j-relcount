@@ -39,6 +39,8 @@ import java.util.Map;
  */
 public class FullRelationshipCountCache extends BaseRelationshipCountCache<CacheableRelationshipDescription> implements RelationshipCountCache, FrameworkConfigured {
 
+    private static final ThreadLocal<Map<Long, RelationshipCountCachingNode<CacheableRelationshipDescription>>> nodeCache = new ThreadLocal<>();
+
     private final RelationshipCountStrategies relationshipCountStrategies;
     private final RelationshipCountCompactor relationshipCountCompactor;
 

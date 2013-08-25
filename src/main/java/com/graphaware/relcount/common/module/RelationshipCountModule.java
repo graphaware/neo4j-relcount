@@ -95,11 +95,13 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
     public void beforeCommit(ImprovedTransactionData transactionData) {
         getRelationshipCountCache().startCaching();
 
-        handleCreatedRelationships(transactionData);
-        handleDeletedRelationships(transactionData);
-        handleChangedRelationships(transactionData);
-
-        getRelationshipCountCache().endCaching();
+        try {
+            handleCreatedRelationships(transactionData);
+            handleDeletedRelationships(transactionData);
+            handleChangedRelationships(transactionData);
+        } finally {
+            getRelationshipCountCache().endCaching();
+        }
     }
 
     /**

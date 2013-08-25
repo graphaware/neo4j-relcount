@@ -22,8 +22,6 @@ import java.util.Map;
 public abstract class BaseRelationshipCountCache<CACHED extends SerializableTypeAndDirection> extends BaseFrameworkConfigured {
     private static final Logger LOG = Logger.getLogger(BaseRelationshipCountCache.class);
 
-    private final ThreadLocal<Map<Long, RelationshipCountCachingNode<CACHED>>> nodeCache = new ThreadLocal<>();
-
     protected final String id;
 
     /**
@@ -39,17 +37,19 @@ public abstract class BaseRelationshipCountCache<CACHED extends SerializableType
      * @see {@link RelationshipCountCache#startCaching()}
      */
     public void startCaching() {
-        if (nodeCache.get() != null) {
+        if (getNodeCache().get() != null) {
             throw new IllegalStateException("Previous caching hasn't been ended!");
         }
 
-        nodeCache.set(new HashMap<Long, RelationshipCountCachingNode<CACHED>>());
+        getNodeCache().set(new HashMap<Long, RelationshipCountCachingNode<CACHED>>());
     }
 
     /**
      * @see {@link RelationshipCountCache#endCaching()}
      */
     public void endCaching() {
+        ThreadLocal<Map<Long, RelationshipCountCachingNode<CACHED>>> nodeCache = getNodeCache();
+
         if (nodeCache.get() == null) {
             throw new IllegalStateException("No caching has been started!");
         }
@@ -60,6 +60,8 @@ public abstract class BaseRelationshipCountCache<CACHED extends SerializableType
 
         nodeCache.set(null);
     }
+
+    protected abstract ThreadLocal<Map<Long, RelationshipCountCachingNode<CACHED>>> getNodeCache();
 
     /**
      * @see {@link RelationshipCountCache#handleCreatedRelationship(org.neo4j.graphdb.Relationship, org.neo4j.graphdb.Node, org.neo4j.graphdb.Direction)}
@@ -112,16 +114,17 @@ public abstract class BaseRelationshipCountCache<CACHED extends SerializableType
     }
 
     private RelationshipCountCachingNode<CACHED> cachingNode(Node node) {
-        Map<Long, RelationshipCountCachingNode<CACHED>> fakeNodes = nodeCache.get();
-        if (fakeNodes == null) {
+        Map<Long, RelationshipCountCachingNode<CACHED>> nodeCache = getNodeCache().get();
+
+        if (nodeCache == null) {
             throw new IllegalStateException("No caching has been started!");
         }
 
-        if (!fakeNodes.containsKey(node.getId())) {
-            fakeNodes.put(node.getId(), newCachingNode(node));
+        if (!nodeCache.containsKey(node.getId())) {
+            nodeCache.put(node.getId(), newCachingNode(node));
         }
 
-        return fakeNodes.get(node.getId());
+        return nodeCache.get(node.getId());
     }
 
     /**

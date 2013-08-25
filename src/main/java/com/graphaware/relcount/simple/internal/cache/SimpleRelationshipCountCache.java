@@ -27,12 +27,16 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.util.Map;
+
 /**
  * A simple implementation of {@link com.graphaware.relcount.common.internal.cache.RelationshipCountCache}. It is simple in
  * the sense that it only cares about {@link org.neo4j.graphdb.RelationshipType}s and {@link org.neo4j.graphdb.Direction}s;
  * it completely ignores {@link org.neo4j.graphdb.Relationship} properties.
  */
 public class SimpleRelationshipCountCache extends BaseRelationshipCountCache<SerializableTypeAndDirection> implements RelationshipCountCache {
+
+    private static final ThreadLocal<Map<Long, RelationshipCountCachingNode<SerializableTypeAndDirection>>> nodeCache = new ThreadLocal<>();
 
     /**
      * Construct a new cache.
