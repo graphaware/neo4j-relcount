@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.relcount.full.internal.cache;
+package com.graphaware.relcount.full.internal.node;
 
 import com.graphaware.propertycontainer.dto.common.relationship.HasType;
 import com.graphaware.propertycontainer.dto.common.relationship.HasTypeAndDirection;

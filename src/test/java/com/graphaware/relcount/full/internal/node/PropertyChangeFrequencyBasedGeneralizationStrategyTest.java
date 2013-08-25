@@ -1,4 +1,4 @@
-package com.graphaware.relcount.full.internal.cache;
+package com.graphaware.relcount.full.internal.node;
 
 import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescription;
 import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescriptionImpl;
@@ -12,7 +12,7 @@ import static com.graphaware.relcount.full.internal.dto.property.CacheableProper
 import static org.junit.Assert.assertEquals;
 
 /**
- * Unit test for {@link PropertyChangeFrequencyBasedGeneralizationStrategy}.
+ * Unit test for {@link com.graphaware.relcount.full.internal.node.PropertyChangeFrequencyBasedGeneralizationStrategy}.
  */
 public class PropertyChangeFrequencyBasedGeneralizationStrategyTest {
 

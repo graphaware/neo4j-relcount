@@ -14,7 +14,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.relcount.full.internal.cache;
+package com.graphaware.relcount.full.internal.node;
 
 import com.graphaware.framework.config.DefaultFrameworkConfiguration;
 import com.graphaware.relcount.common.counter.UnableToCountException;
@@ -22,8 +22,6 @@ import com.graphaware.relcount.common.internal.node.RelationshipCountCachingNode
 import com.graphaware.relcount.common.internal.node.RelationshipCountingNode;
 import com.graphaware.relcount.full.internal.dto.property.CacheablePropertiesDescriptionImpl;
 import com.graphaware.relcount.full.internal.dto.relationship.*;
-import com.graphaware.relcount.full.internal.node.FullCachedRelationshipCountingNode;
-import com.graphaware.relcount.full.internal.node.FullRelationshipCountCachingNode;
 import com.graphaware.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
 import com.graphaware.tx.executor.single.TransactionExecutor;
@@ -40,7 +38,7 @@ import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 /**
- * Unit test for {@link com.graphaware.relcount.full.internal.cache.ThresholdBasedRelationshipCountCompactor}.
+ * Unit test for {@link com.graphaware.relcount.full.internal.node.ThresholdBasedRelationshipCountCompactor}.
  */
 public class ThresholdBasedRelationshipCountCompactorTest {
 

@@ -2,7 +2,6 @@ package com.graphaware.relcount.full.internal.node;
 
 import com.graphaware.relcount.common.internal.node.BaseRelationshipCountCachingNode;
 import com.graphaware.relcount.common.internal.node.RelationshipCountCachingNode;
-import com.graphaware.relcount.full.internal.cache.RelationshipCountCompactor;
 import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescription;
 import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescriptionImpl;
 import org.neo4j.graphdb.Node;

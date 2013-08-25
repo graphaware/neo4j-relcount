@@ -1,4 +1,4 @@
-package com.graphaware.relcount.full.internal.cache;
+package com.graphaware.relcount.full.internal.node;
 
 import com.graphaware.relcount.common.internal.node.RelationshipCountCachingNode;
 import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescription;

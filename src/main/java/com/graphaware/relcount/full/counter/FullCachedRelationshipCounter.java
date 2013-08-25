@@ -40,7 +40,7 @@ import org.neo4j.graphdb.RelationshipType;
  * relationship count this specific. If you still want to count the relationship, either use {@link FullNaiveRelationshipCounter}
  * or consider increasing the compaction threshold.
  *
- * @see com.graphaware.relcount.full.internal.cache.RelationshipCountCompactor
+ * @see com.graphaware.relcount.full.internal.node.RelationshipCountCompactor
  */
 public class FullCachedRelationshipCounter extends BaseFullRelationshipCounter implements FullRelationshipCounter {
 

@@ -21,7 +21,6 @@ import com.graphaware.framework.config.DefaultFrameworkConfiguration;
 import com.graphaware.relcount.common.counter.UnableToCountException;
 import com.graphaware.relcount.common.internal.node.RelationshipCountCachingNode;
 import com.graphaware.relcount.common.internal.node.RelationshipCountingNode;
-import com.graphaware.relcount.full.internal.cache.ThresholdBasedRelationshipCountCompactor;
 import com.graphaware.relcount.full.internal.dto.property.CacheablePropertiesDescriptionImpl;
 import com.graphaware.relcount.full.internal.dto.relationship.*;
 import com.graphaware.relcount.full.module.FullRelationshipCountModule;
