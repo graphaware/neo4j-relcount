@@ -17,12 +17,12 @@
 package com.graphaware.relcount.full.internal.dto.property;
 
 import com.graphaware.propertycontainer.dto.common.property.ImmutableProperties;
-import junit.framework.Assert;
 import org.junit.Test;
 
 import java.util.*;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
+
 
 /**
  * Unit test for {@link CacheablePropertiesDescriptionImpl}.
@@ -158,14 +158,13 @@ public class CacheablePropertiesDescriptionImplTest {
         Set<CacheablePropertiesDescription> result = compactible("key1#value1#key2#value2#key3#value3").generateAllMoreGeneral(Collections.<String>emptySet());
 
         assertEquals(7, result.size());
-        Iterator<CacheablePropertiesDescription> iterator = result.iterator();
-        Assert.assertEquals(iterator.next(), compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#value2#key3#value3"));
-        Assert.assertEquals(iterator.next(), compactible("key1#value1#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key3#value3"));
-        Assert.assertEquals(iterator.next(), compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key3#value3"));
-        Assert.assertEquals(iterator.next(), compactible("key1#value1#key2#value2#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE));
-        Assert.assertEquals(iterator.next(), compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#value2#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE));
-        Assert.assertEquals(iterator.next(), compactible("key1#value1#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE));
-        Assert.assertEquals(iterator.next(), compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE));
+        assertTrue(result.contains(compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#value2#key3#value3")));
+        assertTrue(result.contains(compactible("key1#value1#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key3#value3")));
+        assertTrue(result.contains(compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key3#value3")));
+        assertTrue(result.contains(compactible("key1#value1#key2#value2#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
+        assertTrue(result.contains(compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#value2#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
+        assertTrue(result.contains(compactible("key1#value1#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
+        assertTrue(result.contains(compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
     }
 
     @Test
@@ -173,14 +172,13 @@ public class CacheablePropertiesDescriptionImplTest {
         Set<CacheablePropertiesDescription> result = compactible("key1#value1#key2#value2").generateAllMoreGeneral(Collections.singleton("key3"));
 
         assertEquals(7, result.size());
-        Iterator<CacheablePropertiesDescription> iterator = result.iterator();
-        Assert.assertEquals(iterator.next(), compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#value2"));
-        Assert.assertEquals(iterator.next(), compactible("key1#value1#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE));
-        Assert.assertEquals(iterator.next(), compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE));
-        Assert.assertEquals(iterator.next(), compactible("key1#value1#key2#value2#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE));
-        Assert.assertEquals(iterator.next(), compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#value2#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE));
-        Assert.assertEquals(iterator.next(), compactible("key1#value1#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE));
-        Assert.assertEquals(iterator.next(), compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE));
+        assertTrue(result.contains(compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#value2")));
+        assertTrue(result.contains(compactible("key1#value1#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
+        assertTrue(result.contains(compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
+        assertTrue(result.contains(compactible("key1#value1#key2#value2#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
+        assertTrue(result.contains(compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#value2#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
+        assertTrue(result.contains(compactible("key1#value1#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
+        assertTrue(result.contains(compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
     }
 
     @Test
@@ -188,14 +186,13 @@ public class CacheablePropertiesDescriptionImplTest {
         Set<CacheablePropertiesDescription> result = compactible("key1#value1#key2#value2").generateAllMoreGeneral(new HashSet<>(Arrays.asList("key1", "key2", "key3")));
 
         assertEquals(7, result.size());
-        Iterator<CacheablePropertiesDescription> iterator = result.iterator();
-        Assert.assertEquals(iterator.next(), compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#value2"));
-        Assert.assertEquals(iterator.next(), compactible("key1#value1#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE));
-        Assert.assertEquals(iterator.next(), compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE));
-        Assert.assertEquals(iterator.next(), compactible("key1#value1#key2#value2#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE));
-        Assert.assertEquals(iterator.next(), compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#value2#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE));
-        Assert.assertEquals(iterator.next(), compactible("key1#value1#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE));
-        Assert.assertEquals(iterator.next(), compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE));
+        assertTrue(result.contains(compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#value2")));
+        assertTrue(result.contains(compactible("key1#value1#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
+        assertTrue(result.contains(compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
+        assertTrue(result.contains(compactible("key1#value1#key2#value2#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
+        assertTrue(result.contains(compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#value2#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
+        assertTrue(result.contains(compactible("key1#value1#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
+        assertTrue(result.contains(compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key3#" + CacheablePropertiesDescriptionImpl.ANY_VALUE)));
     }
 
     @Test
@@ -226,10 +223,10 @@ public class CacheablePropertiesDescriptionImplTest {
         properties.add(compactible(""));
 
         Iterator<CacheablePropertiesDescription> iterator = properties.iterator();
-        Assert.assertEquals(compactible(""), iterator.next());
-        Assert.assertEquals(compactible("key1#value1#key2#value2"), iterator.next());
-        Assert.assertEquals(compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#value2"), iterator.next());
-        Assert.assertEquals(compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE), iterator.next());
+        assertEquals(compactible(""), iterator.next());
+        assertEquals(compactible("key1#value1#key2#value2"), iterator.next());
+        assertEquals(compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#value2"), iterator.next());
+        assertEquals(compactible("key1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#key2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE), iterator.next());
         assertFalse(iterator.hasNext());
     }
 

@@ -19,7 +19,10 @@ package com.graphaware.relcount.full.internal.dto.property;
 import com.graphaware.propertycontainer.dto.common.property.ImmutableProperties;
 import com.graphaware.propertycontainer.dto.string.property.BaseCopyMakingSerializableProperties;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static com.graphaware.framework.config.FrameworkConfiguration.GA_PREFIX;
 
@@ -137,16 +140,16 @@ public class CacheablePropertiesDescriptionImpl extends BaseCopyMakingSerializab
      * {@inheritDoc}
      */
     @Override
-    public Set<CacheablePropertiesDescription> generateAllMoreGeneral(Collection<String> unknownKeys) {
-        Set<CacheablePropertiesDescription> result = generateAllMoreGeneral(this, unknownKeys);
+    public Set<CacheablePropertiesDescription> generateAllMoreGeneral(Collection<String> allKeys) {
+        Set<CacheablePropertiesDescription> result = generateAllMoreGeneral(this, allKeys);
         result.remove(this);
         return result;
     }
 
-    protected Set<CacheablePropertiesDescription> generateAllMoreGeneral(CacheablePropertiesDescription properties, Collection<String> unknownKeys) {
-        Set<String> nonWildcardKeys = nonWildcardKeys(properties, unknownKeys);
+    protected Set<CacheablePropertiesDescription> generateAllMoreGeneral(CacheablePropertiesDescription properties, Collection<String> allKeys) {
+        Set<String> nonWildcardKeys = nonWildcardKeys(properties, allKeys);
 
-        Set<CacheablePropertiesDescription> result = new TreeSet<>();
+        Set<CacheablePropertiesDescription> result = new HashSet<>();
         result.add(properties);
 
         //base case
@@ -156,13 +159,13 @@ public class CacheablePropertiesDescriptionImpl extends BaseCopyMakingSerializab
 
         //recursion
         for (String key : nonWildcardKeys) {
-            result.addAll(generateAllMoreGeneral(properties.with(key, ANY_VALUE), unknownKeys));
+            result.addAll(generateAllMoreGeneral(properties.with(key, ANY_VALUE), allKeys));
         }
 
         return result;
     }
 
-    private Set<String> nonWildcardKeys(CacheablePropertiesDescription cacheablePropertiesDescription, Collection<String> unknownKeys) {
+    private Set<String> nonWildcardKeys(CacheablePropertiesDescription cacheablePropertiesDescription, Collection<String> allKeys) {
         Set<String> result = new HashSet<>();
 
         for (String key : cacheablePropertiesDescription.keySet()) {
@@ -171,7 +174,7 @@ public class CacheablePropertiesDescriptionImpl extends BaseCopyMakingSerializab
             }
         }
 
-        for (String key : unknownKeys) {
+        for (String key : allKeys) {
             if (!cacheablePropertiesDescription.containsKey(key)) {
                 result.add(key);
             }
