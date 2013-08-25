@@ -21,16 +21,16 @@ import com.graphaware.propertycontainer.dto.string.property.SerializableProperti
 import java.util.Map;
 
 /**
- * {@link PropertiesDescription} where a missing property means "undefined".
+ * {@link PropertiesQueryDescription} where a missing property means "undefined".
  */
-public class LiteralPropertiesDescription extends SerializablePropertiesImpl implements PropertiesDescription {
+public class LiteralPropertiesQueryDescription extends SerializablePropertiesImpl implements PropertiesQueryDescription {
 
     /**
      * Construct a representation of properties from a {@link java.util.Map}.
      *
      * @param properties to take (copy).
      */
-    public LiteralPropertiesDescription(Map<String, ?> properties) {
+    public LiteralPropertiesQueryDescription(Map<String, ?> properties) {
         super(properties);
     }
 
@@ -40,7 +40,7 @@ public class LiteralPropertiesDescription extends SerializablePropertiesImpl imp
      * @param string    to construct properties from. Must be of the form key1#value1#key2#value2... (assuming # separator).
      * @param separator of keys and values, ideally a single character, must not be null or empty.
      */
-    LiteralPropertiesDescription(String string, String separator) {
+    LiteralPropertiesQueryDescription(String string, String separator) {
         super(string, separator);
     }
 }

@@ -12,9 +12,9 @@ import static com.graphaware.relcount.full.internal.dto.property.CacheableProper
 import static org.junit.Assert.assertEquals;
 
 /**
- * Unit test for {@link com.graphaware.relcount.full.internal.cache.AverageCardinalityGeneralizationStrategy}.
+ * Unit test for {@link PropertyChangeFrequencyBasedGeneralizationStrategy}.
  */
-public class AverageCardinalityGeneralizationStrategyTest {
+public class PropertyChangeFrequencyBasedGeneralizationStrategyTest {
 
     @Test
     public void shouldPreferEliminationOfFrequentlyChangingProperties() {
@@ -24,7 +24,7 @@ public class AverageCardinalityGeneralizationStrategyTest {
         cachedCounts.put(cached("T1#OUTGOING#k1#v3#k2#v2"), 1);
         cachedCounts.put(cached("T1#OUTGOING#k1#v4#k2#v2"), 1);
 
-        List<CacheableRelationshipDescription> result = new AverageCardinalityGeneralizationStrategy().produceGeneralizations(cachedCounts);
+        List<CacheableRelationshipDescription> result = new PropertyChangeFrequencyBasedGeneralizationStrategy().produceGeneralizations(cachedCounts);
         assertEquals(cached("T1#INCOMING#k1#" + ANY_VALUE + "#k2#v1"), result.get(0));
         assertEquals(cached("T1#OUTGOING#k1#" + ANY_VALUE + "#k2#v2"), result.get(1));
         assertEquals(cached("T1#INCOMING#k1#" + ANY_VALUE + "#k2#" + ANY_VALUE), result.get(result.size() - 2));
@@ -41,7 +41,7 @@ public class AverageCardinalityGeneralizationStrategyTest {
         cachedCounts.put(cached("T2#OUTGOING#k1#v3#k2#v2"), 1);
         cachedCounts.put(cached("T2#OUTGOING#k1#v4#k2#v2"), 1);
 
-        List<CacheableRelationshipDescription> result = new AverageCardinalityGeneralizationStrategy().produceGeneralizations(cachedCounts);
+        List<CacheableRelationshipDescription> result = new PropertyChangeFrequencyBasedGeneralizationStrategy().produceGeneralizations(cachedCounts);
         assertEquals(cached("T2#OUTGOING#k1#" + ANY_VALUE + "#k2#v1"), result.get(0));
         assertEquals(cached("T2#OUTGOING#k1#" + ANY_VALUE + "#k2#v2"), result.get(1));
         assertEquals(cached("T1#OUTGOING#k1#" + ANY_VALUE + "#k2#" + ANY_VALUE), result.get(result.size() - 1));
@@ -63,7 +63,7 @@ public class AverageCardinalityGeneralizationStrategyTest {
         cachedCounts.put(cached("T3#OUTGOING#k1#v3#k2#v2"), 1);
         cachedCounts.put(cached("T3#OUTGOING#k1#v4#k2#v2"), 1);
 
-        List<CacheableRelationshipDescription> result = new AverageCardinalityGeneralizationStrategy().produceGeneralizations(cachedCounts);
+        List<CacheableRelationshipDescription> result = new PropertyChangeFrequencyBasedGeneralizationStrategy().produceGeneralizations(cachedCounts);
         assertEquals(cached("T3#OUTGOING#k1#" + ANY_VALUE + "#k2#v1"), result.get(0));
         assertEquals(cached("T3#OUTGOING#k1#" + ANY_VALUE + "#k2#v2"), result.get(1));
         assertEquals(cached("T2#OUTGOING#k1#" + ANY_VALUE + "#k2#" + ANY_VALUE), result.get(result.size() - 1));
@@ -76,7 +76,7 @@ public class AverageCardinalityGeneralizationStrategyTest {
         cachedCounts.put(cached("T1#OUTGOING#k1#v3#k2#v2"), 1);
         cachedCounts.put(cached("T1#OUTGOING#k1#v4#k2#v2"), 1);
 
-        List<CacheableRelationshipDescription> result = new AverageCardinalityGeneralizationStrategy().produceGeneralizations(cachedCounts);
+        List<CacheableRelationshipDescription> result = new PropertyChangeFrequencyBasedGeneralizationStrategy().produceGeneralizations(cachedCounts);
         assertEquals(cached("T1#OUTGOING#k1#" + ANY_VALUE + "#k2#v2"), result.get(0));
         assertEquals(cached("T1#OUTGOING#k1#" + ANY_VALUE + "#k2#" + ANY_VALUE), result.get(result.size() - 1));
     }
@@ -89,7 +89,7 @@ public class AverageCardinalityGeneralizationStrategyTest {
         cachedCounts.put(cached("T1#OUTGOING#k1#v3#k2#v2#k3#v3"), 1);
         cachedCounts.put(cached("T1#OUTGOING#k1#v4#k2#v2"), 1);
 
-        List<CacheableRelationshipDescription> result = new AverageCardinalityGeneralizationStrategy().produceGeneralizations(cachedCounts);
+        List<CacheableRelationshipDescription> result = new PropertyChangeFrequencyBasedGeneralizationStrategy().produceGeneralizations(cachedCounts);
         assertEquals(cached("T1#INCOMING#k1#" + ANY_VALUE + "#k2#v1"), result.get(0));
         assertEquals(cached("T1#OUTGOING#k1#" + ANY_VALUE + "#k2#v2"), result.get(1));
         assertEquals(cached("T1#OUTGOING#k1#" + ANY_VALUE + "#k2#v2#k3#v3"), result.get(2));

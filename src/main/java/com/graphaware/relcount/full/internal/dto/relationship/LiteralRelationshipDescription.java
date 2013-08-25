@@ -18,8 +18,8 @@ package com.graphaware.relcount.full.internal.dto.relationship;
 
 import com.graphaware.propertycontainer.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.propertycontainer.dto.string.relationship.BaseSerializableDirectedRelationship;
-import com.graphaware.relcount.full.internal.dto.property.LiteralPropertiesDescription;
-import com.graphaware.relcount.full.internal.dto.property.PropertiesDescription;
+import com.graphaware.relcount.full.internal.dto.property.LiteralPropertiesQueryDescription;
+import com.graphaware.relcount.full.internal.dto.property.PropertiesQueryDescription;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.RelationshipType;
 
@@ -29,7 +29,7 @@ import java.util.Map;
  * A {@link RelationshipDescription} in which a missing property is treated as a concrete value (undefined) as opposed
  * to "any".
  */
-public class LiteralRelationshipDescription extends BaseSerializableDirectedRelationship<PropertiesDescription> implements RelationshipDescription {
+public class LiteralRelationshipDescription extends BaseSerializableDirectedRelationship<PropertiesQueryDescription> implements RelationshipDescription {
 
     /**
      * Construct a description.
@@ -67,7 +67,7 @@ public class LiteralRelationshipDescription extends BaseSerializableDirectedRela
      * {@inheritDoc}
      */
     @Override
-    protected PropertiesDescription newProperties(Map<String, ?> properties) {
-        return new LiteralPropertiesDescription(properties);
+    protected PropertiesQueryDescription newProperties(Map<String, ?> properties) {
+        return new LiteralPropertiesQueryDescription(properties);
     }
 }

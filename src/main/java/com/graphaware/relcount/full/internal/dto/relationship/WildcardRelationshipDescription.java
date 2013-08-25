@@ -18,8 +18,8 @@ package com.graphaware.relcount.full.internal.dto.relationship;
 
 import com.graphaware.propertycontainer.dto.common.relationship.HasTypeDirectionAndProperties;
 import com.graphaware.propertycontainer.dto.string.relationship.BaseSerializableDirectedRelationship;
-import com.graphaware.relcount.full.internal.dto.property.PropertiesDescription;
-import com.graphaware.relcount.full.internal.dto.property.WildcardPropertiesDescription;
+import com.graphaware.relcount.full.internal.dto.property.PropertiesQueryDescription;
+import com.graphaware.relcount.full.internal.dto.property.WildcardPropertiesQueryDescription;
 
 import java.util.Map;
 
@@ -27,7 +27,7 @@ import java.util.Map;
  * A {@link RelationshipDescription} in which a missing property is treated as a wildcard ("any") as opposed
  * to "undefined".
  */
-public class WildcardRelationshipDescription extends BaseSerializableDirectedRelationship<PropertiesDescription> implements RelationshipDescription {
+public class WildcardRelationshipDescription extends BaseSerializableDirectedRelationship<PropertiesQueryDescription> implements RelationshipDescription {
 
     /**
      * Construct a description from a string.
@@ -54,7 +54,7 @@ public class WildcardRelationshipDescription extends BaseSerializableDirectedRel
      * {@inheritDoc}
      */
     @Override
-    protected PropertiesDescription newProperties(Map<String, ?> properties) {
-        return new WildcardPropertiesDescription(properties);
+    protected PropertiesQueryDescription newProperties(Map<String, ?> properties) {
+        return new WildcardPropertiesQueryDescription(properties);
     }
 }

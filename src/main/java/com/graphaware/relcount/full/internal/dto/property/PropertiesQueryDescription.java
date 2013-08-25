@@ -21,5 +21,5 @@ import com.graphaware.propertycontainer.dto.string.property.SerializableProperti
 /**
  * Description of properties to be used for relationship counting.
  */
-public interface PropertiesDescription extends SerializableProperties {
+public interface PropertiesQueryDescription extends SerializableProperties {
 }

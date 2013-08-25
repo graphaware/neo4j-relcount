@@ -17,10 +17,10 @@
 package com.graphaware.relcount.full.internal.dto.relationship;
 
 import com.graphaware.propertycontainer.dto.string.relationship.SerializableDirectedRelationship;
-import com.graphaware.relcount.full.internal.dto.property.PropertiesDescription;
+import com.graphaware.relcount.full.internal.dto.property.PropertiesQueryDescription;
 
 /**
  * Description of a relationship to be used for relationship counting.
  */
-public interface RelationshipDescription extends SerializableDirectedRelationship<PropertiesDescription> {
+public interface RelationshipDescription extends SerializableDirectedRelationship<PropertiesQueryDescription> {
 }

@@ -308,10 +308,10 @@ public class CacheablePropertiesDescriptionImplTest {
     }
 
     private ImmutableProperties<String> literal(String s) {
-        return new LiteralPropertiesDescription(s, "#");
+        return new LiteralPropertiesQueryDescription(s, "#");
     }
 
     private ImmutableProperties<String> wildcard(String s) {
-        return new WildcardPropertiesDescription(s, "#");
+        return new WildcardPropertiesQueryDescription(s, "#");
     }
 }

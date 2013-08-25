@@ -52,7 +52,7 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
             return true;
         }
 
-        for (CacheableRelationshipDescription generalization : new AverageCardinalityGeneralizationStrategy().produceGeneralizations(cachedCounts)) {
+        for (CacheableRelationshipDescription generalization : new PropertyChangeFrequencyBasedGeneralizationStrategy().produceGeneralizations(cachedCounts)) {
 
             //Find all the candidates to be eliminated by the generalization
             Set<CacheableRelationshipDescription> candidates = new HashSet<>();

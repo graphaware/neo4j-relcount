@@ -32,7 +32,7 @@ import java.util.*;
  * frequently changing values (like timestamp on a relationship), whilst keeping the ones that change less frequently,
  * thus providing more value (like strength of a friendship).
  */
-public class AverageCardinalityGeneralizationStrategy implements GeneralizationStrategy {
+public class PropertyChangeFrequencyBasedGeneralizationStrategy implements GeneralizationStrategy {
 
     /**
      * All possible property keys of relationships with the given type and direction.

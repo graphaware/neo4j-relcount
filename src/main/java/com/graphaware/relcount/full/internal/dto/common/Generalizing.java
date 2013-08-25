@@ -23,6 +23,7 @@ import java.util.Set;
  * Interface for types that are able to generate more general versions of themselves.
  *
  * @param <G> type of generated more general objects.
+ * @param <H> type of helpers, i.e. objects that inform this instance of other available properties.
  */
 public interface Generalizing<G extends Generalizing<G, H>, H> {
 

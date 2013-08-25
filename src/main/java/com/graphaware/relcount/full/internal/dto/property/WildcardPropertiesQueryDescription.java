@@ -21,16 +21,16 @@ import com.graphaware.propertycontainer.dto.string.property.SerializableProperti
 import java.util.Map;
 
 /**
- * {@link PropertiesDescription} where a missing property means "any".
+ * {@link PropertiesQueryDescription} where a missing property means "any".
  */
-public class WildcardPropertiesDescription extends SerializablePropertiesImpl implements PropertiesDescription {
+public class WildcardPropertiesQueryDescription extends SerializablePropertiesImpl implements PropertiesQueryDescription {
 
     /**
      * Construct a representation of properties from a {@link java.util.Map}.
      *
      * @param properties to take (copy).
      */
-    public WildcardPropertiesDescription(Map<String, ?> properties) {
+    public WildcardPropertiesQueryDescription(Map<String, ?> properties) {
         super(properties);
     }
 
@@ -40,7 +40,7 @@ public class WildcardPropertiesDescription extends SerializablePropertiesImpl im
      * @param string    to construct properties from. Must be of the form key1#value1#key2#value2... (assuming # separator).
      * @param separator of keys and values, ideally a single character, must not be null or empty.
      */
-    WildcardPropertiesDescription(String string, String separator) {
+    WildcardPropertiesQueryDescription(String string, String separator) {
         super(string, separator);
     }
 
