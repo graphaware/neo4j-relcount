@@ -78,14 +78,12 @@ public abstract class BaseRelationshipCountCachingNode<CACHED extends Serializab
             if (cachedMatch(cachedRelationship, relationship)) {
                 int newValue = cachedCounts.get(cachedRelationship) + delta;
                 put(cachedRelationship, newValue);
-                flush();
                 return;
             }
         }
 
         put(relationship, delta);
         propertyCreated();
-        flush();
     }
 
     /**
@@ -113,7 +111,6 @@ public abstract class BaseRelationshipCountCachingNode<CACHED extends Serializab
                     throw new NeedsInitializationException(cachedRelationship.toString() + " was out of sync on node " + node.getId());
                 }
 
-                flush();
                 return;
             }
         }
@@ -157,7 +154,7 @@ public abstract class BaseRelationshipCountCachingNode<CACHED extends Serializab
     /**
      * Write all the changes to cached counts to the underlying node.
      */
-    private void flush() {
+    public void flush() {
         for (CACHED updated : updatedCounts) {
             node.setProperty(updated.toString(prefix, separator), cachedCounts.get(updated));
         }

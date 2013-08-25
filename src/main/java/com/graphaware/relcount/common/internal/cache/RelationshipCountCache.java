@@ -28,6 +28,20 @@ import org.neo4j.graphdb.Relationship;
 public interface RelationshipCountCache extends FrameworkConfigured {
 
     /**
+     * Tell the component that caching has started. {@link #endCaching()} must be called before this method is called again.
+     *
+     * @throws IllegalStateException if this method has been previously called and wasn't followed by a call to {@link #endCaching()}.
+     */
+    void startCaching();
+
+    /**
+     * Tell the component that caching has been finished.
+     *
+     * @throws IllegalStateException if {@link #startCaching()} method has not been previously called.
+     */
+    void endCaching();
+
+    /**
      * Handle (i.e. cache) a created relationship.
      *
      * @param relationship     the has been created.

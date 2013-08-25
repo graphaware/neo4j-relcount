@@ -9,6 +9,9 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Base-class for {@link RelationshipCountCache} implementations that cache relationship counts as properties on {@link Node}s.
  *
@@ -18,6 +21,8 @@ import org.neo4j.graphdb.Relationship;
  */
 public abstract class BaseRelationshipCountCache<CACHED extends SerializableTypeAndDirection> extends BaseFrameworkConfigured {
     private static final Logger LOG = Logger.getLogger(BaseRelationshipCountCache.class);
+
+    private final ThreadLocal<Map<Long, RelationshipCountCachingNode<CACHED>>> nodeCache = new ThreadLocal<>();
 
     protected final String id;
 
@@ -31,6 +36,32 @@ public abstract class BaseRelationshipCountCache<CACHED extends SerializableType
     }
 
     /**
+     * @see {@link RelationshipCountCache#startCaching()}
+     */
+    public void startCaching() {
+        if (nodeCache.get() != null) {
+            throw new IllegalStateException("Previous caching hasn't been ended!");
+        }
+
+        nodeCache.set(new HashMap<Long, RelationshipCountCachingNode<CACHED>>());
+    }
+
+    /**
+     * @see {@link RelationshipCountCache#endCaching()}
+     */
+    public void endCaching() {
+        if (nodeCache.get() == null) {
+            throw new IllegalStateException("No caching has been started!");
+        }
+
+        for (RelationshipCountCachingNode<?> node : nodeCache.get().values()) {
+            node.flush();
+        }
+
+        nodeCache.set(null);
+    }
+
+    /**
      * @see {@link RelationshipCountCache#handleCreatedRelationship(org.neo4j.graphdb.Relationship, org.neo4j.graphdb.Node, org.neo4j.graphdb.Direction)}
      */
     public final void handleCreatedRelationship(Relationship relationship, Node pointOfView, Direction defaultDirection) {
@@ -39,7 +70,7 @@ public abstract class BaseRelationshipCountCache<CACHED extends SerializableType
         CACHED createdRelationship = newCachedRelationship(relationship, pointOfView, defaultDirection);
         int relationshipWeight = relationshipWeight(relationship, pointOfView);
 
-        RelationshipCountCachingNode<CACHED> cachingNode = newCachingNode(unwrap(pointOfView));
+        RelationshipCountCachingNode<CACHED> cachingNode = cachingNode(unwrap(pointOfView));
         cachingNode.incrementCount(createdRelationship, relationshipWeight);
     }
 
@@ -53,7 +84,7 @@ public abstract class BaseRelationshipCountCache<CACHED extends SerializableType
         CACHED deletedRelationship = newCachedRelationship(relationship, pointOfView, defaultDirection);
         int relationshipWeight = relationshipWeight(relationship, pointOfView);
 
-        RelationshipCountCachingNode<CACHED> cachingNode = newCachingNode(unwrap(pointOfView));
+        RelationshipCountCachingNode<CACHED> cachingNode = cachingNode(unwrap(pointOfView));
         cachingNode.decrementCount(deletedRelationship, relationshipWeight);
     }
 
@@ -80,6 +111,19 @@ public abstract class BaseRelationshipCountCache<CACHED extends SerializableType
         return 1;
     }
 
+    private RelationshipCountCachingNode<CACHED> cachingNode(Node node) {
+        Map<Long, RelationshipCountCachingNode<CACHED>> fakeNodes = nodeCache.get();
+        if (fakeNodes == null) {
+            throw new IllegalStateException("No caching has been started!");
+        }
+
+        if (!fakeNodes.containsKey(node.getId())) {
+            fakeNodes.put(node.getId(), newCachingNode(node));
+        }
+
+        return fakeNodes.get(node.getId());
+    }
+
     /**
      * Create a caching node from an unfiltered Neo4j node.
      *
@@ -94,7 +138,7 @@ public abstract class BaseRelationshipCountCache<CACHED extends SerializableType
      * @param node to unwrap.
      * @return node with no filtering decorators around it.
      */
-    protected Node unwrap(Node node) {
+    private Node unwrap(Node node) {
         if (node instanceof NodeWrapper) {
             return ((NodeWrapper) node).getWrapped();
         }

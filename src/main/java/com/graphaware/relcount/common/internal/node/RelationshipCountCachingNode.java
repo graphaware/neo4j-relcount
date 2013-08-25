@@ -44,4 +44,9 @@ public interface RelationshipCountCachingNode<CACHED extends HasTypeAndDirection
      *          if a count reaches below 0.
      */
     void decrementCount(CACHED relationship, int delta);
+
+    /**
+     * Write all the changes to cached counts to the underlying node.
+     */
+    void flush();
 }

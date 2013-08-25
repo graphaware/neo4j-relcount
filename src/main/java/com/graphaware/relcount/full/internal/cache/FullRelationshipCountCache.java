@@ -18,8 +18,8 @@ package com.graphaware.relcount.full.internal.cache;
 
 import com.graphaware.framework.config.FrameworkConfigured;
 import com.graphaware.propertycontainer.util.DirectionUtils;
-import com.graphaware.relcount.common.internal.cache.BaseBatchFriendlyRelationshipCountCache;
-import com.graphaware.relcount.common.internal.cache.BatchFriendlyRelationshipCountCache;
+import com.graphaware.relcount.common.internal.cache.BaseRelationshipCountCache;
+import com.graphaware.relcount.common.internal.cache.RelationshipCountCache;
 import com.graphaware.relcount.common.internal.node.RelationshipCountCachingNode;
 import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescription;
 import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescriptionImpl;
@@ -37,7 +37,7 @@ import java.util.Map;
  * A full-blown implementation of {@link com.graphaware.relcount.common.internal.cache.RelationshipCountCache}.  It is "full" in
  * the sense that it cares about {@link org.neo4j.graphdb.RelationshipType}s, {@link org.neo4j.graphdb.Direction}s, and properties.
  */
-public class FullRelationshipCountCache extends BaseBatchFriendlyRelationshipCountCache<CacheableRelationshipDescription> implements BatchFriendlyRelationshipCountCache, FrameworkConfigured {
+public class FullRelationshipCountCache extends BaseRelationshipCountCache<CacheableRelationshipDescription> implements RelationshipCountCache, FrameworkConfigured {
 
     private final RelationshipCountStrategies relationshipCountStrategies;
     private final RelationshipCountCompactor relationshipCountCompactor;

@@ -26,7 +26,6 @@ import com.graphaware.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
 import com.graphaware.tx.executor.single.TransactionExecutor;
 import com.graphaware.tx.executor.single.VoidReturningCallback;
-import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,8 +33,8 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.*;
+
 
 /**
  * Unit test for {@link com.graphaware.relcount.full.internal.node.ThresholdBasedRelationshipCountCompactor}.
@@ -77,16 +76,18 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("test#OUTGOING#k1#v3").toString(prefix(), hash()), 2);
                 root.setProperty(wildcard("test#OUTGOING#k1#v4").toString(prefix(), hash()), 3);
 
-                compactor.compactRelationshipCounts(cachingNode(compactor));
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                compactor.compactRelationshipCounts(node);
+                node.flush();
             }
         });
 
-        Assert.assertEquals(4, cachingNode(compactor).getCachedCounts().size());
-        Assert.assertEquals(14, countingNode().getRelationshipCount(wildcard("test#OUTGOING#k1#v1")));
-        Assert.assertEquals(1, countingNode().getRelationshipCount(wildcard("test#OUTGOING#k1#v2")));
-        Assert.assertEquals(2, countingNode().getRelationshipCount(wildcard("test#OUTGOING#k1#v3")));
-        Assert.assertEquals(3, countingNode().getRelationshipCount(wildcard("test#OUTGOING#k1#v4")));
-        Assert.assertEquals(20, countingNode().getRelationshipCount(wildcard("test#OUTGOING#")));
+        assertEquals(4, cachingNode(compactor).getCachedCounts().size());
+        assertEquals(14, countingNode().getRelationshipCount(wildcard("test#OUTGOING#k1#v1")));
+        assertEquals(1, countingNode().getRelationshipCount(wildcard("test#OUTGOING#k1#v2")));
+        assertEquals(2, countingNode().getRelationshipCount(wildcard("test#OUTGOING#k1#v3")));
+        assertEquals(3, countingNode().getRelationshipCount(wildcard("test#OUTGOING#k1#v4")));
+        assertEquals(20, countingNode().getRelationshipCount(wildcard("test#OUTGOING#")));
     }
 
     @Test
@@ -103,13 +104,15 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("test#OUTGOING#k1#v4").toString(prefix(), hash()), 3);
                 root.setProperty(wildcard("test#OUTGOING#k1#v5").toString(prefix(), hash()), 4);
 
-                compactor.compactRelationshipCounts(cachingNode(compactor));
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                compactor.compactRelationshipCounts(node);
+                node.flush();
             }
         });
 
-        Assert.assertEquals(1, cachingNode(compactor).getCachedCounts().size());
+        assertEquals(1, cachingNode(compactor).getCachedCounts().size());
         assertTrue(cachingNode(compactor).getCachedCounts().containsKey(new CacheableRelationshipDescriptionImpl("test#OUTGOING#k1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE, null, hash())));
-        Assert.assertEquals(24, countingNode().getRelationshipCount(wildcard("test#OUTGOING#")));
+        assertEquals(24, countingNode().getRelationshipCount(wildcard("test#OUTGOING#")));
 
         try {
             countingNode().getRelationshipCount(wildcard("test#OUTGOING#k1#v1"));
@@ -136,14 +139,16 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("test#OUTGOING#k1#v2#k2#v3").toString(prefix(), hash()), 1);
                 root.setProperty(wildcard("test#OUTGOING#k1#v2#k2#v4").toString(prefix(), hash()), 1);
 
-                compactor.compactRelationshipCounts(cachingNode(compactor));
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                compactor.compactRelationshipCounts(node);
+                node.flush();
             }
         });
 
-        Assert.assertEquals(2, cachingNode(compactor).getCachedCounts().size());
-        Assert.assertEquals(4, countingNode().getRelationshipCount(wildcard("test#OUTGOING#k1#v1")));
-        Assert.assertEquals(4, countingNode().getRelationshipCount(wildcard("test#OUTGOING#k1#v2")));
-        Assert.assertEquals(8, countingNode().getRelationshipCount(wildcard("test#OUTGOING#")));
+        assertEquals(2, cachingNode(compactor).getCachedCounts().size());
+        assertEquals(4, countingNode().getRelationshipCount(wildcard("test#OUTGOING#k1#v1")));
+        assertEquals(4, countingNode().getRelationshipCount(wildcard("test#OUTGOING#k1#v2")));
+        assertEquals(8, countingNode().getRelationshipCount(wildcard("test#OUTGOING#")));
 
         try {
             countingNode().getRelationshipCount(wildcard("test#OUTGOING#k2#v3"));
@@ -167,14 +172,16 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("test#OUTGOING#z1#v1#k2#v4#k3#v4").toString(prefix(), hash()), 1);
                 root.setProperty(wildcard("test#OUTGOING#z1#v1#k2#v5#k3#v5").toString(prefix(), hash()), 1);
 
-                compactor.compactRelationshipCounts(cachingNode(compactor));
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                compactor.compactRelationshipCounts(node);
+                node.flush();
             }
         });
 
-        Assert.assertEquals(1, cachingNode(compactor).getCachedCounts().size());
-        Assert.assertEquals(5, countingNode().getRelationshipCount(wildcard("test#OUTGOING#z1#v1")));
-        Assert.assertEquals(5, countingNode().getRelationshipCount(wildcard("test#OUTGOING#")));
-        Assert.assertEquals(0, countingNode().getRelationshipCount(literal("test#OUTGOING#")));
+        assertEquals(1, cachingNode(compactor).getCachedCounts().size());
+        assertEquals(5, countingNode().getRelationshipCount(wildcard("test#OUTGOING#z1#v1")));
+        assertEquals(5, countingNode().getRelationshipCount(wildcard("test#OUTGOING#")));
+        assertEquals(0, countingNode().getRelationshipCount(literal("test#OUTGOING#")));
 
         try {
             countingNode().getRelationshipCount(wildcard("test#OUTGOING#k2#whatever"));
@@ -217,16 +224,18 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("test4#OUTGOING#k2#v2").toString(prefix(), hash()), 1);
                 root.setProperty(wildcard("test5#OUTGOING#k2#v2").toString(prefix(), hash()), 1);
 
-                compactor.compactRelationshipCounts(cachingNode(compactor));
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                compactor.compactRelationshipCounts(node);
+                node.flush();
             }
         });
 
-        Assert.assertEquals(5, cachingNode(compactor).getCachedCounts().size());
-        Assert.assertEquals(6, countingNode().getRelationshipCount(wildcard("test#OUTGOING#")));
-        Assert.assertEquals(1, countingNode().getRelationshipCount(wildcard("test2#OUTGOING#")));
-        Assert.assertEquals(1, countingNode().getRelationshipCount(wildcard("test3#OUTGOING#")));
-        Assert.assertEquals(1, countingNode().getRelationshipCount(wildcard("test4#OUTGOING#")));
-        Assert.assertEquals(1, countingNode().getRelationshipCount(wildcard("test5#OUTGOING#")));
+        assertEquals(5, cachingNode(compactor).getCachedCounts().size());
+        assertEquals(6, countingNode().getRelationshipCount(wildcard("test#OUTGOING#")));
+        assertEquals(1, countingNode().getRelationshipCount(wildcard("test2#OUTGOING#")));
+        assertEquals(1, countingNode().getRelationshipCount(wildcard("test3#OUTGOING#")));
+        assertEquals(1, countingNode().getRelationshipCount(wildcard("test4#OUTGOING#")));
+        assertEquals(1, countingNode().getRelationshipCount(wildcard("test5#OUTGOING#")));
 
         try {
             countingNode().getRelationshipCount(wildcard("test#OUTGOING#k1#v1"));
@@ -247,11 +256,13 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("ONE#INCOMING#k1#v1#k2#v2").toString(prefix(), hash()), 1);
                 root.setProperty(wildcard("ONE#INCOMING#k1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#w#" + CacheablePropertiesDescriptionImpl.ANY_VALUE).toString(prefix(), hash()), 2);
 
-                compactor.compactRelationshipCounts(cachingNode(compactor));
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                compactor.compactRelationshipCounts(node);
+                node.flush();
             }
         });
 
-        Assert.assertEquals(1, cachingNode(compactor).getCachedCounts().size());
+        assertEquals(1, cachingNode(compactor).getCachedCounts().size());
     }
 
     @Test
@@ -265,11 +276,13 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("ONE#INCOMING#k1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE).toString(prefix(), hash()), 1);
                 root.setProperty(wildcard("ONE#INCOMING#k2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE).toString(prefix(), hash()), 2);
 
-                compactor.compactRelationshipCounts(cachingNode(compactor));
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                compactor.compactRelationshipCounts(node);
+                node.flush();
             }
         });
 
-        Assert.assertEquals(1, cachingNode(compactor).getCachedCounts().size());
+        assertEquals(1, cachingNode(compactor).getCachedCounts().size());
     }
 
     @Test
@@ -291,11 +304,13 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("ONE#INCOMING#level#2#timestamp#123132135766").toString(prefix(), hash()), 1);
                 root.setProperty(wildcard("ONE#INCOMING#level#1#timestamp#123132135763").toString(prefix(), hash()), 1);
 
-                compactor.compactRelationshipCounts(cachingNode(compactor));
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                compactor.compactRelationshipCounts(node);
+                node.flush();
             }
         });
 
-        Assert.assertEquals(8, cachingNode(compactor).getCachedCounts().size());
+        assertEquals(8, cachingNode(compactor).getCachedCounts().size());
     }
 
     @Test
@@ -317,14 +332,16 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("ONE#INCOMING#level#2#timestamp#123132135766").toString(prefix(), hash()), 1);
                 root.setProperty(wildcard("ONE#INCOMING#level#1#timestamp#123132135763").toString(prefix(), hash()), 1);
 
-                compactor.compactRelationshipCounts(cachingNode(compactor));
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                compactor.compactRelationshipCounts(node);
+                node.flush();
             }
         });
 
-        Assert.assertEquals(3, cachingNode(compactor).getCachedCounts().size());
-        Assert.assertEquals(3, countingNode().getRelationshipCount(wildcard("ONE#INCOMING#level#0")));
-        Assert.assertEquals(4, countingNode().getRelationshipCount(wildcard("ONE#INCOMING#level#1")));
-        Assert.assertEquals(3, countingNode().getRelationshipCount(wildcard("ONE#INCOMING#level#2")));
+        assertEquals(3, cachingNode(compactor).getCachedCounts().size());
+        assertEquals(3, countingNode().getRelationshipCount(wildcard("ONE#INCOMING#level#0")));
+        assertEquals(4, countingNode().getRelationshipCount(wildcard("ONE#INCOMING#level#1")));
+        assertEquals(3, countingNode().getRelationshipCount(wildcard("ONE#INCOMING#level#2")));
 
     }
 

@@ -1,7 +1,7 @@
 package com.graphaware.relcount.full.module;
 
 import com.graphaware.framework.GraphAwareModule;
-import com.graphaware.relcount.common.internal.cache.BatchFriendlyRelationshipCountCache;
+import com.graphaware.relcount.common.internal.cache.RelationshipCountCache;
 import com.graphaware.relcount.common.module.RelationshipCountModule;
 import com.graphaware.relcount.full.counter.FullCachedRelationshipCounter;
 import com.graphaware.relcount.full.counter.FullFallingBackRelationshipCounter;
@@ -106,7 +106,7 @@ public class FullRelationshipCountModule extends RelationshipCountModule impleme
      * {@inheritDoc}
      */
     @Override
-    protected BatchFriendlyRelationshipCountCache getRelationshipCountCache() {
+    protected RelationshipCountCache getRelationshipCountCache() {
         return relationshipCountCache;
     }
 

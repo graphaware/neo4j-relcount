@@ -19,8 +19,8 @@ package com.graphaware.relcount.simple.internal.cache;
 import com.graphaware.propertycontainer.dto.string.relationship.SerializableDirectedRelationshipImpl;
 import com.graphaware.propertycontainer.dto.string.relationship.SerializableTypeAndDirection;
 import com.graphaware.propertycontainer.util.DirectionUtils;
-import com.graphaware.relcount.common.internal.cache.BaseBatchFriendlyRelationshipCountCache;
-import com.graphaware.relcount.common.internal.cache.BatchFriendlyRelationshipCountCache;
+import com.graphaware.relcount.common.internal.cache.BaseRelationshipCountCache;
+import com.graphaware.relcount.common.internal.cache.RelationshipCountCache;
 import com.graphaware.relcount.common.internal.node.RelationshipCountCachingNode;
 import com.graphaware.relcount.simple.internal.node.SimpleRelationshipCountCachingNode;
 import org.neo4j.graphdb.Direction;
@@ -32,7 +32,7 @@ import org.neo4j.graphdb.Relationship;
  * the sense that it only cares about {@link org.neo4j.graphdb.RelationshipType}s and {@link org.neo4j.graphdb.Direction}s;
  * it completely ignores {@link org.neo4j.graphdb.Relationship} properties.
  */
-public class SimpleRelationshipCountCache extends BaseBatchFriendlyRelationshipCountCache<SerializableTypeAndDirection> implements BatchFriendlyRelationshipCountCache {
+public class SimpleRelationshipCountCache extends BaseRelationshipCountCache<SerializableTypeAndDirection> implements RelationshipCountCache {
 
     /**
      * Construct a new cache.

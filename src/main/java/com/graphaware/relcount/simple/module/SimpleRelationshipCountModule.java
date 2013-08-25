@@ -1,6 +1,6 @@
 package com.graphaware.relcount.simple.module;
 
-import com.graphaware.relcount.common.internal.cache.BatchFriendlyRelationshipCountCache;
+import com.graphaware.relcount.common.internal.cache.RelationshipCountCache;
 import com.graphaware.relcount.common.module.RelationshipCountModule;
 import com.graphaware.relcount.simple.internal.cache.SimpleRelationshipCountCache;
 import com.graphaware.tx.event.improved.strategy.IncludeAllRelationships;
@@ -24,7 +24,7 @@ public class SimpleRelationshipCountModule extends RelationshipCountModule {
      */
     public static final String SIMPLE_RELCOUNT_ID = "SRC";
 
-    private final BatchFriendlyRelationshipCountCache relationshipCountCache;
+    private final RelationshipCountCache relationshipCountCache;
     private final InclusionStrategies inclusionStrategies;
 
     /**
@@ -53,7 +53,7 @@ public class SimpleRelationshipCountModule extends RelationshipCountModule {
      * {@inheritDoc}
      */
     @Override
-    protected BatchFriendlyRelationshipCountCache getRelationshipCountCache() {
+    protected RelationshipCountCache getRelationshipCountCache() {
         return relationshipCountCache;
     }
 

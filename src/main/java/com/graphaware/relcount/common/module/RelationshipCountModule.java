@@ -4,7 +4,6 @@ import com.graphaware.framework.GraphAwareModule;
 import com.graphaware.framework.config.BaseFrameworkConfigured;
 import com.graphaware.framework.config.FrameworkConfiguration;
 import com.graphaware.framework.config.FrameworkConfigured;
-import com.graphaware.relcount.common.internal.cache.BatchFriendlyRelationshipCountCache;
 import com.graphaware.relcount.common.internal.cache.RelationshipCountCache;
 import com.graphaware.tx.event.batch.api.TransactionSimulatingBatchInserter;
 import com.graphaware.tx.event.batch.propertycontainer.inserter.BatchInserterNode;
@@ -29,7 +28,6 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
  */
 public abstract class RelationshipCountModule extends BaseFrameworkConfigured implements GraphAwareModule, FrameworkConfigured {
 
-    public static final int BATCH_THRESHOLD = 50;
     private final String id;
 
     /**
@@ -46,7 +44,7 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
      *
      * @return relationship count cache.
      */
-    protected abstract BatchFriendlyRelationshipCountCache getRelationshipCountCache();
+    protected abstract RelationshipCountCache getRelationshipCountCache();
 
     /**
      * {@inheritDoc}
@@ -95,23 +93,13 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
      */
     @Override
     public void beforeCommit(ImprovedTransactionData transactionData) {
-        if (isBatch(transactionData)) {
-            getRelationshipCountCache().startBatchMode();
-        }
+        getRelationshipCountCache().startCaching();
 
         handleCreatedRelationships(transactionData);
         handleDeletedRelationships(transactionData);
         handleChangedRelationships(transactionData);
 
-        if (isBatch(transactionData)) {
-            getRelationshipCountCache().endBatchMode();
-        }
-    }
-
-    private boolean isBatch(ImprovedTransactionData transactionData) {
-        return transactionData.getAllCreatedRelationships().size() > BATCH_THRESHOLD
-                || transactionData.getAllDeletedRelationships().size() > BATCH_THRESHOLD
-                || transactionData.getAllChangedRelationships().size() > BATCH_THRESHOLD;
+        getRelationshipCountCache().endCaching();
     }
 
     /**
@@ -247,7 +235,7 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
      * @param filteredNode filtered node.
      */
     private void buildCachedCounts(Node filteredNode) {
-        getRelationshipCountCache().startBatchMode();
+        getRelationshipCountCache().startCaching();
 
         for (Relationship relationship : filteredNode.getRelationships()) {
             getRelationshipCountCache().handleCreatedRelationship(relationship, filteredNode, Direction.OUTGOING);
@@ -257,7 +245,7 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
             }
         }
 
-        getRelationshipCountCache().endBatchMode();
+        getRelationshipCountCache().endCaching();
     }
 
     /**

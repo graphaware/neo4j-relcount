@@ -153,7 +153,9 @@ public class FullRelationshipCountCachingNodeTest {
         txExecutor.executeInTransaction(new VoidReturningCallback() {
             @Override
             public void doInTx(GraphDatabaseService database) {
-                cachingNode().incrementCount(compactible("test#OUTGOING#key1#value3"), 1);
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode();
+                node.incrementCount(compactible("test#OUTGOING#key1#value3"), 1);
+                node.flush();
             }
         });
 
@@ -167,7 +169,9 @@ public class FullRelationshipCountCachingNodeTest {
         txExecutor.executeInTransaction(new VoidReturningCallback() {
             @Override
             public void doInTx(GraphDatabaseService database) {
-                cachingNode().incrementCount(compactible("test#OUTGOING#key1#value3"), 5);
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode();
+                node.incrementCount(compactible("test#OUTGOING#key1#value3"), 5);
+                node.flush();
             }
         });
 
@@ -181,7 +185,9 @@ public class FullRelationshipCountCachingNodeTest {
         txExecutor.executeInTransaction(new VoidReturningCallback() {
             @Override
             public void doInTx(GraphDatabaseService database) {
-                cachingNode().incrementCount(compactible("test#OUTGOING#key1#value2"), 1);
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode();
+                node.incrementCount(compactible("test#OUTGOING#key1#value2"), 1);
+                node.flush();
             }
         });
 
@@ -195,7 +201,9 @@ public class FullRelationshipCountCachingNodeTest {
         txExecutor.executeInTransaction(new VoidReturningCallback() {
             @Override
             public void doInTx(GraphDatabaseService database) {
-                cachingNode().incrementCount(compactible("test#OUTGOING#key1#value1"), 5);
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode();
+                node.incrementCount(compactible("test#OUTGOING#key1#value1"), 5);
+                node.flush();
             }
         });
 
@@ -209,7 +217,9 @@ public class FullRelationshipCountCachingNodeTest {
         txExecutor.executeInTransaction(new VoidReturningCallback() {
             @Override
             public void doInTx(GraphDatabaseService database) {
-                cachingNode().incrementCount(compactible("test#OUTGOING#key1#value1"), 5);
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode();
+                node.incrementCount(compactible("test#OUTGOING#key1#value1"), 5);
+                node.flush();
             }
         });
 
@@ -258,7 +268,9 @@ public class FullRelationshipCountCachingNodeTest {
         txExecutor.executeInTransaction(new VoidReturningCallback() {
             @Override
             public void doInTx(GraphDatabaseService database) {
-                cachingNode().decrementCount(compactible("test#OUTGOING#key1#value2"), 1);
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode();
+                node.decrementCount(compactible("test#OUTGOING#key1#value2"), 1);
+                node.flush();
             }
         });
 
@@ -272,7 +284,9 @@ public class FullRelationshipCountCachingNodeTest {
         txExecutor.executeInTransaction(new VoidReturningCallback() {
             @Override
             public void doInTx(GraphDatabaseService database) {
-                cachingNode().decrementCount(compactible("test#OUTGOING#key2#value2"), 2);
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode();
+                node.decrementCount(compactible("test#OUTGOING#key2#value2"), 2);
+                node.flush();
             }
         });
 
@@ -286,7 +300,9 @@ public class FullRelationshipCountCachingNodeTest {
         txExecutor.executeInTransaction(new VoidReturningCallback() {
             @Override
             public void doInTx(GraphDatabaseService database) {
-                cachingNode().decrementCount(compactible("test#OUTGOING#key1#value1"), 5);
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode();
+                node.decrementCount(compactible("test#OUTGOING#key1#value1"), 5);
+                node.flush();
             }
         });
 
@@ -318,7 +334,9 @@ public class FullRelationshipCountCachingNodeTest {
         txExecutor.executeInTransaction(new VoidReturningCallback() {
             @Override
             public void doInTx(GraphDatabaseService database) {
-                cachingNode().decrementCount(compactible("test#OUTGOING#key1#value1"), 7);
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode();
+                node.decrementCount(compactible("test#OUTGOING#key1#value1"), 7);
+                node.flush();
             }
         });
 
@@ -334,7 +352,9 @@ public class FullRelationshipCountCachingNodeTest {
         txExecutor.executeInTransaction(new VoidReturningCallback() {
             @Override
             public void doInTx(GraphDatabaseService database) {
-                cachingNode().decrementCount(compactible("test#OUTGOING"), cachingNode().getCachedCounts().get(compactible("test#OUTGOING")));
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode();
+                node.decrementCount(compactible("test#OUTGOING"), node.getCachedCounts().get(compactible("test#OUTGOING")));
+                node.flush();
             }
         });
 
@@ -348,7 +368,9 @@ public class FullRelationshipCountCachingNodeTest {
         txExecutor.executeInTransaction(new VoidReturningCallback() {
             @Override
             public void doInTx(GraphDatabaseService database) {
-                cachingNode().decrementCount(compactible("test#OUTGOING#key1#value2"), cachingNode().getCachedCounts().get(compactible("test#OUTGOING#key1#value2")));
+                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode();
+                node.decrementCount(compactible("test#OUTGOING#key1#value2"), node.getCachedCounts().get(compactible("test#OUTGOING#key1#value2")));
+                node.flush();
             }
         });
 
