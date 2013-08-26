@@ -31,7 +31,7 @@ import static org.neo4j.graphdb.Direction.*;
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
 /**
- * Integration test for full relationship counting.
+ * Integration test for full relationship counting.   //todo test that module exception doesn't fuck things up
  */
 @SuppressWarnings("PointlessArithmeticExpression")
 public class FullRelationshipCountIntegrationTest extends IntegrationTest {
