@@ -36,7 +36,7 @@ public class TwoNodesTwoRelationshipPropertiesWritePerformanceTest extends Write
             public void alterDatabase(GraphDatabaseService database) {
                 //do nothing
             }
-        });
+        }, "twoNodesTwoRelationshipPropsPlainDatabase");
     }
 
     @Test
@@ -48,7 +48,7 @@ public class TwoNodesTwoRelationshipPropertiesWritePerformanceTest extends Write
                 GraphAwareFramework framework = new GraphAwareFramework(database);
                 framework.start();
             }
-        });
+        }, "twoNodesTwoRelationshipPropsEmptyFramework");
     }
 
     @Test
@@ -61,7 +61,7 @@ public class TwoNodesTwoRelationshipPropertiesWritePerformanceTest extends Write
                 framework.registerModule(new SimpleRelationshipCountModule());
                 framework.start();
             }
-        });
+        }, "twoNodesTwoRelationshipPropsSimpleRelcount");
     }
 
     @Test
@@ -74,7 +74,7 @@ public class TwoNodesTwoRelationshipPropertiesWritePerformanceTest extends Write
                 framework.registerModule(new FullRelationshipCountModule());
                 framework.start();
             }
-        });
+        }, "twoNodesTwoRelationshipPropsFullRelcount");
     }
 
     private void createTwoNodes(GraphDatabaseService databaseService) {

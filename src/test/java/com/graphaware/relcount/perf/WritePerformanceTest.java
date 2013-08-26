@@ -4,6 +4,9 @@ import org.junit.rules.TemporaryFolder;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +17,7 @@ import java.util.Map;
 public abstract class WritePerformanceTest {
     private static final String CONFIG = "src/test/resources/neo4j-perf.properties";
 
-    protected void measure(DatabaseModifier databaseModifier) throws IOException {
+    protected void measure(DatabaseModifier databaseModifier, String fileName) throws IOException {
         Map<String, String> results = new HashMap<>();
 
         for (int i = 1; i <= 11; i++) {
@@ -35,6 +38,8 @@ public abstract class WritePerformanceTest {
         for (Map.Entry<String, String> entry : results.entrySet()) {
             System.out.println(entry.getKey() + entry.getValue());
         }
+
+        resultsToFile(results, fileName);
     }
 
     private long measureCreatingRelationships(final DatabaseModifier databaseModifier, final int number, final int batchSize) throws IOException {
@@ -55,6 +60,25 @@ public abstract class WritePerformanceTest {
     }
 
     protected abstract long doMeasureCreatingRelationships(final GraphDatabaseService database, final int number, final int batchSize);
+
+    protected void resultsToFile(Map<String, String> results, String fileName) {
+        try {
+            File file = new File("src/test/resources/perf/" + fileName + "-" + System.currentTimeMillis() + ".txt");
+            file.createNewFile();
+
+            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+
+            for (Map.Entry<String, String> entry : results.entrySet()) {
+                bw.write(entry.getKey() + entry.getValue());
+                bw.newLine();
+            }
+
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     protected interface DatabaseModifier {
         void alterDatabase(GraphDatabaseService database);
