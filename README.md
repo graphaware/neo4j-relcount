@@ -225,8 +225,7 @@ Let's break it down:
 
 *NOTE:* None of the application level nodes or relationships should have names, types, labels, property keys or values
 containing the following Strings:
-* `_GA_REL_`
-* `_LITERAL_`
+* `_GA_`
 * `#` (can be changed if needed)
 
 That includes user input written into properties of nodes and relationship. Please check for this in your application and
