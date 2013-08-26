@@ -12,7 +12,7 @@ import java.util.Map;
  *
  */
 public abstract class WritePerformanceTest {
-    private static final String CONFIG = "/Users/bachmanm/DEV/graphaware/neo4j-relcount/src/test/resources/neo4j-perf.properties";
+    private static final String CONFIG = "src/test/resources/neo4j-perf.properties";
 
     protected void measure(DatabaseModifier databaseModifier) throws IOException {
         Map<String, String> results = new HashMap<>();
