@@ -8,6 +8,7 @@ import com.graphaware.tx.executor.batch.NoInputBatchTransactionExecutor;
 import com.graphaware.tx.executor.batch.UnitOfWork;
 import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
 import com.graphaware.tx.executor.single.VoidReturningCallback;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -19,6 +20,7 @@ import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 /**
  *
  */
+@Ignore
 public class TwoNodesNoPropertiesWritePerformanceTest extends WritePerformanceTest {
 
     @Test
