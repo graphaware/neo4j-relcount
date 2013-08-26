@@ -5,7 +5,8 @@ import com.graphaware.propertycontainer.dto.common.relationship.HasTypeAndDirect
 import java.util.Map;
 
 /**
- * Internal {@link org.neo4j.graphdb.Node} wrapper responsible for caching relationship counts on that node.
+ * Internal {@link org.neo4j.graphdb.Node} wrapper responsible for caching relationship counts on that node. Changes are
+ * only written to the database after {@link #flush()} has been called.
  *
  * @param <CACHED> type of the cached counts.
  */
@@ -21,8 +22,7 @@ public interface RelationshipCountCachingNode<CACHED extends HasTypeAndDirection
     /**
      * Get all relationship counts cached on the node. No aggregation is performed, this is the raw data as stored.
      *
-     * @return cached relationship counts (key = relationship representation, value = count). Implementations can choose
-     *         for the map to be sorted so that it can be iterated in order (e.g. specific to general).
+     * @return cached relationship counts (key = relationship representation, value = count).
      */
     Map<CACHED, Integer> getCachedCounts();
 

@@ -24,6 +24,10 @@ import org.neo4j.graphdb.Relationship;
 /**
  * Internal component that caches relationship counts. Relationships must be cached by {@link org.neo4j.graphdb.RelationshipType},
  * {@link Direction} (only {@link Direction#INCOMING} or {@link Direction#OUTGOING}), and potentially properties.
+ * <p/>
+ * When handling a transaction event, callers must first call {@link #startCaching()} before any other method is called.
+ * When finished handling the event, {@link #endCaching()} must be called, event if the handling methods throw an exception.
+ * Implementations can choose to optimize based on the information about started and finished event handling.
  */
 public interface RelationshipCountCache extends FrameworkConfigured {
 

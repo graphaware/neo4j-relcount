@@ -16,7 +16,6 @@
 
 package com.graphaware.relcount.full.strategy;
 
-import com.graphaware.tx.event.improved.strategy.SerializableStrategy;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -26,7 +25,7 @@ import java.util.Map;
 /**
  * A {@link RelationshipPropertiesExtractionStrategy} that extracts nothing. Singleton.
  */
-public final class ExtractNoRelationshipProperties extends SerializableStrategy implements RelationshipPropertiesExtractionStrategy {
+public final class ExtractNoRelationshipProperties implements RelationshipPropertiesExtractionStrategy {
 
     private static final RelationshipPropertiesExtractionStrategy INSTANCE = new ExtractNoRelationshipProperties();
 

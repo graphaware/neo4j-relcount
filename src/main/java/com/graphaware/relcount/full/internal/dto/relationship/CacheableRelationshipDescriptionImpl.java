@@ -160,6 +160,9 @@ public class CacheableRelationshipDescriptionImpl extends BaseCopyMakingSerializ
         return new CacheablePropertiesDescriptionImpl(properties);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString(String prefix, String separator) {
         if (string == null) {

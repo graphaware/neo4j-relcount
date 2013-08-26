@@ -113,7 +113,7 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
         getRelationshipCountCache().configurationChanged(configuration);
     }
 
-    //All explicit directions below are just for the case where we're dealing with a self-relationship (same start
+    //All explicit directions below are just for the case where we're dealing with a loop (same start
     //and end node). It doesn't matter which one goes where, as long as both are present).
 
     private void handleCreatedRelationships(ImprovedTransactionData data) {

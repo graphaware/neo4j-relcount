@@ -9,7 +9,7 @@ import java.util.*;
 
 /**
  * Base-class for {@link BaseRelationshipCountCachingNode} implementations. For efficiency, it keeps track of all the
- * cached counts changes and only writes them to the underlying {@link Node} once.
+ * cached counts changes and only writes them to the underlying {@link Node} once when {@link #flush()} is called.
  */
 public abstract class BaseRelationshipCountCachingNode<CACHED extends SerializableTypeAndDirection> {
 
@@ -152,7 +152,7 @@ public abstract class BaseRelationshipCountCachingNode<CACHED extends Serializab
     }
 
     /**
-     * Write all the changes to cached counts to the underlying node.
+     * @see {@link com.graphaware.relcount.common.internal.node.RelationshipCountCachingNode#flush()}.
      */
     public void flush() {
         for (CACHED updated : updatedCounts) {

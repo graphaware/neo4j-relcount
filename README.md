@@ -1,3 +1,4 @@
+//todo test that module exception doesn't fuck things up, then review all tests and coverage, then update readme and release
 GraphAware Relationship Count Module
 ------------------------------------
 

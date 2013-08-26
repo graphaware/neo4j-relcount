@@ -17,7 +17,6 @@
 package com.graphaware.relcount.full.strategy;
 
 import com.graphaware.framework.config.ConfigurationAsString;
-import com.graphaware.tx.event.improved.strategy.SerializableStrategy;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -44,7 +43,7 @@ public interface RelationshipPropertiesExtractionStrategy extends ConfigurationA
     /**
      * Convenience adapter for strategies that with to include properties of the "other" node participating in the relationship.
      */
-    public abstract class OtherNodeIncludingAdapter extends SerializableStrategy implements RelationshipPropertiesExtractionStrategy {
+    public abstract class OtherNodeIncludingAdapter implements RelationshipPropertiesExtractionStrategy {
 
         /**
          * Extract properties from a {@link org.neo4j.graphdb.Relationship}.
@@ -73,7 +72,7 @@ public interface RelationshipPropertiesExtractionStrategy extends ConfigurationA
      * Please note that if the manipulation only excludes certain properties, it is advisable to use a cusom
      * {@link com.graphaware.tx.event.improved.strategy.RelationshipPropertyInclusionStrategy} instead.
      */
-    public abstract class SimpleAdapter extends SerializableStrategy implements RelationshipPropertiesExtractionStrategy {
+    public abstract class SimpleAdapter implements RelationshipPropertiesExtractionStrategy {
 
         /**
          * Extract properties from a {@link org.neo4j.graphdb.Relationship}.

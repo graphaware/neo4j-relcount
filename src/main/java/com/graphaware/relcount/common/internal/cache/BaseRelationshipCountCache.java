@@ -16,8 +16,6 @@ import java.util.Map;
  * Base-class for {@link RelationshipCountCache} implementations that cache relationship counts as properties on {@link Node}s.
  *
  * @param <CACHED> type of relationship representation that can be used as a cached relationship description.
- *                 Must be {@link Comparable}; the resulting order is essential for determining, which representation
- *                 corresponds to an about-to-be-cached relationship count.
  */
 public abstract class BaseRelationshipCountCache<CACHED extends SerializableTypeAndDirection> extends BaseFrameworkConfigured {
     private static final Logger LOG = Logger.getLogger(BaseRelationshipCountCache.class);

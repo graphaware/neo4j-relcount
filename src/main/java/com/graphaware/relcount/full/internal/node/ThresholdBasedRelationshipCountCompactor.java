@@ -68,7 +68,7 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
                 //It will, do it!
                 int candidateCachedCount = 0;
                 for (CacheableRelationshipDescription candidate : candidates) {
-                    Integer count = cachedCounts.get(candidate);
+                    int count = cachedCounts.get(candidate);
                     candidateCachedCount += count;
                     node.decrementCount(candidate, count);
                 }

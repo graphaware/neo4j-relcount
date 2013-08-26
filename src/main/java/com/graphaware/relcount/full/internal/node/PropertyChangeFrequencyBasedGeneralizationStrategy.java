@@ -26,7 +26,7 @@ import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelations
 import java.util.*;
 
 /**
- * A {@link GeneralizationStrategy} with an "average property cardinality" heuristic.
+ * A {@link GeneralizationStrategy} with a "property change frequency" heuristic.
  * <p/>
  * A human-friendly explanation of what this strategy is trying to achieve is getting rid of (generalizing) properties with
  * frequently changing values (like timestamp on a relationship), whilst keeping the ones that change less frequently,
@@ -58,7 +58,7 @@ public class PropertyChangeFrequencyBasedGeneralizationStrategy implements Gener
     /**
      * Maximum possible number of different values of a property of relationships with the given type, judged
      * by looking at wildcards in the cached counts. For example, if there is a cached count for relationship
-     * FRIEND_OF#OUTGOING#TIMESTAMP#_ANY_ = 5, then 5 different timestamp values are assumed.
+     * FRIEND_OF#OUTGOING#TIMESTAMP#_GA_* = 5, then 5 different timestamp values are assumed.
      */
     private final Map<HasType, Map<String, Integer>> wildcardsByTypeAndKey = new HashMap<>();
 

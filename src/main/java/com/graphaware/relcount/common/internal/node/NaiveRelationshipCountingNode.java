@@ -44,7 +44,7 @@ public abstract class NaiveRelationshipCountingNode<CANDIDATE extends HasTypeAnd
             if (candidateMatchesDescription(candidate, description)) {
                 result = result + relationshipWeight(candidateRelationship);
 
-                //double count self-relationships if looking for BOTH
+                //double count loops if looking for BOTH
                 if (BOTH.equals(description.getDirection()) && BOTH.equals(candidate.getDirection())) {
                     result = result + relationshipWeight(candidateRelationship);
                 }
