@@ -61,7 +61,7 @@ public class AnotherRandomUsageSimulator {
     public void populateDatabase() {
         new NoInputBatchTransactionExecutor(database, 1000, NODES, new UnitOfWork<NullItem>() {
             @Override
-            public void execute(GraphDatabaseService database, NullItem input) {
+            public void execute(GraphDatabaseService database, NullItem input, int batchNumber, int stepNumber) {
                 doCreateUser();
             }
         }).execute();
@@ -91,7 +91,7 @@ public class AnotherRandomUsageSimulator {
 
         IterableInputBatchTransactionExecutor<Long> executor = new IterableInputBatchTransactionExecutor<>(database, 10, allNodeIds, new UnitOfWork<Long>() {
             @Override
-            public void execute(GraphDatabaseService database, Long nodeId) {
+            public void execute(GraphDatabaseService database, Long nodeId, int batchNumber, int stepNumber) {
                 if (nodeId == 0L) {
                     return;
                 }
@@ -125,7 +125,7 @@ public class AnotherRandomUsageSimulator {
     public void batchSimulate(int steps) {
         new NoInputBatchTransactionExecutor(database, 2, steps, new UnitOfWork<NullItem>() {
             @Override
-            public void execute(GraphDatabaseService database, NullItem input) {
+            public void execute(GraphDatabaseService database, NullItem input, int batchNumber, int stepNumber) {
                 performStep();
             }
         }).execute();

@@ -168,7 +168,7 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
                 GlobalGraphOperations.at(databaseService).getAllNodes(),
                 new UnitOfWork<Node>() {
                     @Override
-                    public void execute(GraphDatabaseService database, Node node) {
+                    public void execute(GraphDatabaseService database, Node node, int batchNumber, int stepNumber) {
                         for (String key : node.getPropertyKeys()) {
                             if (key.startsWith(getConfig().createPrefix(id))) {
                                 node.removeProperty(key);
@@ -208,7 +208,7 @@ public abstract class RelationshipCountModule extends BaseFrameworkConfigured im
                 GlobalGraphOperations.at(databaseService).getAllNodes(),
                 new UnitOfWork<Node>() {
                     @Override
-                    public void execute(GraphDatabaseService database, Node node) {
+                    public void execute(GraphDatabaseService database, Node node, int batchNumber, int stepNumber) {
                         Node filteredNode = new FilteredNode(node, getInclusionStrategies());
 
                         buildCachedCounts(filteredNode);

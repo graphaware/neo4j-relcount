@@ -55,7 +55,7 @@ The version number has two parts, separated by a dash. The first part indicates 
 
 ### Compatibility
 
- This module is compatible with Neo4j v. 1.9.x and GraphAware Framework v. 1.9-1.4.
+ This module is compatible with Neo4j v. 1.9.x and GraphAware Framework v. 1.9-1.5.
 
 Usage
 -----

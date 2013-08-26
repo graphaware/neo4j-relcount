@@ -69,7 +69,7 @@ public class RandomUsageSimulator {
 
         new NoInputBatchTransactionExecutor(database, 100, steps, new UnitOfWork<NullItem>() {
             @Override
-            public void execute(GraphDatabaseService database, NullItem input) {
+            public void execute(GraphDatabaseService database, NullItem input, int batchNumber, int stepNumber) {
                 performStep();
             }
         }).execute();

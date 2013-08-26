@@ -103,7 +103,7 @@
         <java.version>1.7</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <neo4j.version>1.9.2</neo4j.version>
-        <graphaware.framework.version>1.9-1.4</graphaware.framework.version>
+        <graphaware.framework.version>1.9-1.5</graphaware.framework.version>
     </properties>
 
     <dependencies>
