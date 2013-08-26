@@ -8,28 +8,21 @@ import com.graphaware.tx.executor.batch.NoInputBatchTransactionExecutor;
 import com.graphaware.tx.executor.batch.UnitOfWork;
 import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
 import com.graphaware.tx.executor.single.VoidReturningCallback;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
 /**
  *
  */
-@Ignore
-public class TwoNodesInMemoryWritePerformanceTest {
-
+public class TwoNodesNoPropertiesWritePerformanceTest extends WritePerformanceTest {
 
     @Test
-    public void noPropertiesPlainDatabase() throws IOException {
+    public void plainDatabase() throws IOException {
         System.out.println("Plain Database:");
         measure(new DatabaseModifier() {
             @Override
@@ -40,7 +33,7 @@ public class TwoNodesInMemoryWritePerformanceTest {
     }
 
     @Test
-    public void noPropertiesEmptyFramework() throws IOException {
+    public void emptyFramework() throws IOException {
         System.out.println("Empty Framework:");
         measure(new DatabaseModifier() {
             @Override
@@ -52,7 +45,7 @@ public class TwoNodesInMemoryWritePerformanceTest {
     }
 
     @Test
-    public void noPropertiesSimpleRelcount() throws IOException {
+    public void simpleRelcount() throws IOException {
         System.out.println("Simple Relcount:");
         measure(new DatabaseModifier() {
             @Override
@@ -65,7 +58,7 @@ public class TwoNodesInMemoryWritePerformanceTest {
     }
 
     @Test
-    public void noPropertiesFullRelcount() throws IOException {
+    public void fullRelcount() throws IOException {
         System.out.println("Full Relcount:");
         measure(new DatabaseModifier() {
             @Override
@@ -75,29 +68,6 @@ public class TwoNodesInMemoryWritePerformanceTest {
                 framework.start();
             }
         });
-    }
-
-    private void measure(DatabaseModifier databaseModifier) throws IOException {
-        Map<String, String> results = new HashMap<>();
-
-        for (int i = 1; i <= 11; i++) {
-            for (int number = 10; number <= 100000; number = number * 10) {
-                for (int batchSize = 1; batchSize <= 100000; batchSize = batchSize * 10) {
-                    long time = measureCreatingRelationships(databaseModifier, number, batchSize);
-
-                    String key = number + ";" + batchSize + ";";
-                    if (!results.containsKey(key)) {
-                        results.put(key, "");
-                    }
-                    results.put(key, results.get(key) + time + ";");
-                }
-            }
-        }
-
-        System.out.println("=== RESULTS ===");
-        for (Map.Entry<String, String> entry : results.entrySet()) {
-            System.out.println(entry.getKey() + entry.getValue());
-        }
     }
 
     private void createTwoNodes(GraphDatabaseService databaseService) {
@@ -110,18 +80,14 @@ public class TwoNodesInMemoryWritePerformanceTest {
         });
     }
 
-    private long measureCreatingRelationships(final DatabaseModifier databaseModifier, final int number, final int batchSize) throws IOException {
-        TemporaryFolder temporaryFolder = new TemporaryFolder();
-        temporaryFolder.create();
-
-        final GraphDatabaseService database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getPath());
-        databaseModifier.alterDatabase(database);
+    @Override
+    protected long doMeasureCreatingRelationships(final GraphDatabaseService database, final int number, final int batchSize) {
         createTwoNodes(database);
 
         final Node node1 = database.getNodeById(1);
         final Node node2 = database.getNodeById(2);
 
-        long time = TestUtils.time(new TestUtils.Timed() {
+        return TestUtils.time(new TestUtils.Timed() {
             @Override
             public void time() {
                 new NoInputBatchTransactionExecutor(database, batchSize, number, new UnitOfWork<NullItem>() {
@@ -136,16 +102,5 @@ public class TwoNodesInMemoryWritePerformanceTest {
                 }).execute();
             }
         });
-
-        System.out.println("Created " + number + " relationships with batch size " + batchSize + " in " + time + " ms");
-//        System.out.println(number + ";" + batchSize + ";" + time);
-
-        database.shutdown();
-        temporaryFolder.delete();
-        return time;
-    }
-
-    private interface DatabaseModifier {
-        void alterDatabase(GraphDatabaseService database);
     }
 }
