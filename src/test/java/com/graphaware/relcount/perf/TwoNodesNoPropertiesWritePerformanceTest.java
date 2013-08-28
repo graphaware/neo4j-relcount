@@ -95,7 +95,7 @@ public class TwoNodesNoPropertiesWritePerformanceTest extends WritePerformanceTe
                 new NoInputBatchTransactionExecutor(database, batchSize, number, new UnitOfWork<NullItem>() {
                     @Override
                     public void execute(GraphDatabaseService database, NullItem input, int batchNumber, int stepNumber) {
-                        if (((batchSize - 1) * batchNumber + stepNumber) % 2 == 0) {
+                        if ((batchSize * (batchNumber - 1) + stepNumber) % 2 == 0) {
                             node1.createRelationshipTo(node2, withName("TEST"));
                         } else {
                             node2.createRelationshipTo(node1, withName("TEST"));
