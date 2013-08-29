@@ -1,0 +1,48 @@
+1000 nodes
+1000000 rels
+
+without module:
+-rw-r--r--   1 bachmanm  wheel     40513 28 Aug 15:26 messages.log
+-rw-r--r--   1 bachmanm  wheel        69 28 Aug 15:26 neostore
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:26 neostore.id
+-rw-r--r--   1 bachmanm  wheel      9025 28 Aug 15:26 neostore.nodestore.db
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:26 neostore.nodestore.db.id
+-rw-r--r--   1 bachmanm  wheel  41000020 28 Aug 15:26 neostore.propertystore.db
+-rw-r--r--   1 bachmanm  wheel       153 28 Aug 15:26 neostore.propertystore.db.arrays
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:26 neostore.propertystore.db.arrays.id
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:26 neostore.propertystore.db.id
+-rw-r--r--   1 bachmanm  wheel        43 28 Aug 15:26 neostore.propertystore.db.index
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:26 neostore.propertystore.db.index.id
+-rw-r--r--   1 bachmanm  wheel       140 28 Aug 15:26 neostore.propertystore.db.index.keys
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:26 neostore.propertystore.db.index.keys.id
+-rw-r--r--   1 bachmanm  wheel       154 28 Aug 15:26 neostore.propertystore.db.strings
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:26 neostore.propertystore.db.strings.id
+-rw-r--r--   1 bachmanm  wheel  33000024 28 Aug 15:26 neostore.relationshipstore.db
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:26 neostore.relationshipstore.db.id
+-rw-r--r--   1 bachmanm  wheel        38 28 Aug 15:26 neostore.relationshiptypestore.db
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:26 neostore.relationshiptypestore.db.id
+-rw-r--r--   1 bachmanm  wheel       140 28 Aug 15:26 neostore.relationshiptypestore.db.names
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:26 neostore.relationshiptypestore.db.names.id
+
+with module:
+-rw-r--r--   1 bachmanm  wheel     90842 28 Aug 15:31 messages.log
+-rw-r--r--   1 bachmanm  wheel        69 28 Aug 15:31 neostore
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:31 neostore.id
+-rw-r--r--   1 bachmanm  wheel      9025 28 Aug 15:31 neostore.nodestore.db
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:31 neostore.nodestore.db.id
+-rw-r--r--   1 bachmanm  wheel  41362788 28 Aug 15:31 neostore.propertystore.db
+-rw-r--r--   1 bachmanm  wheel       153 28 Aug 15:31 neostore.propertystore.db.arrays
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:31 neostore.propertystore.db.arrays.id
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:31 neostore.propertystore.db.id
+-rw-r--r--   1 bachmanm  wheel    313882 28 Aug 15:31 neostore.propertystore.db.index
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:31 neostore.propertystore.db.index.id
+-rw-r--r--   1 bachmanm  wheel   3894076 28 Aug 15:31 neostore.propertystore.db.index.keys
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:31 neostore.propertystore.db.index.keys.id
+-rw-r--r--   1 bachmanm  wheel       666 28 Aug 15:31 neostore.propertystore.db.strings
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:31 neostore.propertystore.db.strings.id
+-rw-r--r--   1 bachmanm  wheel  33000024 28 Aug 15:31 neostore.relationshipstore.db
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:31 neostore.relationshipstore.db.id
+-rw-r--r--   1 bachmanm  wheel        38 28 Aug 15:31 neostore.relationshiptypestore.db
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:31 neostore.relationshiptypestore.db.id
+-rw-r--r--   1 bachmanm  wheel       140 28 Aug 15:31 neostore.relationshiptypestore.db.names
+-rw-r--r--   1 bachmanm  wheel         9 28 Aug 15:31 neostore.relationshiptypestore.db.names.id

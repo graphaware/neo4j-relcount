@@ -2,8 +2,11 @@ package com.graphaware.relcount.perf;
 
 import com.graphaware.framework.GraphAwareFramework;
 import com.graphaware.relcount.full.module.FullRelationshipCountModule;
+import com.graphaware.relcount.full.strategy.RelationshipCountStrategies;
+import com.graphaware.relcount.full.strategy.RelationshipCountStrategiesImpl;
 import com.graphaware.relcount.simple.module.SimpleRelationshipCountModule;
 import com.graphaware.test.TestUtils;
+import com.graphaware.tx.event.improved.strategy.RelationshipPropertyInclusionStrategy;
 import com.graphaware.tx.executor.NullItem;
 import com.graphaware.tx.executor.batch.NoInputBatchTransactionExecutor;
 import com.graphaware.tx.executor.batch.UnitOfWork;
@@ -21,9 +24,7 @@ import static org.neo4j.graphdb.DynamicRelationshipType.withName;
  *
  */
 @Ignore
-public class ThousandNodesTwoRelationshipPropertiesWritePerformanceTest extends WritePerformanceTest {
-
-    private static final int THOUSAND = 1000;
+public class HundredNodesFourRelationshipPropertiesWritePerformanceTest extends WritePerformanceTest {
 
     @Test
     public void plainDatabase() throws IOException {
@@ -33,7 +34,7 @@ public class ThousandNodesTwoRelationshipPropertiesWritePerformanceTest extends 
             public void alterDatabase(GraphDatabaseService database) {
                 //do nothing
             }
-        }, "thousandNodesTwoRelationshipPropsPlainDatabase");
+        }, "thousandNodesFourRelationshipPropsPlainDatabase");
     }
 
     @Test
@@ -45,7 +46,7 @@ public class ThousandNodesTwoRelationshipPropertiesWritePerformanceTest extends 
                 GraphAwareFramework framework = new GraphAwareFramework(database);
                 framework.start();
             }
-        }, "thousandNodesTwoRelationshipPropsEmptyFramework");
+        }, "thousandNodesFourRelationshipPropsEmptyFramework");
     }
 
     @Test
@@ -58,7 +59,7 @@ public class ThousandNodesTwoRelationshipPropertiesWritePerformanceTest extends 
                 framework.registerModule(new SimpleRelationshipCountModule());
                 framework.start();
             }
-        }, "thousandNodesTwoRelationshipPropsSimpleRelcount");
+        }, "thousandNodesFourRelationshipPropsSimpleRelcount");
     }
 
     @Test
@@ -68,37 +69,41 @@ public class ThousandNodesTwoRelationshipPropertiesWritePerformanceTest extends 
             @Override
             public void alterDatabase(GraphDatabaseService database) {
                 GraphAwareFramework framework = new GraphAwareFramework(database);
+                RelationshipCountStrategies strategies = RelationshipCountStrategiesImpl.defaultStrategies().with(
+                        new RelationshipPropertyInclusionStrategy() {
+                            @Override
+                            public boolean include(String key, Relationship propertyContainer) {
+                                return !key.equals("timestamp") && !key.equals("3");
+                            }
+
+                            @Override
+                            public String asString() {
+                                return "custom";
+                            }
+                        }
+                );
                 framework.registerModule(new FullRelationshipCountModule());
                 framework.start();
             }
-        }, "thousandNodesTwoRelationshipPropsFullRelcount");
-    }
-
-    private void createThousandNodes(GraphDatabaseService databaseService) {
-        new NoInputBatchTransactionExecutor(databaseService, THOUSAND, THOUSAND, new UnitOfWork<NullItem>() {
-            @Override
-            public void execute(GraphDatabaseService database, NullItem input, int batchNumber, int stepNumber) {
-                database.createNode();
-            }
-        }).execute();
+        }, "thousandNodesFourRelationshipPropsFullRelcount");
     }
 
     @Override
     protected long doMeasureCreatingRelationships(final GraphDatabaseService database, final int number, final int batchSize) {
-        createThousandNodes(database);
-
         return TestUtils.time(new TestUtils.Timed() {
             @Override
             public void time() {
                 new NoInputBatchTransactionExecutor(database, batchSize, number, new UnitOfWork<NullItem>() {
                     @Override
                     public void execute(GraphDatabaseService database, NullItem input, int batchNumber, int stepNumber) {
-                        final Node node1 = database.getNodeById(RANDOM.nextInt(THOUSAND) + 1);
-                        final Node node2 = database.getNodeById(RANDOM.nextInt(THOUSAND) + 1);
+                        final Node node1 = database.getNodeById(RANDOM.nextInt(HUNDRED) + 1);
+                        final Node node2 = database.getNodeById(RANDOM.nextInt(HUNDRED) + 1);
 
                         Relationship rel = node1.createRelationshipTo(node2, withName("TEST"));
                         rel.setProperty("rating", RANDOM.nextInt(5) + 1);
                         rel.setProperty("timestamp", RANDOM.nextLong());
+                        rel.setProperty("3", RANDOM.nextLong());
+                        rel.setProperty("4", RANDOM.nextInt(2));
                     }
                 }).execute();
             }

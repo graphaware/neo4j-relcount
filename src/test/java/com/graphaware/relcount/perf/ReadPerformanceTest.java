@@ -1,7 +1,5 @@
 package com.graphaware.relcount.perf;
 
-import com.graphaware.framework.GraphAwareFramework;
-import com.graphaware.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.tx.executor.NullItem;
 import com.graphaware.tx.executor.batch.NoInputBatchTransactionExecutor;
 import com.graphaware.tx.executor.batch.UnitOfWork;
@@ -38,17 +36,17 @@ public abstract class ReadPerformanceTest extends PerformanceTest {
             System.out.println(entry.getKey() + entry.getValue());
         }
 
-        resultsToFile(results, "hundredNodesReading");
+        resultsToFile(results, fileName());
     }
+
+    protected abstract String fileName();
 
     private void measureReadingRelationships(int noRels, Map<String, String> results) throws IOException {
         TemporaryFolder temporaryFolder = new TemporaryFolder();
         temporaryFolder.create();
 
         GraphDatabaseService database = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(temporaryFolder.getRoot().getPath()).loadPropertiesFromFile(CONFIG).newGraphDatabase();
-        GraphAwareFramework framework = new GraphAwareFramework(database);
-        framework.registerModule(new FullRelationshipCountModule());
-        framework.start();
+        startFramework(database);
 
         //create 100 nodes
         new NoInputBatchTransactionExecutor(database, HUNDRED, HUNDRED, new UnitOfWork<NullItem>() {
@@ -65,8 +63,7 @@ public abstract class ReadPerformanceTest extends PerformanceTest {
                 final Node node2 = database.getNodeById(RANDOM.nextInt(HUNDRED) + 1);
 
                 Relationship rel = node1.createRelationshipTo(node2, withName("TEST" + ((1000 * (batchNumber - 1) + stepNumber) % 2)));
-                rel.setProperty("rating", RANDOM.nextInt(5) + 1);
-                rel.setProperty("timestamp", RANDOM.nextLong());
+                setPropertiesIfNeeded(rel);
             }
         }).execute();
 
@@ -84,6 +81,12 @@ public abstract class ReadPerformanceTest extends PerformanceTest {
 
         database.shutdown();
         temporaryFolder.delete();
+    }
+
+    protected abstract void startFramework(GraphDatabaseService database);
+
+    protected void setPropertiesIfNeeded(Relationship rel) {
+        //none by default
     }
 
     private void putResult(Map<String, String> results, long time, String key) {

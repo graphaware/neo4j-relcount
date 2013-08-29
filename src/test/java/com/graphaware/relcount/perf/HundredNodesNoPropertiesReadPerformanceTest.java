@@ -1,9 +1,12 @@
 package com.graphaware.relcount.perf;
 
-import com.graphaware.relcount.full.counter.FullCachedRelationshipCounter;
-import com.graphaware.relcount.full.counter.FullNaiveRelationshipCounter;
-import com.graphaware.relcount.full.counter.FullRelationshipCounter;
+import com.graphaware.framework.GraphAwareFramework;
+import com.graphaware.relcount.common.counter.RelationshipCounter;
+import com.graphaware.relcount.simple.counter.SimpleCachedRelationshipCounter;
+import com.graphaware.relcount.simple.counter.SimpleNaiveRelationshipCounter;
+import com.graphaware.relcount.simple.module.SimpleRelationshipCountModule;
 import com.graphaware.test.TestUtils;
+import org.junit.Ignore;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -15,7 +18,8 @@ import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 /**
  *
  */
-public class HundredNodesTwoRelationshipPropertiesReadPerformanceTest extends ReadPerformanceTest {
+@Ignore
+public class HundredNodesNoPropertiesReadPerformanceTest extends ReadPerformanceTest {
 
     @Override
     protected long measurePlain(final GraphDatabaseService database) {
@@ -25,9 +29,7 @@ public class HundredNodesTwoRelationshipPropertiesReadPerformanceTest extends Re
                 long result = 0;
                 for (Node node : GlobalGraphOperations.at(database).getAllNodes()) {
                     for (Relationship r : node.getRelationships(withName("TEST1"), OUTGOING)) {
-                        if (r.getProperty("rating") == 2) {
-                            result++;
-                        }
+                        result++;
                     }
                 }
                 System.out.println("Count: " + result);
@@ -42,7 +44,7 @@ public class HundredNodesTwoRelationshipPropertiesReadPerformanceTest extends Re
             public void time() {
                 long result = 0;
                 for (Relationship relationship : GlobalGraphOperations.at(database).getAllRelationships()) {
-                    if ("TEST1".equals(relationship.getType().name()) && relationship.getProperty("rating") == 2) {
+                    if ("TEST1".equals(relationship.getType().name())) {
                         result++;
                     }
                 }
@@ -57,7 +59,7 @@ public class HundredNodesTwoRelationshipPropertiesReadPerformanceTest extends Re
             @Override
             public void time() {
                 long result = 0;
-                FullRelationshipCounter counter = new FullNaiveRelationshipCounter(withName("TEST1"), OUTGOING).with("rating", 2);
+                RelationshipCounter counter = new SimpleNaiveRelationshipCounter(withName("TEST1"), OUTGOING);
                 for (Node node : GlobalGraphOperations.at(database).getAllNodes()) {
                     result += counter.count(node);
                 }
@@ -72,12 +74,24 @@ public class HundredNodesTwoRelationshipPropertiesReadPerformanceTest extends Re
             @Override
             public void time() {
                 long result = 0;
-                FullRelationshipCounter counter = new FullCachedRelationshipCounter(withName("TEST1"), OUTGOING).with("rating", 2);
+                RelationshipCounter counter = new SimpleCachedRelationshipCounter(withName("TEST1"), OUTGOING);
                 for (Node node : GlobalGraphOperations.at(database).getAllNodes()) {
                     result += counter.count(node);
                 }
                 System.out.println("Count: " + result);
             }
         });
+    }
+
+    @Override
+    protected void startFramework(GraphDatabaseService database) {
+        GraphAwareFramework framework = new GraphAwareFramework(database);
+        framework.registerModule(new SimpleRelationshipCountModule());
+        framework.start();
+    }
+
+    @Override
+    protected String fileName() {
+        return "hundredNodesNoPropsReading";
     }
 }
