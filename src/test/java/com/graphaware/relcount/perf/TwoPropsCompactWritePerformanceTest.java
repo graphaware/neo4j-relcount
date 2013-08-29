@@ -2,11 +2,8 @@ package com.graphaware.relcount.perf;
 
 import com.graphaware.framework.GraphAwareFramework;
 import com.graphaware.relcount.full.module.FullRelationshipCountModule;
-import com.graphaware.relcount.full.strategy.RelationshipCountStrategies;
-import com.graphaware.relcount.full.strategy.RelationshipCountStrategiesImpl;
 import com.graphaware.relcount.simple.module.SimpleRelationshipCountModule;
 import com.graphaware.test.TestUtils;
-import com.graphaware.tx.event.improved.strategy.RelationshipPropertyInclusionStrategy;
 import com.graphaware.tx.executor.NullItem;
 import com.graphaware.tx.executor.batch.NoInputBatchTransactionExecutor;
 import com.graphaware.tx.executor.batch.UnitOfWork;
@@ -24,7 +21,7 @@ import static org.neo4j.graphdb.DynamicRelationshipType.withName;
  *
  */
 @Ignore
-public class HundredNodesFourRelationshipPropertiesWritePerformanceTest extends WritePerformanceTest {
+public class TwoPropsCompactWritePerformanceTest extends RelationshipWritePerformanceTest {
 
     @Test
     public void plainDatabase() throws IOException {
@@ -34,7 +31,7 @@ public class HundredNodesFourRelationshipPropertiesWritePerformanceTest extends 
             public void alterDatabase(GraphDatabaseService database) {
                 //do nothing
             }
-        }, "thousandNodesFourRelationshipPropsPlainDatabase");
+        }, "hundredNodesTwoPropsPlainDatabaseWriteCompact");
     }
 
     @Test
@@ -46,7 +43,7 @@ public class HundredNodesFourRelationshipPropertiesWritePerformanceTest extends 
                 GraphAwareFramework framework = new GraphAwareFramework(database);
                 framework.start();
             }
-        }, "thousandNodesFourRelationshipPropsEmptyFramework");
+        }, "hundredNodesTwoPropsEmptyFrameworkWriteCompact");
     }
 
     @Test
@@ -59,7 +56,7 @@ public class HundredNodesFourRelationshipPropertiesWritePerformanceTest extends 
                 framework.registerModule(new SimpleRelationshipCountModule());
                 framework.start();
             }
-        }, "thousandNodesFourRelationshipPropsSimpleRelcount");
+        }, "hundredNodesTwoPropsSimpleRelcountWriteCompact");
     }
 
     @Test
@@ -69,23 +66,10 @@ public class HundredNodesFourRelationshipPropertiesWritePerformanceTest extends 
             @Override
             public void alterDatabase(GraphDatabaseService database) {
                 GraphAwareFramework framework = new GraphAwareFramework(database);
-                RelationshipCountStrategies strategies = RelationshipCountStrategiesImpl.defaultStrategies().with(
-                        new RelationshipPropertyInclusionStrategy() {
-                            @Override
-                            public boolean include(String key, Relationship propertyContainer) {
-                                return !key.equals("timestamp") && !key.equals("3");
-                            }
-
-                            @Override
-                            public String asString() {
-                                return "custom";
-                            }
-                        }
-                );
                 framework.registerModule(new FullRelationshipCountModule());
                 framework.start();
             }
-        }, "thousandNodesFourRelationshipPropsFullRelcount");
+        }, "hundredNodesTwoPropsFullRelcountWriteCompact");
     }
 
     @Override
@@ -100,10 +84,7 @@ public class HundredNodesFourRelationshipPropertiesWritePerformanceTest extends 
                         final Node node2 = database.getNodeById(RANDOM.nextInt(HUNDRED) + 1);
 
                         Relationship rel = node1.createRelationshipTo(node2, withName("TEST"));
-                        rel.setProperty("rating", RANDOM.nextInt(5) + 1);
-                        rel.setProperty("timestamp", RANDOM.nextLong());
-                        rel.setProperty("3", RANDOM.nextLong());
-                        rel.setProperty("4", RANDOM.nextInt(2));
+                        twoProps(rel);
                     }
                 }).execute();
             }

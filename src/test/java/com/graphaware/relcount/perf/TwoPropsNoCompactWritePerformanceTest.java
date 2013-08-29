@@ -7,8 +7,6 @@ import com.graphaware.test.TestUtils;
 import com.graphaware.tx.executor.NullItem;
 import com.graphaware.tx.executor.batch.NoInputBatchTransactionExecutor;
 import com.graphaware.tx.executor.batch.UnitOfWork;
-import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
-import com.graphaware.tx.executor.single.VoidReturningCallback;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -16,7 +14,6 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.io.IOException;
-import java.util.Random;
 
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
@@ -24,9 +21,7 @@ import static org.neo4j.graphdb.DynamicRelationshipType.withName;
  *
  */
 @Ignore
-public class TwoNodesTwoRelationshipPropertiesWritePerformanceTest extends WritePerformanceTest {
-
-    private static final Random RANDOM = new Random(51823591465L);
+public class TwoPropsNoCompactWritePerformanceTest extends RelationshipWritePerformanceTest {
 
     @Test
     public void plainDatabase() throws IOException {
@@ -36,7 +31,7 @@ public class TwoNodesTwoRelationshipPropertiesWritePerformanceTest extends Write
             public void alterDatabase(GraphDatabaseService database) {
                 //do nothing
             }
-        }, "twoNodesTwoRelationshipPropsPlainDatabase");
+        }, "hundredNodesTwoPropsPlainDatabaseWriteNoCompaction");
     }
 
     @Test
@@ -48,7 +43,7 @@ public class TwoNodesTwoRelationshipPropertiesWritePerformanceTest extends Write
                 GraphAwareFramework framework = new GraphAwareFramework(database);
                 framework.start();
             }
-        }, "twoNodesTwoRelationshipPropsEmptyFramework");
+        }, "hundredNodesTwoPropsEmptyFrameworkWriteNoCompaction");
     }
 
     @Test
@@ -61,7 +56,7 @@ public class TwoNodesTwoRelationshipPropertiesWritePerformanceTest extends Write
                 framework.registerModule(new SimpleRelationshipCountModule());
                 framework.start();
             }
-        }, "twoNodesTwoRelationshipPropsSimpleRelcount");
+        }, "hundredNodesTwoPropsSimpleRelcountWriteNoCompaction");
     }
 
     @Test
@@ -74,41 +69,23 @@ public class TwoNodesTwoRelationshipPropertiesWritePerformanceTest extends Write
                 framework.registerModule(new FullRelationshipCountModule());
                 framework.start();
             }
-        }, "twoNodesTwoRelationshipPropsFullRelcount");
-    }
-
-    private void createTwoNodes(GraphDatabaseService databaseService) {
-        new SimpleTransactionExecutor(databaseService).executeInTransaction(new VoidReturningCallback() {
-            @Override
-            protected void doInTx(GraphDatabaseService database) {
-                database.createNode();
-                database.createNode();
-            }
-        });
+        }, "hundredNodesTwoPropsFullRelcountWriteNoCompaction");
     }
 
     @Override
     protected long doMeasureCreatingRelationships(final GraphDatabaseService database, final int number, final int batchSize) {
-        createTwoNodes(database);
-
-        final Node node1 = database.getNodeById(1);
-        final Node node2 = database.getNodeById(2);
-
         return TestUtils.time(new TestUtils.Timed() {
             @Override
             public void time() {
                 new NoInputBatchTransactionExecutor(database, batchSize, number, new UnitOfWork<NullItem>() {
                     @Override
                     public void execute(GraphDatabaseService database, NullItem input, int batchNumber, int stepNumber) {
-                        Relationship rel;
-                        if ((batchSize * (batchNumber - 1) + stepNumber) % 2 == 0) {
-                            rel = node1.createRelationshipTo(node2, withName("TEST"));
-                        } else {
-                            rel = node2.createRelationshipTo(node1, withName("TEST"));
-                        }
+                        final Node node1 = database.getNodeById(RANDOM.nextInt(HUNDRED) + 1);
+                        final Node node2 = database.getNodeById(RANDOM.nextInt(HUNDRED) + 1);
 
-                        rel.setProperty("rating", RANDOM.nextInt(5) + 1);
-                        rel.setProperty("timestamp", RANDOM.nextLong());
+                        Relationship rel = node1.createRelationshipTo(node2, withName("TEST"));
+                        rel.setProperty("rating", RANDOM.nextInt(2));
+                        rel.setProperty("another", RANDOM.nextInt(2));
                     }
                 }).execute();
             }

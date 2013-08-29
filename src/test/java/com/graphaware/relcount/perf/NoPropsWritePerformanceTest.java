@@ -1,27 +1,20 @@
 package com.graphaware.relcount.perf;
 
 import com.graphaware.framework.GraphAwareFramework;
+import com.graphaware.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.relcount.simple.module.SimpleRelationshipCountModule;
 import com.graphaware.test.TestUtils;
-import com.graphaware.tx.executor.NullItem;
-import com.graphaware.tx.executor.batch.NoInputBatchTransactionExecutor;
-import com.graphaware.tx.executor.batch.UnitOfWork;
-import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
-import com.graphaware.tx.executor.single.VoidReturningCallback;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
 
 import java.io.IOException;
-
-import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
 /**
  *
  */
 @Ignore
-public class TwoNodesNoPropertiesWritePerformanceTest extends WritePerformanceTest {
+public class NoPropsWritePerformanceTest extends RelationshipWritePerformanceTest {
 
     @Test
     public void plainDatabase() throws IOException {
@@ -31,7 +24,7 @@ public class TwoNodesNoPropertiesWritePerformanceTest extends WritePerformanceTe
             public void alterDatabase(GraphDatabaseService database) {
                 //do nothing
             }
-        }, "twoNodesNoPropsPlainDatabase");
+        }, "hundredNodesNoPropsPlainDatabaseWrite");
     }
 
     @Test
@@ -43,7 +36,7 @@ public class TwoNodesNoPropertiesWritePerformanceTest extends WritePerformanceTe
                 GraphAwareFramework framework = new GraphAwareFramework(database);
                 framework.start();
             }
-        }, "twoNodesNoPropsEmptyFramework");
+        }, "hundredNodesNoPropsEmptyFrameworkWrite");
     }
 
     @Test
@@ -56,7 +49,7 @@ public class TwoNodesNoPropertiesWritePerformanceTest extends WritePerformanceTe
                 framework.registerModule(new SimpleRelationshipCountModule());
                 framework.start();
             }
-        }, "twoNodesNoPropsSimpleRelcount");
+        }, "hundredNodesNoPropsSimpleRelcountWrite");
     }
 
     @Test
@@ -66,42 +59,18 @@ public class TwoNodesNoPropertiesWritePerformanceTest extends WritePerformanceTe
             @Override
             public void alterDatabase(GraphDatabaseService database) {
                 GraphAwareFramework framework = new GraphAwareFramework(database);
-                framework.registerModule(new SimpleRelationshipCountModule());
+                framework.registerModule(new FullRelationshipCountModule());
                 framework.start();
             }
-        }, "twoNodesNoPropsFullRelcount");
-    }
-
-    private void createTwoNodes(GraphDatabaseService databaseService) {
-        new SimpleTransactionExecutor(databaseService).executeInTransaction(new VoidReturningCallback() {
-            @Override
-            protected void doInTx(GraphDatabaseService database) {
-                database.createNode();
-                database.createNode();
-            }
-        });
+        }, "hundredNodesNoPropsFullRelcountWrite");
     }
 
     @Override
     protected long doMeasureCreatingRelationships(final GraphDatabaseService database, final int number, final int batchSize) {
-        createTwoNodes(database);
-
-        final Node node1 = database.getNodeById(1);
-        final Node node2 = database.getNodeById(2);
-
         return TestUtils.time(new TestUtils.Timed() {
             @Override
             public void time() {
-                new NoInputBatchTransactionExecutor(database, batchSize, number, new UnitOfWork<NullItem>() {
-                    @Override
-                    public void execute(GraphDatabaseService database, NullItem input, int batchNumber, int stepNumber) {
-                        if ((batchSize * (batchNumber - 1) + stepNumber) % 2 == 0) {
-                            node1.createRelationshipTo(node2, withName("TEST"));
-                        } else {
-                            node2.createRelationshipTo(node1, withName("TEST"));
-                        }
-                    }
-                }).execute();
+                createRelationships(number, batchSize, database);
             }
         });
     }

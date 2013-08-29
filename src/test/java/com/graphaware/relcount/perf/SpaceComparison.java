@@ -20,8 +20,6 @@ import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 @Ignore
 public class SpaceComparison extends PerformanceTest {
 
-    public static final int THOUSAND = 1000;
-
     @Test
     public void createTwoDatabases() {
         GraphDatabaseService one = new GraphDatabaseFactory().newEmbeddedDatabase("/tmp/space/one");
@@ -38,20 +36,20 @@ public class SpaceComparison extends PerformanceTest {
 
     private void populateDatabase(GraphDatabaseService database) {
 
-        new NoInputBatchTransactionExecutor(database, THOUSAND, THOUSAND, new UnitOfWork<NullItem>() {
+        new NoInputBatchTransactionExecutor(database, 1000, 1000, new UnitOfWork<NullItem>() {
             @Override
             public void execute(GraphDatabaseService database, NullItem input, int batchNumber, int stepNumber) {
                 database.createNode();
             }
         }).execute();
 
-        new NoInputBatchTransactionExecutor(database, THOUSAND, 1000000, new UnitOfWork<NullItem>() {
+        new NoInputBatchTransactionExecutor(database, 1000, 1000000, new UnitOfWork<NullItem>() {
             @Override
             public void execute(GraphDatabaseService database, NullItem input, int batchNumber, int stepNumber) {
-                final Node node1 = database.getNodeById(RANDOM.nextInt(THOUSAND) + 1);
-                final Node node2 = database.getNodeById(RANDOM.nextInt(THOUSAND) + 1);
+                final Node node1 = database.getNodeById(RANDOM.nextInt(1000) + 1);
+                final Node node2 = database.getNodeById(RANDOM.nextInt(1000) + 1);
 
-                Relationship rel = node1.createRelationshipTo(node2, withName("TEST" + ((THOUSAND * (batchNumber - 1) + stepNumber) % 2)));
+                Relationship rel = node1.createRelationshipTo(node2, withName("TEST" + ((1000 * (batchNumber - 1) + stepNumber) % 2)));
                 rel.setProperty("rating", RANDOM.nextInt(5) + 1);
                 rel.setProperty("timestamp", RANDOM.nextLong());
             }
