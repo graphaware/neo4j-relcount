@@ -1,6 +1,5 @@
 package com.graphaware.relcount.full.internal.node;
 
-import com.graphaware.relcount.common.internal.node.RelationshipCountCachingNode;
 import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescription;
 import org.apache.log4j.Logger;
 
@@ -34,7 +33,7 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
      * {@inheritDoc}
      */
     @Override
-    public void compactRelationshipCounts(RelationshipCountCachingNode<CacheableRelationshipDescription> node) {
+    public void compactRelationshipCounts(FullRelationshipCountCachingNode node) {
         if (!performCompaction(node)) {
             LOG.warn("Compactor could not reach the desired threshold (" + compactionThreshold + ") " +
                     "on node " + node.getId() + ". This is potentially due to the fact that there are more than " + compactionThreshold +
@@ -44,7 +43,7 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
         }
     }
 
-    private boolean performCompaction(RelationshipCountCachingNode<CacheableRelationshipDescription> node) {
+    private boolean performCompaction(FullRelationshipCountCachingNode node) {
         Map<CacheableRelationshipDescription, Integer> cachedCounts = node.getCachedCounts();
 
         //Not above the threshold => no need for compaction
@@ -73,12 +72,15 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
                     node.decrementCount(candidate, count);
                 }
 
-                node.incrementCount(generalization, candidateCachedCount);
+                node.incrementCount(generalization, candidateCachedCount, true);
 
                 //After the compaction, see if more is needed using a recursive call
-                performCompaction(node);
+//                performCompaction(node);
 
-                break;
+                if (cachedCounts.size() <= compactionThreshold) {
+                    return true;
+                }
+//                break;
             }
         }
 

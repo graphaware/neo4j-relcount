@@ -18,10 +18,12 @@ package com.graphaware.relcount.full.internal.node;
 
 import com.graphaware.framework.config.DefaultFrameworkConfiguration;
 import com.graphaware.relcount.common.counter.UnableToCountException;
-import com.graphaware.relcount.common.internal.node.RelationshipCountCachingNode;
 import com.graphaware.relcount.common.internal.node.RelationshipCountingNode;
 import com.graphaware.relcount.full.internal.dto.property.CacheablePropertiesDescriptionImpl;
-import com.graphaware.relcount.full.internal.dto.relationship.*;
+import com.graphaware.relcount.full.internal.dto.relationship.CacheableRelationshipDescriptionImpl;
+import com.graphaware.relcount.full.internal.dto.relationship.LiteralRelationshipQueryDescription;
+import com.graphaware.relcount.full.internal.dto.relationship.RelationshipQueryDescription;
+import com.graphaware.relcount.full.internal.dto.relationship.WildcardRelationshipQueryDescription;
 import com.graphaware.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
 import com.graphaware.tx.executor.single.TransactionExecutor;
@@ -55,7 +57,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
         database.shutdown();
     }
 
-    private RelationshipCountCachingNode<CacheableRelationshipDescription> cachingNode(RelationshipCountCompactor compactor) {
+    private FullRelationshipCountCachingNode cachingNode(RelationshipCountCompactor compactor) {
         return new FullRelationshipCountCachingNode(database.getNodeById(0), DefaultFrameworkConfiguration.getInstance().createPrefix(FullRelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID), DefaultFrameworkConfiguration.getInstance().separator(), compactor);
     }
 
@@ -76,7 +78,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("test#OUTGOING#k1#v3").toString(prefix(), hash()), 2);
                 root.setProperty(wildcard("test#OUTGOING#k1#v4").toString(prefix(), hash()), 3);
 
-                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                FullRelationshipCountCachingNode node = cachingNode(compactor);
                 compactor.compactRelationshipCounts(node);
                 node.flush();
             }
@@ -104,7 +106,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("test#OUTGOING#k1#v4").toString(prefix(), hash()), 3);
                 root.setProperty(wildcard("test#OUTGOING#k1#v5").toString(prefix(), hash()), 4);
 
-                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                FullRelationshipCountCachingNode node = cachingNode(compactor);
                 compactor.compactRelationshipCounts(node);
                 node.flush();
             }
@@ -139,7 +141,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("test#OUTGOING#k1#v2#k2#v3").toString(prefix(), hash()), 1);
                 root.setProperty(wildcard("test#OUTGOING#k1#v2#k2#v4").toString(prefix(), hash()), 1);
 
-                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                FullRelationshipCountCachingNode node = cachingNode(compactor);
                 compactor.compactRelationshipCounts(node);
                 node.flush();
             }
@@ -172,7 +174,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("test#OUTGOING#z1#v1#k2#v4#k3#v4").toString(prefix(), hash()), 1);
                 root.setProperty(wildcard("test#OUTGOING#z1#v1#k2#v5#k3#v5").toString(prefix(), hash()), 1);
 
-                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                FullRelationshipCountCachingNode node = cachingNode(compactor);
                 compactor.compactRelationshipCounts(node);
                 node.flush();
             }
@@ -224,7 +226,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("test4#OUTGOING#k2#v2").toString(prefix(), hash()), 1);
                 root.setProperty(wildcard("test5#OUTGOING#k2#v2").toString(prefix(), hash()), 1);
 
-                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                FullRelationshipCountCachingNode node = cachingNode(compactor);
                 compactor.compactRelationshipCounts(node);
                 node.flush();
             }
@@ -256,7 +258,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("ONE#INCOMING#k1#v1#k2#v2").toString(prefix(), hash()), 1);
                 root.setProperty(wildcard("ONE#INCOMING#k1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE + "#w#" + CacheablePropertiesDescriptionImpl.ANY_VALUE).toString(prefix(), hash()), 2);
 
-                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                FullRelationshipCountCachingNode node = cachingNode(compactor);
                 compactor.compactRelationshipCounts(node);
                 node.flush();
             }
@@ -276,7 +278,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("ONE#INCOMING#k1#" + CacheablePropertiesDescriptionImpl.ANY_VALUE).toString(prefix(), hash()), 1);
                 root.setProperty(wildcard("ONE#INCOMING#k2#" + CacheablePropertiesDescriptionImpl.ANY_VALUE).toString(prefix(), hash()), 2);
 
-                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                FullRelationshipCountCachingNode node = cachingNode(compactor);
                 compactor.compactRelationshipCounts(node);
                 node.flush();
             }
@@ -304,7 +306,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("ONE#INCOMING#level#2#timestamp#123132135766").toString(prefix(), hash()), 1);
                 root.setProperty(wildcard("ONE#INCOMING#level#1#timestamp#123132135763").toString(prefix(), hash()), 1);
 
-                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                FullRelationshipCountCachingNode node = cachingNode(compactor);
                 compactor.compactRelationshipCounts(node);
                 node.flush();
             }
@@ -332,7 +334,7 @@ public class ThresholdBasedRelationshipCountCompactorTest {
                 root.setProperty(wildcard("ONE#INCOMING#level#2#timestamp#123132135766").toString(prefix(), hash()), 1);
                 root.setProperty(wildcard("ONE#INCOMING#level#1#timestamp#123132135763").toString(prefix(), hash()), 1);
 
-                RelationshipCountCachingNode<CacheableRelationshipDescription> node = cachingNode(compactor);
+                FullRelationshipCountCachingNode node = cachingNode(compactor);
                 compactor.compactRelationshipCounts(node);
                 node.flush();
             }

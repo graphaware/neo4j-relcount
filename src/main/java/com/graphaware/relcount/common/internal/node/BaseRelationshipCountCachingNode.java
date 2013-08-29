@@ -74,6 +74,13 @@ public abstract class BaseRelationshipCountCachingNode<CACHED extends Serializab
      * @see {@link RelationshipCountCachingNode#incrementCount(com.graphaware.propertycontainer.dto.common.relationship.HasTypeAndDirection, int)}
      */
     public final void incrementCount(CACHED relationship, int delta) {
+        incrementCount(relationship, delta, false);
+    }
+
+    /**
+     * @see {@link RelationshipCountCachingNode#incrementCount(com.graphaware.propertycontainer.dto.common.relationship.HasTypeAndDirection, int)}
+     */
+    public final void incrementCount(CACHED relationship, int delta, boolean preventReaction) {
         for (CACHED cachedRelationship : cachedCounts.keySet()) {
             if (cachedMatch(cachedRelationship, relationship)) {
                 int newValue = cachedCounts.get(cachedRelationship) + delta;
@@ -83,7 +90,10 @@ public abstract class BaseRelationshipCountCachingNode<CACHED extends Serializab
         }
 
         put(relationship, delta);
-        propertyCreated();
+
+        if (!preventReaction) {
+            propertyCreated();
+        }
     }
 
     /**
