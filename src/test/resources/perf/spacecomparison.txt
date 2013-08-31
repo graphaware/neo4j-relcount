@@ -1,5 +1,4 @@
-1000 nodes
-1000000 rels
+Space in bytes taken by a database with 1000 nodes 1000000 relationships, two properties each (one compacted out):
 
 without module:
         69 neostore
