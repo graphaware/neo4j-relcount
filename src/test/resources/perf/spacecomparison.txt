@@ -1,0 +1,45 @@
+Space in bytes taken by a database with 1000 nodes 1000000 relationships, two properties each (one compacted out):
+
+without module:
+        69 neostore
+         9 neostore.id
+      9025 neostore.nodestore.db
+         9 neostore.nodestore.db.id
+  41000020 neostore.propertystore.db
+       153 neostore.propertystore.db.arrays
+         9 neostore.propertystore.db.arrays.id
+         9 neostore.propertystore.db.id
+        43 neostore.propertystore.db.index
+         9 neostore.propertystore.db.index.id
+       140 neostore.propertystore.db.index.keys
+         9 neostore.propertystore.db.index.keys.id
+       154 neostore.propertystore.db.strings
+         9 neostore.propertystore.db.strings.id
+  33000024 neostore.relationshipstore.db
+         9 neostore.relationshipstore.db.id
+        38 neostore.relationshiptypestore.db
+         9 neostore.relationshiptypestore.db.id
+       140 neostore.relationshiptypestore.db.names
+         9 neostore.relationshiptypestore.db.names.id
+
+with module:
+        69 neostore
+         9 neostore.id
+      9025 neostore.nodestore.db
+         9 neostore.nodestore.db.id
+  41362788 neostore.propertystore.db
+       153 neostore.propertystore.db.arrays
+         9 neostore.propertystore.db.arrays.id
+         9 neostore.propertystore.db.id
+    313882 neostore.propertystore.db.index
+         9 neostore.propertystore.db.index.id
+   3894076 neostore.propertystore.db.index.keys
+         9 neostore.propertystore.db.index.keys.id
+       666 neostore.propertystore.db.strings
+         9 neostore.propertystore.db.strings.id
+  33000024 neostore.relationshipstore.db
+         9 neostore.relationshipstore.db.id
+        38 neostore.relationshiptypestore.db
+         9 neostore.relationshiptypestore.db.id
+       140 neostore.relationshiptypestore.db.names
+         9 neostore.relationshiptypestore.db.names.id
