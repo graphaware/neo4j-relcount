@@ -17,9 +17,6 @@ import java.io.IOException;
 
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
-/**
- *
- */
 @Ignore
 public class FourPropsCompactWritePerformanceTest extends RelationshipWritePerformanceTest {
 
@@ -35,6 +32,7 @@ public class FourPropsCompactWritePerformanceTest extends RelationshipWritePerfo
     }
 
     @Test
+    @Ignore
     public void emptyFramework() throws IOException {
         System.out.println("Empty Framework:");
         measure(new DatabaseModifier() {

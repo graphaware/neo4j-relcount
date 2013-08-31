@@ -17,9 +17,6 @@ import java.io.IOException;
 
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
-/**
- *
- */
 @Ignore
 public class TwoPropsCompactWritePerformanceTest extends RelationshipWritePerformanceTest {
 

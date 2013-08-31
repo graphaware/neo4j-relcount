@@ -15,11 +15,10 @@ import org.neo4j.tooling.GlobalGraphOperations;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
-/**
- *
- */
 @Ignore
 public class TwoPropsReadPerformanceTest extends RelationshipReadPerformanceTest {
+
+    private static final int COUNT_NO = 1000000;
 
     @Override
     protected long measurePlain(final GraphDatabaseService database) {
@@ -27,7 +26,8 @@ public class TwoPropsReadPerformanceTest extends RelationshipReadPerformanceTest
             @Override
             public void time() {
                 long result = 0;
-                for (Node node : GlobalGraphOperations.at(database).getAllNodes()) {
+                for (int i = 0; i < COUNT_NO; i++) {
+                    Node node = database.getNodeById(RANDOM.nextInt(THOUSAND) + 1);
                     for (Relationship r : node.getRelationships(withName("TEST1"), OUTGOING)) {
                         if (r.getProperty("rating") == 2) {
                             result++;
@@ -62,7 +62,8 @@ public class TwoPropsReadPerformanceTest extends RelationshipReadPerformanceTest
             public void time() {
                 long result = 0;
                 FullRelationshipCounter counter = new FullNaiveRelationshipCounter(withName("TEST1"), OUTGOING).with("rating", 2);
-                for (Node node : GlobalGraphOperations.at(database).getAllNodes()) {
+                for (int i = 0; i < COUNT_NO; i++) {
+                    Node node = database.getNodeById(RANDOM.nextInt(THOUSAND) + 1);
                     result += counter.count(node);
                 }
                 System.out.println("Count: " + result);
@@ -77,7 +78,8 @@ public class TwoPropsReadPerformanceTest extends RelationshipReadPerformanceTest
             public void time() {
                 long result = 0;
                 FullRelationshipCounter counter = new FullCachedRelationshipCounter(withName("TEST1"), OUTGOING).with("rating", 2);
-                for (Node node : GlobalGraphOperations.at(database).getAllNodes()) {
+                for (int i = 0; i < COUNT_NO; i++) {
+                    Node node = database.getNodeById(RANDOM.nextInt(THOUSAND) + 1);
                     result += counter.count(node);
                 }
                 System.out.println("Count: " + result);

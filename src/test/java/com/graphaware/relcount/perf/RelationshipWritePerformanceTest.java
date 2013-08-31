@@ -14,8 +14,8 @@ public abstract class RelationshipWritePerformanceTest extends PerformanceTest {
     protected void measure(DatabaseModifier databaseModifier, String fileName) throws IOException {
         Map<String, String> results = new HashMap<>();
 
-        for (int i = 1; i <= 5; i++) {
-            for (int batchSize = 1; batchSize <= HUNDRED_THOUSAND; batchSize = batchSize * 10) {
+        for (int i = 1; i <= 10; i++) {
+            for (int batchSize = 1; batchSize <= THOUSAND; batchSize = batchSize * 10) {
                 long time = measureCreatingRelationships(databaseModifier, HUNDRED_THOUSAND, batchSize);
 
                 String key = HUNDRED_THOUSAND + ";" + batchSize + ";";

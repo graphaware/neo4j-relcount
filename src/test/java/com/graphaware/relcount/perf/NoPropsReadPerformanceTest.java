@@ -15,11 +15,10 @@ import org.neo4j.tooling.GlobalGraphOperations;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
-/**
- *
- */
 @Ignore
 public class NoPropsReadPerformanceTest extends RelationshipReadPerformanceTest {
+
+    private static final int COUNT_NO = 1000000;
 
     @Override
     protected long measurePlain(final GraphDatabaseService database) {
@@ -27,7 +26,8 @@ public class NoPropsReadPerformanceTest extends RelationshipReadPerformanceTest 
             @Override
             public void time() {
                 long result = 0;
-                for (Node node : GlobalGraphOperations.at(database).getAllNodes()) {
+                for (int i = 0; i < COUNT_NO; i++) {
+                    Node node = database.getNodeById(RANDOM.nextInt(THOUSAND) + 1);
                     for (Relationship r : node.getRelationships(withName("TEST1"), OUTGOING)) {
                         result++;
                     }
@@ -60,7 +60,8 @@ public class NoPropsReadPerformanceTest extends RelationshipReadPerformanceTest 
             public void time() {
                 long result = 0;
                 RelationshipCounter counter = new SimpleNaiveRelationshipCounter(withName("TEST1"), OUTGOING);
-                for (Node node : GlobalGraphOperations.at(database).getAllNodes()) {
+                for (int i = 0; i < COUNT_NO; i++) {
+                    Node node = database.getNodeById(RANDOM.nextInt(THOUSAND) + 1);
                     result += counter.count(node);
                 }
                 System.out.println("Count: " + result);
@@ -75,7 +76,8 @@ public class NoPropsReadPerformanceTest extends RelationshipReadPerformanceTest 
             public void time() {
                 long result = 0;
                 RelationshipCounter counter = new SimpleCachedRelationshipCounter(withName("TEST1"), OUTGOING);
-                for (Node node : GlobalGraphOperations.at(database).getAllNodes()) {
+                for (int i = 0; i < COUNT_NO; i++) {
+                    Node node = database.getNodeById(RANDOM.nextInt(THOUSAND) + 1);
                     result += counter.count(node);
                 }
                 System.out.println("Count: " + result);

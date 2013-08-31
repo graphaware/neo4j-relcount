@@ -15,7 +15,7 @@ public abstract class RelationshipReadPerformanceTest extends PerformanceTest {
     public void measure() throws IOException {
         Map<String, String> results = new HashMap<>();
 
-        for (int noRels = THOUSAND; noRels <= 1000000; noRels = noRels * 10) {
+        for (int noRels = 10000; noRels <= 1000000; noRels = noRels * 10) {
             measureReadingRelationships(noRels, results);
         }
 
@@ -33,17 +33,17 @@ public abstract class RelationshipReadPerformanceTest extends PerformanceTest {
         TemporaryFolder temporaryFolder = new TemporaryFolder();
         temporaryFolder.create();
 
-        GraphDatabaseService database = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(temporaryFolder.getRoot().getPath()).loadPropertiesFromFile(CONFIG).newGraphDatabase();
+        GraphDatabaseService database = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(temporaryFolder.getRoot().getAbsolutePath()).loadPropertiesFromFile(CONFIG).newGraphDatabase();
         startFramework(database);
 
         createNodes(database, THOUSAND);
 
         createRelationships(noRels, THOUSAND, database);
 
-        for (int i = 1; i <= 5; i++) {
+        for (int i = 1; i <= 11; i++) {
             putResult(results, measurePlain(database), "plain;" + noRels + ";");
-            putResult(results, measureBruteForce(database), "bruteforce;" + noRels + ";");
-            putResult(results, measureNaive(database), "naive;" + noRels + ";");
+//            putResult(results, measureBruteForce(database), "bruteforce;" + noRels + ";");
+//            putResult(results, measureNaive(database), "naive;" + noRels + ";");
             putResult(results, measureCached(database), "cached;" + noRels + ";");
         }
 

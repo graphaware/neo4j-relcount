@@ -10,9 +10,6 @@ import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.io.IOException;
 
-/**
- *
- */
 @Ignore
 public class NoPropsWritePerformanceTest extends RelationshipWritePerformanceTest {
 
