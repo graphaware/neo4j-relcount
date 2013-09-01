@@ -25,7 +25,7 @@ and put it on your classpath. When using Maven, include the following snippet in
         <dependency>
             <groupId>com.graphaware</groupId>
             <artifactId>neo4j-relcount</artifactId>
-            <version>1.9-1.2</version>
+            <version>1.9-1.3</version>
         </dependency>
         ...
     </dependencies>
@@ -41,7 +41,7 @@ your pom.xml instead of copying the .jar:
         <dependency>
             <groupId>com.graphaware</groupId>
             <artifactId>neo4j-relcount</artifactId>
-            <version>1.9-1.3-SNAPSHOT</version>
+            <version>1.9-1.4-SNAPSHOT</version>
         </dependency>
         ...
     </dependencies>
@@ -54,7 +54,7 @@ The version number has two parts, separated by a dash. The first part indicates 
 
 ### Compatibility
 
- This module is compatible with Neo4j v. 1.9.x and GraphAware Framework v. 1.9-1.6.
+ This module is compatible with Neo4j v. 1.9.x and GraphAware Framework v. 1.9-1.7.
 
 Usage
 -----
