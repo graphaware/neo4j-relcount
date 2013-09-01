@@ -1,5 +1,6 @@
 package com.graphaware.relcount.perf;
 
+import com.graphaware.test.TestUtils;
 import org.junit.rules.TemporaryFolder;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -16,7 +17,7 @@ public abstract class RelationshipWritePerformanceTest extends PerformanceTest {
 
         for (int i = 1; i <= 10; i++) {
             for (int batchSize = 1; batchSize <= THOUSAND; batchSize = batchSize * 10) {
-                long time = measureCreatingRelationships(databaseModifier, HUNDRED_THOUSAND, batchSize);
+                long time = measureCreatingRelationships(databaseModifier, HUNDRED_THOUSAND, HUNDRED, batchSize);
 
                 String key = HUNDRED_THOUSAND + ";" + batchSize + ";";
                 if (!results.containsKey(key)) {
@@ -34,16 +35,22 @@ public abstract class RelationshipWritePerformanceTest extends PerformanceTest {
         resultsToFile(results, fileName);
     }
 
-    private long measureCreatingRelationships(final DatabaseModifier databaseModifier, final int number, final int batchSize) throws IOException {
+    private long measureCreatingRelationships(final DatabaseModifier databaseModifier, final int number, final int noNodes, final int batchSize) throws IOException {
         TemporaryFolder temporaryFolder = new TemporaryFolder();
         temporaryFolder.create();
 
         final GraphDatabaseService database = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(temporaryFolder.getRoot().getPath()).loadPropertiesFromFile(CONFIG).newGraphDatabase();
         databaseModifier.alterDatabase(database);
 
-        createNodes(database, HUNDRED);
+        createNodes(database, noNodes);
 
-        long time = doMeasureCreatingRelationships(database, number, batchSize);
+        long time = TestUtils.time(new TestUtils.Timed() {
+            @Override
+            public void time() {
+                createRelationships(number, noNodes, batchSize, database);
+            }
+        });
+
 
         System.out.println("Created " + number + " relationships with batch size " + batchSize + " in " + time + " ms");
 
@@ -51,6 +58,4 @@ public abstract class RelationshipWritePerformanceTest extends PerformanceTest {
         temporaryFolder.delete();
         return time;
     }
-
-    protected abstract long doMeasureCreatingRelationships(final GraphDatabaseService database, final int number, final int batchSize);
 }

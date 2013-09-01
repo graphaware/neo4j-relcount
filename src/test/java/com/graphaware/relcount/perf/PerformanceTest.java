@@ -20,7 +20,7 @@ public abstract class PerformanceTest {
 
     protected static final String CONFIG = "src/test/resources/neo4j-perf.properties";
 
-    protected static final Random RANDOM = new Random(51823591465L);
+    protected static final Random RANDOM = new Random(System.currentTimeMillis());
 
     protected static final int HUNDRED = 100;
     protected static final int THOUSAND = 1000;
@@ -68,12 +68,12 @@ public abstract class PerformanceTest {
         }).execute();
     }
 
-    protected void createRelationships(int noRels, final int batchSize, GraphDatabaseService database) {
+    protected void createRelationships(int noRels, final int noNodes, final int batchSize, GraphDatabaseService database) {
         new NoInputBatchTransactionExecutor(database, batchSize, noRels, new UnitOfWork<NullItem>() {
             @Override
             public void execute(GraphDatabaseService database, NullItem input, int batchNumber, int stepNumber) {
-                final Node node1 = database.getNodeById(RANDOM.nextInt(HUNDRED) + 1);
-                final Node node2 = database.getNodeById(RANDOM.nextInt(HUNDRED) + 1);
+                final Node node1 = database.getNodeById(RANDOM.nextInt(noNodes) + 1);
+                final Node node2 = database.getNodeById(RANDOM.nextInt(noNodes) + 1);
 
                 Relationship rel = node1.createRelationshipTo(node2, withName("TEST" + ((batchSize * (batchNumber - 1) + stepNumber) % 2)));
                 createRelPropsIfNeeded(rel);

@@ -3,7 +3,6 @@ package com.graphaware.relcount.perf;
 import com.graphaware.framework.GraphAwareFramework;
 import com.graphaware.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.relcount.simple.module.SimpleRelationshipCountModule;
-import com.graphaware.test.TestUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -60,15 +59,5 @@ public class NoPropsWritePerformanceTest extends RelationshipWritePerformanceTes
                 framework.start();
             }
         }, "hundredNodesNoPropsFullRelcountWrite");
-    }
-
-    @Override
-    protected long doMeasureCreatingRelationships(final GraphDatabaseService database, final int number, final int batchSize) {
-        return TestUtils.time(new TestUtils.Timed() {
-            @Override
-            public void time() {
-                createRelationships(number, batchSize, database);
-            }
-        });
     }
 }

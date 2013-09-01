@@ -1,7 +1,6 @@
 package com.graphaware.relcount.perf;
 
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
@@ -30,21 +29,32 @@ public abstract class RelationshipReadPerformanceTest extends PerformanceTest {
     protected abstract String fileName();
 
     private void measureReadingRelationships(int noRels, Map<String, String> results) throws IOException {
-        TemporaryFolder temporaryFolder = new TemporaryFolder();
-        temporaryFolder.create();
+//        TemporaryFolder temporaryFolder = new TemporaryFolder();
+//        temporaryFolder.create();
 
-        GraphDatabaseService database = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(temporaryFolder.getRoot().getAbsolutePath()).loadPropertiesFromFile(CONFIG).newGraphDatabase();
+        GraphDatabaseService database = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("/tmp/measure3/noprops/" + noRels).loadPropertiesFromFile(CONFIG).newGraphDatabase();
         startFramework(database);
 
-        createNodes(database, THOUSAND);
+//        createNodes(database, THOUSAND);
 
-        createRelationships(noRels, THOUSAND, database);
+//        createRelationships(noRels, THOUSAND, THOUSAND, database);
 
-        for (int i = 1; i <= 11; i++) {
+        //warm up cache
+//        System.out.println("Warming up cache...");
+//        for (Node node : GlobalGraphOperations.at(database).getAllNodes()) {
+//            System.out.println("Node "+node.getId());
+//            for (Relationship relationship : node.getRelationships()) {
+//                for (String key : relationship.getPropertyKeys()) {
+//                    System.out.println(relationship.getProperty(key));
+//                }
+//            }
+//        }
+
+        for (int i = 1; i <= 51; i++) {
             putResult(results, measurePlain(database), "plain;" + noRels + ";");
 //            putResult(results, measureBruteForce(database), "bruteforce;" + noRels + ";");
 //            putResult(results, measureNaive(database), "naive;" + noRels + ";");
-            putResult(results, measureCached(database), "cached;" + noRels + ";");
+//            putResult(results, measureCached(database), "cached;" + noRels + ";");
         }
 
         System.out.println("=== RESULTS ===");
@@ -53,7 +63,7 @@ public abstract class RelationshipReadPerformanceTest extends PerformanceTest {
         }
 
         database.shutdown();
-        temporaryFolder.delete();
+//        temporaryFolder.delete();
     }
 
 

@@ -6,7 +6,6 @@ import com.graphaware.relcount.full.counter.FullNaiveRelationshipCounter;
 import com.graphaware.relcount.full.counter.FullRelationshipCounter;
 import com.graphaware.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.test.TestUtils;
-import org.junit.Ignore;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -15,10 +14,10 @@ import org.neo4j.tooling.GlobalGraphOperations;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
-@Ignore
+//@Ignore
 public class TwoPropsReadPerformanceTest extends RelationshipReadPerformanceTest {
 
-    private static final int COUNT_NO = 1000000;
+    private static final int COUNT_NO = 1000;
 
     @Override
     protected long measurePlain(final GraphDatabaseService database) {
