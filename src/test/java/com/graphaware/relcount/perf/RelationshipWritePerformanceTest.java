@@ -16,10 +16,12 @@ public abstract class RelationshipWritePerformanceTest extends PerformanceTest {
         Map<String, String> results = new HashMap<>();
 
         for (int i = 1; i <= 10; i++) {
-            for (int batchSize = 1; batchSize <= THOUSAND; batchSize = batchSize * 10) {
-                long time = measureCreatingRelationships(databaseModifier, HUNDRED_THOUSAND, HUNDRED, batchSize);
+//            for (int batchSize = 1; batchSize <= THOUSAND; batchSize = batchSize * 10) {
+            for (double j = 0; j <= 3; j += 0.25) {
+                int batchSize = (int) (Math.round(Math.pow(10, j)));
+                long time = measureCreatingRelationships(databaseModifier, TEN_K, batchSize);
 
-                String key = HUNDRED_THOUSAND + ";" + batchSize + ";";
+                String key = TEN_K + ";" + batchSize + ";";
                 if (!results.containsKey(key)) {
                     results.put(key, "");
                 }
@@ -35,24 +37,23 @@ public abstract class RelationshipWritePerformanceTest extends PerformanceTest {
         resultsToFile(results, fileName);
     }
 
-    private long measureCreatingRelationships(final DatabaseModifier databaseModifier, final int number, final int noNodes, final int batchSize) throws IOException {
+    private long measureCreatingRelationships(final DatabaseModifier databaseModifier, final int number, final int batchSize) throws IOException {
         TemporaryFolder temporaryFolder = new TemporaryFolder();
         temporaryFolder.create();
 
         final GraphDatabaseService database = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(temporaryFolder.getRoot().getPath()).loadPropertiesFromFile(CONFIG).newGraphDatabase();
         databaseModifier.alterDatabase(database);
 
-        createNodes(database, noNodes);
+        createNodes(database);
 
         long time = TestUtils.time(new TestUtils.Timed() {
             @Override
             public void time() {
-                createRelationships(number, noNodes, batchSize, database);
+                createRelationships(number, batchSize, database);
             }
         });
 
-
-        System.out.println("Created " + number + " relationships with batch size " + batchSize + " in " + time + " ms");
+        System.out.println("Created " + number + " relationships with batch size " + batchSize + " in " + time + " microseconds");
 
         database.shutdown();
         temporaryFolder.delete();

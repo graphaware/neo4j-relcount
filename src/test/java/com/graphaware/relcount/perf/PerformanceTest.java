@@ -24,7 +24,7 @@ public abstract class PerformanceTest {
 
     protected static final int HUNDRED = 100;
     protected static final int THOUSAND = 1000;
-    protected static final int HUNDRED_THOUSAND = HUNDRED * 1000;
+    protected static final int TEN_K = 10 * 1000;
 
     protected void resultsToFile(Map<String, String> results, String fileName) {
         try {
@@ -59,8 +59,8 @@ public abstract class PerformanceTest {
         rel.setProperty("4", RANDOM.nextLong());
     }
 
-    protected void createNodes(GraphDatabaseService databaseService, int number) {
-        new NoInputBatchTransactionExecutor(databaseService, THOUSAND, number, new UnitOfWork<NullItem>() {
+    protected void createNodes(GraphDatabaseService databaseService) {
+        new NoInputBatchTransactionExecutor(databaseService, THOUSAND, 10, new UnitOfWork<NullItem>() {
             @Override
             public void execute(GraphDatabaseService database, NullItem input, int batchNumber, int stepNumber) {
                 database.createNode();
@@ -68,12 +68,12 @@ public abstract class PerformanceTest {
         }).execute();
     }
 
-    protected void createRelationships(int noRels, final int noNodes, final int batchSize, GraphDatabaseService database) {
+    protected void createRelationships(int noRels, final int batchSize, GraphDatabaseService database) {
         new NoInputBatchTransactionExecutor(database, batchSize, noRels, new UnitOfWork<NullItem>() {
             @Override
             public void execute(GraphDatabaseService database, NullItem input, int batchNumber, int stepNumber) {
-                final Node node1 = database.getNodeById(RANDOM.nextInt(noNodes) + 1);
-                final Node node2 = database.getNodeById(RANDOM.nextInt(noNodes) + 1);
+                final Node node1 = database.getNodeById(RANDOM.nextInt(10) + 1);
+                final Node node2 = database.getNodeById(RANDOM.nextInt(10) + 1);
 
                 Relationship rel = node1.createRelationshipTo(node2, withName("TEST" + ((batchSize * (batchNumber - 1) + stepNumber) % 2)));
                 createRelPropsIfNeeded(rel);

@@ -5,17 +5,25 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public abstract class RelationshipReadPerformanceTest extends PerformanceTest {
 
     @Test
     public void measure() throws IOException {
-        Map<String, String> results = new HashMap<>();
+        Map<String, String> results = new LinkedHashMap<>();
 
-        for (int noRels = 10000; noRels <= 1000000; noRels = noRels * 10) {
-            measureReadingRelationships(noRels, results);
+        //avg degree: 10 to 10,000
+//        for (double i = 1; i <= 1; i += 0.25) {
+        for (double i = 1; i <= 4; i += 0.25) {
+            measureReadingRelationships((int) (Math.pow(10, i) * 100 / 2), results);
+        }
+
+        results.clear();
+
+        for (double i = 1; i <= 4; i += 0.25) {
+            measureReadingRelationships((int) (Math.pow(10, i) * 100 / 2), results);
         }
 
         System.out.println("=== RESULTS ===");
@@ -28,33 +36,28 @@ public abstract class RelationshipReadPerformanceTest extends PerformanceTest {
 
     protected abstract String fileName();
 
+    protected abstract String dbFolder();
+
     private void measureReadingRelationships(int noRels, Map<String, String> results) throws IOException {
 //        TemporaryFolder temporaryFolder = new TemporaryFolder();
 //        temporaryFolder.create();
 
-        GraphDatabaseService database = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("/tmp/measure3/noprops/" + noRels).loadPropertiesFromFile(CONFIG).newGraphDatabase();
+        GraphDatabaseService database = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder("/tmp/reading/" + dbFolder() + "/" + noRels).loadPropertiesFromFile(CONFIG).newGraphDatabase();
         startFramework(database);
 
-//        createNodes(database, THOUSAND);
+//        createNodes(database);
 
-//        createRelationships(noRels, THOUSAND, THOUSAND, database);
+//        createRelationships(noRels, THOUSAND, database);
 
-        //warm up cache
-//        System.out.println("Warming up cache...");
-//        for (Node node : GlobalGraphOperations.at(database).getAllNodes()) {
-//            System.out.println("Node "+node.getId());
-//            for (Relationship relationship : node.getRelationships()) {
-//                for (String key : relationship.getPropertyKeys()) {
-//                    System.out.println(relationship.getProperty(key));
-//                }
-//            }
-//        }
+        //warm cache
+        for (int i = 1; i <= 100; i++) {
+//            System.out.println(measurePlain(database));
+            measureCached(database);
+        }
 
-        for (int i = 1; i <= 51; i++) {
-            putResult(results, measurePlain(database), "plain;" + noRels + ";");
-//            putResult(results, measureBruteForce(database), "bruteforce;" + noRels + ";");
-//            putResult(results, measureNaive(database), "naive;" + noRels + ";");
-//            putResult(results, measureCached(database), "cached;" + noRels + ";");
+        for (int i = 1; i <= 100; i++) {
+//            putResult(results, measurePlain(database), "plain;" + noRels + ";");
+            putResult(results, measureCached(database), "cached;" + noRels + ";");
         }
 
         System.out.println("=== RESULTS ===");
@@ -78,10 +81,6 @@ public abstract class RelationshipReadPerformanceTest extends PerformanceTest {
     }
 
     protected abstract long measurePlain(GraphDatabaseService database);
-
-    protected abstract long measureBruteForce(GraphDatabaseService database);
-
-    protected abstract long measureNaive(GraphDatabaseService database);
 
     protected abstract long measureCached(GraphDatabaseService database);
 }

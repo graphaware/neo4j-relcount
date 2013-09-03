@@ -10,7 +10,7 @@ import org.neo4j.graphdb.Relationship;
 
 import java.io.IOException;
 
-@Ignore
+//@Ignore
 public class TwoPropsCompactWritePerformanceTest extends RelationshipWritePerformanceTest {
 
     @Test
@@ -21,10 +21,11 @@ public class TwoPropsCompactWritePerformanceTest extends RelationshipWritePerfor
             public void alterDatabase(GraphDatabaseService database) {
                 //do nothing
             }
-        }, "hundredNodesTwoPropsPlainDatabaseWriteCompact");
+        }, "twoPropsPlainDatabaseWriteCompact");
     }
 
     @Test
+    @Ignore
     public void emptyFramework() throws IOException {
         System.out.println("Empty Framework:");
         measure(new DatabaseModifier() {
@@ -33,10 +34,11 @@ public class TwoPropsCompactWritePerformanceTest extends RelationshipWritePerfor
                 GraphAwareFramework framework = new GraphAwareFramework(database);
                 framework.start();
             }
-        }, "hundredNodesTwoPropsEmptyFrameworkWriteCompact");
+        }, "twoPropsEmptyFrameworkWriteCompact");
     }
 
     @Test
+    @Ignore
     public void simpleRelcount() throws IOException {
         System.out.println("Simple Relcount:");
         measure(new DatabaseModifier() {
@@ -46,7 +48,7 @@ public class TwoPropsCompactWritePerformanceTest extends RelationshipWritePerfor
                 framework.registerModule(new SimpleRelationshipCountModule());
                 framework.start();
             }
-        }, "hundredNodesTwoPropsSimpleRelcountWriteCompact");
+        }, "twoPropsSimpleRelcountWriteCompact");
     }
 
     @Test
@@ -59,7 +61,7 @@ public class TwoPropsCompactWritePerformanceTest extends RelationshipWritePerfor
                 framework.registerModule(new FullRelationshipCountModule());
                 framework.start();
             }
-        }, "hundredNodesTwoPropsFullRelcountWriteCompact");
+        }, "twoPropsFullRelcountWriteCompact");
     }
 
     @Override

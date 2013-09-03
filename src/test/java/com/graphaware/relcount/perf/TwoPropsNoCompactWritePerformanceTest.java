@@ -10,7 +10,7 @@ import org.neo4j.graphdb.Relationship;
 
 import java.io.IOException;
 
-@Ignore
+//@Ignore
 public class TwoPropsNoCompactWritePerformanceTest extends RelationshipWritePerformanceTest {
 
     @Test
@@ -21,7 +21,7 @@ public class TwoPropsNoCompactWritePerformanceTest extends RelationshipWritePerf
             public void alterDatabase(GraphDatabaseService database) {
                 //do nothing
             }
-        }, "hundredNodesTwoPropsPlainDatabaseWriteNoCompaction");
+        }, "twoPropsPlainDatabaseWriteNoCompaction");
     }
 
     @Test
@@ -34,7 +34,7 @@ public class TwoPropsNoCompactWritePerformanceTest extends RelationshipWritePerf
                 GraphAwareFramework framework = new GraphAwareFramework(database);
                 framework.start();
             }
-        }, "hundredNodesTwoPropsEmptyFrameworkWriteNoCompaction");
+        }, "twoPropsEmptyFrameworkWriteNoCompaction");
     }
 
     @Test
@@ -47,7 +47,7 @@ public class TwoPropsNoCompactWritePerformanceTest extends RelationshipWritePerf
                 framework.registerModule(new SimpleRelationshipCountModule());
                 framework.start();
             }
-        }, "hundredNodesTwoPropsSimpleRelcountWriteNoCompaction");
+        }, "twoPropsSimpleRelcountWriteNoCompaction");
     }
 
     @Test
@@ -60,7 +60,7 @@ public class TwoPropsNoCompactWritePerformanceTest extends RelationshipWritePerf
                 framework.registerModule(new FullRelationshipCountModule());
                 framework.start();
             }
-        }, "hundredNodesTwoPropsFullRelcountWriteNoCompaction");
+        }, "twoPropsFullRelcountWriteNoCompaction");
     }
 
     @Override

@@ -3,13 +3,12 @@ package com.graphaware.relcount.perf;
 import com.graphaware.framework.GraphAwareFramework;
 import com.graphaware.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.relcount.simple.module.SimpleRelationshipCountModule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.io.IOException;
 
-@Ignore
+//@Ignore
 public class NoPropsWritePerformanceTest extends RelationshipWritePerformanceTest {
 
     @Test
@@ -20,7 +19,7 @@ public class NoPropsWritePerformanceTest extends RelationshipWritePerformanceTes
             public void alterDatabase(GraphDatabaseService database) {
                 //do nothing
             }
-        }, "hundredNodesNoPropsPlainDatabaseWrite");
+        }, "noPropsPlainDatabaseWrite");
     }
 
     @Test
@@ -32,7 +31,7 @@ public class NoPropsWritePerformanceTest extends RelationshipWritePerformanceTes
                 GraphAwareFramework framework = new GraphAwareFramework(database);
                 framework.start();
             }
-        }, "hundredNodesNoPropsEmptyFrameworkWrite");
+        }, "noPropsEmptyFrameworkWrite");
     }
 
     @Test
@@ -45,7 +44,7 @@ public class NoPropsWritePerformanceTest extends RelationshipWritePerformanceTes
                 framework.registerModule(new SimpleRelationshipCountModule());
                 framework.start();
             }
-        }, "hundredNodesNoPropsSimpleRelcountWrite");
+        }, "noPropsSimpleRelcountWrite");
     }
 
     @Test
@@ -58,6 +57,6 @@ public class NoPropsWritePerformanceTest extends RelationshipWritePerformanceTes
                 framework.registerModule(new FullRelationshipCountModule());
                 framework.start();
             }
-        }, "hundredNodesNoPropsFullRelcountWrite");
+        }, "noPropsFullRelcountWrite");
     }
 }

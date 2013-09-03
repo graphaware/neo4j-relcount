@@ -38,6 +38,7 @@ public class FourPropsCompactWritePerformanceTest extends RelationshipWritePerfo
     }
 
     @Test
+    @Ignore
     public void simpleRelcount() throws IOException {
         System.out.println("Simple Relcount:");
         measure(new DatabaseModifier() {
