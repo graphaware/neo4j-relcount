@@ -25,6 +25,7 @@ import java.util.*;
 import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.neo4j.graphdb.Direction.INCOMING;
 
 /**
  * Unit test for {@link CacheableRelationshipDescriptionImpl}.
@@ -33,11 +34,15 @@ public class CacheableRelationshipDescriptionImplTest {
 
     @Test
     public void relationshipShouldBeCorrectlyConstructed() {
-        CacheableRelationshipDescription relationship = compactible("test#INCOMING#key1#value1#key2#value2");
+        CacheableRelationshipDescription desc = compactible("test#INCOMING#key1#value1#key2#value2");
 
-        assertTrue(relationship.getProperties().containsKey("key1"));
-        assertTrue(relationship.getProperties().containsKey("key2"));
-        Assert.assertEquals(2, relationship.getProperties().size());
+        assertEquals(INCOMING, desc.getDirection());
+        assertEquals("test", desc.getType().name());
+        assertTrue(desc.getProperties().containsKey("key1"));
+        assertTrue(desc.getProperties().containsKey("key2"));
+        assertEquals("value1", desc.getProperties().get("key1"));
+        assertEquals("value2", desc.getProperties().get("key2"));
+        assertEquals(2, desc.getProperties().size());
     }
 
     @Test
