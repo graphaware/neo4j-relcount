@@ -78,7 +78,9 @@ public abstract class BaseRelationshipCountCachingNode<CACHED extends Serializab
     }
 
     /**
-     * @see {@link RelationshipCountCachingNode#incrementCount(com.graphaware.propertycontainer.dto.common.relationship.HasTypeAndDirection, int)}
+     * Same as {@link RelationshipCountCachingNode#incrementCount(com.graphaware.propertycontainer.dto.common.relationship.HasTypeAndDirection, int)},
+     * but if desired, subclasses are not made aware if a property has been created. This is used when the compactor
+     * calls this to prevent triggering further compaction.
      */
     public final void incrementCount(CACHED relationship, int delta, boolean preventReaction) {
         for (CACHED cachedRelationship : cachedCounts.keySet()) {

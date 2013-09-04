@@ -74,13 +74,9 @@ public class ThresholdBasedRelationshipCountCompactor implements RelationshipCou
 
                 node.incrementCount(generalization, candidateCachedCount, true);
 
-                //After the compaction, see if more is needed using a recursive call
-//                performCompaction(node);
-
                 if (cachedCounts.size() <= compactionThreshold) {
                     return true;
                 }
-//                break;
             }
         }
 

@@ -14,7 +14,6 @@ import com.graphaware.tx.event.improved.strategy.IncludeAllNodeProperties;
 import com.graphaware.tx.event.improved.strategy.IncludeAllNodes;
 import com.graphaware.tx.event.improved.strategy.RelationshipInclusionStrategy;
 import com.graphaware.tx.event.improved.strategy.RelationshipPropertyInclusionStrategy;
-import org.junit.Assert;
 import org.junit.Test;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -25,6 +24,7 @@ import org.neo4j.unsafe.batchinsert.TransactionSimulatingBatchInserterImpl;
 import java.io.IOException;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.neo4j.graphdb.Direction.*;
 
@@ -380,9 +380,9 @@ public class FullRelationshipCountBatchIntegrationTest extends BatchIntegrationT
         simulateInserts();
         startDatabase();
 
-        Assert.assertEquals(4, naiveCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with("otherNodeName", "Two").count(database.getNodeById(1)));
-        Assert.assertEquals(4, fallbackCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with("otherNodeName", "Two").count(database.getNodeById(1)));
-        Assert.assertEquals(4, cachedCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with("otherNodeName", "Two").count(database.getNodeById(1)));
+        assertEquals(4, naiveCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with("otherNodeName", "Two").count(database.getNodeById(1)));
+        assertEquals(4, fallbackCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with("otherNodeName", "Two").count(database.getNodeById(1)));
+        assertEquals(4, cachedCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with("otherNodeName", "Two").count(database.getNodeById(1)));
     }
 
     @Test
@@ -411,9 +411,9 @@ public class FullRelationshipCountBatchIntegrationTest extends BatchIntegrationT
         startDatabase();
 
         //naive doesn't care about this strategy
-        Assert.assertEquals(2, naiveCounterCreator(module).createCounter(RelationshipTypes.TWO, OUTGOING).count(database.getNodeById(1)));
-        Assert.assertEquals(0, fallbackCounterCreator(module).createCounter(RelationshipTypes.TWO, OUTGOING).count(database.getNodeById(1)));
-        Assert.assertEquals(0, cachedCounterCreator(module).createCounter(RelationshipTypes.TWO, OUTGOING).count(database.getNodeById(1)));
+        assertEquals(2, naiveCounterCreator(module).createCounter(RelationshipTypes.TWO, OUTGOING).count(database.getNodeById(1)));
+        assertEquals(0, fallbackCounterCreator(module).createCounter(RelationshipTypes.TWO, OUTGOING).count(database.getNodeById(1)));
+        assertEquals(0, cachedCounterCreator(module).createCounter(RelationshipTypes.TWO, OUTGOING).count(database.getNodeById(1)));
     }
 
     @Test
@@ -442,12 +442,12 @@ public class FullRelationshipCountBatchIntegrationTest extends BatchIntegrationT
         startDatabase();
 
         //naive doesn't care about this strategy
-        Assert.assertEquals(2, naiveCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).count(database.getNodeById(1)));
-        Assert.assertEquals(2, naiveCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(database.getNodeById(1)));
-        Assert.assertEquals(0, cachedCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).count(database.getNodeById(1)));
-        Assert.assertEquals(0, cachedCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(database.getNodeById(1)));
-        Assert.assertEquals(0, fallbackCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).count(database.getNodeById(1)));
-        Assert.assertEquals(0, fallbackCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(database.getNodeById(1)));
+        assertEquals(2, naiveCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).count(database.getNodeById(1)));
+        assertEquals(2, naiveCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(database.getNodeById(1)));
+        assertEquals(0, cachedCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).count(database.getNodeById(1)));
+        assertEquals(0, cachedCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(database.getNodeById(1)));
+        assertEquals(0, fallbackCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).count(database.getNodeById(1)));
+        assertEquals(0, fallbackCounterCreator(module).createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(database.getNodeById(1)));
     }
 
     @Test
@@ -558,235 +558,235 @@ public class FullRelationshipCountBatchIntegrationTest extends BatchIntegrationT
 
         //Node one incoming
 
-        Assert.assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).countLiterally(one));
+        assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).countLiterally(one));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 3).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 4).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 5).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).count(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 3).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 4).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 5).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).count(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(one));
 
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V2").countLiterally(one));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V2").countLiterally(one));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V1").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V1").countLiterally(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V1").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V1").countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
 
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(one));
 
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
 
         //Node one outgoing
 
-        Assert.assertEquals(7 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).countLiterally(one));
+        assertEquals(7 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).countLiterally(one));
 
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).count(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 3).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 4).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 5).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 7).count(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(one));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).count(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 3).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 4).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 5).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 7).count(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(one));
 
-        Assert.assertEquals(5 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").count(one));
-        Assert.assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V2").countLiterally(one));
+        assertEquals(5 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").count(one));
+        assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V2").countLiterally(one));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V1").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V1").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V1").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V1").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(one));
 
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").count(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").count(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
 
         //Node one both
 
-        Assert.assertEquals(10 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).countLiterally(one));
+        assertEquals(10 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).countLiterally(one));
 
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).count(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(one));
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 3).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 4).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 5).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(one));
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 7).count(one));
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(one));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).count(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(one));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 3).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 4).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 5).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(one));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 7).count(one));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(one));
 
-        Assert.assertEquals(7 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").count(one));
-        Assert.assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V2").countLiterally(one));
+        assertEquals(7 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").count(one));
+        assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V2").countLiterally(one));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V1").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V1").countLiterally(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V1").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V1").countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
 
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(one));
 
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").count(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").count(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
 
         //Node two outgoing
 
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).countLiterally(two));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).countLiterally(two));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 3).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 4).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 5).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 7).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 3).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 4).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 5).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 7).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(two));
 
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V2").countLiterally(two));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V2").countLiterally(two));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V1").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V1").countLiterally(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V1").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V1").countLiterally(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
 
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(two));
 
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
 
         //Node two incoming
 
-        Assert.assertEquals(6 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).countLiterally(two));
+        assertEquals(6 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).countLiterally(two));
 
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).count(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 3).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 4).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 5).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(two));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).count(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 3).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 4).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 5).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(two));
 
-        Assert.assertEquals(5 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").count(two));
-        Assert.assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V2").countLiterally(two));
+        assertEquals(5 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").count(two));
+        assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V2").countLiterally(two));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V1").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V1").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V1").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V1").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(two));
 
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").count(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").count(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
 
         //Node two both
 
-        Assert.assertEquals(8 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).countLiterally(two));
+        assertEquals(8 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).countLiterally(two));
 
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).count(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(two));
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 3).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 4).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 5).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 7).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(two));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).count(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(two));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 3).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 4).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 5).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 7).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(two));
 
-        Assert.assertEquals(7 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").count(two));
-        Assert.assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V2").countLiterally(two));
+        assertEquals(7 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").count(two));
+        assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V2").countLiterally(two));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V1").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V1").countLiterally(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V1").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V1").countLiterally(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
 
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(two));
 
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").count(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").count(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
     }
 
     private void verifyWeightedCounts(int factor, CounterCreator counterCreator) {
@@ -795,237 +795,237 @@ public class FullRelationshipCountBatchIntegrationTest extends BatchIntegrationT
 
         //Node one incoming
 
-        Assert.assertEquals(10 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).countLiterally(one));
+        assertEquals(10 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).countLiterally(one));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(one));
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 3).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 4).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 5).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(one));
-        Assert.assertEquals(7 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).count(one));
-        Assert.assertEquals(7 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(one));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 3).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 4).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 5).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(one));
+        assertEquals(7 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).count(one));
+        assertEquals(7 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(one));
 
-        Assert.assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V2").countLiterally(one));
+        assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V2").countLiterally(one));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V1").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V1").countLiterally(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V1").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V1").countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
 
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(one));
 
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(one));
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(one));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
 
         //Node one outgoing
 
-        Assert.assertEquals(14 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).countLiterally(one));
+        assertEquals(14 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).countLiterally(one));
 
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.TWO, OUTGOING).count(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.TWO, OUTGOING).count(one));
 
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).count(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(one));
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 3).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 4).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 5).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(one));
-        Assert.assertEquals(7 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 7).count(one));
-        Assert.assertEquals(7 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(one));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).count(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(one));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 3).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 4).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 5).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(one));
+        assertEquals(7 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 7).count(one));
+        assertEquals(7 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(one));
 
-        Assert.assertEquals(6 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").count(one));
-        Assert.assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V2").countLiterally(one));
+        assertEquals(6 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").count(one));
+        assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V2").countLiterally(one));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V1").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V1").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V1").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V1").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(one));
 
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").count(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").count(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
 
         //Node one both
 
-        Assert.assertEquals(24 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).countLiterally(one));
+        assertEquals(24 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).countLiterally(one));
 
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).count(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(one));
-        Assert.assertEquals(4 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 3).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 4).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 5).count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(one));
-        Assert.assertEquals(14 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 7).count(one));
-        Assert.assertEquals(14 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(one));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).count(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(one));
+        assertEquals(4 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 3).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 4).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 5).count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(one));
+        assertEquals(14 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 7).count(one));
+        assertEquals(14 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(one));
 
-        Assert.assertEquals(9 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").count(one));
-        Assert.assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V2").countLiterally(one));
+        assertEquals(9 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").count(one));
+        assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V2").countLiterally(one));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V1").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V1").countLiterally(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V1").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V1").countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
 
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(one));
 
-        Assert.assertEquals(4 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(one));
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").count(one));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").count(one));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
+        assertEquals(4 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(one));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").count(one));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").countLiterally(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").count(one));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").countLiterally(one));
 
         //Node two outgoing
 
-        Assert.assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).countLiterally(two));
+        assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).countLiterally(two));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(two));
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 3).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 4).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 5).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 7).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(two));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 3).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 4).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 5).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 7).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(two));
 
-        Assert.assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V2").countLiterally(two));
+        assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V2").countLiterally(two));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V1").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V1").countLiterally(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V1").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V1").countLiterally(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
 
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(two));
 
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(two));
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(two));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, OUTGOING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
 
         //Node two incoming
 
-        Assert.assertEquals(7 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).countLiterally(two));
+        assertEquals(7 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).countLiterally(two));
 
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).count(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(two));
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 3).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 4).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 5).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(two));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).count(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(two));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 3).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 4).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 5).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(two));
 
-        Assert.assertEquals(6 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").count(two));
-        Assert.assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V2").countLiterally(two));
+        assertEquals(6 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").count(two));
+        assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V2").countLiterally(two));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V1").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V1").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V1").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V1").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(two));
 
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").count(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").count(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
 
         //Node two both
 
-        Assert.assertEquals(10 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).countLiterally(two));
+        assertEquals(10 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).countLiterally(two));
 
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).count(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(two));
-        Assert.assertEquals(4 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 3).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 4).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 5).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 7).count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(two));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).count(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).countLiterally(two));
+        assertEquals(4 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 3).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 3).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 4).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 4).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 5).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 5).countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 7).count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 7).countLiterally(two));
 
-        Assert.assertEquals(9 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").count(two));
-        Assert.assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V2").countLiterally(two));
+        assertEquals(9 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").count(two));
+        assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V2").countLiterally(two));
 
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V1").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V1").countLiterally(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V1").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V1").countLiterally(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
 
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").count(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V2").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.K1, "V1").with(BatchIntegrationTest.K2, "V1").countLiterally(two));
 
-        Assert.assertEquals(4 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(two));
-        Assert.assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").count(two));
-        Assert.assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").count(two));
-        Assert.assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
+        assertEquals(4 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").count(two));
+        assertEquals(2 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").count(two));
+        assertEquals(1 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 1).with(BatchIntegrationTest.K1, "V1").countLiterally(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").count(two));
+        assertEquals(0 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).with(BatchIntegrationTest.WEIGHT, 2).with(BatchIntegrationTest.K2, "V2").countLiterally(two));
     }
 
     private void verifyCompactedCounts(int factor, CounterCreator counterCreator) {
@@ -1034,7 +1034,7 @@ public class FullRelationshipCountBatchIntegrationTest extends BatchIntegrationT
 
         //Node one incoming
 
-        Assert.assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).count(one));
+        assertEquals(3 * factor, counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).count(one));
 
         try {
             counterCreator.createCounter(RelationshipTypes.ONE, INCOMING).countLiterally(one);
@@ -1131,7 +1131,7 @@ public class FullRelationshipCountBatchIntegrationTest extends BatchIntegrationT
 
         //Node one both
 
-        Assert.assertEquals(10 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).count(one));
+        assertEquals(10 * factor, counterCreator.createCounter(RelationshipTypes.ONE, BOTH).count(one));
 
         try {
             counterCreator.createCounter(RelationshipTypes.ONE, BOTH).countLiterally(one);
