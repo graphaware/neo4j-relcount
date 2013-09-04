@@ -3,12 +3,13 @@ package com.graphaware.relcount.perf;
 import com.graphaware.framework.GraphAwareFramework;
 import com.graphaware.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.relcount.simple.module.SimpleRelationshipCountModule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.io.IOException;
 
-//@Ignore
+@Ignore
 public class NoPropsCreatePerformanceTest extends RelationshipCreatePerformanceTest {
 
     @Test

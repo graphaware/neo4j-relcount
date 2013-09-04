@@ -9,21 +9,34 @@ import numpy as np
 import csv
 import array as a
 
-data = np.empty((8, 12), int)
-data = np.loadtxt(open("twoPropsReading.txt", "rb"), delimiter=";", dtype=int)
+data = np.empty((3, 26, 101), int)
+data[0, :, :] = np.loadtxt(open("twoPropsReading-disk.txt", "rb"), delimiter=";", dtype=int, usecols=(range(1, 102)))
+data[1, :, :] = np.loadtxt(open("twoPropsReading-nocache.txt", "rb"), delimiter=";", dtype=int, usecols=(range(1, 102)))
+data[2, :, :] = np.loadtxt(open("twoPropsReading-strong-cache.txt", "rb"), delimiter=";", dtype=int,
+                           usecols=(range(1, 102)))
 
-means = np.mean(data[:, 2:], 1)
+means = np.mean(data[:, :, 1:], 2)
 
-stddevs = np.std(data[:, 2:], 1)
+stddevs = np.std(data[:, :, 1:], 2)
 
-xaxis = [10, 100, 1000, 10000]
+xaxis = 2 * data[0, 0:13, 0] / 100
+print xaxis
 
-plt.plot(xaxis, means[4:8], c="purple", linewidth=2.0)
-plt.plot(xaxis, means[0:4], c="orange", linewidth=2.0)
+plt.plot(xaxis, means[0, 0:13], c="purple", ls=':', linewidth=2.0)
+plt.plot(xaxis, means[1, 0:13], c="purple", ls='-.', linewidth=2.0)
+plt.plot(xaxis, means[2, 0:13], c="purple", ls='-', linewidth=2.0)
+plt.plot(xaxis, means[0, 13:26], c="blue", ls=':', linewidth=2.0)
+plt.plot(xaxis, means[1, 13:26], c="blue", ls='-.', linewidth=2.0)
+plt.plot(xaxis, means[2, 13:26], c="blue", ls='-', linewidth=2.0)
 plt.xlabel('Average Vertex Degree')
-plt.ylabel('Time (ms)')
-plt.title('Computing Degrees of 1 Mil. Random Vertices, Two Rel Properties')
-plt.legend(('Plain Database', 'Simple Relcount'), loc=2)
+plt.ylabel('Time (microseconds)')
+plt.title('Computing Degrees of 10 Random Vertices, Two Rel Properties')
+plt.legend(('Plain Database (No Cache)',
+            'Plain Database (Low Level)',
+            'Plain Database (High Level)',
+            'Full Relcount (No Cache)',
+            'Full Relcount (Low Level)',
+            'Full Relcount (High Level)'), loc=2)
 plt.yscale('log')
 plt.xscale('log')
 # plt.errorbar(xaxis, means[0:4], yerr=stddevs[0:4])
@@ -32,18 +45,27 @@ plt.xscale('log')
 # plt.errorbar(xaxis, means[3], yerr=stddevs[3])
 plt.show()
 
-#for LaTeX:
+disk = (1.0 / data[0, 13:26, 1:]) / (1.0 / data[0, 0:13, 1:])
+low = (1.0 / data[1, 13:26, 1:]) / (1.0 / data[1, 0:13, 1:])
+high = (1.0 / data[2, 13:26, 1:]) / (1.0 / data[2, 0:13, 1:])
 
-simple = (1.0 / data[0:4, 2:]) / (1.0 / data[4:8, 2:])
+print disk
 
-simplemean = np.mean(simple, 1)
-simpledev = np.std(simple, 1)
+diskmean = np.mean(disk, 1)
+lowmean = np.mean(low, 1)
+highmean = np.mean(high, 1)
 
-s = ' & ' + ' & '.join(str(x) for x in [10, 100, 1000, 10000]) + ' \\\\ \\hline \n'
+diskdev = np.std(disk, 1)
+lowedev = np.std(low, 1)
+highdev = np.std(high, 1)
 
-s = s + 'Speedup '
-for i in range(0, 4):
-    s = s + ' & $' + "{0:.2f}".format(simplemean[i]) + ' \\pm ' "{0:.2f}".format(simpledev[i]) + '$'
-s = s + ' \\\\ \\hline \n'
+s = ' Avg Degree & No Cache & Low Level & High Level \\\\ \\hline \\hline \n'
+
+for i in range(0, 13):
+    s = s + "{0:.0f}".format(xaxis[i]) + \
+        ' & $' + "{0:.2f}".format(diskmean[i]) + ' \\pm ' "{0:.2f}".format(diskdev[i]) + '$' + \
+        ' & $' + "{0:.2f}".format(lowmean[i]) + ' \\pm ' "{0:.2f}".format(lowedev[i]) + '$' + \
+        ' & $' + "{0:.2f}".format(highmean[i]) + ' \\pm ' "{0:.2f}".format(highdev[i]) + '$' + \
+        ' \\\\ \\hline \n'
 
 print s

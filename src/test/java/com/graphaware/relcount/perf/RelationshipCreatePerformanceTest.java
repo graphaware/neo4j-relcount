@@ -18,10 +18,10 @@ public abstract class RelationshipCreatePerformanceTest extends PerformanceTest 
             for (double j = 0; j <= 3; j += 0.25) {
                 int batchSize = (int) (Math.round(Math.pow(10, j)));
 
-                long time = measureCreatingRelationships(databaseModifier, 1000, batchSize);
+                long time = measureCreatingRelationships(databaseModifier, THOUSAND, batchSize);
 
                 if (i > 1) {
-                    String key = "second1k" + ";" + batchSize + ";";
+                    String key = THOUSAND + ";" + batchSize + ";";
                     if (!results.containsKey(key)) {
                         results.put(key, "");
                     }
@@ -46,7 +46,7 @@ public abstract class RelationshipCreatePerformanceTest extends PerformanceTest 
         databaseModifier.alterDatabase(database);
 
         createNodes(database);
-        createRelationships(1000, batchSize, database);
+//        createRelationships(THOUSAND, batchSize, database);
 
         long time = TestUtils.time(new TestUtils.Timed() {
             @Override

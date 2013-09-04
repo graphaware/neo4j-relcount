@@ -10,7 +10,7 @@ import org.neo4j.graphdb.Relationship;
 
 import java.io.IOException;
 
-//@Ignore
+@Ignore
 public class TwoPropsNoCompactWritePerformanceTest extends RelationshipCreatePerformanceTest {
 
     @Test
@@ -22,19 +22,6 @@ public class TwoPropsNoCompactWritePerformanceTest extends RelationshipCreatePer
                 //do nothing
             }
         }, "twoPropsPlainDatabaseWriteNoCompaction");
-    }
-
-    @Test
-    @Ignore
-    public void emptyFramework() throws IOException {
-        System.out.println("Empty Framework:");
-        measure(new DatabaseModifier() {
-            @Override
-            public void alterDatabase(GraphDatabaseService database) {
-                GraphAwareFramework framework = new GraphAwareFramework(database);
-                framework.start();
-            }
-        }, "twoPropsEmptyFrameworkWriteNoCompaction");
     }
 
     @Test

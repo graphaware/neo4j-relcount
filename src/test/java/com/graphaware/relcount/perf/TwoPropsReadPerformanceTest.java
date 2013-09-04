@@ -5,6 +5,7 @@ import com.graphaware.relcount.common.counter.RelationshipCounter;
 import com.graphaware.relcount.full.counter.FullCachedRelationshipCounter;
 import com.graphaware.relcount.full.module.FullRelationshipCountModule;
 import com.graphaware.test.TestUtils;
+import org.junit.Ignore;
 import org.neo4j.graphdb.*;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -13,7 +14,7 @@ import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
-//@Ignore
+@Ignore
 public class TwoPropsReadPerformanceTest extends RelationshipReadPerformanceTest {
 
     private static final int COUNT_NO = 10;
@@ -88,6 +89,6 @@ public class TwoPropsReadPerformanceTest extends RelationshipReadPerformanceTest
 
     @Override
     protected String fileName() {
-        return "twoPropsReading-disk";
+        return "twoPropsReading";
     }
 }

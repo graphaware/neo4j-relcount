@@ -14,9 +14,6 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
-/**
- *
- */
 @Ignore
 public class SpaceComparison extends PerformanceTest {
 

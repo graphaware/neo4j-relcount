@@ -15,7 +15,6 @@ public abstract class RelationshipReadPerformanceTest extends PerformanceTest {
         Map<String, String> results = new LinkedHashMap<>();
 
         //avg degree: 10 to 10,000
-//        for (double i = 1; i <= 1; i += 0.25) {
         for (double i = 1; i <= 4; i += 0.25) {
             measureReadingRelationships((int) (Math.pow(10, i) * 100 / 2), results);
         }

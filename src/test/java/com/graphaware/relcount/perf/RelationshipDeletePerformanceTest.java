@@ -45,7 +45,7 @@ public abstract class RelationshipDeletePerformanceTest extends PerformanceTest 
         databaseModifier.alterDatabase(database);
 
         createNodes(database);
-        createRelationships(number, 1000, database);
+//        createRelationships(number, THOUSAND, database);
 
         long time = TestUtils.time(new TestUtils.Timed() {
             @Override
