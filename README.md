@@ -17,7 +17,7 @@ Node: In order to use this module, you will also need the [GraphAware Framework]
 
 ### Releases
 
-Releases are synced to Maven Central repository. To use the latest release, [download it](http://search.maven.org/remotecontent?filepath=com/graphaware/neo4j-relcount/1.9-1.0/neo4j-relcount-1.9-1.0.jar)
+Releases are synced to Maven Central repository. To use the latest release, [download it](http://search.maven.org/remotecontent?filepath=com/graphaware/neo4j-relcount/1.9-1.3/neo4j-relcount-1.9-1.3.jar)
 and put it on your classpath. When using Maven, include the following snippet in your pom.xml:
 
     <dependencies>
