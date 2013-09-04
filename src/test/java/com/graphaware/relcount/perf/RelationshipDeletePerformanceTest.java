@@ -6,26 +6,26 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-public abstract class RelationshipWritePerformanceTest extends PerformanceTest {
-    private static final String CONFIG = "src/test/resources/neo4j-perf.properties";
+public abstract class RelationshipDeletePerformanceTest extends PerformanceTest {
 
     protected void measure(DatabaseModifier databaseModifier, String fileName) throws IOException {
-        Map<String, String> results = new HashMap<>();
+        Map<String, String> results = new LinkedHashMap<>();
 
-        for (int i = 1; i <= 10; i++) {
-//            for (int batchSize = 1; batchSize <= THOUSAND; batchSize = batchSize * 10) {
+        for (int i = 1; i <= 21; i++) {
             for (double j = 0; j <= 3; j += 0.25) {
                 int batchSize = (int) (Math.round(Math.pow(10, j)));
-                long time = measureCreatingRelationships(databaseModifier, TEN_K, batchSize);
+                long time = measureDeletingRelationships(databaseModifier, TEN_K, batchSize);
 
-                String key = TEN_K + ";" + batchSize + ";";
-                if (!results.containsKey(key)) {
-                    results.put(key, "");
+                if (i > 1) {
+                    String key = TEN_K + ";" + batchSize + ";";
+                    if (!results.containsKey(key)) {
+                        results.put(key, "");
+                    }
+                    results.put(key, results.get(key) + time + ";");
                 }
-                results.put(key, results.get(key) + time + ";");
             }
         }
 
@@ -37,7 +37,7 @@ public abstract class RelationshipWritePerformanceTest extends PerformanceTest {
         resultsToFile(results, fileName);
     }
 
-    private long measureCreatingRelationships(final DatabaseModifier databaseModifier, final int number, final int batchSize) throws IOException {
+    private long measureDeletingRelationships(final DatabaseModifier databaseModifier, final int number, final int batchSize) throws IOException {
         TemporaryFolder temporaryFolder = new TemporaryFolder();
         temporaryFolder.create();
 
@@ -45,15 +45,16 @@ public abstract class RelationshipWritePerformanceTest extends PerformanceTest {
         databaseModifier.alterDatabase(database);
 
         createNodes(database);
+        createRelationships(number, 1000, database);
 
         long time = TestUtils.time(new TestUtils.Timed() {
             @Override
             public void time() {
-                createRelationships(number, batchSize, database);
+                deleteRelationships(number, batchSize, database);
             }
         });
 
-        System.out.println("Created " + number + " relationships with batch size " + batchSize + " in " + time + " microseconds");
+        System.out.println("Deleted " + number + " relationships with batch size " + batchSize + " in " + time + " microseconds");
 
         database.shutdown();
         temporaryFolder.delete();

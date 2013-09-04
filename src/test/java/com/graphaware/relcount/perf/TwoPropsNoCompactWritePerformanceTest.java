@@ -11,7 +11,7 @@ import org.neo4j.graphdb.Relationship;
 import java.io.IOException;
 
 //@Ignore
-public class TwoPropsNoCompactWritePerformanceTest extends RelationshipWritePerformanceTest {
+public class TwoPropsNoCompactWritePerformanceTest extends RelationshipCreatePerformanceTest {
 
     @Test
     public void plainDatabase() throws IOException {

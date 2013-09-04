@@ -2,8 +2,6 @@ package com.graphaware.relcount.perf;
 
 import com.graphaware.framework.GraphAwareFramework;
 import com.graphaware.relcount.full.module.FullRelationshipCountModule;
-import com.graphaware.relcount.simple.module.SimpleRelationshipCountModule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Relationship;
@@ -11,7 +9,7 @@ import org.neo4j.graphdb.Relationship;
 import java.io.IOException;
 
 //@Ignore
-public class TwoPropsCompactWritePerformanceTest extends RelationshipWritePerformanceTest {
+public class TwoPropsCompactWritePerformanceTest extends RelationshipCreatePerformanceTest {
 
     @Test
     public void plainDatabase() throws IOException {
@@ -22,33 +20,6 @@ public class TwoPropsCompactWritePerformanceTest extends RelationshipWritePerfor
                 //do nothing
             }
         }, "twoPropsPlainDatabaseWriteCompact");
-    }
-
-    @Test
-    @Ignore
-    public void emptyFramework() throws IOException {
-        System.out.println("Empty Framework:");
-        measure(new DatabaseModifier() {
-            @Override
-            public void alterDatabase(GraphDatabaseService database) {
-                GraphAwareFramework framework = new GraphAwareFramework(database);
-                framework.start();
-            }
-        }, "twoPropsEmptyFrameworkWriteCompact");
-    }
-
-    @Test
-    @Ignore
-    public void simpleRelcount() throws IOException {
-        System.out.println("Simple Relcount:");
-        measure(new DatabaseModifier() {
-            @Override
-            public void alterDatabase(GraphDatabaseService database) {
-                GraphAwareFramework framework = new GraphAwareFramework(database);
-                framework.registerModule(new SimpleRelationshipCountModule());
-                framework.start();
-            }
-        }, "twoPropsSimpleRelcountWriteCompact");
     }
 
     @Test

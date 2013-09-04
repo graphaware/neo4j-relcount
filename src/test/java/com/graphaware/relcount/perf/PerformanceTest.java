@@ -81,6 +81,15 @@ public abstract class PerformanceTest {
         }).execute();
     }
 
+    protected void deleteRelationships(int noRels, final int batchSize, GraphDatabaseService database) {
+        new NoInputBatchTransactionExecutor(database, batchSize, noRels, new UnitOfWork<NullItem>() {
+            @Override
+            public void execute(GraphDatabaseService database, NullItem input, int batchNumber, int stepNumber) {
+                database.getRelationshipById((batchSize * (batchNumber - 1) + stepNumber) - 1).delete();
+            }
+        }).execute();
+    }
+
     protected void createRelPropsIfNeeded(Relationship rel) {
         //none by default
     }

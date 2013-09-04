@@ -2,14 +2,14 @@ package com.graphaware.relcount.perf;
 
 import com.graphaware.framework.GraphAwareFramework;
 import com.graphaware.relcount.full.module.FullRelationshipCountModule;
+import com.graphaware.relcount.simple.module.SimpleRelationshipCountModule;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Relationship;
 
 import java.io.IOException;
 
 //@Ignore
-public class FourPropsCompactWritePerformanceTest extends RelationshipCreatePerformanceTest {
+public class NoPropsDeletePerformanceTest extends RelationshipDeletePerformanceTest {
 
     @Test
     public void plainDatabase() throws IOException {
@@ -19,7 +19,20 @@ public class FourPropsCompactWritePerformanceTest extends RelationshipCreatePerf
             public void alterDatabase(GraphDatabaseService database) {
                 //do nothing
             }
-        }, "fourPropsPlainDatabaseWrite");
+        }, "noPropsPlainDatabaseDelete");
+    }
+
+    @Test
+    public void simpleRelcount() throws IOException {
+        System.out.println("Simple Relcount:");
+        measure(new DatabaseModifier() {
+            @Override
+            public void alterDatabase(GraphDatabaseService database) {
+                GraphAwareFramework framework = new GraphAwareFramework(database);
+                framework.registerModule(new SimpleRelationshipCountModule());
+                framework.start();
+            }
+        }, "noPropsSimpleRelcountDelete");
     }
 
     @Test
@@ -32,12 +45,6 @@ public class FourPropsCompactWritePerformanceTest extends RelationshipCreatePerf
                 framework.registerModule(new FullRelationshipCountModule());
                 framework.start();
             }
-        }, "fourPropsFullRelcountWrite");
-    }
-
-    @Override
-    protected void createRelPropsIfNeeded(Relationship rel) {
-        twoProps(rel);
-        twoMoreProps(rel);
+        }, "noPropsFullRelcountDelete");
     }
 }

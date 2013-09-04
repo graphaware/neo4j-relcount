@@ -9,7 +9,7 @@ import org.neo4j.graphdb.Relationship;
 import java.io.IOException;
 
 //@Ignore
-public class FourPropsCompactWritePerformanceTest extends RelationshipCreatePerformanceTest {
+public class TwoPropsDeletePerformanceTest extends RelationshipDeletePerformanceTest {
 
     @Test
     public void plainDatabase() throws IOException {
@@ -19,7 +19,7 @@ public class FourPropsCompactWritePerformanceTest extends RelationshipCreatePerf
             public void alterDatabase(GraphDatabaseService database) {
                 //do nothing
             }
-        }, "fourPropsPlainDatabaseWrite");
+        }, "twoPropsPlainDatabaseDelete");
     }
 
     @Test
@@ -32,12 +32,12 @@ public class FourPropsCompactWritePerformanceTest extends RelationshipCreatePerf
                 framework.registerModule(new FullRelationshipCountModule());
                 framework.start();
             }
-        }, "fourPropsFullRelcountWrite");
+        }, "twoPropsFullRelcountDelete");
     }
 
     @Override
     protected void createRelPropsIfNeeded(Relationship rel) {
-        twoProps(rel);
-        twoMoreProps(rel);
+        rel.setProperty("rating", RANDOM.nextInt(2));
+        rel.setProperty("another", RANDOM.nextInt(2));
     }
 }
