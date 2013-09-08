@@ -10,6 +10,7 @@ import com.graphaware.relcount.full.counter.FullRelationshipCounter;
 import com.graphaware.relcount.full.strategy.RelationshipCountStrategiesImpl;
 import com.graphaware.relcount.full.strategy.RelationshipPropertiesExtractionStrategy;
 import com.graphaware.relcount.full.strategy.RelationshipWeighingStrategy;
+import com.graphaware.tx.event.batch.api.TransactionSimulatingBatchInserterImpl;
 import com.graphaware.tx.event.improved.strategy.IncludeAllNodeProperties;
 import com.graphaware.tx.event.improved.strategy.IncludeAllNodes;
 import com.graphaware.tx.event.improved.strategy.RelationshipInclusionStrategy;
@@ -19,7 +20,7 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
-import org.neo4j.unsafe.batchinsert.TransactionSimulatingBatchInserterImpl;
+import org.neo4j.unsafe.batchinsert.BatchInserters;
 
 import java.io.IOException;
 import java.util.Map;
@@ -69,7 +70,7 @@ public class FullRelationshipCountBatchIntegrationTest extends BatchIntegrationT
 
         batchInserter.shutdown();
 
-        batchInserter = new TransactionSimulatingBatchInserterImpl(temporaryFolder.getRoot().getAbsolutePath());
+        batchInserter = new TransactionSimulatingBatchInserterImpl(BatchInserters.inserter(temporaryFolder.getRoot().getAbsolutePath()));
         framework = new BatchGraphAwareFramework(batchInserter);
         module = new FullRelationshipCountModule();
         framework.registerModule(module);
@@ -117,7 +118,7 @@ public class FullRelationshipCountBatchIntegrationTest extends BatchIntegrationT
 
         database.shutdown();
 
-        batchInserter = new TransactionSimulatingBatchInserterImpl(temporaryFolder.getRoot().getAbsolutePath());
+        batchInserter = new TransactionSimulatingBatchInserterImpl(BatchInserters.inserter(temporaryFolder.getRoot().getAbsolutePath()));
 
         framework = new BatchGraphAwareFramework(batchInserter);
         module = new FullRelationshipCountModule(RelationshipCountStrategiesImpl.defaultStrategies().with(4));
@@ -132,7 +133,7 @@ public class FullRelationshipCountBatchIntegrationTest extends BatchIntegrationT
 
         database.shutdown();
 
-        batchInserter = new TransactionSimulatingBatchInserterImpl(temporaryFolder.getRoot().getAbsolutePath());
+        batchInserter = new TransactionSimulatingBatchInserterImpl(BatchInserters.inserter(temporaryFolder.getRoot().getAbsolutePath()));
 
         framework = new BatchGraphAwareFramework(batchInserter);
         module = new FullRelationshipCountModule(RelationshipCountStrategiesImpl.defaultStrategies().with(20));

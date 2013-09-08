@@ -2,14 +2,15 @@ package com.graphaware.relcount.common;
 
 import com.graphaware.framework.config.BaseFrameworkConfiguration;
 import com.graphaware.tx.event.batch.api.TransactionSimulatingBatchInserter;
+import com.graphaware.tx.event.batch.api.TransactionSimulatingBatchInserterImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.rules.TemporaryFolder;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.unsafe.batchinsert.BatchInserters;
 import org.neo4j.unsafe.batchinsert.BatchRelationship;
-import org.neo4j.unsafe.batchinsert.TransactionSimulatingBatchInserterImpl;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -41,7 +42,7 @@ public abstract class BatchIntegrationTest {
     @Before
     public void setUp() throws IOException {
         temporaryFolder.create();
-        batchInserter = new TransactionSimulatingBatchInserterImpl(temporaryFolder.getRoot().getAbsolutePath());
+        batchInserter = new TransactionSimulatingBatchInserterImpl(BatchInserters.inserter(temporaryFolder.getRoot().getAbsolutePath()));
     }
 
     @After
