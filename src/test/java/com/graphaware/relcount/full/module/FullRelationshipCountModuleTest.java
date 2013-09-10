@@ -16,13 +16,23 @@
 
 package com.graphaware.relcount.full.module;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.graphaware.relcount.common.module.RelationshipCountModule;
 import com.graphaware.relcount.full.strategy.RelationshipCountStrategiesImpl;
 import com.graphaware.tx.event.improved.strategy.IncludeNoNodes;
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.assertNotSame;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.*;
 
 /**
  * Unit test for {@link com.graphaware.relcount.full.module.FullRelationshipCountModule}. These miscellaneous tests, most of the core logic tests are in
@@ -46,5 +56,30 @@ public class FullRelationshipCountModuleTest {
         RelationshipCountModule module2 = new FullRelationshipCountModule(strategies.with(6));
 
         assertNotSame(module1.asString(), module2.asString());
+    }
+
+    @Test
+    public void ser() throws IOException {
+        Map<String, Object> map = new HashMap<>();
+        map.put("test", 123L);
+        map.put("test2", new int[]{1, 2, 3, 4});
+        Kryo kryo = new Kryo();
+        kryo.register(HashMap.class, 90);
+        kryo.register(Map.class, 91);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        Output output = new Output(stream);
+        kryo.writeObject(output, map);
+        output.flush();
+        output.close();
+
+        byte[] b = stream.toByteArray();
+        String s = Base64.encode(b);
+        System.out.println(s);
+
+        Map<String, Object> map2 = kryo.readObject(new Input(Base64.decode(s)), HashMap.class);
+
+        assertEquals(2, map2.size());
+        assertEquals(123L, map2.get("test"));
+        assertTrue(Arrays.equals(new int[]{1, 2, 3, 4}, (int[]) map2.get("test2")));
     }
 }
