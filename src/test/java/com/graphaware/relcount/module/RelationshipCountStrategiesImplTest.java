@@ -14,10 +14,9 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.graphaware.relcount.strategy;
+package com.graphaware.relcount.module;
 
 import com.graphaware.relcount.compact.ThresholdBasedCompactionStrategy;
-import com.graphaware.relcount.module.RelationshipCountStrategiesImpl;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

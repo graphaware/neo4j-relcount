@@ -7,20 +7,25 @@ import com.graphaware.tx.event.improved.strategy.RelationshipInclusionStrategy;
 import com.graphaware.tx.event.improved.strategy.RelationshipPropertyInclusionStrategy;
 import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
 import com.graphaware.tx.executor.single.VoidReturningCallback;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.test.TestGraphDatabaseFactory;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import static com.graphaware.description.predicate.Predicates.equalTo;
 import static com.graphaware.description.relationship.RelationshipDescriptionFactory.literal;
 import static com.graphaware.description.relationship.RelationshipDescriptionFactory.wildcard;
-import static com.graphaware.relcount.count.IntegrationTest.RelationshipTypes.ONE;
-import static com.graphaware.relcount.count.IntegrationTest.RelationshipTypes.TWO;
+import static com.graphaware.relcount.count.RelationshipCountIntegrationTest.RelationshipTypes.ONE;
+import static com.graphaware.relcount.count.RelationshipCountIntegrationTest.RelationshipTypes.TWO;
 import static com.graphaware.relcount.module.RelationshipCountStrategiesImpl.defaultStrategies;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -31,7 +36,30 @@ import static org.neo4j.graphdb.DynamicRelationshipType.withName;
  * Integration test for relationship counting.
  */
 @SuppressWarnings("PointlessArithmeticExpression")
-public class RelationshipCountIntegrationTest extends IntegrationTest {
+public class RelationshipCountIntegrationTest {
+
+    public static final String WEIGHT = "weight";
+    public static final String NAME = "name";
+    public static final String TIMESTAMP = "timestamp";
+    public static final String K1 = "K1";
+    public static final String K2 = "K2";
+
+    public enum RelationshipTypes implements RelationshipType {
+        ONE,
+        TWO
+    }
+
+    protected GraphDatabaseService database;
+
+    @Before
+    public void setUp() {
+        database = new TestGraphDatabaseFactory().newImpermanentDatabase();
+    }
+
+    @After
+    public void tearDown() {
+        database.shutdown();
+    }
 
     @Test
     public void noFramework() {
@@ -68,7 +96,7 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
 
         verifyCounts(1, module.naiveCounter());
         verifyCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
     }
 
     @Test
@@ -83,7 +111,7 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
 
         verifyCounts(1, module.naiveCounter());
         verifyCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
     }
 
     @Test
@@ -102,7 +130,7 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
 
         verifyCounts(1, module.naiveCounter());
         verifyCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
 
         database.shutdown();
 
@@ -115,7 +143,7 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
 
         verifyCounts(1, module.naiveCounter());
         verifyCompactedCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
 
         database.shutdown();
 
@@ -128,7 +156,7 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
 
         verifyCounts(1, module.naiveCounter());
         verifyCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
     }
 
     @Test
@@ -143,12 +171,12 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
 
         verifyCounts(1, module.naiveCounter());
         verifyCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
     }
 
     @Test
     public void customFrameworkOnNewDatabase() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        GraphAwareFramework framework = new GraphAwareFramework(database);
         final RelationshipCountModule module = new RelationshipCountModule();
         framework.registerModule(module);
         framework.start();
@@ -158,7 +186,7 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
 
         verifyCounts(1, module.naiveCounter());
         verifyCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
     }
 
     @Test
@@ -166,14 +194,14 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
         setUpTwoNodes();
         simulateUsage();
 
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        GraphAwareFramework framework = new GraphAwareFramework(database);
         final RelationshipCountModule module = new RelationshipCountModule();
         framework.registerModule(module);
         framework.start();
 
         verifyCounts(1, module.naiveCounter());
         verifyCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
     }
 
     @Test
@@ -181,7 +209,7 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
         for (int numberOfRounds = 1; numberOfRounds <= 10; numberOfRounds++) {
             setUp();
 
-            GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+            GraphAwareFramework framework = new GraphAwareFramework(database);
             final RelationshipCountModule module = new RelationshipCountModule(
                     defaultStrategies()
                             .with(new WeighingStrategy() {
@@ -207,7 +235,7 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
 
             verifyWeightedCounts(numberOfRounds, module.naiveCounter());
             verifyWeightedCounts(numberOfRounds, module.cachedCounter());
-            verifyWeightedCounts(numberOfRounds, module.cachedWithFallbackCounter());
+            verifyWeightedCounts(numberOfRounds, module.fallbackCounter());
 
             tearDown();
         }
@@ -215,7 +243,7 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
 
     @Test
     public void defaultStrategiesWithLowerThreshold() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        GraphAwareFramework framework = new GraphAwareFramework(database);
         final RelationshipCountModule module = new RelationshipCountModule(
                 defaultStrategies().with(new ThresholdBasedCompactionStrategy(4))
         );
@@ -227,7 +255,7 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
 
         verifyCounts(1, module.naiveCounter());
         verifyCompactedCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
     }
 
     @Test
@@ -245,12 +273,12 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
 
         verifyCounts(2, module.naiveCounter());
         verifyCompactedCounts(2, module.cachedCounter());
-        verifyCounts(2, module.cachedWithFallbackCounter());
+        verifyCounts(2, module.fallbackCounter());
     }
 
     @Test
     public void defaultStrategiesWithLowerThreshold3() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        GraphAwareFramework framework = new GraphAwareFramework(database);
         final RelationshipCountModule module = new RelationshipCountModule(
                 defaultStrategies().with(new ThresholdBasedCompactionStrategy(3))
         );
@@ -273,7 +301,7 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
         for (int threshold = 3; threshold <= 20; threshold++) {
             setUp();
 
-            GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+            GraphAwareFramework framework = new GraphAwareFramework(database);
             final RelationshipCountModule module = new RelationshipCountModule(
                     defaultStrategies().with(new ThresholdBasedCompactionStrategy(threshold))
             );
@@ -285,7 +313,7 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
             simulateUsage();
             simulateUsage();
 
-            verifyCounts(3, module.cachedWithFallbackCounter());
+            verifyCounts(3, module.fallbackCounter());
             verifyCounts(3, module.naiveCounter());
 
             tearDown();
@@ -294,7 +322,7 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
 
     @Test
     public void weightedRelationshipsWithCompaction() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        GraphAwareFramework framework = new GraphAwareFramework(database);
         final RelationshipCountModule module = new RelationshipCountModule(
                 defaultStrategies()
                         .with(new WeighingStrategy() {
@@ -319,7 +347,7 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
         simulateUsage();
         simulateUsage();
 
-        verifyWeightedCounts(4, module.cachedWithFallbackCounter());
+        verifyWeightedCounts(4, module.fallbackCounter());
         verifyWeightedCounts(4, module.naiveCounter());
     }
 
@@ -351,16 +379,16 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
 
         verifyCounts(2, module1.naiveCounter());
         verifyCounts(2, module1.cachedCounter());
-        verifyCounts(2, module1.cachedWithFallbackCounter());
+        verifyCounts(2, module1.fallbackCounter());
 
         verifyWeightedCounts(2, module2.naiveCounter());
         verifyWeightedCounts(2, module2.cachedCounter());
-        verifyWeightedCounts(2, module2.cachedWithFallbackCounter());
+        verifyWeightedCounts(2, module2.fallbackCounter());
     }
 
     @Test
     public void customRelationshipInclusionStrategy() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        GraphAwareFramework framework = new GraphAwareFramework(database);
         final RelationshipCountModule module = new RelationshipCountModule(
                 defaultStrategies()
                         .with(new RelationshipInclusionStrategy() {
@@ -384,13 +412,13 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
 
         //naive doesn't care about this strategy
         assertEquals(2, module.naiveCounter().count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
-        assertEquals(0, module.cachedWithFallbackCounter().count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
+        assertEquals(0, module.fallbackCounter().count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
         assertEquals(0, module.cachedCounter().count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
     }
 
     @Test
     public void customRelationshipPropertiesInclusionStrategy() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        GraphAwareFramework framework = new GraphAwareFramework(database);
         final RelationshipCountModule module = new RelationshipCountModule(
                 defaultStrategies()
                         .with(new RelationshipPropertyInclusionStrategy() {
@@ -415,15 +443,15 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
         //naive doesn't care about this strategy
         assertEquals(2, module.naiveCounter().count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
         assertEquals(2, module.naiveCounter().count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
-        assertEquals(0, module.cachedWithFallbackCounter().count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
-        assertEquals(0, module.cachedWithFallbackCounter().count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+        assertEquals(0, module.fallbackCounter().count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+        assertEquals(0, module.fallbackCounter().count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
         assertEquals(0, module.cachedCounter().count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
         assertEquals(0, module.cachedCounter().count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
     }
 
     @Test
     public void batchTest() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        GraphAwareFramework framework = new GraphAwareFramework(database);
         final RelationshipCountModule module = new RelationshipCountModule();
         framework.registerModule(module);
         framework.start();
@@ -441,12 +469,12 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
 
         verifyCounts(100, module.naiveCounter());
         verifyCounts(100, module.cachedCounter());
-        verifyCounts(100, module.cachedWithFallbackCounter());
+        verifyCounts(100, module.fallbackCounter());
     }
 
     @Test
     public void batchTestWithMultipleModulesAndLowerThreshold() {
-        GraphAwareFramework framework = new GraphAwareFramework(database, new CustomConfig());
+        GraphAwareFramework framework = new GraphAwareFramework(database);
         final RelationshipCountModule module1 = new RelationshipCountModule("M1", defaultStrategies().with(new ThresholdBasedCompactionStrategy(4)));
         final RelationshipCountModule module2 = new RelationshipCountModule("M2", defaultStrategies().with(new ThresholdBasedCompactionStrategy(4)));
         framework.registerModule(module1);
@@ -466,11 +494,11 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
 
         verifyCounts(20, module1.naiveCounter());
         verifyCompactedCounts(20, module1.cachedCounter());
-        verifyCounts(20, module1.cachedWithFallbackCounter());
+        verifyCounts(20, module1.fallbackCounter());
 
         verifyCounts(20, module2.naiveCounter());
         verifyCompactedCounts(20, module2.cachedCounter());
-        verifyCounts(20, module2.cachedWithFallbackCounter());
+        verifyCounts(20, module2.fallbackCounter());
     }
 
     @Test
@@ -1248,5 +1276,107 @@ public class RelationshipCountIntegrationTest extends IntegrationTest {
             fail();
         } catch (UnableToCountException e) {
         }
+    }
+
+    private void simulateUsage() {
+        new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
+            @Override
+            protected void doInTx(GraphDatabaseService database) {
+                Node one = database.getNodeById(1);
+                Node two = database.getNodeById(2);
+
+                Relationship cycle = one.createRelationshipTo(one, ONE);
+                cycle.setProperty(WEIGHT, 2);
+
+                Relationship oneToTwo = one.createRelationshipTo(two, ONE);
+                oneToTwo.setProperty(WEIGHT, 2);
+                oneToTwo.setProperty(TIMESTAMP, 123L);
+                oneToTwo.setProperty(K1, "V1");
+
+                oneToTwo = one.createRelationshipTo(two, ONE);
+                oneToTwo.setProperty(WEIGHT, 1);
+                oneToTwo.setProperty(K1, "V1");
+            }
+        });
+
+        new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
+            @Override
+            protected void doInTx(GraphDatabaseService database) {
+                Node one = database.getNodeById(1);
+                Node two = database.getNodeById(2);
+
+                Relationship oneToTwo = one.createRelationshipTo(two, ONE);
+                oneToTwo.setProperty(K1, "V1");
+
+                oneToTwo = one.createRelationshipTo(two, ONE);
+                oneToTwo.setProperty(K1, "V1");
+
+                oneToTwo = one.createRelationshipTo(two, ONE);
+                oneToTwo.setProperty(K1, "V1");
+
+                oneToTwo = one.createRelationshipTo(two, ONE);
+                oneToTwo.setProperty(WEIGHT, 1);
+
+                oneToTwo = one.createRelationshipTo(two, TWO);
+                oneToTwo.setProperty(K1, "V1");
+                oneToTwo.setProperty(K2, "V1");
+            }
+        });
+
+        new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
+            @Override
+            protected void doInTx(GraphDatabaseService database) {
+                Node one = database.getNodeById(1);
+                Node two = database.getNodeById(2);
+
+                Relationship twoToOne = two.createRelationshipTo(one, ONE);
+                twoToOne.setProperty(K1, "V1");
+                twoToOne.setProperty(WEIGHT, 5);
+
+                twoToOne = two.createRelationshipTo(one, ONE);
+                twoToOne.setProperty(WEIGHT, 3);
+                twoToOne.setProperty("something long", "Some incredibly long text with many characters )(*&^%@£, we hope it's not gonna break the system. \n Just in case, we're also gonna check a long byte array as the next property.");
+                twoToOne.setProperty("bytearray", ByteBuffer.allocate(8).putLong(1242352145243231L).array());
+
+                twoToOne = two.createRelationshipTo(one, ONE);
+                twoToOne.setProperty(K1, "V1");
+                twoToOne.setProperty(K2, "V2");
+            }
+        });
+
+        new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
+            @Override
+            protected void doInTx(GraphDatabaseService database) {
+                Node one = database.getNodeById(1);
+
+                for (Relationship r : one.getRelationships(ONE, INCOMING)) {
+                    if (r.getProperty(WEIGHT, 0).equals(3)) {
+                        r.delete();
+                        continue;
+                    }
+                    if (r.getProperty(WEIGHT, 0).equals(5)) {
+                        r.setProperty(WEIGHT, 2);
+                    }
+                    if (r.getStartNode().equals(r.getEndNode())) {
+                        r.setProperty(WEIGHT, 7);
+                    }
+                }
+            }
+        });
+    }
+
+    private void setUpTwoNodes() {
+        new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
+            @Override
+            protected void doInTx(GraphDatabaseService database) {
+                Node one = database.createNode();
+                one.setProperty(NAME, "One");
+                one.setProperty(WEIGHT, 1);
+
+                Node two = database.createNode();
+                two.setProperty(NAME, "Two");
+                two.setProperty(WEIGHT, 2);
+            }
+        });
     }
 }

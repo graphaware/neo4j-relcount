@@ -26,9 +26,7 @@ import org.neo4j.graphdb.Relationship;
 import static org.neo4j.graphdb.Direction.BOTH;
 
 /**
- * A naive {@link FullRelationshipCounter} that counts matching relationships by inspecting all {@link org.neo4j.graphdb.Node}'s {@link org.neo4j.graphdb.Relationship}s.
- * <p/>
- * <b>Full</b> relationship counter means that it inspects relationship types, directions, and properties.
+ * A naive {@link RelationshipCounter} that counts matching relationships by inspecting all {@link org.neo4j.graphdb.Node}'s {@link org.neo4j.graphdb.Relationship}s.
  * <p/>
  * Because relationships are counted on the fly (no caching performed), this can be used without the
  * {@link com.graphaware.framework.GraphAwareFramework} and/or any {@link com.graphaware.framework.GraphAwareModule}s.
@@ -49,9 +47,9 @@ public class NaiveRelationshipCounter implements RelationshipCounter {
     /**
      * Construct a new relationship counter. Use when custom {@link com.graphaware.relcount.module.RelationshipCountStrategies} have been used for the
      * {@link com.graphaware.relcount.module.RelationshipCountModule}. Alternatively, it might be easier
-     * use {@link com.graphaware.relcount.module.RelationshipCountModule#naiveCounter(org.neo4j.graphdb.RelationshipType, org.neo4j.graphdb.Direction)}.
+     * use {@link com.graphaware.relcount.module.RelationshipCountModule#naiveCounter()}.
      *
-     * @param relationshipCountStrategies strategies, of which only {@link com.graphaware.relcount.strategy.RelationshipPropertiesExtractionStrategy} is used.
+     * @param relationshipCountStrategies strategies, of which only {@link WeighingStrategy} is used.
      */
     public NaiveRelationshipCounter(RelationshipCountStrategies relationshipCountStrategies) {
         this.relationshipCountStrategies = relationshipCountStrategies;
@@ -62,11 +60,6 @@ public class NaiveRelationshipCounter implements RelationshipCounter {
      */
     @Override
     public int count(Node node, RelationshipDescription description) {
-        //optimization - don't load properties if it is unnecessary
-//        if (description.getPropertiesDescription().isEmpty() && relationshipCountStrategies.getRelationshipPropertiesExtractionStrategy().equals(ExtractAllRelationshipProperties.getInstance())) {
-//            return new FullNaiveRelationshipCountingNode(node, ExtractNoRelationshipProperties.getInstance(), relationshipCountStrategies.getRelationshipWeighingStrategy()).getRelationshipCount(new WildcardRelationshipQueryDescription(this));
-//        }                              //todo put back
-
         int result = 0;
 
         for (Relationship candidateRelationship : node.getRelationships(description.getDirection(), description.getType())) {

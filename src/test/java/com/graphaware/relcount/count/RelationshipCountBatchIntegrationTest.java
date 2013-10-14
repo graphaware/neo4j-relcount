@@ -4,21 +4,31 @@ import com.graphaware.framework.BatchGraphAwareFramework;
 import com.graphaware.relcount.compact.ThresholdBasedCompactionStrategy;
 import com.graphaware.relcount.module.RelationshipCountModule;
 import com.graphaware.relcount.module.RelationshipCountStrategiesImpl;
+import com.graphaware.tx.event.batch.api.TransactionSimulatingBatchInserter;
 import com.graphaware.tx.event.batch.api.TransactionSimulatingBatchInserterImpl;
 import com.graphaware.tx.event.improved.strategy.RelationshipInclusionStrategy;
 import com.graphaware.tx.event.improved.strategy.RelationshipPropertyInclusionStrategy;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
+import org.neo4j.unsafe.batchinsert.BatchRelationship;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.graphaware.description.predicate.Predicates.equalTo;
 import static com.graphaware.description.relationship.RelationshipDescriptionFactory.literal;
 import static com.graphaware.description.relationship.RelationshipDescriptionFactory.wildcard;
-import static com.graphaware.relcount.count.BatchIntegrationTest.RelationshipTypes.ONE;
-import static com.graphaware.relcount.count.BatchIntegrationTest.RelationshipTypes.TWO;
+import static com.graphaware.relcount.count.RelationshipCountBatchIntegrationTest.RelationshipTypes.ONE;
+import static com.graphaware.relcount.count.RelationshipCountBatchIntegrationTest.RelationshipTypes.TWO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.neo4j.graphdb.Direction.*;
@@ -27,7 +37,41 @@ import static org.neo4j.graphdb.Direction.*;
  * Integration test for relationship counting with batch inserter.
  */
 @SuppressWarnings("PointlessArithmeticExpression")
-public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest {
+public class RelationshipCountBatchIntegrationTest {
+
+    public static final String WEIGHT = "weight";
+    public static final String NAME = "name";
+    public static final String TIMESTAMP = "timestamp";
+    public static final String K1 = "K1";
+    public static final String K2 = "K2";
+
+    public enum RelationshipTypes implements RelationshipType {
+        ONE,
+        TWO
+    }
+
+    protected final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    protected GraphDatabaseService database;
+    protected TransactionSimulatingBatchInserter batchInserter;
+
+
+    @Before
+    public void setUp() throws IOException {
+        temporaryFolder.create();
+        batchInserter = new TransactionSimulatingBatchInserterImpl(BatchInserters.inserter(temporaryFolder.getRoot().getAbsolutePath()));
+    }
+
+    @After
+    public void tearDown() {
+        database.shutdown();
+        temporaryFolder.delete();
+    }
+
+    private void startDatabase() {
+        batchInserter.shutdown();
+        database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
+    }
 
     @Test
     public void noFramework() {
@@ -76,7 +120,7 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
 
         verifyCounts(1, module.naiveCounter());
         verifyCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
     }
 
     @Test
@@ -92,7 +136,7 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
 
         verifyCounts(1, module.naiveCounter());
         verifyCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
     }
 
     @Test
@@ -108,7 +152,7 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
 
         verifyCounts(1, module.naiveCounter());
         verifyCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
 
         database.shutdown();
 
@@ -123,7 +167,7 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
 
         verifyCounts(1, module.naiveCounter());
         verifyCompactedCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
 
         database.shutdown();
 
@@ -138,7 +182,7 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
 
         verifyCounts(1, module.naiveCounter());
         verifyCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
     }
 
     @Test
@@ -155,12 +199,12 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
 
         verifyCounts(1, module.naiveCounter());
         verifyCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
     }
 
     @Test
     public void customFrameworkOnNewDatabase() {
-        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter);
         final RelationshipCountModule module = new RelationshipCountModule();
         framework.registerModule(module);
         framework.start();
@@ -171,7 +215,7 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
 
         verifyCounts(1, module.naiveCounter());
         verifyCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
     }
 
     @Test
@@ -179,7 +223,7 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
         setUpTwoNodes();
         simulateInserts();
 
-        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter);
         final RelationshipCountModule module = new RelationshipCountModule();
         framework.registerModule(module);
         framework.start();
@@ -188,12 +232,12 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
 
         verifyCounts(1, module.naiveCounter());
         verifyCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
     }
 
     @Test
     public void weightedRelationships() {
-        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter);
         final RelationshipCountModule module = new RelationshipCountModule(
                 RelationshipCountStrategiesImpl.defaultStrategies()
                         .with(new WeighingStrategy() {
@@ -217,13 +261,13 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
 
         verifyWeightedCounts(1, module.naiveCounter());
         verifyWeightedCounts(1, module.cachedCounter());
-        verifyWeightedCounts(1, module.cachedWithFallbackCounter());
+        verifyWeightedCounts(1, module.fallbackCounter());
     }
 
 
     @Test
     public void defaultStrategiesWithLowerThreshold() {
-        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter);
         final RelationshipCountModule module = new RelationshipCountModule(
                 RelationshipCountStrategiesImpl.defaultStrategies().with(new ThresholdBasedCompactionStrategy(4))
         );
@@ -236,7 +280,7 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
 
         verifyCounts(1, module.naiveCounter());
         verifyCompactedCounts(1, module.cachedCounter());
-        verifyCounts(1, module.cachedWithFallbackCounter());
+        verifyCounts(1, module.fallbackCounter());
     }
 
     @Test
@@ -255,12 +299,12 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
 
         verifyCounts(2, module.naiveCounter());
         verifyCompactedCounts(2, module.cachedCounter());
-        verifyCounts(2, module.cachedWithFallbackCounter());
+        verifyCounts(2, module.fallbackCounter());
     }
 
     @Test
     public void defaultStrategiesWithLowerThreshold3() {
-        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter);
         final RelationshipCountModule module = new RelationshipCountModule(
                 RelationshipCountStrategiesImpl.defaultStrategies().with(new ThresholdBasedCompactionStrategy(3))
         );
@@ -281,7 +325,7 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
 
     @Test
     public void weightedRelationshipsWithCompaction() {
-        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter);
         final RelationshipCountModule module = new RelationshipCountModule(
                 RelationshipCountStrategiesImpl.defaultStrategies()
                         .with(new WeighingStrategy() {
@@ -307,7 +351,7 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
         simulateInserts();
         startDatabase();
 
-        verifyWeightedCounts(4, module.cachedWithFallbackCounter());
+        verifyWeightedCounts(4, module.fallbackCounter());
         verifyWeightedCounts(4, module.naiveCounter());
     }
 
@@ -340,16 +384,16 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
 
         verifyCounts(2, module1.naiveCounter());
         verifyCounts(2, module1.cachedCounter());
-        verifyCounts(2, module1.cachedWithFallbackCounter());
+        verifyCounts(2, module1.fallbackCounter());
 
         verifyWeightedCounts(2, module2.naiveCounter());
         verifyWeightedCounts(2, module2.cachedCounter());
-        verifyWeightedCounts(2, module2.cachedWithFallbackCounter());
+        verifyWeightedCounts(2, module2.fallbackCounter());
     }
 
     @Test
     public void customRelationshipInclusionStrategy() {
-        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter);
         final RelationshipCountModule module = new RelationshipCountModule(
                 RelationshipCountStrategiesImpl.defaultStrategies()
                         .with(new RelationshipInclusionStrategy() {
@@ -374,13 +418,13 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
 
         //naive doesn't care about this strategy
         assertEquals(2, module.naiveCounter().count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
-        assertEquals(0, module.cachedWithFallbackCounter().count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
+        assertEquals(0, module.fallbackCounter().count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
         assertEquals(0, module.cachedCounter().count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
     }
 
     @Test
     public void customRelationshipPropertiesInclusionStrategy() {
-        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter);
         final RelationshipCountModule module = new RelationshipCountModule(
                 RelationshipCountStrategiesImpl.defaultStrategies()
                         .with(new RelationshipPropertyInclusionStrategy() {
@@ -406,15 +450,15 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
         //naive doesn't care about this strategy
         assertEquals(2, module.naiveCounter().count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
         assertEquals(2, module.naiveCounter().count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
-        assertEquals(0, module.cachedWithFallbackCounter().count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
-        assertEquals(0, module.cachedWithFallbackCounter().count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+        assertEquals(0, module.fallbackCounter().count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+        assertEquals(0, module.fallbackCounter().count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
         assertEquals(0, module.cachedCounter().count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
         assertEquals(0, module.cachedCounter().count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
     }
 
     @Test
     public void batchTest() {
-        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter);
         final RelationshipCountModule module = new RelationshipCountModule();
         framework.registerModule(module);
         framework.start();
@@ -429,12 +473,12 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
 
         verifyCounts(100, module.naiveCounter());
         verifyCounts(100, module.cachedCounter());
-        verifyCounts(100, module.cachedWithFallbackCounter());
+        verifyCounts(100, module.fallbackCounter());
     }
 
     @Test
     public void batchTestWithMultipleModulesAndLowerThreshold() {
-        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter, new CustomConfig());
+        BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter);
         final RelationshipCountModule module1 = new RelationshipCountModule("M1", RelationshipCountStrategiesImpl.defaultStrategies().with(new ThresholdBasedCompactionStrategy(4)));
         final RelationshipCountModule module2 = new RelationshipCountModule("M2", RelationshipCountStrategiesImpl.defaultStrategies().with(new ThresholdBasedCompactionStrategy(4)));
         framework.registerModule(module1);
@@ -451,11 +495,11 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
 
         verifyCounts(20, module1.naiveCounter());
         verifyCompactedCounts(20, module1.cachedCounter());
-        verifyCounts(20, module1.cachedWithFallbackCounter());
+        verifyCounts(20, module1.fallbackCounter());
 
         verifyCounts(20, module2.naiveCounter());
         verifyCompactedCounts(20, module2.cachedCounter());
-        verifyCounts(20, module2.cachedWithFallbackCounter());
+        verifyCounts(20, module2.fallbackCounter());
     }
 
     private void verifyCounts(int factor, RelationshipCounter counter) {
@@ -1082,5 +1126,72 @@ public class RelationshipCountBatchIntegrationTest extends BatchIntegrationTest 
             fail();
         } catch (UnableToCountException e) {
         }
+    }
+
+    private void simulateInserts() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(WEIGHT, 2);
+
+        batchInserter.createRelationship(1, 1, RelationshipCountIntegrationTest.RelationshipTypes.ONE, props);
+
+        props = new HashMap<>();
+        props.put(WEIGHT, 2);
+        props.put(TIMESTAMP, 123L);
+        props.put(K1, "V1");
+        batchInserter.createRelationship(1, 2, RelationshipCountIntegrationTest.RelationshipTypes.ONE, props);
+
+        props = new HashMap<>();
+        props.put(WEIGHT, 1);
+        props.put(K1, "V1");
+        batchInserter.createRelationship(1, 2, RelationshipCountIntegrationTest.RelationshipTypes.ONE, props);
+
+        props = new HashMap<>();
+        props.put(K1, "V1");
+        batchInserter.createRelationship(1, 2, RelationshipCountIntegrationTest.RelationshipTypes.ONE, props);
+        batchInserter.createRelationship(1, 2, RelationshipCountIntegrationTest.RelationshipTypes.ONE, props);
+        batchInserter.createRelationship(1, 2, RelationshipCountIntegrationTest.RelationshipTypes.ONE, props);
+
+        props = new HashMap<>();
+        props.put(WEIGHT, 1);
+        batchInserter.createRelationship(1, 2, RelationshipCountIntegrationTest.RelationshipTypes.ONE, props);
+
+        props = new HashMap<>();
+        props.put(K1, "V1");
+        props.put(K2, "V1");
+        batchInserter.createRelationship(1, 2, RelationshipCountIntegrationTest.RelationshipTypes.TWO, props);
+
+        props = new HashMap<>();
+        props.put(K1, "V1");
+        props.put(WEIGHT, 5);
+        batchInserter.createRelationship(2, 1, RelationshipCountIntegrationTest.RelationshipTypes.ONE, props);
+
+        props = new HashMap<>();
+        props.put(K1, "V1");
+        props.put(K2, "V2");
+        batchInserter.createRelationship(2, 1, RelationshipCountIntegrationTest.RelationshipTypes.ONE, props);
+
+        for (BatchRelationship r : batchInserter.getRelationships(1)) {
+            if (r.getStartNode() == 1 && r.getEndNode() != 1) {
+                continue;
+            }
+            if (((Integer) 5).equals(batchInserter.getRelationshipProperties(r.getId()).get(WEIGHT)) && 1 == r.getEndNode()) {
+                batchInserter.setRelationshipProperty(r.getId(), WEIGHT, 2);
+            }
+            if (r.getStartNode() == r.getEndNode()) {
+                batchInserter.setRelationshipProperty(r.getId(), WEIGHT, 7);
+            }
+        }
+    }
+
+    private void setUpTwoNodes() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(NAME, "One");
+        props.put(WEIGHT, 1);
+        batchInserter.createNode(1, props);
+
+        props = new HashMap<>();
+        props.put(NAME, "Two");
+        props.put(WEIGHT, 2);
+        batchInserter.createNode(2, props);
     }
 }

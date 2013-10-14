@@ -20,7 +20,6 @@ import com.graphaware.description.relationship.RelationshipDescription;
 import com.graphaware.description.serialize.Serializer;
 import com.graphaware.framework.GraphAwareFramework;
 import com.graphaware.framework.config.DefaultFrameworkConfiguration;
-import com.graphaware.relcount.compact.GeneralizeFrequentlyChanging;
 import com.graphaware.relcount.compact.ThresholdBasedCompactionStrategy;
 import com.graphaware.relcount.module.RelationshipCountModule;
 import com.graphaware.test.TestDataBuilder;
@@ -51,7 +50,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
 /**
- * Integration test for relationship counting.
+ * Test for {@link CachedRelationshipCounter}.
  */
 public class CachedRelationshipCounterTest {
 
@@ -450,7 +449,7 @@ public class CachedRelationshipCounterTest {
 
         GraphAwareFramework framework = new GraphAwareFramework(database);
         framework.registerModule(new RelationshipCountModule(defaultStrategies()
-                .with(new ThresholdBasedCompactionStrategy(5, new GeneralizeFrequentlyChanging()))
+                .with(new ThresholdBasedCompactionStrategy(5))
                 .with(IncludeNoRelationships.getInstance())));
 
         framework.start();

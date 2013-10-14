@@ -9,8 +9,7 @@ import org.neo4j.graphdb.Node;
 import java.util.*;
 
 /**
- * Node representation that caches its own degrees and compacts them using a
- * {@link com.graphaware.relcount.compact.CompactionStrategy}.
+ * Node representation that caches its own degrees and compacts them using a {@link com.graphaware.relcount.compact.CompactionStrategy}.
  */
 public class DegreeCachingNode {
 
@@ -68,8 +67,11 @@ public class DegreeCachingNode {
     }
 
     /**
-     * Same as {@link DegreeCachingNode#incrementDegree(com.graphaware.description.relationship.DetachedRelationshipDescription, int)}  ,
-     * but if desired, one can prevent triggering compaction by passing true to the preventCompaction parameter.
+     * Increment the degree of this node with respect to a relationship description by a delta.
+     *
+     * @param description       of a relationship.
+     * @param delta             by how many to increment.
+     * @param preventCompaction true for preventing compaction.
      */
     public void incrementDegree(DetachedRelationshipDescription description, int delta, boolean preventCompaction) {
         for (DetachedRelationshipDescription cachedDescription : cachedDegrees.keySet()) {

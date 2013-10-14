@@ -12,7 +12,7 @@ import java.util.Set;
  * {@link CompactionStrategy} which compacts degrees based the number of cached degrees and a threshold.
  * <p/>
  * More specifically, if there are more than {@link #compactionThreshold} distinct cached degrees (i.e. degrees with
- * respect to distinct relationship descriptions, generalizations are created using a {@link GeneralizationStrategy}
+ * respect to distinct relationship descriptions generalizations are created using a {@link GeneralizationStrategy}
  * until the number of cached degrees is below the threshold again. If unable to reach such state, a meaningful message
  * is logged.
  */
@@ -65,6 +65,7 @@ public class ThresholdBasedCompactionStrategy implements CompactionStrategy {
             return true;
         }
 
+        //Not suitable generalization => bad luck
         DetachedRelationshipDescription generalization = generalizationStrategy.produceGeneralization(cachedDegrees);
         if (generalization == null) {
             return false;
@@ -87,14 +88,8 @@ public class ThresholdBasedCompactionStrategy implements CompactionStrategy {
 
         node.incrementDegree(generalization, candidateCachedCount, true);
 
-        if (cachedDegrees.size() <= compactionThreshold) {
-            return true;
-        } else {
-            return performCompaction(node);
-        }
-
-        //If we reached this point and haven't compacted enough, we can't!
-//        return cachedDegrees.size() <= compactionThreshold;
+        //enough? => return, otherwise try again
+        return cachedDegrees.size() <= compactionThreshold || performCompaction(node);
     }
 
     /**

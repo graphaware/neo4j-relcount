@@ -4,7 +4,6 @@ package com.graphaware.relcount.module;
 import com.graphaware.relcount.cache.DegreeCachingStrategy;
 import com.graphaware.relcount.cache.NodePropertiesDegreeCachingStrategy;
 import com.graphaware.relcount.compact.CompactionStrategy;
-import com.graphaware.relcount.compact.GeneralizeFrequentlyChanging;
 import com.graphaware.relcount.compact.ThresholdBasedCompactionStrategy;
 import com.graphaware.relcount.count.OneForEach;
 import com.graphaware.relcount.count.WeighingStrategy;
@@ -34,7 +33,7 @@ public class RelationshipCountStrategiesImpl extends BaseInclusionStrategies<Rel
                 IncludeAllRelationships.getInstance(),
                 IncludeAllRelationshipProperties.getInstance(),
                 new NodePropertiesDegreeCachingStrategy(),
-                new ThresholdBasedCompactionStrategy(DEFAULT_COMPACTION_THRESHOLD, new GeneralizeFrequentlyChanging()),
+                new ThresholdBasedCompactionStrategy(DEFAULT_COMPACTION_THRESHOLD),
                 OneForEach.getInstance()
         );
     }

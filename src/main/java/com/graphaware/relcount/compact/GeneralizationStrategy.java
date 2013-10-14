@@ -10,11 +10,11 @@ import java.util.Map;
 public interface GeneralizationStrategy {
 
     /**
-     * Produce all possible generalizations of the cached degrees, sorted from best to worst. Implementations should
+     * Produce the best generalizations of the cached degrees that will result in compaction. Implementations should
      * determine what "best" means.
      *
      * @param cachedDegrees cached degrees that need to be compacted.
-     * @return best-to-worst sorted generalizations.
+     * @return best generalization.
      */
     DetachedRelationshipDescription produceGeneralization(Map<DetachedRelationshipDescription, Integer> cachedDegrees);
 }

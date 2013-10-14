@@ -26,15 +26,12 @@ import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Node;
 
 /**
- * {@link FullRelationshipCounter} that counts matching relationships by first trying to look them up in cached
- * {@link org.neo4j.graphdb.Node}'s properties, falling back to naive approach of iterating through all {@link Node}'s
- * {@link org.neo4j.graphdb.Relationship}s.
- * <p/>
- * This is a <b>full</b> relationship counter, meaning that it inspects relationship types, directions, and properties.
+ * {@link RelationshipCounter} that counts matching relationships by first trying to use {@link CachedRelationshipCounter}
+ * and if that fails (i.e., throws a {@link UnableToCountException}), resorts to {@link NaiveRelationshipCounter}.
  * <p/>
  * It should be used in conjunction with {@link com.graphaware.relcount.module.RelationshipCountModule}
  * registered with {@link com.graphaware.framework.GraphAwareFramework}. The easiest and recommended way to create
- * and instance of this counter is through the corresponding {@link com.graphaware.relcount.module.RelationshipCountModule#fallingBackCounter(org.neo4j.graphdb.RelationshipType, org.neo4j.graphdb.Direction)}.
+ * and instance of this counter is by calling {@link com.graphaware.relcount.module.RelationshipCountModule#fallbackCounter()}.
  * <p/>
  * This counter always returns a count, never throws {@link UnableToCountException}.
  * <p/>
@@ -57,7 +54,7 @@ public class FallbackRelationshipCounter implements RelationshipCounter {
      * {@link com.graphaware.framework.GraphAwareFramework} is used with default configuration, only a single
      * instance of {@link com.graphaware.relcount.module.RelationshipCountModule} is registered, and
      * no custom {@link com.graphaware.relcount.module.RelationshipCountStrategies} are in use. If unsure, it is always easy and correct to instantiate
-     * this counter through {@link com.graphaware.relcount.module.RelationshipCountModule#fallingBackCounter(org.neo4j.graphdb.RelationshipType, org.neo4j.graphdb.Direction)}.
+     * this counter through {@link com.graphaware.relcount.module.RelationshipCountModule#fallbackCounter()} .
      */
     public FallbackRelationshipCounter() {
         this(RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID, DefaultFrameworkConfiguration.getInstance(), RelationshipCountStrategiesImpl.defaultStrategies());
@@ -65,8 +62,7 @@ public class FallbackRelationshipCounter implements RelationshipCounter {
 
     /**
      * Construct a new relationship counter with granular settings. It is always easier and recommended to use
-     * {@link com.graphaware.relcount.module.RelationshipCountModule#fallingBackCounter(org.neo4j.graphdb.RelationshipType, org.neo4j.graphdb.Direction)}
-     * instead.
+     * {@link com.graphaware.relcount.module.RelationshipCountModule#fallbackCounter()} instead.
      *
      * @param id         of the {@link com.graphaware.relcount.module.RelationshipCountModule} used to cache relationship counts.
      * @param config     used with the {@link com.graphaware.framework.GraphAwareFramework}.

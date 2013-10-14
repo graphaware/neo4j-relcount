@@ -96,7 +96,7 @@ public class RelationshipCountModule extends BaseFrameworkConfigured implements 
      *
      * @return counter.
      */
-    public RelationshipCounter cachedWithFallbackCounter() {
+    public RelationshipCounter fallbackCounter() {
         return new FallbackRelationshipCounter(getId(), getConfig(), relationshipCountStrategies);
     }
 

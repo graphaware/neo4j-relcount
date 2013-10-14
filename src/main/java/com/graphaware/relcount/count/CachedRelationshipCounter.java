@@ -30,7 +30,8 @@ import org.neo4j.graphdb.Node;
  * {@link RelationshipCounter} that counts matching relationships by looking them up cached in {@link org.neo4j.graphdb.Node}'s properties.
  * <p/>
  * It must be used in conjunction with {@link com.graphaware.relcount.module.RelationshipCountModule}
- * registered with {@link com.graphaware.framework.GraphAwareFramework}.
+ * registered with {@link com.graphaware.framework.GraphAwareFramework}. The easiest and recommended way to create
+ * and instance of this counter is by calling {@link com.graphaware.relcount.module.RelationshipCountModule#cachedCounter()}.
  * <p/>
  * This counter throws {@link UnableToCountException} if it detects it can not
  * reliably answer the question. This means compaction has taken place and this counter can't serve a request for

@@ -16,9 +16,9 @@ import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 /**
- * Unit test for {@link LazyGeneralizer}.
+ * Unit test for {@link GeneralizationGenerator}.
  */
-public class LazyGeneralizerTest {
+public class GeneralizationGeneratorTest {
 
     @Test
     public void shouldCorrectlyGeneralize() {
@@ -32,7 +32,7 @@ public class LazyGeneralizerTest {
         propertyChangeFrequencies.add(new PropertyChangeFrequency("T2", "k1", 0.5));
         propertyChangeFrequencies.add(new PropertyChangeFrequency("T2", "k2", 0.5));
 
-        LazyGeneralizer generalizer = new LazyGeneralizer(toGeneralize, propertyChangeFrequencies);
+        GeneralizationGenerator generalizer = new GeneralizationGenerator(toGeneralize, propertyChangeFrequencies);
 
         assertEquals(literal("T1", OUTGOING).with("k1", any()), generalizer.generate());
     }
@@ -50,7 +50,7 @@ public class LazyGeneralizerTest {
         propertyChangeFrequencies.add(new PropertyChangeFrequency("T2", "k1", 0.9));
         propertyChangeFrequencies.add(new PropertyChangeFrequency("T2", "k2", 0.5));
 
-        LazyGeneralizer generalizer = new LazyGeneralizer(toGeneralize, propertyChangeFrequencies);
+        GeneralizationGenerator generalizer = new GeneralizationGenerator(toGeneralize, propertyChangeFrequencies);
 
         assertEquals(literal("T1", OUTGOING).with("k1", any()), generalizer.generate());
     }
@@ -66,7 +66,7 @@ public class LazyGeneralizerTest {
         propertyChangeFrequencies.add(new PropertyChangeFrequency("T1", "k1", 0.9));
         propertyChangeFrequencies.add(new PropertyChangeFrequency("T1", "k2", 0.8));
 
-        LazyGeneralizer generalizer = new LazyGeneralizer(toGeneralize, propertyChangeFrequencies);
+        GeneralizationGenerator generalizer = new GeneralizationGenerator(toGeneralize, propertyChangeFrequencies);
 
         DetachedRelationshipDescription next = generalizer.generate();
         assertTrue(literal("T1", OUTGOING).with("k1", any()).with("k2", equalTo("v2")).equals(next));
@@ -82,7 +82,7 @@ public class LazyGeneralizerTest {
         propertyChangeFrequencies.add(new PropertyChangeFrequency("T1", "k1", 0.9));
         propertyChangeFrequencies.add(new PropertyChangeFrequency("T1", "k2", 0.9));
 
-        LazyGeneralizer generalizer = new LazyGeneralizer(toGeneralize, propertyChangeFrequencies);
+        GeneralizationGenerator generalizer = new GeneralizationGenerator(toGeneralize, propertyChangeFrequencies);
 
         assertNull(generalizer.generate());
     }

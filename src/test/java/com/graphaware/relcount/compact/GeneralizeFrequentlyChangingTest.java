@@ -29,7 +29,7 @@ public class GeneralizeFrequentlyChangingTest {
 
         DetachedRelationshipDescription result = new GeneralizeFrequentlyChanging().produceGeneralization(cachedCounts);
         assertTrue(literal("T1", INCOMING).with("k1", any()).with("k2", equalTo("v1")).equals(result)
-                || literal("T1", INCOMING).with("k1", any()).with("k2", equalTo("v2")).equals(result));
+                || literal("T1", OUTGOING).with("k1", any()).with("k2", equalTo("v2")).equals(result));
     }
 
     @Test

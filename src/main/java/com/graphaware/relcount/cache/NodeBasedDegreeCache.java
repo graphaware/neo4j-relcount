@@ -80,11 +80,15 @@ public class NodeBasedDegreeCache extends BaseFrameworkConfigured implements Deg
             throw new IllegalStateException("No caching has been started!");
         }
 
-        for (DegreeCachingNode node : nodeCache.get().values()) {
-            node.flush();       //todo if this throws exception, caching is never ended
+        try {
+            for (DegreeCachingNode node : nodeCache.get().values()) {
+                node.flush();
+            }
+        } finally {
+            //no need to catch, exception will propagate and rollback transaction, but we must indicate end of caching
+            nodeCache.set(null);
         }
 
-        nodeCache.set(null);
     }
 
     /**

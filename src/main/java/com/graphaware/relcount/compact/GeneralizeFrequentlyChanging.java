@@ -25,26 +25,43 @@ import static com.graphaware.description.predicate.Predicates.any;
 import static com.graphaware.description.predicate.Predicates.undefined;
 
 /**
- * A {@link com.graphaware.relcount.compact.GeneralizationStrategy} with a "property change frequency" heuristic.
+ * A {@link GeneralizationStrategy} with a "property change frequency" heuristic.
  * <p/>
  * A human-friendly explanation of what this strategy is trying to achieve is getting rid of (generalizing) properties with
  * frequently changing values (like timestamp on a relationship), whilst keeping the ones that change less frequently,
  * thus providing more value (like strength of a friendship).
  */
-public class GeneralizeFrequentlyChanging implements GeneralizationStrategy {
+class GeneralizeFrequentlyChanging implements GeneralizationStrategy {
 
     /**
      * {@inheritDoc}
      */
     @Override
     public DetachedRelationshipDescription produceGeneralization(Map<DetachedRelationshipDescription, Integer> cachedDegrees) {
-        Map<String, Map<String, Set<Predicate>>> valuesByTypeAndKey = new HashMap<>();
-        Map<String, Integer> degreeByType = new HashMap<>();
-        Map<String, Map<String, Integer>> wildcardsByTypeAndKey = new HashMap<>();
+        CachedDegreesStats cachedDegreesStats = new CachedDegreesStats();
 
         for (DetachedRelationshipDescription description : cachedDegrees.keySet()) {
-            String type = description.getType().name();
+            cachedDegreesStats.acknowledge(description, cachedDegrees.get(description));
+        }
 
+        return new GeneralizationGenerator(cachedDegrees.keySet(), cachedDegreesStats.produceFrequencies()).generate();
+    }
+
+    /**
+     * Collector of cached degree statistics, which later produces property change frequencies.
+     */
+    private class CachedDegreesStats {
+        private final Map<String, Map<String, Set<Predicate>>> valuesByTypeAndKey = new HashMap<>();
+        private final Map<String, Integer> degreeByType = new HashMap<>();
+        private final Map<String, Map<String, Integer>> wildcardsByTypeAndKey = new HashMap<>();
+
+        public void acknowledge(DetachedRelationshipDescription description, int degree) {
+            initMaps(description.getType().name());
+            addDegree(description.getType().name(), degree);
+            addValuesAndWildcards(description, degree);
+        }
+
+        private void initMaps(String type) {
             if (!degreeByType.containsKey(type)) {
                 degreeByType.put(type, 0);
             }
@@ -54,17 +71,24 @@ public class GeneralizeFrequentlyChanging implements GeneralizationStrategy {
             if (!wildcardsByTypeAndKey.containsKey(type)) {
                 wildcardsByTypeAndKey.put(type, new HashMap<String, Integer>());
             }
+        }
 
-            degreeByType.put(type, degreeByType.get(type) + cachedDegrees.get(description));
+        private void addDegree(String type, int degree) {
+            degreeByType.put(type, degreeByType.get(type) + degree);
+        }
 
-            Set<String> keysSoFar = new HashSet<>();
-            keysSoFar.addAll(valuesByTypeAndKey.get(type).keySet());
-            keysSoFar.addAll(wildcardsByTypeAndKey.get(type).keySet());
+        private void addValuesAndWildcards(DetachedRelationshipDescription description, int degree) {
+            String type = description.getType().name();
+
+            Set<String> allKeysForType = new HashSet<>();
+            allKeysForType.addAll(valuesByTypeAndKey.get(type).keySet());
+            allKeysForType.addAll(wildcardsByTypeAndKey.get(type).keySet());
 
             for (String key : description.getPropertiesDescription().getKeys()) {
                 if (!valuesByTypeAndKey.get(type).containsKey(key)) {
                     valuesByTypeAndKey.get(type).put(key, new HashSet<Predicate>());
-                    if (degreeByType.get(type) > cachedDegrees.get(description)) {
+                    if (degreeByType.get(type) > degree) {
+                        //key not encountered before, thus there is at least one occurrence of unknown
                         valuesByTypeAndKey.get(type).get(key).add(undefined());
                     }
                 }
@@ -73,31 +97,31 @@ public class GeneralizeFrequentlyChanging implements GeneralizationStrategy {
                     wildcardsByTypeAndKey.get(type).put(key, 0);
                 }
 
-                keysSoFar.remove(key);
+                allKeysForType.remove(key);
                 Predicate value = description.getPropertiesDescription().get(key);
                 if (any().equals(value)) {
-                    wildcardsByTypeAndKey.get(type).put(key, wildcardsByTypeAndKey.get(type).get(key) + cachedDegrees.get(description));
+                    wildcardsByTypeAndKey.get(type).put(key, wildcardsByTypeAndKey.get(type).get(key) + degree);
                 } else {
                     valuesByTypeAndKey.get(type).get(key).add(value);
                 }
             }
 
-            for (String newKey : keysSoFar) {
+            for (String newKey : allKeysForType) {
                 valuesByTypeAndKey.get(type).get(newKey).add(undefined());
             }
         }
 
-        Set<PropertyChangeFrequency> propertyChangeFrequencies = new TreeSet<>();
-        for (String type : degreeByType.keySet()) {
-            Map<String, Set<Predicate>> valuesByKey = valuesByTypeAndKey.get(type);
-            Map<String, Integer> wildcardsByKey = wildcardsByTypeAndKey.get(type);
-
-            for (String key : valuesByKey.keySet()) {
-                propertyChangeFrequencies.add(new PropertyChangeFrequency(type, key,
-                        ((double) valuesByKey.get(key).size() + wildcardsByKey.get(key)) / ((double) degreeByType.get(type) + 1)));
+        private List<PropertyChangeFrequency> produceFrequencies() {
+            Set<PropertyChangeFrequency> propertyChangeFrequencies = new TreeSet<>();
+            for (String type : degreeByType.keySet()) {
+                for (String key : valuesByTypeAndKey.get(type).keySet()) {
+                    propertyChangeFrequencies.add(new PropertyChangeFrequency(type, key,
+                            ((double) valuesByTypeAndKey.get(type).get(key).size()
+                                    + wildcardsByTypeAndKey.get(type).get(key)) / ((double) degreeByType.get(type) + 1)));
+                }
             }
-        }
 
-        return new LazyGeneralizer(cachedDegrees.keySet(), new ArrayList<>(propertyChangeFrequencies)).generate();
+            return new LinkedList<>(propertyChangeFrequencies);
+        }
     }
 }
