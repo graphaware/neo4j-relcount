@@ -1,15 +1,16 @@
 package com.graphaware.relcount.perf;
 
 import com.graphaware.framework.GraphAwareFramework;
-import com.graphaware.relcount.common.counter.RelationshipCounter;
-import com.graphaware.relcount.full.counter.FullCachedRelationshipCounter;
-import com.graphaware.relcount.full.module.FullRelationshipCountModule;
+import com.graphaware.relcount.count.CachedRelationshipCounter;
+import com.graphaware.relcount.module.RelationshipCountModule;
 import com.graphaware.test.TestUtils;
 import org.junit.Ignore;
 import org.neo4j.graphdb.*;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.graphaware.description.predicate.Predicates.equalTo;
+import static com.graphaware.description.relationship.RelationshipDescriptionFactory.wildcard;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
@@ -61,12 +62,11 @@ public class TwoPropsReadPerformanceTest extends RelationshipReadPerformanceTest
             final Direction direction = RANDOM.nextBoolean() ? INCOMING : OUTGOING;
             final RelationshipType type = withName("TEST" + RANDOM.nextInt(2));
             final int rating = RANDOM.nextInt(4) + 1;
-            final RelationshipCounter counter = new FullCachedRelationshipCounter(type, direction).with("rating", rating);
 
             time += TestUtils.time(new TestUtils.Timed() {
                 @Override
                 public void time() {
-                    result.set(result.get() + counter.count(node));
+                    result.set(result.get() + new CachedRelationshipCounter().count(node, wildcard(type, direction).with("rating", equalTo(rating))));
                 }
             });
         }
@@ -83,7 +83,7 @@ public class TwoPropsReadPerformanceTest extends RelationshipReadPerformanceTest
     @Override
     protected void startFramework(GraphDatabaseService database) {
         GraphAwareFramework framework = new GraphAwareFramework(database);
-        framework.registerModule(new FullRelationshipCountModule());
+        framework.registerModule(new RelationshipCountModule());
         framework.start();
     }
 

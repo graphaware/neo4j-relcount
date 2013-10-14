@@ -1,0 +1,46 @@
+package com.graphaware.relcount.cache;
+
+import com.graphaware.description.relationship.DetachedRelationshipDescription;
+import com.graphaware.description.serialize.Serializer;
+import org.neo4j.graphdb.Node;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * {@link DegreeCachingStrategy} that caches degrees as a single node property on the node that the degrees are for.
+ * The key of the property is the prefix (framework identifier + module prefix) and the value is the entire map of
+ * degrees serialized to a byte array.
+ */
+public class SingleNodePropertyDegreeCachingStrategy implements DegreeCachingStrategy {
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void writeDegrees(Node node, String prefix, Map<DetachedRelationshipDescription, Integer> cachedDegrees, Set<DetachedRelationshipDescription> updatedDegrees, Set<DetachedRelationshipDescription> removedDegrees) {
+        node.setProperty(prefix, Serializer.toByteArray(cachedDegrees));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<DetachedRelationshipDescription, Integer> readDegrees(Node node, String prefix) {
+        if (!node.hasProperty(prefix)) {
+            return new HashMap<>();
+        }
+
+        //noinspection unchecked
+        return Serializer.fromByteArray((byte[]) node.getProperty(prefix), HashMap.class);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String asString() {
+        return "SNP";
+    }
+}

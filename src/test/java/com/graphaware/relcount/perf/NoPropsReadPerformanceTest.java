@@ -1,15 +1,18 @@
 package com.graphaware.relcount.perf;
 
 import com.graphaware.framework.GraphAwareFramework;
-import com.graphaware.relcount.common.counter.RelationshipCounter;
-import com.graphaware.relcount.simple.counter.SimpleCachedRelationshipCounter;
-import com.graphaware.relcount.simple.module.SimpleRelationshipCountModule;
+import com.graphaware.relcount.count.CachedRelationshipCounter;
+import com.graphaware.relcount.count.RelationshipCounter;
+import com.graphaware.relcount.module.RelationshipCountModule;
+import com.graphaware.relcount.module.RelationshipCountStrategiesImpl;
 import com.graphaware.test.TestUtils;
+import com.graphaware.tx.event.improved.strategy.IncludeNoRelationshipProperties;
 import org.junit.Ignore;
 import org.neo4j.graphdb.*;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.graphaware.description.relationship.RelationshipDescriptionFactory.wildcard;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
@@ -56,13 +59,13 @@ public class NoPropsReadPerformanceTest extends RelationshipReadPerformanceTest 
         for (int i = 0; i < COUNT_NO; i++) {
             final Direction direction = RANDOM.nextBoolean() ? INCOMING : OUTGOING;
             final RelationshipType type = withName("TEST" + RANDOM.nextInt(2));
-            final RelationshipCounter counter = new SimpleCachedRelationshipCounter(type, direction);
+            final RelationshipCounter counter = new CachedRelationshipCounter();
 
             final Node node = database.getNodeById(RANDOM.nextInt(HUNDRED) + 1);
             time += TestUtils.time(new TestUtils.Timed() {
                 @Override
                 public void time() {
-                    result.set(result.get() + counter.count(node));
+                    result.set(result.get() + counter.count(node, wildcard(type, direction)));
                 }
             });
         }
@@ -74,7 +77,7 @@ public class NoPropsReadPerformanceTest extends RelationshipReadPerformanceTest 
     @Override
     protected void startFramework(GraphDatabaseService database) {
         GraphAwareFramework framework = new GraphAwareFramework(database);
-        framework.registerModule(new SimpleRelationshipCountModule());
+        framework.registerModule(new RelationshipCountModule(RelationshipCountStrategiesImpl.defaultStrategies().with(IncludeNoRelationshipProperties.getInstance())));
         framework.start();
     }
 

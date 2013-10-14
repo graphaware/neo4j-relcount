@@ -1,8 +1,9 @@
 package com.graphaware.relcount.perf;
 
 import com.graphaware.framework.GraphAwareFramework;
-import com.graphaware.relcount.full.module.FullRelationshipCountModule;
-import com.graphaware.relcount.simple.module.SimpleRelationshipCountModule;
+import com.graphaware.relcount.module.RelationshipCountModule;
+import com.graphaware.relcount.module.RelationshipCountStrategiesImpl;
+import com.graphaware.tx.event.improved.strategy.IncludeNoRelationshipProperties;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -42,7 +43,7 @@ public class NoPropsCreatePerformanceTest extends RelationshipCreatePerformanceT
             @Override
             public void alterDatabase(GraphDatabaseService database) {
                 GraphAwareFramework framework = new GraphAwareFramework(database);
-                framework.registerModule(new SimpleRelationshipCountModule());
+                framework.registerModule(new RelationshipCountModule(RelationshipCountStrategiesImpl.defaultStrategies().with(IncludeNoRelationshipProperties.getInstance())));
                 framework.start();
             }
         }, "noPropsSimpleRelcountWrite");
@@ -55,7 +56,7 @@ public class NoPropsCreatePerformanceTest extends RelationshipCreatePerformanceT
             @Override
             public void alterDatabase(GraphDatabaseService database) {
                 GraphAwareFramework framework = new GraphAwareFramework(database);
-                framework.registerModule(new FullRelationshipCountModule());
+                framework.registerModule(new RelationshipCountModule());
                 framework.start();
             }
         }, "noPropsFullRelcountWrite");

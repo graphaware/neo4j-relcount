@@ -1,0 +1,20 @@
+package com.graphaware.relcount.compact;
+
+import com.graphaware.description.relationship.DetachedRelationshipDescription;
+
+import java.util.Map;
+
+/**
+ * A strategy for producing generalizations of cached degrees.
+ */
+public interface GeneralizationStrategy {
+
+    /**
+     * Produce all possible generalizations of the cached degrees, sorted from best to worst. Implementations should
+     * determine what "best" means.
+     *
+     * @param cachedDegrees cached degrees that need to be compacted.
+     * @return best-to-worst sorted generalizations.
+     */
+    DetachedRelationshipDescription produceGeneralization(Map<DetachedRelationshipDescription, Integer> cachedDegrees);
+}

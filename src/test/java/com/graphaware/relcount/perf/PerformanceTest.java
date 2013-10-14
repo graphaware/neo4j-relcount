@@ -60,7 +60,7 @@ public abstract class PerformanceTest {
     }
 
     protected void createNodes(GraphDatabaseService databaseService) {
-        new NoInputBatchTransactionExecutor(databaseService, THOUSAND, 10, new UnitOfWork<NullItem>() {
+        new NoInputBatchTransactionExecutor(databaseService, THOUSAND, HUNDRED, new UnitOfWork<NullItem>() {
             @Override
             public void execute(GraphDatabaseService database, NullItem input, int batchNumber, int stepNumber) {
                 database.createNode();
@@ -72,8 +72,8 @@ public abstract class PerformanceTest {
         new NoInputBatchTransactionExecutor(database, batchSize, noRels, new UnitOfWork<NullItem>() {
             @Override
             public void execute(GraphDatabaseService database, NullItem input, int batchNumber, int stepNumber) {
-                final Node node1 = database.getNodeById(RANDOM.nextInt(10) + 1);
-                final Node node2 = database.getNodeById(RANDOM.nextInt(10) + 1);
+                final Node node1 = database.getNodeById(RANDOM.nextInt(HUNDRED) + 1);
+                final Node node2 = database.getNodeById(RANDOM.nextInt(HUNDRED) + 1);
 
                 Relationship rel = node1.createRelationshipTo(node2, withName("TEST" + ((batchSize * (batchNumber - 1) + stepNumber) % 2)));
                 createRelPropsIfNeeded(rel);

@@ -50,7 +50,7 @@ public abstract class RelationshipReadPerformanceTest extends PerformanceTest {
 
         //warm cache
         for (int i = 1; i <= 100; i++) {
-//            System.out.println(measurePlain(database));
+//            measurePlain(database);
             measureCached(database);
         }
 

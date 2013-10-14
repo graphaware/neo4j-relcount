@@ -1,7 +1,7 @@
 package com.graphaware.relcount.perf;
 
 import com.graphaware.framework.GraphAwareFramework;
-import com.graphaware.relcount.full.module.FullRelationshipCountModule;
+import com.graphaware.relcount.module.RelationshipCountModule;
 import com.graphaware.tx.executor.NullItem;
 import com.graphaware.tx.executor.batch.NoInputBatchTransactionExecutor;
 import com.graphaware.tx.executor.batch.UnitOfWork;
@@ -25,7 +25,7 @@ public class SpaceComparison extends PerformanceTest {
 
         GraphDatabaseService two = new GraphDatabaseFactory().newEmbeddedDatabase("/tmp/space/two");
         GraphAwareFramework framework = new GraphAwareFramework(two);
-        framework.registerModule(new FullRelationshipCountModule());
+        framework.registerModule(new RelationshipCountModule());
         framework.start();
         populateDatabase(two);
         two.shutdown();

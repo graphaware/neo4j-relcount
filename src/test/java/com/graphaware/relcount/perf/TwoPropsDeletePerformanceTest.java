@@ -1,7 +1,7 @@
 package com.graphaware.relcount.perf;
 
 import com.graphaware.framework.GraphAwareFramework;
-import com.graphaware.relcount.full.module.FullRelationshipCountModule;
+import com.graphaware.relcount.module.RelationshipCountModule;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -30,7 +30,7 @@ public class TwoPropsDeletePerformanceTest extends RelationshipDeletePerformance
             @Override
             public void alterDatabase(GraphDatabaseService database) {
                 GraphAwareFramework framework = new GraphAwareFramework(database);
-                framework.registerModule(new FullRelationshipCountModule());
+                framework.registerModule(new RelationshipCountModule());
                 framework.start();
             }
         }, "twoPropsFullRelcountDelete");
