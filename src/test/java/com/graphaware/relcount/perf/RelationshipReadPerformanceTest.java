@@ -49,7 +49,7 @@ public abstract class RelationshipReadPerformanceTest extends PerformanceTest {
 //        createRelationships(noRels, THOUSAND, database);
 
         //warm cache
-        for (int i = 1; i <= 100; i++) {
+        for (int i = 1; i <= 10000; i++) {
 //            measurePlain(database);
             measureCached(database);
         }

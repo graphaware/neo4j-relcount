@@ -32,7 +32,7 @@ plt.errorbar(xaxis, means[0], yerr=stddevs[0])
 plt.errorbar(xaxis, means[1], yerr=stddevs[1])
 plt.errorbar(xaxis, means[2], yerr=stddevs[2])
 plt.errorbar(xaxis, means[3], yerr=stddevs[3])
-# plt.show()
+plt.show()
 
 # for LaTeX:
 

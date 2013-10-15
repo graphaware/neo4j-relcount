@@ -1,12 +1,14 @@
 package com.graphaware.relcount.cache;
 
 import com.graphaware.description.relationship.DetachedRelationshipDescription;
-import com.graphaware.description.serialize.Serializer;
 import org.neo4j.graphdb.Node;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static com.graphaware.description.serialize.Serializer.fromByteArray;
+import static com.graphaware.description.serialize.Serializer.toByteArray;
 
 /**
  * {@link DegreeCachingStrategy} that caches degrees as a single node property on the node that the degrees are for.
@@ -20,7 +22,7 @@ public class SingleNodePropertyDegreeCachingStrategy implements DegreeCachingStr
      */
     @Override
     public void writeDegrees(Node node, String prefix, Map<DetachedRelationshipDescription, Integer> cachedDegrees, Set<DetachedRelationshipDescription> updatedDegrees, Set<DetachedRelationshipDescription> removedDegrees) {
-        node.setProperty(prefix, Serializer.toByteArray(cachedDegrees));
+        node.setProperty(prefix, toByteArray(cachedDegrees));
     }
 
     /**
@@ -33,7 +35,7 @@ public class SingleNodePropertyDegreeCachingStrategy implements DegreeCachingStr
         }
 
         //noinspection unchecked
-        return Serializer.fromByteArray((byte[]) node.getProperty(prefix), HashMap.class);
+        return fromByteArray((byte[]) node.getProperty(prefix), HashMap.class);
     }
 
     /**

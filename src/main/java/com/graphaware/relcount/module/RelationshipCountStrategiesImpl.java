@@ -2,7 +2,7 @@ package com.graphaware.relcount.module;
 
 
 import com.graphaware.relcount.cache.DegreeCachingStrategy;
-import com.graphaware.relcount.cache.NodePropertiesDegreeCachingStrategy;
+import com.graphaware.relcount.cache.SingleNodePropertyDegreeCachingStrategy;
 import com.graphaware.relcount.compact.CompactionStrategy;
 import com.graphaware.relcount.compact.ThresholdBasedCompactionStrategy;
 import com.graphaware.relcount.count.OneForEach;
@@ -32,7 +32,7 @@ public class RelationshipCountStrategiesImpl extends BaseInclusionStrategies<Rel
                 IncludeNoNodeProperties.getInstance(),
                 IncludeAllRelationships.getInstance(),
                 IncludeAllRelationshipProperties.getInstance(),
-                new NodePropertiesDegreeCachingStrategy(),
+                new SingleNodePropertyDegreeCachingStrategy(),
                 new ThresholdBasedCompactionStrategy(DEFAULT_COMPACTION_THRESHOLD),
                 OneForEach.getInstance()
         );

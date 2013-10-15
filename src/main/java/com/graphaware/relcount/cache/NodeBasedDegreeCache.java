@@ -21,7 +21,6 @@ import com.graphaware.description.relationship.DetachedRelationshipDescription;
 import com.graphaware.description.relationship.DetachedRelationshipDescriptionImpl;
 import com.graphaware.framework.config.BaseFrameworkConfigured;
 import com.graphaware.framework.config.FrameworkConfigured;
-import com.graphaware.propertycontainer.util.DirectionUtils;
 import com.graphaware.relcount.module.RelationshipCountStrategies;
 import com.graphaware.wrapper.NodeWrapper;
 import org.apache.log4j.Logger;
@@ -31,6 +30,8 @@ import org.neo4j.graphdb.Relationship;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.graphaware.util.DirectionUtils.resolveDirection;
 
 /**
  * {@link DegreeCache} that caches degrees using {@link DegreeCachingNode}s.
@@ -100,7 +101,7 @@ public class NodeBasedDegreeCache extends BaseFrameworkConfigured implements Deg
 
         DetachedRelationshipDescription createdRelationship = new DetachedRelationshipDescriptionImpl(
                 relationship.getType(),
-                DirectionUtils.resolveDirection(relationship, pointOfView, defaultDirection),
+                resolveDirection(relationship, pointOfView, defaultDirection),
                 new LiteralPropertiesDescription(relationship));
 
         int relationshipWeight = relationshipCountStrategies.getWeighingStrategy().getRelationshipWeight(relationship, pointOfView);
@@ -118,7 +119,7 @@ public class NodeBasedDegreeCache extends BaseFrameworkConfigured implements Deg
 
         DetachedRelationshipDescription deletedRelationship = new DetachedRelationshipDescriptionImpl(
                 relationship.getType(),
-                DirectionUtils.resolveDirection(relationship, pointOfView, defaultDirection),
+                resolveDirection(relationship, pointOfView, defaultDirection),
                 new LiteralPropertiesDescription(relationship));
 
         int relationshipWeight = relationshipCountStrategies.getWeighingStrategy().getRelationshipWeight(relationship, pointOfView);

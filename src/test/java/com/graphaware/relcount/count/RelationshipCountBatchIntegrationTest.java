@@ -10,6 +10,7 @@ import com.graphaware.tx.event.improved.strategy.RelationshipInclusionStrategy;
 import com.graphaware.tx.event.improved.strategy.RelationshipPropertyInclusionStrategy;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -457,6 +458,7 @@ public class RelationshipCountBatchIntegrationTest {
     }
 
     @Test
+    @Ignore("bug in neo4j") //https://github.com/neo4j/neo4j/issues/1304
     public void batchTest() {
         BatchGraphAwareFramework framework = new BatchGraphAwareFramework(batchInserter);
         final RelationshipCountModule module = new RelationshipCountModule();
