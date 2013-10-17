@@ -12,10 +12,14 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
+import java.util.Random;
+
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
 @Ignore
-public class SpaceComparison extends PerformanceTest {
+public class SpaceComparison {
+
+    protected static final Random RANDOM = new Random(System.currentTimeMillis());
 
     @Test
     public void createTwoDatabases() {
