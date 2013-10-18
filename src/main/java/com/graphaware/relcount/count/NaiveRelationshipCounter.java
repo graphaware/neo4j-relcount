@@ -16,7 +16,8 @@
 
 package com.graphaware.relcount.count;
 
-import com.graphaware.description.relationship.LazyRelationshipDescription;
+import com.graphaware.description.property.LazyPropertiesDescription;
+import com.graphaware.description.property.PropertiesDescription;
 import com.graphaware.description.relationship.RelationshipDescription;
 import com.graphaware.relcount.module.RelationshipCountStrategies;
 import com.graphaware.relcount.module.RelationshipCountStrategiesImpl;
@@ -63,14 +64,14 @@ public class NaiveRelationshipCounter implements RelationshipCounter {
         int result = 0;
 
         for (Relationship candidateRelationship : node.getRelationships(description.getDirection(), description.getType())) {
-            RelationshipDescription candidate = new LazyRelationshipDescription(candidateRelationship, node);
+            PropertiesDescription candidate = new LazyPropertiesDescription(candidateRelationship);
 
-            if (candidate.isMoreSpecificThan(description)) {
+            if (candidate.isMoreSpecificThan(description.getPropertiesDescription())) {
                 int relationshipWeight = relationshipCountStrategies.getWeighingStrategy().getRelationshipWeight(candidateRelationship, node);
                 result = result + relationshipWeight;
 
                 //double count loops if looking for BOTH
-                if (BOTH.equals(description.getDirection()) && BOTH.equals(candidate.getDirection())) {
+                if (BOTH.equals(description.getDirection()) && candidateRelationship.getStartNode().getId() == candidateRelationship.getEndNode().getId()) {
                     result = result + relationshipWeight;
                 }
             }
