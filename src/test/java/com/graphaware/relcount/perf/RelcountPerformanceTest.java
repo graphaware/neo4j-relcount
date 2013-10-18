@@ -12,10 +12,9 @@ import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 
-/**
- *
- */
+
 public abstract class RelcountPerformanceTest implements PerformanceTest {
+
     protected static final Random RANDOM = new Random(System.currentTimeMillis());
 
     protected static final String FW = "fw";

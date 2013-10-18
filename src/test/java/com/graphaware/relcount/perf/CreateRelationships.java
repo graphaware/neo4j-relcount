@@ -2,8 +2,9 @@ package com.graphaware.relcount.perf;
 
 import com.graphaware.framework.GraphAwareFramework;
 import com.graphaware.performance.EnumParameter;
-import com.graphaware.performance.Exponential;
+import com.graphaware.performance.ExponentialParameter;
 import com.graphaware.performance.Parameter;
+import com.graphaware.relcount.cache.NodePropertiesDegreeCachingStrategy;
 import com.graphaware.relcount.module.RelationshipCountModule;
 import com.graphaware.relcount.module.RelationshipCountStrategiesImpl;
 import com.graphaware.test.TestUtils;
@@ -33,8 +34,10 @@ public class CreateRelationships extends RelcountPerformanceTest {
     enum FrameworkInvolvement {
         NO_FRAMEWORK,
         EMPTY_FRAMEWORK,
-        RELCOUNT_NO_PROPS,
-        FULL_RELCOUNT
+        RELCOUNT_NO_PROPS_SINGLE_PROP_STORAGE,
+        RELCOUNT_NO_PROPS_MULTI_PROP_STORAGE,
+        FULL_RELCOUNT_SINGLE_PROP_STORAGE,
+        FULL_RELCOUNT_MULTI_PROP_STORAGE
     }
 
     private enum Properties {
@@ -60,7 +63,7 @@ public class CreateRelationships extends RelcountPerformanceTest {
 
         result.add(new EnumParameter(PROPS, Properties.class));
         result.add(new EnumParameter(FW, FrameworkInvolvement.class));
-        result.add(new Exponential(BATCH_SIZE, 10, 0, 3, 0.25));
+        result.add(new ExponentialParameter(BATCH_SIZE, 10, 0, 3, 0.25));
 
         return result;
     }
@@ -89,14 +92,28 @@ public class CreateRelationships extends RelcountPerformanceTest {
                 GraphAwareFramework framework = new GraphAwareFramework(database);
                 framework.start();
                 break;
-            case RELCOUNT_NO_PROPS:
+            case RELCOUNT_NO_PROPS_SINGLE_PROP_STORAGE:
                 framework = new GraphAwareFramework(database);
-                framework.registerModule(new RelationshipCountModule(RelationshipCountStrategiesImpl.defaultStrategies().with(IncludeNoRelationshipProperties.getInstance())));
+                framework.registerModule(new RelationshipCountModule(RelationshipCountStrategiesImpl.defaultStrategies()
+                        .with(IncludeNoRelationshipProperties.getInstance())));
                 framework.start();
                 break;
-            case FULL_RELCOUNT:
+            case RELCOUNT_NO_PROPS_MULTI_PROP_STORAGE:
+                framework = new GraphAwareFramework(database);
+                framework.registerModule(new RelationshipCountModule(RelationshipCountStrategiesImpl.defaultStrategies()
+                        .with(IncludeNoRelationshipProperties.getInstance())
+                        .with(new NodePropertiesDegreeCachingStrategy())));
+                framework.start();
+                break;
+            case FULL_RELCOUNT_SINGLE_PROP_STORAGE:
                 framework = new GraphAwareFramework(database);
                 framework.registerModule(new RelationshipCountModule());
+                framework.start();
+                break;
+            case FULL_RELCOUNT_MULTI_PROP_STORAGE:
+                framework = new GraphAwareFramework(database);
+                framework.registerModule(new RelationshipCountModule(RelationshipCountStrategiesImpl.defaultStrategies()
+                        .with(new NodePropertiesDegreeCachingStrategy())));
                 framework.start();
                 break;
             default:

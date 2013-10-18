@@ -3,10 +3,10 @@ package com.graphaware.relcount.perf;
 import com.graphaware.description.relationship.DetachedRelationshipDescription;
 import com.graphaware.framework.GraphAwareFramework;
 import com.graphaware.performance.*;
-import com.graphaware.relcount.count.CachedRelationshipCounter;
-import com.graphaware.relcount.count.NaiveRelationshipCounter;
+import com.graphaware.relcount.cache.NodePropertiesDegreeCachingStrategy;
 import com.graphaware.relcount.count.RelationshipCounter;
 import com.graphaware.relcount.module.RelationshipCountModule;
+import com.graphaware.relcount.module.RelationshipCountStrategiesImpl;
 import com.graphaware.test.TestUtils;
 import com.graphaware.tx.executor.NullItem;
 import com.graphaware.tx.executor.batch.NoInputBatchTransactionExecutor;
@@ -31,11 +31,18 @@ public class CountRelationships extends RelcountPerformanceTest {
 
     private static final String DEGREE = "degree";
     private static final String CACHE = "cache";
+    private static final String SERIALIZATION = "serialization";
 
     private static final int NO_NODES = 100;
     private static final int COUNT_NO = 10;
 
     private int lastAvgDegree = 10;
+    private RelationshipCountModule module;
+
+    enum Serialization {
+        SINGLE_PROP,
+        MULTI_PROP
+    }
 
     enum FrameworkInvolvement {
         NO_FRAMEWORK,
@@ -62,8 +69,9 @@ public class CountRelationships extends RelcountPerformanceTest {
     public List<Parameter> parameters() {
         List<Parameter> result = new LinkedList<>();
 
+        result.add(new EnumParameter(SERIALIZATION, Serialization.class));
         result.add(new CacheParameter(CACHE));
-        result.add(new Exponential(DEGREE, 10, 1, 4, 0.25));
+        result.add(new ExponentialParameter(DEGREE, 10, 1, 4, 0.25));
         result.add(new EnumParameter(FW, FrameworkInvolvement.class));
         result.add(new EnumParameter(PROPS, Properties.class));
 
@@ -87,8 +95,14 @@ public class CountRelationships extends RelcountPerformanceTest {
 
     @Override
     public void prepareDatabase(GraphDatabaseService database, Map<String, Object> params) {
+        RelationshipCountStrategiesImpl strategies = RelationshipCountStrategiesImpl.defaultStrategies();
+        if (Serialization.MULTI_PROP.equals(params.get(SERIALIZATION))) {
+            strategies = strategies.with(new NodePropertiesDegreeCachingStrategy());
+        }
+
         GraphAwareFramework framework = new GraphAwareFramework(database);
-        framework.registerModule(new RelationshipCountModule());
+        module = new RelationshipCountModule(strategies);
+        framework.registerModule(module);
         framework.start();
 
         new NoInputBatchTransactionExecutor(database, 1000, NO_NODES, new UnitOfWork<NullItem>() {
@@ -128,10 +142,10 @@ public class CountRelationships extends RelcountPerformanceTest {
                             countAsIfThereWasNoFramework(database, params);
                             break;
                         case CACHED:
-                            countUsingFramework(database, params, new CachedRelationshipCounter());
+                            countUsingFramework(database, params, module.cachedCounter());
                             break;
                         case NAIVE:
-                            countUsingFramework(database, params, new NaiveRelationshipCounter());
+                            countUsingFramework(database, params, module.naiveCounter());
                             break;
                         default:
                             throw new RuntimeException("unknown option");
@@ -149,7 +163,7 @@ public class CountRelationships extends RelcountPerformanceTest {
         final Node node = randomNode(database, NO_NODES);
         for (Relationship r : node.getRelationships(randomType(), randomDirection())) {
             if (Properties.TWO_PROPS.equals(params.get(PROPS))) {
-                if (RANDOM.nextInt(2) == r.getProperty("rating") && RANDOM.nextInt(2) == r.getProperty("another")) {
+                if (RANDOM.nextInt(2) == r.getProperty("rating", null) && RANDOM.nextInt(2) == r.getProperty("another", null)) {
                     result.incrementAndGet();
                 }
             } else {

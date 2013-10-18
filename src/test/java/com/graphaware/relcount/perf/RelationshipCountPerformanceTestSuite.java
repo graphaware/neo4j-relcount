@@ -11,9 +11,8 @@ public class RelationshipCountPerformanceTestSuite extends PerformanceTestSuite 
     @Override
     protected PerformanceTest[] getPerfTests() {
         return new PerformanceTest[]{
-                new CountRelationshipsNaive()
-//                new CreateRelationships() ,
-//                new CountRelationships()
+                new CreateRelationships(),
+                new CountRelationships()
         };
     }
 }
