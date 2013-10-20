@@ -432,7 +432,7 @@ The x axis shows the average total number of relationships per node. There are 3
 * data in low level cache (files in mapped memory)
 * data in high level cache (objects on the heap)
 
-[!src/test/resources/perf/figure1.png]
+!(src/test/resources/perf/figure1.png)
 
 As expected, the performance when reading relationship counts from cache is constant, whist the time taken to count
 relationships by traversing them all increases linearly with the number of relationships. When data is read from disk,
@@ -448,7 +448,7 @@ The next figure shows the time taken to create 1,000 relationships between rando
 The penalty is between 30% and 70% of the write throughput (if all writes were just relationship creates), depending on how
 the writes are batched together (x axis shows the number of created relationships in a single transaction).
 
-[!src/test/resources/perf/figure2.png]
+!(src/test/resources/perf/figure2.png)
 
 When compaction takes place, the results can be even worse, so it is best to be avoided by proper configuration. Note, however,
 that compaction only slows writes in the beginning; once the system reaches a "steady-state", it doesn't have any effect.
@@ -456,7 +456,7 @@ The next figure shows the same experiment as above, with 2 properties for every 
 is like a timestamp (changes all the time) and is thus eventually compacted out. These are the first 1,000 relationships,
 thus worst case scenario. Up to 80% of the relationship creation write throughput is taken away by the module.
 
-[!src/test/resources/perf/figure3.png]
+!(src/test/resources/perf/figure3.png)
 
 ### License
 
