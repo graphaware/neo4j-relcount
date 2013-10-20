@@ -3,7 +3,7 @@ __author__ = 'bachmanm'
 import matplotlib.pyplot as plt
 import numpy as np
 
-filename = "countRelationships-slow-pc.txt"
+filename = "countRelationships-fast-pc.txt"
 noParams = 5
 
 resultsAsArray = np.loadtxt(open(filename, "rb"), delimiter=";", dtype=str, skiprows=3)
@@ -39,10 +39,12 @@ plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "NO_FRAMEWORK"), "b
 # plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "NAIVE"), "blue","-.")
 plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "CACHED"), "blue", "-")
 
-plt.xlabel('Number of Relationships per Transaction')
+plt.xlabel('Relationships per Node')
 plt.ylabel('Time (microseconds)')
-plt.title('Create 1,000 Relationships Between Random Pairs of 100 Nodes')
-# plt.legend(("NO_FRAMEWORK","EMPTY_FRAMEWORK","RELCOUNT_NO_PROPS_SINGLE_PROP_STORAGE", "RELCOUNT_NO_PROPS_MULTI_PROP_STORAGE","FULL_RELCOUNT_SINGLE_PROP_STORAGE","FULL_RELCOUNT_MULTI_PROP_STORAGE"), loc=3)
+plt.title('Counting Relationships for 10 Nodes (2 Properties per Relationship)')
+plt.legend(("Plain Neo4j (disk)", "RelCount Module (disk)", "Plain Neo4j (low level cache)",
+            "RelCount Module (low level cache)", "Plain Neo4j (high level cache)",
+            "RelCount Module (high level cache)"), loc=0)
 plt.yscale('log')
 plt.xscale('log')
 plt.show()

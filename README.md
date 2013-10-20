@@ -425,6 +425,39 @@ The following code snippet illustrates the usage:
 <a name="performance"/>
 ### Performance
 
+Let's look at the benefit one can get from deploying this module. The following chart shows how long it takes (in microseconds)
+to read relationship counts of 10 randomly selected nodes based on relationship type, direction, and two properties.
+The x axis shows the average total number of relationships per node. There are 3 scenarios:
+* no data in cache (reading from disk)
+* data in low level cache (files in mapped memory)
+* data in high level cache (objects on the heap)
+
+[!src/test/resources/perf/figure1.png]
+
+As expected, the performance when reading relationship counts from cache is constant, whist the time taken to count
+relationships by traversing them all increases linearly with the number of relationships. When data is read from disk,
+it is always faster to use the module. When data is in low level cache, using the module pays off for nodes with more
+than 50 relationships in total. Finally, for data in high level cache, using the module pays off for nodes with more than
+350 relationships.
+
+Using the module, counting relationships for nodes with 1,000 relationships is about 5x faster when data is in high level cache, 20x faster
+when in low level cache, and 70x faster when on disk. For a node with 10,000 relationships and data on disk, using the
+module makes relationship counting 700x faster.
+
+The next figure shows the time taken to create 1,000 relationships between random pairs of nodes (100 nodes in the graph).
+The penalty is between 30% and 70% of the write throughput (if all writes were just relationship creates), depending on how
+the writes are batched together (x axis shows the number of created relationships in a single transaction).
+
+[!src/test/resources/perf/figure2.png]
+
+When compaction takes place, the results can be even worse, so it is best to be avoided by proper configuration. Note, however,
+that compaction only slows writes in the beginning; once the system reaches a "steady-state", it doesn't have any effect.
+The next figure shows the same experiment as above, with 2 properties for every relationship, where one of the properties
+is like a timestamp (changes all the time) and is thus eventually compacted out. These are the first 1,000 relationships,
+thus worst case scenario. Up to 80% of the relationship creation write throughput is taken away by the module.
+
+[!src/test/resources/perf/figure3.png]
+
 ### License
 
 Copyright (c) 2013 GraphAware
