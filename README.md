@@ -62,11 +62,11 @@ Usage
 Once set up (read below), it is very simple to use the API.
 
 ```java
-    Node node = ... //find a node somewhere, perhaps in an index
+Node node = ... //find a node somewhere, perhaps in an index
 
-    RelationshipCounter relationshipCounter = ... //instantiate some kind of relationship counter
+RelationshipCounter relationshipCounter = ... //instantiate some kind of relationship counter
 
-    int count = relationshipCounter.count(node, wildcard(FOLLOWS, OUTGOING).with(STRENGTH, equalTo(1))); //DONE!
+relationshipCounter.count(node, wildcard(FOLLOWS, OUTGOING).with(STRENGTH, equalTo(1))); //DONE!
 ```
 
 Relationship counters are capable of counting relationships based on their types, directions, and properties.
@@ -80,13 +80,13 @@ reading them from "cache", i.e. nodes' properties. In order for this caching mec
 When using Neo4j in _embedded_ mode, the simplest default setup looks like this:
 
 ```java
-    GraphAwareFramework framework = new GraphAwareFramework(database);
-    RelationshipCountModule module = new RelationshipCountModule();
-    framework.registerModule(module);
-    framework.start();
+GraphAwareFramework framework = new GraphAwareFramework(database);
+RelationshipCountModule module = new RelationshipCountModule();
+framework.registerModule(module);
+framework.start();
 ```
 
-(For _server_mode, stay tuned, coming very soon!)
+(For _server_ mode, stay tuned, coming very soon!)
 
 Now, let's say you have a very simple graph with 10 people and 2 cities. Each person lives in one of the cities (relationship
 type LIVES_IN), and each person follows every other person on Twitter (relationship type FOLLOWS). Furthermore, there
@@ -97,25 +97,25 @@ In order to count all followers of a person named Tracy, who is represented by n
 the following:
 
 ```java
-    Node tracy = database.getNodeById(2);
+Node tracy = database.getNodeById(2);
 
-    //Wildcard means we don't care about properties:
-    RelationshipDescription followers = RelationshipDescriptionFactory.wildcard(FOLLOWS, INCOMING);
+//Wildcard means we don't care about properties:
+RelationshipDescription followers = RelationshipDescriptionFactory.wildcard(FOLLOWS, INCOMING);
 
-    RelationshipCounter counter = module.cachedCounter();
-    counter.count(tracy, followers); //returns the count
+RelationshipCounter counter = module.cachedCounter();
+counter.count(tracy, followers); //returns the count
 ```
 Alternatively, if you don't have access to the module object from when you've set things up, you can instantiate the counter
 directly:
 
 ```java
-    Node tracy = database.getNodeById(2);
+Node tracy = database.getNodeById(2);
 
-    //Wildcard means we don't care about properties:
-    RelationshipDescription followers = RelationshipDescriptionFactory.wildcard(FOLLOWS, INCOMING);
+//Wildcard means we don't care about properties:
+RelationshipDescription followers = RelationshipDescriptionFactory.wildcard(FOLLOWS, INCOMING);
 
-    RelationshipCounter counter = new CachedRelationshipCounter();
-    counter.count(tracy, followers);
+RelationshipCounter counter = new CachedRelationshipCounter();
+counter.count(tracy, followers);
 ```
 
 The first approach is preferred, however, because it simplifies things when using the module (or the Framework)
@@ -124,17 +124,17 @@ with custom configuration.
 If you wanted to know, how many of those followers are very interested in Tracy (strength = 2):
 
 ```java
-    import static com.graphaware.description.predicate.Predicates.equalTo;
-    import static com.graphaware.description.relationship.RelationshipDescriptionFactory.wildcard;
+import static com.graphaware.description.predicate.Predicates.equalTo;
+import static com.graphaware.description.relationship.RelationshipDescriptionFactory.wildcard;
 
-    //...
+//...
 
-    Node tracy = database.getNodeById(2);
+Node tracy = database.getNodeById(2);
 
-    RelationshipDescription followers = wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2));
+RelationshipDescription followers = wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2));
 
-    RelationshipCounter counter = module.cachedCounter();
-    counter.count(tracy, followers); //returns the count
+RelationshipCounter counter = module.cachedCounter();
+counter.count(tracy, followers); //returns the count
 ```
 
 When counting using `RelationshipDescriptionFactory.wildcard(FOLLOWS, INCOMING)`, all incoming relationships of type FOLLOWS are taken into
@@ -143,13 +143,13 @@ some meaning, i.e. if we want to consider "undefined" as a separate case? This k
 counting and would be done like this:
 
 ```java
-    Node tracy = database.getNodeById(2);
+Node tracy = database.getNodeById(2);
 
-    //Literal means we properties not explicitly mentioned must be undefined:
-    RelationshipDescription followers = RelationshipDescriptionFactory.literal(FOLLOWS, INCOMING);
+//Literal means we properties not explicitly mentioned must be undefined:
+RelationshipDescription followers = RelationshipDescriptionFactory.literal(FOLLOWS, INCOMING);
 
-    RelationshipCounter counter = module.cachedCounter();
-    counter.count(tracy, followers);
+RelationshipCounter counter = module.cachedCounter();
+counter.count(tracy, followers);
 ```
 
 For graphs with thousands (or more) relationships per node, this way of counting relationships can be orders of
@@ -217,9 +217,9 @@ That's how it works on a high level. Of course relationships with different leve
 (for example, creating a `FRIEND_OF` relationship without a level will work just fine). When issuing a query
  like this
 
- ```java
-    int count = counter.count(node, wildcard(FRIEND_OF, OUTGOING));
- ```
+```java
+int count = counter.count(node, wildcard(FRIEND_OF, OUTGOING));
+```
 
 on a node with the following cache counts
 
@@ -233,16 +233,16 @@ the result will be... you guessed it... 36.
 On the other hand, counting pure outgoing FRIEND_OF relationships with no properties would be done like this:
 
 ```java
-    int count = counter.count(node, literal(FRIEND_OF, OUTGOING));
+int count = counter.count(node, literal(FRIEND_OF, OUTGOING));
 ```
 
 and result in 5.
 
 However, if you now issue the following query:
 ```java
-    int count = counter.count(node, literal(FRIEND_OF, OUTGOING)
-        .with("level", equalTo(2))
-        .with("timestamp", equalTo(12345)));
+int count = counter.count(node, literal(FRIEND_OF, OUTGOING)
+    .with("level", equalTo(2))
+    .with("timestamp", equalTo(12345)));
 ```
 an `UnableToCountException` will be thrown, because the granularity needed for answering such query has been compacted
 away. There are three ways to deal with this problem, either
@@ -270,14 +270,14 @@ set the threshold to 3. One for the LIVES_IN relationships, and 2 for incoming a
 The threshold can be set when constructing the module by passing in a custom configuration:
 
 ```java
-    GraphAwareFramework framework = new GraphAwareFramework(database);
+GraphAwareFramework framework = new GraphAwareFramework(database);
 
-    //compaction threshold to 7
-    RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies().withThreshold(7);
-    FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
+//compaction threshold to 7
+RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies().withThreshold(7);
+FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
 
-    framework.registerModule(module);
-    framework.start();
+framework.registerModule(module);
+framework.start();
 ```
 
 #### Relationship Weights
@@ -289,23 +289,23 @@ Building on the previous example, let's say you would like the FOLLOWS relations
  relationships. The following code would achieve just that:
 
 ```java
-   GraphAwareFramework framework = new GraphAwareFramework(database);
+GraphAwareFramework framework = new GraphAwareFramework(database);
 
-   RelationshipWeighingStrategy customWeighingStrategy = new RelationshipWeighingStrategy() {
-       @Override
-       public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
-           return (int) relationship.getProperty(STRENGTH, 1);
-       }
-   };
+RelationshipWeighingStrategy customWeighingStrategy = new RelationshipWeighingStrategy() {
+   @Override
+   public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
+       return (int) relationship.getProperty(STRENGTH, 1);
+   }
+};
 
-   RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies()
-           .withThreshold(7)
-           .with(customWeighingStrategy);
+RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies()
+       .withThreshold(7)
+       .with(customWeighingStrategy);
 
-   FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
+FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
 
-   framework.registerModule(module);
-   framework.start();
+framework.registerModule(module);
+framework.start();
 ```
 
 #### Excluding Relationships
@@ -315,22 +315,22 @@ To exclude certain relationships from the count caching process altogether, crea
 you could configure the module as follows:
 
 ```java
-    GraphAwareFramework framework = new GraphAwareFramework(database);
+GraphAwareFramework framework = new GraphAwareFramework(database);
 
-    RelationshipInclusionStrategy customRelationshipInclusionStrategy = new RelationshipInclusionStrategy() {
-        @Override
-        public boolean include(Relationship relationship) {
-            return relationship.isType(FOLLOWS);
-        }
-    };
+RelationshipInclusionStrategy customRelationshipInclusionStrategy = new RelationshipInclusionStrategy() {
+    @Override
+    public boolean include(Relationship relationship) {
+        return relationship.isType(FOLLOWS);
+    }
+};
 
-    RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies()
-            .with(customRelationshipInclusionStrategy);
+RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies()
+        .with(customRelationshipInclusionStrategy);
 
-    FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
+FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
 
-    framework.registerModule(module);
-    framework.start();
+framework.registerModule(module);
+framework.start();
 ```
 
 #### Excluding Relationship Properties
@@ -344,22 +344,22 @@ relationship. In that case, you might choose to ignore that property for the pur
 setting up the module in the following fashion:
 
 ```java
-    GraphAwareFramework framework = new GraphAwareFramework(database);
+GraphAwareFramework framework = new GraphAwareFramework(database);
 
-    RelationshipPropertyInclusionStrategy customRelationshipPropertyInclusionStrategy = new RelationshipPropertyInclusionStrategy() {
-        @Override
-        public boolean include(String key, Relationship propertyContainer) {
-            return !"timestamp".equals(key);
-        }
-    };
+RelationshipPropertyInclusionStrategy customRelationshipPropertyInclusionStrategy = new RelationshipPropertyInclusionStrategy() {
+    @Override
+    public boolean include(String key, Relationship propertyContainer) {
+        return !"timestamp".equals(key);
+    }
+};
 
-    RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies()
-            .with(customRelationshipPropertyInclusionStrategy);
+RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies()
+        .with(customRelationshipPropertyInclusionStrategy);
 
-    FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
+FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
 
-    framework.registerModule(module);
-    framework.start();
+framework.registerModule(module);
+framework.start();
 ```
 
 <a name="naive"/>
@@ -376,24 +376,24 @@ use custom strategies explained above.
 The following snippet will count all Tracy's followers by traversing and inspecting all relationships:
 
 ```java
-    Node tracy = database.getNodeById(2);
+Node tracy = database.getNodeById(2);
 
-    RelationshipDescription followers = wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2));
+RelationshipDescription followers = wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2));
 
-    RelationshipCounter counter = module.naiveCounter();
-    counter.count(tracy, followers); //returns the count
+RelationshipCounter counter = module.naiveCounter();
+counter.count(tracy, followers); //returns the count
 ```
 
 If you're using this just for naive counting (no fallback, no custom config), it is possible to achieve the same thing
 using the following code, although the former approach is preferable.
 
 ```java
-    Node tracy = database.getNodeById(2);
+Node tracy = database.getNodeById(2);
 
-    RelationshipDescription followers = wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2));
+RelationshipDescription followers = wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2));
 
-    RelationshipCounter counter = new NaiveRelationshipCounter();
-    counter.count(tracy, followers); //returns the count
+RelationshipCounter counter = new NaiveRelationshipCounter();
+counter.count(tracy, followers); //returns the count
 ```
 
 <a name="fallback"/>
@@ -406,20 +406,20 @@ counting some kind of relationship has been compacted away.
 The following code snippet illustrates the usage:
 
 ```java
-   GraphAwareFramework framework = new GraphAwareFramework(database);
+GraphAwareFramework framework = new GraphAwareFramework(database);
 
-   RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies().withThreshold(3);
-   RelationshipCountModule module = new RelationshipCountModule(relationshipCountStrategies);
+RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies().withThreshold(3);
+RelationshipCountModule module = new RelationshipCountModule(relationshipCountStrategies);
 
-   framework.registerModule(module);
-   framework.start();
+framework.registerModule(module);
+framework.start();
 
-   populateDatabase();
+populateDatabase();
 
-   Node tracy = database.getNodeById(2);
+Node tracy = database.getNodeById(2);
 
-   module.cachedCounter().count(tracy, wildcard(FOLLOWS, INCOMING)); //uses cache
-   module.fallbackCounter().count(tracy, wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2))); //falls back to naive
+module.cachedCounter().count(tracy, wildcard(FOLLOWS, INCOMING)); //uses cache
+module.fallbackCounter().count(tracy, wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2))); //falls back to naive
 ```
 
 <a name="performance"/>
