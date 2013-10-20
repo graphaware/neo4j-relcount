@@ -273,7 +273,9 @@ The threshold can be set when constructing the module by passing in a custom con
 GraphAwareFramework framework = new GraphAwareFramework(database);
 
 //compaction threshold to 7
-RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies().withThreshold(7);
+RelationshipCountStrategies relationshipCountStrategies
+    = RelationshipCountStrategiesImpl.defaultStrategies().withThreshold(7);
+
 FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
 
 framework.registerModule(module);
@@ -298,7 +300,8 @@ RelationshipWeighingStrategy customWeighingStrategy = new RelationshipWeighingSt
    }
 };
 
-RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies()
+RelationshipCountStrategies relationshipCountStrategies
+    = RelationshipCountStrategiesImpl.defaultStrategies()
        .withThreshold(7)
        .with(customWeighingStrategy);
 
@@ -317,14 +320,16 @@ you could configure the module as follows:
 ```java
 GraphAwareFramework framework = new GraphAwareFramework(database);
 
-RelationshipInclusionStrategy customRelationshipInclusionStrategy = new RelationshipInclusionStrategy() {
-    @Override
-    public boolean include(Relationship relationship) {
-        return relationship.isType(FOLLOWS);
-    }
+RelationshipInclusionStrategy customRelationshipInclusionStrategy
+    = new RelationshipInclusionStrategy() {
+        @Override
+        public boolean include(Relationship relationship) {
+            return relationship.isType(FOLLOWS);
+        }
 };
 
-RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies()
+RelationshipCountStrategies relationshipCountStrategies
+    = RelationshipCountStrategiesImpl.defaultStrategies()
         .with(customRelationshipInclusionStrategy);
 
 FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
@@ -346,14 +351,16 @@ setting up the module in the following fashion:
 ```java
 GraphAwareFramework framework = new GraphAwareFramework(database);
 
-RelationshipPropertyInclusionStrategy customRelationshipPropertyInclusionStrategy = new RelationshipPropertyInclusionStrategy() {
-    @Override
-    public boolean include(String key, Relationship propertyContainer) {
-        return !"timestamp".equals(key);
-    }
+RelationshipPropertyInclusionStrategy customRelationshipPropertyInclusionStrategy
+    = new RelationshipPropertyInclusionStrategy() {
+        @Override
+        public boolean include(String key, Relationship propertyContainer) {
+            return !"timestamp".equals(key);
+        }
 };
 
-RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies()
+RelationshipCountStrategies relationshipCountStrategies
+    = RelationshipCountStrategiesImpl.defaultStrategies()
         .with(customRelationshipPropertyInclusionStrategy);
 
 FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
@@ -408,7 +415,9 @@ The following code snippet illustrates the usage:
 ```java
 GraphAwareFramework framework = new GraphAwareFramework(database);
 
-RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies().withThreshold(3);
+RelationshipCountStrategies relationshipCountStrategies
+    = RelationshipCountStrategiesImpl.defaultStrategies().withThreshold(3);
+
 RelationshipCountModule module = new RelationshipCountModule(relationshipCountStrategies);
 
 framework.registerModule(module);
@@ -418,8 +427,11 @@ populateDatabase();
 
 Node tracy = database.getNodeById(2);
 
-module.cachedCounter().count(tracy, wildcard(FOLLOWS, INCOMING)); //uses cache
-module.fallbackCounter().count(tracy, wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2))); //falls back to naive
+//uses cache:
+module.cachedCounter().count(tracy, wildcard(FOLLOWS, INCOMING));
+
+//falls back to naive:
+module.fallbackCounter().count(tracy, wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2)));
 ```
 
 <a name="performance"/>
