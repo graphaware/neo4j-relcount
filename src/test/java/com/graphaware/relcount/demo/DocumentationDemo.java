@@ -1,5 +1,7 @@
 package com.graphaware.relcount.demo;
 
+import com.graphaware.description.relationship.RelationshipDescription;
+import com.graphaware.description.relationship.RelationshipDescriptionFactory;
 import com.graphaware.framework.GraphAwareFramework;
 import com.graphaware.relcount.compact.ThresholdBasedCompactionStrategy;
 import com.graphaware.relcount.count.RelationshipCounter;
@@ -29,7 +31,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class DocumentationDemo extends BaseDocumentationDemo {
 
     @Test
-    public void demonstrateFullCachedRelationshipCounter() {
+    public void demonstrateCachedRelationshipCounter() {
         GraphAwareFramework framework = new GraphAwareFramework(database);
         RelationshipCountModule module = new RelationshipCountModule();
         framework.registerModule(module);
@@ -67,7 +69,8 @@ public class DocumentationDemo extends BaseDocumentationDemo {
 
         Node tracy = database.getNodeById(2);
 
-        assertEquals(9, counter.count(tracy, wildcard(FOLLOWS, INCOMING)));
+        RelationshipDescription followers = RelationshipDescriptionFactory.wildcard(FOLLOWS, INCOMING);
+        assertEquals(9, counter.count(tracy, followers));
         assertEquals(9, counter.count(tracy, wildcard(FOLLOWS, OUTGOING)));
 
         assertEquals(4, counter.count(tracy, wildcard(FOLLOWS, OUTGOING).with(STRENGTH, equalTo(1))));

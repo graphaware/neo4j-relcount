@@ -25,7 +25,7 @@ and put it on your classpath. When using Maven, include the following snippet in
         <dependency>
             <groupId>com.graphaware</groupId>
             <artifactId>neo4j-relcount</artifactId>
-            <version>1.9-1.3</version>
+            <version>1.9-1.4</version>
         </dependency>
         ...
     </dependencies>
@@ -41,7 +41,7 @@ your pom.xml instead of copying the .jar:
         <dependency>
             <groupId>com.graphaware</groupId>
             <artifactId>neo4j-relcount</artifactId>
-            <version>1.9-1.4-SNAPSHOT</version>
+            <version>1.9-1.5-SNAPSHOT</version>
         </dependency>
         ...
     </dependencies>
@@ -54,7 +54,7 @@ The version number has two parts, separated by a dash. The first part indicates 
 
 ### Compatibility
 
- This module is compatible with Neo4j v. 1.9.x and GraphAware Framework v. 1.9-1.7.
+ This module is compatible with Neo4j v. 1.9.4+ and GraphAware Framework v. 1.9-1.8.
 
 Usage
 -----
@@ -66,83 +66,22 @@ Once set up (read below), it is very simple to use the API.
 
     RelationshipCounter relationshipCounter = ... //instantiate some kind of relationship counter
 
-    int count = relationshipCounter.count(node); //DONE!
+    int count = relationshipCounter.count(node, wildcard(FOLLOWS, OUTGOING).with(STRENGTH, equalTo(1))); //DONE!
 ```
 
-A few different kinds of relationship counters are provided. There are two categories: [_simple_ relationship counters](#simple),
-found in `com.graphaware.relcount.simple`, only deal with relationship types and directions, but ignore relationship
-properties. [_Full_ relationship counters](#full), found in `com.graphaware.relcount.full`, on the other hand, are more powerful
-as they take relationship properties into account as well.
+Relationship counters are capable of counting relationships based on their types, directions, and properties.
 
-<a name="simple"/>
-Simple Relationship Counters
-----------------------------
+### Caching Relationship Counter
 
-If the only thing of interest are relationship counts per type and direction (relationship properties don't matter),
-it is best to use simple relationship counters, from simplicity and performance point of view.
-
-### Simple Caching Relationship Counter
-
-The most efficient simple counter is the `SimpleCachedRelationshipCounter`. As the name suggests, it counts relationships
-by reading them from "cache", i.e. nodes' properties. In order for this caching mechanism to work, you need to be using
-the [GraphAware Framework](https://github.com/graphaware/neo4j-framework) with `SimpleRelationshipCountModule` registered.
-
-When using Neo4j in _embedded_ mode, the simplest default setup looks like this:
-
-```java
-    GraphDatabaseService database = ... //your database
-
-    GraphAwareFramework framework = new GraphAwareFramework(database);
-    framework.registerModule(new SimpleRelationshipCountModule());
-    framework.start();
-```
-
-(For _server_mode, stay tuned, coming very soon!)
-
-Now, let's say you have a very simple graph with 10 people and 2 cities. Each person lives in one of the cities (relationship
- type LIVES_IN), and each person follows every other person on Twitter (relationship type FOLLOWS).
-
-In order to count all followers of a person named Tracy, who is represented by node with ID = 2 in Neo4j, you would write
-  the following:
-
-```java
-    Node tracy = database.getNodeById(2);
-    RelationshipCounter followers = new SimpleCachedRelationshipCounter(FOLLOWS, INCOMING);
-    followers.count(tracy); //returns 9
-```
-For graphs with thousands (or more) relationships per node, this way of counting relationships can be an significantly
- faster than the "naive" approach of traversing all relationships.
-
-### Simple Naive Relationship Counter
-
-It is possible to use the `RelationshipCounter` API without any caching at all, using the "naive" approach.
-
-The following snippet will count all Tracy's followers by traversing and inspecting all relationships:
-
-```java
-   Node tracy = database.getNodeById(2);
-
-   RelationshipCounter followers = new SimpleNaiveRelationshipCounter(FOLLOWS, INCOMING);
-   followers.count(tracy);
-```
-
-<a name="full"/>
-Full Relationship Counters
---------------------------
-
-Full relationship counters are capable of counting relationships based on their types, directions, and properties.
-
-### Full Caching Relationship Counter
-
-The most efficient full counter is the `FullCachedRelationshipCounter`. As the name suggests, it counts relationships by
+The most efficient counter is the `CachedRelationshipCounter`. As the name suggests, it counts relationships by
 reading them from "cache", i.e. nodes' properties. In order for this caching mechanism to work, you need to be using the
-[GraphAware Framework](https://github.com/graphaware/neo4j-framework) with `FullRelationshipCountModule` registered.
+[GraphAware Framework](https://github.com/graphaware/neo4j-framework) with `RelationshipCountModule` registered.
 
 When using Neo4j in _embedded_ mode, the simplest default setup looks like this:
 
 ```java
     GraphAwareFramework framework = new GraphAwareFramework(database);
-    FullRelationshipCountModule module = new FullRelationshipCountModule();
+    RelationshipCountModule module = new RelationshipCountModule();
     framework.registerModule(module);
     framework.start();
 ```
@@ -159,16 +98,24 @@ the following:
 
 ```java
     Node tracy = database.getNodeById(2);
-    FullRelationshipCounter followers = module.cachedCounter(FOLLOWS, INCOMING);
-    followers.count(tracy); //returns 9
+
+    //Wildcard means we don't care about properties:
+    RelationshipDescription followers = RelationshipDescriptionFactory.wildcard(FOLLOWS, INCOMING);
+
+    RelationshipCounter counter = module.cachedCounter();
+    counter.count(tracy, followers); //returns the count
 ```
 Alternatively, if you don't have access to the module object from when you've set things up, you can instantiate the counter
 directly:
 
 ```java
     Node tracy = database.getNodeById(2);
-    FullRelationshipCounter followers = new FullCachedRelationshipCounter(FOLLOWS, INCOMING);
-    followers.count(tracy); //returns 9
+
+    //Wildcard means we don't care about properties:
+    RelationshipDescription followers = RelationshipDescriptionFactory.wildcard(FOLLOWS, INCOMING);
+
+    RelationshipCounter counter = new CachedRelationshipCounter();
+    counter.count(tracy, followers);
 ```
 
 The first approach is preferred, however, because it simplifies things when using the module (or the Framework)
@@ -177,99 +124,91 @@ with custom configuration.
 If you wanted to know, how many of those followers are very interested in Tracy (strength = 2):
 
 ```java
+    import static com.graphaware.description.predicate.Predicates.equalTo;
+    import static com.graphaware.description.relationship.RelationshipDescriptionFactory.wildcard;
+
+    //...
+
     Node tracy = database.getNodeById(2);
-    FullRelationshipCounter followersStrength2 = module.cachedCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
-    followersStrength2.count(tracy);
+
+    RelationshipDescription followers = wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2));
+
+    RelationshipCounter counter = module.cachedCounter();
+    counter.count(tracy, followers); //returns the count
 ```
 
-When counting using `module.cachedCounter(FOLLOWS, INCOMING)`, all incoming relationships of type FOLLOWS are taken into
+When counting using `RelationshipDescriptionFactory.wildcard(FOLLOWS, INCOMING)`, all incoming relationships of type FOLLOWS are taken into
 account, including those with and without the strength property. What if, however, the lack of the strength property has
 some meaning, i.e. if we want to consider "undefined" as a separate case? This kind of counting is referred to as "literal"
 counting and would be done like this:
 
 ```java
     Node tracy = database.getNodeById(2);
-    FullRelationshipCounter followers = module.cachedCounter(FOLLOWS, INCOMING);
-    followers.countLiterally(tracy);
+
+    //Literal means we properties not explicitly mentioned must be undefined:
+    RelationshipDescription followers = RelationshipDescriptionFactory.literal(FOLLOWS, INCOMING);
+
+    RelationshipCounter counter = module.cachedCounter();
+    counter.count(tracy, followers);
 ```
 
-For graphs with thousands (or more) relationships per node, this way of counting relationships can be an order of
-magnitude faster than a naive approach of traversing all relationships and inspecting their properties.
+For graphs with thousands (or more) relationships per node, this way of counting relationships can be orders of
+magnitude faster than a naive approach of traversing all relationships and inspecting their properties. See [performance](#performance)
+for more details.
 
 #### How does it work?
 
 There is no magic. The module inspects all transactions before they are committed to the database and analyzes them for
 any created, deleted, or modified relationships.
 
-It caches the relationship counts as properties on each node, both for incoming and outgoing relationships. In order not
-to pollute nodes with meaningless properties, a `RelationshipCountCompactor`, as the name suggests, compacts the cached
-information.
+It caches the relationship counts for both incoming and outgoing relationships serialized as a property on each node.
+In order not to pollute nodes with meaningless properties, the cached information gets automatically compacted if needed.
 
 Let's illustrate that on an example. Suppose that a node has no relationships to start with. When you create the first
 outgoing relationship of type `FRIEND_OF` with properties `level` equal to `2` and `timestamp` equal to `1368206683579`,
-the following property is automatically written to the node:
+the following information is automatically written to the node:
 
-    _GA_FRC_FRIEND_OF#OUTGOING#level#2#timestamp#1368206683579 = 1
+    FRIEND_OF,OUTGOING,level=2,timestamp=1368206683579 : 1x
 
-Let's break it down:
-* `_GA_` is a prefix for all GraphAware internal metadata.
-* `FRC_` is the default ID of the FullRelationshipCountModule. This can be configured on per-module basis and is useful
- for registering multiple modules performing the same functionality with different configurations.
-* `FRIEND_OF` is the relationship type
-* `#` is a configurable information delimiter GraphAware uses internally.
-* `level` is the key of the first property
-* `2` is the value of the first property (level)
-* `timestamp` is the key of the second property
-* `1368206683579` is the value of the second property (timestamp)
-* `1` is the cached number of relationships matching this representation (stored as a value of the property)
+At some point, after our node makes more friends, the situation will look something like this:
 
-*NOTE:* None of the application level nodes or relationships should have names, types, labels, property keys or values
-containing the following Strings:
-* `_GA_`
-* `#` (can be changed if needed)
-
-That includes user input written into properties of nodes and relationship. Please check for this in your application and
-encode it somehow.
-
-Right, at some point, after our node makes more friends, the situation will look something like this:
-
-    _GA_FRC_FRIEND_OF#OUTGOING#level#2#timestamp#1368206683579 = 1
-    _GA_FRC_FRIEND_OF#OUTGOING#level#1#timestamp#1368206668364 = 1
-    _GA_FRC_FRIEND_OF#OUTGOING#level#2#timestamp#1368206623759 = 1
-    _GA_FRC_FRIEND_OF#OUTGOING#level#2#timestamp#1368924528927 = 1
-    _GA_FRC_FRIEND_OF#OUTGOING#level#0#timestamp#1368092348239 = 1
-    _GA_FRC_FRIEND_OF#OUTGOING#level#2#timestamp#1368547772839 = 1
-    _GA_FRC_FRIEND_OF#OUTGOING#level#1#timestamp#1368542321123 = 1
-    _GA_FRC_FRIEND_OF#OUTGOING#level#2#timestamp#1368254232452 = 1
-    _GA_FRC_FRIEND_OF#OUTGOING#level#1#timestamp#1368546532344 = 1
-    _GA_FRC_FRIEND_OF#OUTGOING#level#0#timestamp#1363234542345 = 1
-    _GA_FRC_FRIEND_OF#OUTGOING#level#0#timestamp#1363234555555 = 1
+    FRIEND_OF,OUTGOING,level=2,timestamp=1368206683579 : 1x
+    FRIEND_OF,OUTGOING,level=1,timestamp=1368206668364 : 1x
+    FRIEND_OF,OUTGOING,level=2,timestamp=1368206623759 : 1x
+    FRIEND_OF,OUTGOING,level=2,timestamp=1368924528927 : 1x
+    FRIEND_OF,OUTGOING,level=0,timestamp=1368092348239 : 1x
+    FRIEND_OF,OUTGOING,level=2,timestamp=1368547772839 : 1x
+    FRIEND_OF,OUTGOING,level=1,timestamp=1368542321123 : 1x
+    FRIEND_OF,OUTGOING,level=2,timestamp=1368254232452 : 1x
+    FRIEND_OF,OUTGOING,level=1,timestamp=1368546532344 : 1x
+    FRIEND_OF,OUTGOING,level=0,timestamp=1363234542345 : 1x
+    FRIEND_OF,OUTGOING,level=0,timestamp=1363234555555 : 1x
 
 At that point, the compactor looks at the situation finds out there are too many cached relationship counts. More specifically,
 there is a threshold called the _compaction threshold_ which by default is set to 20. Let's illustrate with 10.
 
 The compactor thus tries to generalize the cached relationships. One such generalization might involve replacing the
- timestamp with a wildcard (_GA_*), generating representations like this:
+ timestamp with a wildcard, generating representations like this:
 
-    _GA_FRC_FRIEND_OF#OUTGOING#level#0#timestamp#_GA_*
-    _GA_FRC_FRIEND_OF#OUTGOING#level#1#timestamp#_GA_*
-    _GA_FRC_FRIEND_OF#OUTGOING#level#2#timestamp#_GA_*
+    FRIEND_OF,OUTGOING,level=0,timestamp=*
+    FRIEND_OF,OUTGOING,level=1,timestamp=*
+    FRIEND_OF,OUTGOING,level=2,timestamp=*
 
 Then it compacts the cached relationship counts that match these representations. In our example, it results in this:
 
-     _GA_FRC_FRIEND_OF#OUTGOING#level#0#timestamp#_GA_* = 3
-     _GA_FRC_FRIEND_OF#OUTGOING#level#1#timestamp#_GA_* = 3
-     _GA_FRC_FRIEND_OF#OUTGOING#level#2#timestamp#_GA_* = 5
+    FRIEND_OF,OUTGOING,level=0,timestamp=* : 3x
+    FRIEND_OF,OUTGOING,level=1,timestamp=* : 3x
+    FRIEND_OF,OUTGOING,level=2,timestamp=* : 5x
 
 After that, timestamp will always be ignored for these relationships, so if the next created relationships is
 
-    _GA_FRC_FRIEND_OF#OUTGOING#level#0#timestamp#1363266542345
+    FRIEND_OF,OUTGOING,level=0,timestamp=1363266542345
 
 it will result in
 
-    _GA_FRC_FRIEND_OF#OUTGOING#level#0#timestamp#_GA_* = 4
-    _GA_FRC_FRIEND_OF#OUTGOING#level#1#timestamp#_GA_* = 3
-    _GA_FRC_FRIEND_OF#OUTGOING#level#2#timestamp#_GA_* = 5
+    FRIEND_OF,OUTGOING,level=0,timestamp=* : 4x
+    FRIEND_OF,OUTGOING,level=1,timestamp=* : 3x
+    FRIEND_OF,OUTGOING,level=2,timestamp=* : 5x
 
 The compaction process uses heuristics to determine, which property is the best one to generalize. In simple terms,
 it is the most property with most frequently changing values (measured per relationship type).
@@ -279,41 +218,37 @@ That's how it works on a high level. Of course relationships with different leve
  like this
 
  ```java
-    RelationshipCounter counter = new FullCachedRelationshipCounter(FRIEND_OF, OUTGOING);
-    int count = counter.count(node);
+    int count = counter.count(node, wildcard(FRIEND_OF, OUTGOING));
  ```
 
 on a node with the following cache counts
 
-      _GA_FRC_FRIEND_OF#OUTGOING#level#3#timestamp#1368206683579 = 1
-      _GA_FRC_FRIEND_OF#OUTGOING#level#2#timestamp#_GA_* = 10
-      _GA_FRC_FRIEND_OF#OUTGOING#level#1#timestamp#_GA_* = 20
-      _GA_FRC_FRIEND_OF#OUTGOING = 5 (no level or timestamp provided on these relationships)
+    FRIEND_OF,OUTGOING,level=3,timestamp=1368206683579 : 1x
+    FRIEND_OF,OUTGOING,level=2,timestamp=* : 10x
+    FRIEND_OF,OUTGOING,level=1,timestamp=* : 20x
+    FRIEND_OF,OUTGOING : 5x (no level or timestamp provided on these relationships)
 
 the result will be... you guessed it... 36.
 
 On the other hand, counting pure outgoing FRIEND_OF relationships with no properties would be done like this:
 
 ```java
-    FullRelationshipCounter counter = new FullCachedRelationshipCounter(FRIEND_OF, OUTGOING);
-    int count = counter.countLiterally(node);
+    int count = counter.count(node, literal(FRIEND_OF, OUTGOING));
 ```
 
 and result in 5.
 
 However, if you now issue the following query:
 ```java
-    RelationshipCounter counter = module.cachedCounter(FRIEND_OF, OUTGOING)
-        .with("level", 2)
-        .with("timestamp", 123456789);
-
-    int count = counter.count(node);
+    int count = counter.count(node, literal(FRIEND_OF, OUTGOING)
+        .with("level", equalTo(2))
+        .with("timestamp", equalTo(12345)));
 ```
 an `UnableToCountException` will be thrown, because the granularity needed for answering such query has been compacted
 away. There are three ways to deal with this problem, either
 * [configure the compaction threshold](#compaction) so that this doesn't happen, or
-* [manually fallback to naive counting](#naive), using a `FullNaiveRelationshipCounter`, or
-* [use `FullFallingBackRelationshipCounter`](#fallback), which falls back to naive counting approach automatically
+* [manually fallback to naive counting](#naive), using a `NaiveRelationshipCounter`, or
+* [use `FallbackRelationshipCounter`](#fallback), which falls back to naive counting approach automatically
 
 ### Advanced Usage
 
@@ -338,7 +273,7 @@ The threshold can be set when constructing the module by passing in a custom con
     GraphAwareFramework framework = new GraphAwareFramework(database);
 
     //compaction threshold to 7
-    RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies().with(7);
+    RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies().withThreshold(7);
     FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
 
     framework.registerModule(module);
@@ -364,7 +299,7 @@ Building on the previous example, let's say you would like the FOLLOWS relations
    };
 
    RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies()
-           .with(7) //threshold
+           .withThreshold(7)
            .with(customWeighingStrategy);
 
    FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
@@ -427,55 +362,8 @@ setting up the module in the following fashion:
     framework.start();
 ```
 
-#### Deriving Relationship Properties
-
-Sometimes, it might be useful to derive relationship properties that are not explicitly there for the purposes of
-relationship counting. Let's say, for example, that you want to count the number of followers based on
-the followers' gender. In that case, each FOLLOWS relationship could get a derived "followeeGender" property, value of
- which is the gender of the followed person. Such requirement would be achieved with the following setup:
-
-```java
-   GraphAwareFramework framework = new GraphAwareFramework(database);
-
-   RelationshipPropertiesExtractionStrategy customPropertiesExtractionStrategy = new RelationshipPropertiesExtractionStrategy() {
-       @Override
-       public Map<String, String> extractProperties(Relationship relationship, Node pointOfView) {
-           //all real properties
-           Map<String, String> result = PropertyContainerUtils.propertiesToStringMap(relationship);
-
-           //derived property from the "other" node participating in the relationship
-           if (relationship.isType(FOLLOWS)) {
-               result.put(GENDER, relationship.getOtherNode(pointOfView).getProperty(GENDER).toString());
-           }
-
-           return result;
-       }
-   };
-
-   RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies()
-           .with(IncludeAllNodeProperties.getInstance()) //no node properties included by default!
-           .with(customPropertiesExtractionStrategy);
-
-   FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
-
-   framework.registerModule(module);
-   framework.start();
-```
-
-Counting would be done as usual:
-
-```java
-   Node tracy = database.getNodeById(2);
-
-   RelationshipCounter maleFollowers = module.cachedCounter(FOLLOWS, INCOMING).with(GENDER, MALE);
-   maleFollowers.count(tracy); //returns only male followers count
-
-   RelationshipCounter femaleFollowers = module.cachedCounter(FOLLOWS, INCOMING).with(GENDER, FEMALE);
-   femaleFollowers.count(tracy); //returns only female followers count
-```
-
 <a name="naive"/>
-### Full Naive Relationship Counter
+### Naive Relationship Counter
 
 It is possible to use the `RelationshipCounter` API without any caching at all. You might want to fall back to the
 naive approach of traversing through all relationships because you caught an `UnableToCountException`, or maybe you
@@ -483,18 +371,17 @@ simply don't have enough relationships in your system to justify the write-overh
 
 It is still advisable to obtain your `RelationshipCounter` from a module, although the module might not need to be
 registered with a running instance of the GraphAware framework. Even when using the naive approach, it is possible to
-use custom strategies (`RelationshipWeighingStrategy`, `RelationshipPropertiesExtractionStrategy`, etc.) explained
-above.
+use custom strategies explained above.
 
 The following snippet will count all Tracy's followers by traversing and inspecting all relationships:
 
 ```java
-   FullRelationshipCountModule module = new FullRelationshipCountModule();
+    Node tracy = database.getNodeById(2);
 
-   Node tracy = database.getNodeById(2);
+    RelationshipDescription followers = wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2));
 
-   RelationshipCounter followers = module.naiveCounter(FOLLOWS, INCOMING);
-   followers.count(tracy);
+    RelationshipCounter counter = module.naiveCounter();
+    counter.count(tracy, followers); //returns the count
 ```
 
 If you're using this just for naive counting (no fallback, no custom config), it is possible to achieve the same thing
@@ -502,12 +389,15 @@ using the following code, although the former approach is preferable.
 
 ```java
     Node tracy = database.getNodeById(2);
-    RelationshipCounter following = new FullNaiveRelationshipCounter(FOLLOWS, OUTGOING);
-    following.count(tracy);
+
+    RelationshipDescription followers = wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2));
+
+    RelationshipCounter counter = new NaiveRelationshipCounter();
+    counter.count(tracy, followers); //returns the count
 ```
 
 <a name="fallback"/>
-### Full Falling Back Relationship Counter
+### Fallback Relationship Counter
 
 Although it is recommended to avoid getting `UnableToCountException`s by configuring things properly, there is an option
 of an automatic fallback to the naive approach when the caching approach has failed, because the needed granularity for
@@ -518,8 +408,8 @@ The following code snippet illustrates the usage:
 ```java
    GraphAwareFramework framework = new GraphAwareFramework(database);
 
-   RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies().with(3);
-   FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
+   RelationshipCountStrategies relationshipCountStrategies = RelationshipCountStrategiesImpl.defaultStrategies().withThreshold(3);
+   RelationshipCountModule module = new RelationshipCountModule(relationshipCountStrategies);
 
    framework.registerModule(module);
    framework.start();
@@ -528,12 +418,12 @@ The following code snippet illustrates the usage:
 
    Node tracy = database.getNodeById(2);
 
-   RelationshipCounter followers = module.fallingBackCounter(FOLLOWS, INCOMING);
-   assertEquals(9, followers.count(tracy));           //uses cache
-
-   RelationshipCounter followersStrength2 = module.fallingBackCounter(FOLLOWS, INCOMING).with(STRENGTH, 2);
-   assertEquals(3, followersStrength2.count(tracy));  //falls back to naive
+   module.cachedCounter().count(tracy, wildcard(FOLLOWS, INCOMING)); //uses cache
+   module.fallbackCounter().count(tracy, wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2))); //falls back to naive
 ```
+
+<a name="performance"/>
+### Performance
 
 ### License
 
