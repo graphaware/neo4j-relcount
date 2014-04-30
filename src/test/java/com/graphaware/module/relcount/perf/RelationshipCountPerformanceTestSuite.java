@@ -1,7 +1,7 @@
 package com.graphaware.module.relcount.perf;
 
-import com.graphaware.runtime.performance.PerformanceTest;
-import com.graphaware.runtime.performance.PerformanceTestSuite;
+import com.graphaware.test.performance.PerformanceTest;
+import com.graphaware.test.performance.PerformanceTestSuite;
 import org.junit.Ignore;
 
 /**

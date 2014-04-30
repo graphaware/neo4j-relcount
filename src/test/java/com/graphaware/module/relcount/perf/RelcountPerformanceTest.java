@@ -1,6 +1,6 @@
 package com.graphaware.module.relcount.perf;
 
-import com.graphaware.runtime.performance.PerformanceTest;
+import com.graphaware.test.performance.PerformanceTest;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.GraphDatabaseService;

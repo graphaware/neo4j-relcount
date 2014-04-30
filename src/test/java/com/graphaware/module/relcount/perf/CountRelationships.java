@@ -1,7 +1,6 @@
 package com.graphaware.module.relcount.perf;
 
 import com.graphaware.common.description.relationship.DetachedRelationshipDescription;
-import com.graphaware.common.test.TestUtils;
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountRuntimeModule;
 import com.graphaware.module.relcount.cache.NodePropertiesDegreeCachingStrategy;
@@ -9,7 +8,7 @@ import com.graphaware.module.relcount.count.CachedRelationshipCounter;
 import com.graphaware.module.relcount.count.NaiveRelationshipCounter;
 import com.graphaware.module.relcount.count.RelationshipCounter;
 import com.graphaware.runtime.ProductionGraphAwareRuntime;
-import com.graphaware.runtime.performance.*;
+import com.graphaware.test.performance.*;
 import com.graphaware.tx.executor.NullItem;
 import com.graphaware.tx.executor.batch.NoInputBatchTransactionExecutor;
 import com.graphaware.tx.executor.batch.UnitOfWork;
@@ -25,6 +24,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static com.graphaware.common.description.predicate.Predicates.equalTo;
 import static com.graphaware.common.description.relationship.RelationshipDescriptionFactory.wildcard;
+import static com.graphaware.test.util.TestUtils.Timed;
+import static com.graphaware.test.util.TestUtils.time;
 
 /**
  * Performance test for counting relationships.
@@ -135,7 +136,7 @@ public class CountRelationships extends RelcountPerformanceTest {
         final AtomicLong result = new AtomicLong(0);
         for (int i = 0; i < COUNT_NO; i++) {
 
-            time += TestUtils.time(new TestUtils.Timed() {
+            time += time(new Timed() {
                 @Override
                 public void time() {
                     RuntimeInvolvement runtimeInvolvement = ((RuntimeInvolvement) params.get(FW));

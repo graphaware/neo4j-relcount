@@ -1,14 +1,14 @@
 package com.graphaware.module.relcount.perf;
 
 import com.graphaware.common.strategy.IncludeNoRelationshipProperties;
-import com.graphaware.common.test.TestUtils;
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountRuntimeModule;
 import com.graphaware.module.relcount.cache.NodePropertiesDegreeCachingStrategy;
 import com.graphaware.runtime.ProductionGraphAwareRuntime;
-import com.graphaware.runtime.performance.EnumParameter;
-import com.graphaware.runtime.performance.ExponentialParameter;
-import com.graphaware.runtime.performance.Parameter;
+import com.graphaware.test.performance.EnumParameter;
+import com.graphaware.test.performance.ExponentialParameter;
+import com.graphaware.test.performance.Parameter;
+import com.graphaware.test.util.TestUtils;
 import com.graphaware.tx.executor.NullItem;
 import com.graphaware.tx.executor.batch.BatchTransactionExecutor;
 import com.graphaware.tx.executor.batch.NoInputBatchTransactionExecutor;
@@ -20,6 +20,8 @@ import org.neo4j.graphdb.Relationship;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import static com.graphaware.test.util.TestUtils.*;
 
 /**
  * Performance test for creating relationships.
@@ -155,7 +157,7 @@ public class CreateRelationships extends RelcountPerformanceTest {
             }
         });
 
-        return TestUtils.time(new TestUtils.Timed() {
+        return time(new Timed() {
             @Override
             public void time() {
                 executor.execute();

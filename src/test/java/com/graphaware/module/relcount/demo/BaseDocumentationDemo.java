@@ -1,6 +1,6 @@
 package com.graphaware.module.relcount.demo;
 
-import com.graphaware.common.test.TestDataBuilder;
+import com.graphaware.test.util.TestDataBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.neo4j.graphdb.GraphDatabaseService;
