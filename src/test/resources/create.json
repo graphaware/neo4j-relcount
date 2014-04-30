@@ -1,0 +1,7 @@
+{
+    "statements": [
+        {
+            "statement": "CREATE (one { name:'one'})-[:R1]->(two { name:'two' })"
+        }
+    ]
+}

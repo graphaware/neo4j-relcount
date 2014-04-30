@@ -24,22 +24,19 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.graphaware.test.util.TestUtils.get;
+import static com.graphaware.test.util.TestUtils.*;
+import static com.graphaware.test.util.TestUtils.jsonAsString;
 
 /**
- *
+ * {@link IntegrationTest} for {@link RelationshipCountRuntimeModule}.
  */
-@Ignore
 public class RelcountIntegrationTest extends IntegrationTest {
 
-    @Before
-    @Override
-    public void setUp() throws IOException, InterruptedException {
-        super.setUp("neo4j-server.properties");
-    }
-
     @Test
-    public void graphAwareApisAreMountedWhenPresentOnClasspath() throws InterruptedException, IOException {
-        get("http://localhost:7474/graphaware/timetree/now/", HttpStatus.OK_200);
+    public void relationshipCountsShouldBeCachedWhenRuntimeAndRelcountAreEnabled() throws InterruptedException, IOException {
+        post("http://localhost:7474/db/data/transaction/commit", jsonAsString("create"), HttpStatus.OK_200);
+
+        assertJsonEquals(post("http://localhost:7474/db/data/transaction/commit", jsonAsString("query"), HttpStatus.OK_200),
+                "{\"results\":[{\"columns\":[\"one._GA_relcount_\"],\"data\":[{\"row\":[[1,1,43,2,3,1,33,4,18,5,0,12,6,7,82,-79,2,2]]}]}],\"errors\":[]}");
     }
 }

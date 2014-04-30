@@ -1,0 +1,7 @@
+{
+    "statements": [
+        {
+            "statement": "MATCH (one {name:'one'}) RETURN one._GA_relcount_"
+        }
+    ]
+}
