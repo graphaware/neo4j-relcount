@@ -17,7 +17,7 @@
 package com.graphaware.module.relcount.count;
 
 import com.graphaware.common.description.relationship.RelationshipDescription;
-import com.graphaware.common.description.serialize.Serializer;
+import com.graphaware.common.serialize.Serializer;
 import com.graphaware.common.strategy.IncludeNoRelationships;
 import com.graphaware.module.relcount.RelationshipCountRuntimeModule;
 import com.graphaware.module.relcount.compact.ThresholdBasedCompactionStrategy;

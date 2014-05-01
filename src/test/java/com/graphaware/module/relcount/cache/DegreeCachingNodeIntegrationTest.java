@@ -17,7 +17,7 @@
 package com.graphaware.module.relcount.cache;
 
 import com.graphaware.common.description.relationship.DetachedRelationshipDescription;
-import com.graphaware.common.description.serialize.Serializer;
+import com.graphaware.common.serialize.Serializer;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountRuntimeModule;

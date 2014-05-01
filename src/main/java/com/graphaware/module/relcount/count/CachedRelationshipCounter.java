@@ -18,12 +18,11 @@ package com.graphaware.module.relcount.count;
 
 import com.graphaware.common.description.relationship.DetachedRelationshipDescription;
 import com.graphaware.common.description.relationship.RelationshipDescription;
-import com.graphaware.common.description.serialize.Serializer;
+import com.graphaware.common.serialize.Serializer;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountRuntimeModule;
 import com.graphaware.module.relcount.cache.DegreeCachingNode;
-import com.graphaware.runtime.ProductionGraphAwareRuntime;
 import com.graphaware.runtime.config.DefaultRuntimeConfiguration;
 import com.graphaware.runtime.config.RuntimeConfiguration;
 import org.apache.log4j.Logger;

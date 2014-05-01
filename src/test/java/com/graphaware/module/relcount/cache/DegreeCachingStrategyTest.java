@@ -1,7 +1,7 @@
 package com.graphaware.module.relcount.cache;
 
 import com.graphaware.common.description.relationship.DetachedRelationshipDescription;
-import com.graphaware.common.description.serialize.Serializer;
+import com.graphaware.common.serialize.Serializer;
 import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
 import com.graphaware.tx.executor.single.TransactionExecutor;
 import com.graphaware.tx.executor.single.VoidReturningCallback;

@@ -7,8 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static com.graphaware.common.description.serialize.Serializer.fromByteArray;
-import static com.graphaware.common.description.serialize.Serializer.toByteArray;
+import static com.graphaware.common.serialize.Serializer.*;
 
 /**
  * {@link DegreeCachingStrategy} that caches degrees as a single node property on the node that the degrees are for.

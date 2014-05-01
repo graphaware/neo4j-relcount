@@ -2,7 +2,7 @@ package com.graphaware.module.relcount.cache;
 
 import com.graphaware.common.description.relationship.DetachedRelationshipDescription;
 import com.graphaware.common.description.relationship.DetachedRelationshipDescriptionImpl;
-import com.graphaware.common.description.serialize.Serializer;
+import com.graphaware.common.serialize.Serializer;
 import org.neo4j.graphdb.Node;
 
 import java.util.HashMap;

@@ -16,7 +16,7 @@
 
 package com.graphaware.module.relcount;
 
-import com.graphaware.common.description.serialize.Serializer;
+import com.graphaware.common.serialize.Serializer;
 import com.graphaware.module.relcount.compact.ThresholdBasedCompactionStrategy;
 import org.junit.Test;
 

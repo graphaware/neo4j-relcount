@@ -1,12 +1,6 @@
 package com.graphaware.module.relcount;
 
-import com.graphaware.common.change.Change;
-import com.graphaware.common.strategy.InclusionStrategies;
 import com.graphaware.module.relcount.cache.NodeBasedDegreeCache;
-import com.graphaware.module.relcount.count.CachedRelationshipCounter;
-import com.graphaware.module.relcount.count.FallbackRelationshipCounter;
-import com.graphaware.module.relcount.count.NaiveRelationshipCounter;
-import com.graphaware.module.relcount.count.RelationshipCounter;
 import com.graphaware.runtime.GraphAwareRuntimeModule;
 import com.graphaware.runtime.config.BaseRuntimeConfigured;
 import com.graphaware.runtime.config.RuntimeConfiguration;
@@ -14,6 +8,7 @@ import com.graphaware.runtime.config.RuntimeConfigured;
 import com.graphaware.runtime.config.RuntimeModuleConfiguration;
 import com.graphaware.tx.event.batch.api.TransactionSimulatingBatchInserter;
 import com.graphaware.tx.event.batch.propertycontainer.inserter.BatchInserterNode;
+import com.graphaware.tx.event.improved.api.Change;
 import com.graphaware.tx.event.improved.api.ImprovedTransactionData;
 import com.graphaware.tx.event.improved.propertycontainer.filtered.FilteredNode;
 import com.graphaware.tx.executor.batch.IterableInputBatchTransactionExecutor;
