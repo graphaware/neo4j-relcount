@@ -28,6 +28,7 @@ import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
 import com.graphaware.tx.executor.single.TransactionCallback;
 import com.graphaware.tx.executor.single.TransactionExecutor;
 import com.graphaware.tx.executor.single.VoidReturningCallback;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -44,8 +45,7 @@ import static com.graphaware.module.relcount.RelationshipCountConfigurationImpl.
 import static com.graphaware.runtime.config.RuntimeConfiguration.GA_PREFIX;
 import static java.lang.String.valueOf;
 import static java.lang.System.currentTimeMillis;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.*;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
