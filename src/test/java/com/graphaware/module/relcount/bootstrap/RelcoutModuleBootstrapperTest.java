@@ -14,19 +14,22 @@ import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.config.Setting;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
 import static com.graphaware.common.description.relationship.RelationshipDescriptionFactory.wildcard;
-import static com.graphaware.module.relcount.bootstrap.RelcountModuleBootstrapper.MODULE_ENABLED;
 import static com.graphaware.runtime.bootstrap.RuntimeKernelExtension.RUNTIME_ENABLED;
 import static org.junit.Assert.assertEquals;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
+import static org.neo4j.helpers.Settings.STRING;
+import static org.neo4j.helpers.Settings.setting;
 
 /**
  * Integration test for {@link RelcountModuleBootstrapper}.
  */
 public class RelcoutModuleBootstrapperTest {
+    private static final Setting<String> MODULE_ENABLED = setting("com.graphaware.module.relcount.1", STRING, RelcountModuleBootstrapper.class.getCanonicalName());
 
     protected GraphDatabaseService database;
 

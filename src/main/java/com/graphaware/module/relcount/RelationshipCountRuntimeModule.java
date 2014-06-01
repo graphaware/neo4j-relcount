@@ -6,6 +6,7 @@ import com.graphaware.runtime.config.BaseRuntimeConfigured;
 import com.graphaware.runtime.config.RuntimeConfiguration;
 import com.graphaware.runtime.config.RuntimeConfigured;
 import com.graphaware.runtime.config.RuntimeModuleConfiguration;
+import com.graphaware.runtime.strategy.BatchSupportingGraphAwareRuntimeModule;
 import com.graphaware.tx.event.batch.api.TransactionSimulatingBatchInserter;
 import com.graphaware.tx.event.batch.propertycontainer.inserter.BatchInserterNode;
 import com.graphaware.tx.event.improved.api.Change;
@@ -35,7 +36,7 @@ import static org.neo4j.tooling.GlobalGraphOperations.at;
  * counts will be cached on nodes properties. {@link com.graphaware.module.relcount.count.CachedRelationshipCounter} or {@link com.graphaware.module.relcount.count.FallbackRelationshipCounter} can then be used to
  * count relationships by querying these cached counts.
  */
-public class RelationshipCountRuntimeModule extends BaseRuntimeConfigured implements GraphAwareRuntimeModule, RuntimeConfigured {
+public class RelationshipCountRuntimeModule extends BaseRuntimeConfigured implements BatchSupportingGraphAwareRuntimeModule, RuntimeConfigured {
 
     /**
      * Default ID of this module used to identify metadata written by this module.

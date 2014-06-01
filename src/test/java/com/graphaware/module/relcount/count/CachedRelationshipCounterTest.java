@@ -28,6 +28,7 @@ import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
 import com.graphaware.tx.executor.single.TransactionCallback;
 import com.graphaware.tx.executor.single.TransactionExecutor;
 import com.graphaware.tx.executor.single.VoidReturningCallback;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,6 +67,11 @@ public class CachedRelationshipCounterTest {
         ProductionGraphAwareRuntime runtime = new ProductionGraphAwareRuntime(database);
         runtime.registerModule(new RelationshipCountRuntimeModule(defaultConfiguration().with(new ThresholdBasedCompactionStrategy(5))));
         runtime.start();
+    }
+
+    @After
+    public void tearDown() {
+        database.shutdown();
     }
 
     @Test
