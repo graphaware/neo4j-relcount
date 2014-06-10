@@ -464,7 +464,6 @@ public class RelationshipCountBatchIntegrationTest {
     }
 
     @Test
-    @Ignore("bug in neo4j") //https://github.com/neo4j/neo4j/issues/1304
     public void batchTest() {
         BatchGraphAwareRuntime runtime = new BatchGraphAwareRuntime(batchInserter);
         final RelationshipCountRuntimeModule module = new RelationshipCountRuntimeModule();

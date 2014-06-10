@@ -45,12 +45,10 @@ public class RelationshipCountConfigurationImpl extends BaseRuntimeModuleConfigu
     /**
      * Constructor.
      *
-     * @param nodeInclusionStrategy         strategy.
-     * @param nodePropertyInclusionStrategy strategy.
-     * @param relationshipInclusionStrategy strategy.
-     * @param relationshipPropertyInclusionStrategy
-     *                                      strategy.
-     * @param weighingStrategy              strategy.
+     * @param inclusionStrategies   strategies for what to include.
+     * @param degreeCachingStrategy strategy for caching degrees.
+     * @param compactionStrategy    strategy for compacting cached counts.
+     * @param weighingStrategy      strategy for weighing relationships.
      */
     protected RelationshipCountConfigurationImpl(InclusionStrategies inclusionStrategies, DegreeCachingStrategy degreeCachingStrategy, CompactionStrategy compactionStrategy, WeighingStrategy weighingStrategy) {
         super(inclusionStrategies);
@@ -131,6 +129,9 @@ public class RelationshipCountConfigurationImpl extends BaseRuntimeModuleConfigu
         return weighingStrategy;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -146,6 +147,9 @@ public class RelationshipCountConfigurationImpl extends BaseRuntimeModuleConfigu
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         int result = super.hashCode();

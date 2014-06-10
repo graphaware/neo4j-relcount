@@ -92,6 +92,9 @@ public class ThresholdBasedCompactionStrategy implements CompactionStrategy {
         return cachedDegrees.size() <= compactionThreshold || performCompaction(node);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
