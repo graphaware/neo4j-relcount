@@ -16,89 +16,79 @@
 
 package com.graphaware.module.relcount.count;
 
+import com.graphaware.common.description.predicate.Predicates;
 import com.graphaware.common.description.property.LazyPropertiesDescription;
 import com.graphaware.common.description.property.PropertiesDescription;
 import com.graphaware.common.description.relationship.RelationshipDescription;
-import com.graphaware.common.serialize.Serializer;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
-import com.graphaware.module.relcount.RelationshipCountRuntimeModule;
+import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.runtime.config.DefaultRuntimeConfiguration;
 import com.graphaware.runtime.config.RuntimeConfiguration;
-import com.graphaware.runtime.metadata.DefaultTxDrivenModuleMetadata;
 import com.graphaware.runtime.metadata.ProductionSingleNodeMetadataRepository;
 import com.graphaware.runtime.metadata.TxDrivenModuleMetadata;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.tooling.GlobalGraphOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.graphaware.common.description.predicate.Predicates.*;
 import static org.neo4j.graphdb.Direction.BOTH;
 
 /**
- * A naive {@link RelationshipCounter} that counts matching relationships by inspecting all {@link org.neo4j.graphdb.Node}'s {@link org.neo4j.graphdb.Relationship}s.
+ * A naive {@link RelationshipCounter} that counts matching relationships by inspecting all {@link org.neo4j.graphdb.Node}'s
+ * {@link org.neo4j.graphdb.Relationship}s. If possible, i.e. if only {@link org.neo4j.graphdb.RelationshipType} and
+ * {@link org.neo4j.graphdb.Direction} (but no property constrains are specified), the {@link org.neo4j.graphdb.Node#getDegree()}
+ * and related APIs are used.
  * <p/>
  * Because relationships are counted on the fly (no caching performed), this can be used without the
- * {@link com.graphaware.runtime.ProductionGraphAwareRuntime} and/or any {@link com.graphaware.runtime.GraphAwareRuntimeModule}s.
+ * {@link com.graphaware.runtime.GraphAwareRuntime} and/or any {@link com.graphaware.runtime.module.RuntimeModule}s.
  * <p/>
  * This counter always returns a count, never throws {@link UnableToCountException}.
  */
 public class NaiveRelationshipCounter implements RelationshipCounter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NaiveRelationshipCounter.class);
-
     private final RelationshipCountConfiguration relationshipCountConfiguration;
 
     /**
      * Construct a new relationship counter with default strategies.
+     *
+     * @param database on which to count relationships.
      */
     public NaiveRelationshipCounter(GraphDatabaseService database) {
-        this(database, RelationshipCountRuntimeModule.FULL_RELCOUNT_DEFAULT_ID);
+        this(database, RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID);
     }
 
-    public NaiveRelationshipCounter(GraphDatabaseService database, String id) {
+    protected NaiveRelationshipCounter(GraphDatabaseService database, String id) {
         this(database, id, OneForEach.getInstance());
     }
 
+    /**
+     * Construct a new relationship counter with default strategies.
+     *
+     * @param database         on which to count relationships.
+     * @param weighingStrategy strategy for weighing relationships.
+     *                         Only taken into account if there is no {@link RelationshipCountModule} registered with the {@link com.graphaware.runtime.GraphAwareRuntime}. Otherwise the one configured for the module is used.
+     */
     public NaiveRelationshipCounter(GraphDatabaseService database, WeighingStrategy weighingStrategy) {
-        this(database, RelationshipCountRuntimeModule.FULL_RELCOUNT_DEFAULT_ID, weighingStrategy);
+        this(database, RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID, weighingStrategy);
     }
 
     /**
-     * Construct a new relationship counter. Use when custom {@link com.graphaware.module.relcount.RelationshipCountConfiguration} have been used for the
-     * {@link com.graphaware.module.relcount.RelationshipCountRuntimeModule}. Alternatively, it might be easier
-     * use {@link com.graphaware.module.relcount.RelationshipCountRuntimeModule#naiveCounter()}.
-     *
-     * @param relationshipCountConfiguration strategies, of which only {@link WeighingStrategy} is used.
+     * Construct a new relationship counter.
      */
     protected NaiveRelationshipCounter(GraphDatabaseService database, String id, WeighingStrategy weighingStrategy) {
         try (Transaction tx = database.beginTx()) {
             TxDrivenModuleMetadata moduleMetadata = new ProductionSingleNodeMetadataRepository(database, DefaultRuntimeConfiguration.getInstance(), RuntimeConfiguration.TX_MODULES_PROPERTY_PREFIX).getModuleMetadata(id);
-            if (moduleMetadata == null) {
+            if (moduleMetadata == null || moduleMetadata.getConfig() == null) {
                 this.relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(weighingStrategy);
             } else {
                 this.relationshipCountConfiguration = (RelationshipCountConfiguration) moduleMetadata.getConfig();
             }
             tx.success();
         }
-//        try (Transaction tx = database.beginTx()) {
-//            if (!GlobalGraphOperations.at(database).getAllNodesWithLabel(RuntimeConfiguration.GA_ROOT).iterator().hasNext()) {
-//                this.relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(weighingStrategy);
-//            } else {
-//                String key = DefaultRuntimeConfiguration.getInstance().createPrefix(RUNTIME) + id;
-//                Node root = getOrCreateRoot(database);
-//                if (!root.hasProperty(key)) {
-//                    this.relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(weighingStrategy);
-//                } else {
-//                    String string = getOrCreateRoot(database).getProperty(key).toString();
-//                    this.relationshipCountConfiguration = Serializer.fromString(string, RelationshipCountConfigurationImpl.class, CONFIG);
-//                }
-//            }
-//            tx.success();
-//        }
     }
 
     /**

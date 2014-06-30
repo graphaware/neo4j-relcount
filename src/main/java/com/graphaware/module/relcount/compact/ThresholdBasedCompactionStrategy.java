@@ -109,6 +109,9 @@ public class ThresholdBasedCompactionStrategy implements CompactionStrategy {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         int result = compactionThreshold;

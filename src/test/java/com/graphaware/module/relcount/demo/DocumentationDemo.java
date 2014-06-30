@@ -6,7 +6,8 @@ import com.graphaware.common.strategy.RelationshipInclusionStrategy;
 import com.graphaware.common.strategy.RelationshipPropertyInclusionStrategy;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
-import com.graphaware.module.relcount.RelationshipCountRuntimeModule;
+import com.graphaware.module.relcount.RelationshipCountModule;
+import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.module.relcount.compact.ThresholdBasedCompactionStrategy;
 import com.graphaware.module.relcount.count.*;
 import com.graphaware.runtime.GraphAwareRuntime;
@@ -33,7 +34,7 @@ public class DocumentationDemo extends BaseDocumentationDemo {
     @Test
     public void demonstrateCachedRelationshipCounter() {
         GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
-        RelationshipCountRuntimeModule module = new RelationshipCountRuntimeModule();
+        RelationshipCountModule module = new RelationshipCountModule();
         runtime.registerModule(module);
         runtime.start();
 
@@ -63,7 +64,7 @@ public class DocumentationDemo extends BaseDocumentationDemo {
         GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
 
         RelationshipCountConfiguration relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(new ThresholdBasedCompactionStrategy(7));
-        RelationshipCountRuntimeModule module = new RelationshipCountRuntimeModule(relationshipCountConfiguration);
+        RelationshipCountModule module = new RelationshipCountModule(relationshipCountConfiguration);
 
         runtime.registerModule(module);
         runtime.start();
@@ -92,7 +93,7 @@ public class DocumentationDemo extends BaseDocumentationDemo {
         GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
 
         RelationshipCountConfiguration relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(new ThresholdBasedCompactionStrategy(3));
-        RelationshipCountRuntimeModule module = new RelationshipCountRuntimeModule(relationshipCountConfiguration);
+        RelationshipCountModule module = new RelationshipCountModule(relationshipCountConfiguration);
 
         runtime.registerModule(module);
         runtime.start();
@@ -134,7 +135,7 @@ public class DocumentationDemo extends BaseDocumentationDemo {
                 .with(new ThresholdBasedCompactionStrategy(7))
                 .with(customWeighingStrategy);
 
-        RelationshipCountRuntimeModule module = new RelationshipCountRuntimeModule(relationshipCountConfiguration);
+        RelationshipCountModule module = new RelationshipCountModule(relationshipCountConfiguration);
 
         runtime.registerModule(module);
         runtime.start();
@@ -172,7 +173,7 @@ public class DocumentationDemo extends BaseDocumentationDemo {
         RelationshipCountConfiguration relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration()
                 .with(customRelationshipInclusionStrategy);
 
-        RelationshipCountRuntimeModule module = new RelationshipCountRuntimeModule(relationshipCountConfiguration);
+        RelationshipCountModule module = new RelationshipCountModule(relationshipCountConfiguration);
 
         runtime.registerModule(module);
         runtime.start();
@@ -209,7 +210,7 @@ public class DocumentationDemo extends BaseDocumentationDemo {
         RelationshipCountConfiguration relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration()
                 .with(customRelationshipPropertyInclusionStrategy);
 
-        RelationshipCountRuntimeModule module = new RelationshipCountRuntimeModule(relationshipCountConfiguration);
+        RelationshipCountModule module = new RelationshipCountModule(relationshipCountConfiguration);
 
         runtime.registerModule(module);
         runtime.start();
@@ -236,7 +237,7 @@ public class DocumentationDemo extends BaseDocumentationDemo {
     public void demonstrateFullNaiveRelationshipCounter() {
         populateDatabase();
 
-        RelationshipCountRuntimeModule module = new RelationshipCountRuntimeModule();
+        RelationshipCountModule module = new RelationshipCountModule();
 
         try (Transaction tx = database.beginTx()) {
 
@@ -259,7 +260,7 @@ public class DocumentationDemo extends BaseDocumentationDemo {
         GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
 
         RelationshipCountConfiguration relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(new ThresholdBasedCompactionStrategy(3));
-        RelationshipCountRuntimeModule module = new RelationshipCountRuntimeModule(relationshipCountConfiguration);
+        RelationshipCountModule module = new RelationshipCountModule(relationshipCountConfiguration);
 
         runtime.registerModule(module);
         runtime.start();

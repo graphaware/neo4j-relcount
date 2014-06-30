@@ -19,7 +19,8 @@ package com.graphaware.module.relcount.count;
 import com.graphaware.common.description.relationship.RelationshipDescription;
 import com.graphaware.common.serialize.Serializer;
 import com.graphaware.common.strategy.IncludeNoRelationships;
-import com.graphaware.module.relcount.RelationshipCountRuntimeModule;
+import com.graphaware.module.relcount.RelationshipCountModule;
+import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.module.relcount.compact.ThresholdBasedCompactionStrategy;
 import com.graphaware.runtime.GraphAwareRuntime;
 import com.graphaware.runtime.GraphAwareRuntimeFactory;
@@ -66,7 +67,7 @@ public class CachedRelationshipCounterTest {
         txExecutor = new SimpleTransactionExecutor(database);
 
         GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
-        runtime.registerModule(new RelationshipCountRuntimeModule(defaultConfiguration().with(new ThresholdBasedCompactionStrategy(5))));
+        runtime.registerModule(new RelationshipCountModule(defaultConfiguration().with(new ThresholdBasedCompactionStrategy(5))));
         runtime.start();
     }
 
@@ -463,7 +464,7 @@ public class CachedRelationshipCounterTest {
         txExecutor = new SimpleTransactionExecutor(database);
 
         GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
-        runtime.registerModule(new RelationshipCountRuntimeModule(defaultConfiguration()
+        runtime.registerModule(new RelationshipCountModule(defaultConfiguration()
                 .with(new ThresholdBasedCompactionStrategy(5))
                 .with(IncludeNoRelationships.getInstance())));
 
@@ -624,6 +625,6 @@ public class CachedRelationshipCounterTest {
     }
 
     private String serialize(RelationshipDescription description) {
-        return Serializer.toString(description, DefaultRuntimeConfiguration.getInstance().createPrefix(RelationshipCountRuntimeModule.FULL_RELCOUNT_DEFAULT_ID));
+        return Serializer.toString(description, DefaultRuntimeConfiguration.getInstance().createPrefix(RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID));
     }
 }

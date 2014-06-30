@@ -18,30 +18,27 @@ package com.graphaware.module.relcount.count;
 
 import com.graphaware.common.description.relationship.DetachedRelationshipDescription;
 import com.graphaware.common.description.relationship.RelationshipDescription;
-import com.graphaware.common.serialize.Serializer;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
-import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
-import com.graphaware.module.relcount.RelationshipCountRuntimeModule;
 import com.graphaware.module.relcount.cache.DegreeCachingNode;
 import com.graphaware.runtime.config.DefaultRuntimeConfiguration;
 import com.graphaware.runtime.config.RuntimeConfiguration;
-import com.graphaware.runtime.metadata.DefaultTimerDrivenModuleMetadata;
-import com.graphaware.runtime.metadata.DefaultTxDrivenModuleMetadata;
+import com.graphaware.runtime.metadata.ModuleMetadataRepository;
 import com.graphaware.runtime.metadata.ProductionSingleNodeMetadataRepository;
 import com.graphaware.runtime.metadata.TxDrivenModuleMetadata;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.tooling.GlobalGraphOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.graphaware.module.relcount.RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID;
+
 /**
  * {@link RelationshipCounter} that counts matching relationships by looking them up cached in {@link org.neo4j.graphdb.Node}'s properties.
+ * It is designed to be used as a "singleton", i.e., do not create a new instance every time you want to count.
  * <p/>
- * It must be used in conjunction with {@link com.graphaware.module.relcount.RelationshipCountRuntimeModule}
- * registered with {@link com.graphaware.runtime.GraphAwareRuntime}. The easiest and recommended way to create
- * and instance of this counter is by calling {@link com.graphaware.module.relcount.RelationshipCountRuntimeModule#cachedCounter()}.
+ * It must be used in conjunction with {@link com.graphaware.module.relcount.RelationshipCountModule}
+ * registered with {@link com.graphaware.runtime.GraphAwareRuntime}.
  * <p/>
  * This counter throws {@link UnableToCountException} if it detects it can not
  * reliably answer the question. This means compaction has taken place and this counter can't serve a request for
@@ -52,59 +49,42 @@ import org.slf4j.LoggerFactory;
  */
 public class CachedRelationshipCounter implements RelationshipCounter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CachedRelationshipCounter.class);
-
     private final String id;
     private final RuntimeConfiguration config;
     private final RelationshipCountConfiguration relationshipCountConfiguration;
 
     /**
-     * Construct a new relationship counter. Use this constructor when {@link com.graphaware.runtime.ProductionGraphAwareRuntime}
-     * is used with default configuration and only a single instance of {@link com.graphaware.module.relcount.RelationshipCountRuntimeModule}
+     * Construct a new relationship counter. Use this constructor when {@link com.graphaware.runtime.GraphAwareRuntime}
+     * only a single instance of {@link com.graphaware.module.relcount.RelationshipCountModule}
      * is registered. This will be the case for most use cases.
+     *
+     * @param database on which the module is running.
      */
     public CachedRelationshipCounter(GraphDatabaseService database) {
-        this(database, RelationshipCountRuntimeModule.FULL_RELCOUNT_DEFAULT_ID);
+        this(database, FULL_RELCOUNT_DEFAULT_ID);
     }
 
     /**
-     * Construct a new relationship counter. Use this constructor when multiple instances of {@link com.graphaware.module.relcount.RelationshipCountRuntimeModule}
-     * have been registered with the {@link com.graphaware.runtime.ProductionGraphAwareRuntime}, when the
-     * {@link com.graphaware.runtime.ProductionGraphAwareRuntime} is used with custom configuration, or when custom {@link com.graphaware.module.relcount.RelationshipCountConfiguration} are used.
-     * This should rarely be the case. Alternatively, use {@link com.graphaware.module.relcount.RelationshipCountRuntimeModule#cachedCounter()}.
+     * Construct a new relationship counter. Use this constructor when multiple instances of {@link com.graphaware.module.relcount.RelationshipCountModule}
+     * have been registered with the {@link com.graphaware.runtime.GraphAwareRuntime}.
+     * This should rarely be the case.
      *
-     * @param id                             of the {@link com.graphaware.module.relcount.RelationshipCountRuntimeModule} used to cache relationship counts.
-     * @param config                         used with the {@link com.graphaware.runtime.ProductionGraphAwareRuntime}.
-     * @param relationshipCountConfiguration strategies used for relationship counting.
+     * @param database on which the module is running.
+     * @param id       of the {@link com.graphaware.module.relcount.RelationshipCountModule} used to cache relationship counts.
      */
     public CachedRelationshipCounter(GraphDatabaseService database, String id) {
         this.id = id;
         this.config = DefaultRuntimeConfiguration.getInstance();
+
         try (Transaction tx = database.beginTx()) {
-            TxDrivenModuleMetadata moduleMetadata = new ProductionSingleNodeMetadataRepository(database, config, RuntimeConfiguration.TX_MODULES_PROPERTY_PREFIX).getModuleMetadata(id);
+            ModuleMetadataRepository metadataRepository = new ProductionSingleNodeMetadataRepository(database, config, RuntimeConfiguration.TX_MODULES_PROPERTY_PREFIX);
+            TxDrivenModuleMetadata moduleMetadata = metadataRepository.getModuleMetadata(id);
             if (moduleMetadata == null) {
-                throw new IllegalStateException("Could not find metadata for the module - is GraphAware Runtime enabled?");
+                throw new IllegalStateException("Could not find metadata for the module - is GraphAware Runtime enabled and Relationship Count Module registered with it?");
             }
             this.relationshipCountConfiguration = (RelationshipCountConfiguration) moduleMetadata.getConfig();
             tx.success();
         }
-//
-//        try (Transaction tx = database.beginTx()) {
-//            if (!GlobalGraphOperations.at(database).getAllNodesWithLabel(RuntimeConfiguration.GA_ROOT).iterator().hasNext()) {
-//                throw new IllegalStateException("Could not find GraphAware Runtime Root Node - is GraphAware Runtime enabled?");
-//            }
-//
-//            Node root = getOrCreateRoot(database);
-//            String key = config.createPrefix(RUNTIME) + id;
-//            if (!root.hasProperty(key)) {
-//                throw new IllegalStateException("Could not find Relationship Count Module configuration - has the module been registered with the Runtime?");
-//            }
-//            this.relationshipCountConfiguration = Serializer.fromString(root.getProperty(key).toString(), RelationshipCountConfigurationImpl.class, CONFIG);
-//            tx.success();
-//        } catch (RuntimeException e) {
-//            LOG.error("Could not construct cached relationship counter because its configuration could not be read from the GraphAware Runtime Root Node", e);
-//            throw e;
-//        }
     }
 
     /**

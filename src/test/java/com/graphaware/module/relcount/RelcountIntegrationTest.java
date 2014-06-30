@@ -25,7 +25,7 @@ import java.io.IOException;
 import static com.graphaware.test.util.TestUtils.*;
 
 /**
- * {@link NeoServerIntegrationTest} for {@link RelationshipCountRuntimeModule}.
+ * {@link NeoServerIntegrationTest} for {@link RelationshipCountModule}.
  */
 public class RelcountIntegrationTest extends NeoServerIntegrationTest {
 

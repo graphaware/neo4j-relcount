@@ -51,7 +51,7 @@ public class RelcoutModuleBootstrapperTest {
     public void defaultRuntimeOnExistingDatabase() {
         simulateUsage();
 
-        verifyCounts(new NaiveRelationshipCounter(database, "relcount"));
+        verifyCounts(new NaiveRelationshipCounter(database));
         verifyCounts(new CachedRelationshipCounter(database, "relcount"));
         verifyCounts(new FallbackRelationshipCounter(database, "relcount"));
     }

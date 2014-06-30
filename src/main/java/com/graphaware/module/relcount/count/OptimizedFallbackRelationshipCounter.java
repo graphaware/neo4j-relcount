@@ -20,9 +20,12 @@ import com.graphaware.module.relcount.RelationshipCountModule;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 /**
- * {@link BaseFallbackRelationshipCounter} using {@link NaiveRelationshipCounter}.
+ * {@link BaseFallbackRelationshipCounter} using {@link OptimizedNaiveRelationshipCounter}.
+ *
+ * <b>WARNING!!! Loops are only counted as 1 towards the total node degree when this counter uses its fallback option. This is how Neo4j
+ * implements degree counts. Also, any configured {@link WeighingStrategy} is ignored.</b>
  */
-public class FallbackRelationshipCounter extends BaseFallbackRelationshipCounter {
+public class OptimizedFallbackRelationshipCounter extends BaseFallbackRelationshipCounter {
 
     /**
      * Construct a new relationship counter. Use this constructor when
@@ -30,7 +33,7 @@ public class FallbackRelationshipCounter extends BaseFallbackRelationshipCounter
      *
      * @param database on which the module is running.
      */
-    public FallbackRelationshipCounter(GraphDatabaseService database) {
+    public OptimizedFallbackRelationshipCounter(GraphDatabaseService database) {
         this(database, RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID);
     }
 
@@ -42,7 +45,7 @@ public class FallbackRelationshipCounter extends BaseFallbackRelationshipCounter
      * @param database on which the module is running.
      * @param id       of the {@link com.graphaware.module.relcount.RelationshipCountModule} used to cache relationship counts.
      */
-    public FallbackRelationshipCounter(GraphDatabaseService database, String id) {
-        super(new NaiveRelationshipCounter(database, id), new CachedRelationshipCounter(database, id));
+    public OptimizedFallbackRelationshipCounter(GraphDatabaseService database, String id) {
+        super(new OptimizedNaiveRelationshipCounter(database, id), new CachedRelationshipCounter(database, id));
     }
 }

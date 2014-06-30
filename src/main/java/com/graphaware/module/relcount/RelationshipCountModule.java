@@ -35,7 +35,7 @@ import static org.neo4j.tooling.GlobalGraphOperations.at;
  * counts will be cached on nodes properties. {@link com.graphaware.module.relcount.count.CachedRelationshipCounter} or {@link com.graphaware.module.relcount.count.FallbackRelationshipCounter} can then be used to
  * count relationships by querying these cached counts.
  */
-public class RelationshipCountRuntimeModule extends BaseRuntimeConfigured implements BatchSupportingTxDrivenModule, RuntimeConfigured {
+public class RelationshipCountModule extends BaseRuntimeConfigured implements BatchSupportingTxDrivenModule, RuntimeConfigured {
 
     /**
      * Default ID of this module used to identify metadata written by this module.
@@ -51,7 +51,7 @@ public class RelationshipCountRuntimeModule extends BaseRuntimeConfigured implem
      * instance of the module with {@link com.graphaware.runtime.GraphAwareRuntime} and you are happy with
      * the default configuration (see {@link RelationshipCountConfigurationImpl#defaultConfiguration()}).
      */
-    public RelationshipCountRuntimeModule() {
+    public RelationshipCountModule() {
         this(FULL_RELCOUNT_DEFAULT_ID, RelationshipCountConfigurationImpl.defaultConfiguration());
     }
 
@@ -64,7 +64,7 @@ public class RelationshipCountRuntimeModule extends BaseRuntimeConfigured implem
      * weigh each relationship differently ({@link com.graphaware.module.relcount.count.WeighingStrategy},
      * or use a custom threshold for compaction.
      */
-    public RelationshipCountRuntimeModule(RelationshipCountConfiguration relationshipCountConfiguration) {
+    public RelationshipCountModule(RelationshipCountConfiguration relationshipCountConfiguration) {
         this(FULL_RELCOUNT_DEFAULT_ID, relationshipCountConfiguration);
     }
 
@@ -74,7 +74,7 @@ public class RelationshipCountRuntimeModule extends BaseRuntimeConfigured implem
      * custom {@link RelationshipCountConfiguration} for each one of them. This could be the case, for instance, when you
      * would like to keep two different kinds of relationships, weighted and unweighted.
      */
-    public RelationshipCountRuntimeModule(String id, RelationshipCountConfiguration relationshipCountConfiguration) {
+    public RelationshipCountModule(String id, RelationshipCountConfiguration relationshipCountConfiguration) {
         this.id = id;
         this.relationshipCountConfiguration = relationshipCountConfiguration;
         this.relationshipCountCache = new NodeBasedDegreeCache(id, relationshipCountConfiguration);
