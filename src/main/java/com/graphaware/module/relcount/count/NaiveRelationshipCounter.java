@@ -25,16 +25,17 @@ import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountRuntimeModule;
 import com.graphaware.runtime.config.DefaultRuntimeConfiguration;
 import com.graphaware.runtime.config.RuntimeConfiguration;
-import org.apache.log4j.Logger;
+import com.graphaware.runtime.metadata.DefaultTxDrivenModuleMetadata;
+import com.graphaware.runtime.metadata.ProductionSingleNodeMetadataRepository;
+import com.graphaware.runtime.metadata.TxDrivenModuleMetadata;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.tooling.GlobalGraphOperations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static com.graphaware.runtime.BaseGraphAwareRuntime.CONFIG;
-import static com.graphaware.runtime.BaseGraphAwareRuntime.RUNTIME;
-import static com.graphaware.runtime.ProductionGraphAwareRuntime.getOrCreateRoot;
 import static org.neo4j.graphdb.Direction.BOTH;
 
 /**
@@ -47,7 +48,7 @@ import static org.neo4j.graphdb.Direction.BOTH;
  */
 public class NaiveRelationshipCounter implements RelationshipCounter {
 
-    private static final Logger LOG = Logger.getLogger(NaiveRelationshipCounter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NaiveRelationshipCounter.class);
 
     private final RelationshipCountConfiguration relationshipCountConfiguration;
 
@@ -62,7 +63,7 @@ public class NaiveRelationshipCounter implements RelationshipCounter {
         this(database, id, OneForEach.getInstance());
     }
 
-    public NaiveRelationshipCounter(GraphDatabaseService database,WeighingStrategy weighingStrategy) {
+    public NaiveRelationshipCounter(GraphDatabaseService database, WeighingStrategy weighingStrategy) {
         this(database, RelationshipCountRuntimeModule.FULL_RELCOUNT_DEFAULT_ID, weighingStrategy);
     }
 
@@ -75,20 +76,29 @@ public class NaiveRelationshipCounter implements RelationshipCounter {
      */
     protected NaiveRelationshipCounter(GraphDatabaseService database, String id, WeighingStrategy weighingStrategy) {
         try (Transaction tx = database.beginTx()) {
-            if (!GlobalGraphOperations.at(database).getAllNodesWithLabel(RuntimeConfiguration.GA_ROOT).iterator().hasNext()) {
+            TxDrivenModuleMetadata moduleMetadata = new ProductionSingleNodeMetadataRepository(database, DefaultRuntimeConfiguration.getInstance(), RuntimeConfiguration.TX_MODULES_PROPERTY_PREFIX).getModuleMetadata(id);
+            if (moduleMetadata == null) {
                 this.relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(weighingStrategy);
             } else {
-                String key = DefaultRuntimeConfiguration.getInstance().createPrefix(RUNTIME) + id;
-                Node root = getOrCreateRoot(database);
-                if (!root.hasProperty(key)) {
-                    this.relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(weighingStrategy);
-                } else {
-                    String string = getOrCreateRoot(database).getProperty(key).toString();
-                    this.relationshipCountConfiguration = Serializer.fromString(string, RelationshipCountConfigurationImpl.class, CONFIG);
-                }
+                this.relationshipCountConfiguration = (RelationshipCountConfiguration) moduleMetadata.getConfig();
             }
             tx.success();
         }
+//        try (Transaction tx = database.beginTx()) {
+//            if (!GlobalGraphOperations.at(database).getAllNodesWithLabel(RuntimeConfiguration.GA_ROOT).iterator().hasNext()) {
+//                this.relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(weighingStrategy);
+//            } else {
+//                String key = DefaultRuntimeConfiguration.getInstance().createPrefix(RUNTIME) + id;
+//                Node root = getOrCreateRoot(database);
+//                if (!root.hasProperty(key)) {
+//                    this.relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(weighingStrategy);
+//                } else {
+//                    String string = getOrCreateRoot(database).getProperty(key).toString();
+//                    this.relationshipCountConfiguration = Serializer.fromString(string, RelationshipCountConfigurationImpl.class, CONFIG);
+//                }
+//            }
+//            tx.success();
+//        }
     }
 
     /**

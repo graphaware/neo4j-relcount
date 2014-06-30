@@ -39,7 +39,8 @@ public class NodePropertiesDegreeCachingStrategy implements DegreeCachingStrateg
 
         for (String key : node.getPropertyKeys()) {
             if (key.startsWith(prefix)) {
-                cachedCounts.put(Serializer.fromString(key, DetachedRelationshipDescriptionImpl.class, prefix), (Integer) node.getProperty(key));
+                DetachedRelationshipDescription description = Serializer.fromString(key, prefix);
+                cachedCounts.put(description, (Integer) node.getProperty(key));
             }
         }
 

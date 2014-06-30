@@ -1,7 +1,8 @@
 package com.graphaware.module.relcount.perf;
 
 import com.graphaware.module.relcount.RelationshipCountRuntimeModule;
-import com.graphaware.runtime.ProductionGraphAwareRuntime;
+import com.graphaware.runtime.GraphAwareRuntime;
+import com.graphaware.runtime.GraphAwareRuntimeFactory;
 import com.graphaware.tx.executor.NullItem;
 import com.graphaware.tx.executor.batch.NoInputBatchTransactionExecutor;
 import com.graphaware.tx.executor.batch.UnitOfWork;
@@ -28,7 +29,7 @@ public class SpaceComparison {
         one.shutdown();
 
         GraphDatabaseService two = new GraphDatabaseFactory().newEmbeddedDatabase("/tmp/space/two");
-        ProductionGraphAwareRuntime runtime = new ProductionGraphAwareRuntime(two);
+        GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(two);
         runtime.registerModule(new RelationshipCountRuntimeModule());
         runtime.start();
         populateDatabase(two);

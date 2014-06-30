@@ -1,16 +1,15 @@
 package com.graphaware.module.relcount;
 
 
-import com.graphaware.common.strategy.InclusionStrategies;
 import com.graphaware.module.relcount.cache.DegreeCachingStrategy;
 import com.graphaware.module.relcount.compact.CompactionStrategy;
 import com.graphaware.module.relcount.count.WeighingStrategy;
-import com.graphaware.runtime.config.RuntimeModuleConfiguration;
+import com.graphaware.runtime.config.TxDrivenModuleConfiguration;
 
 /**
  * Container for strategies and configuration related to relationship counting.
  */
-public interface RelationshipCountConfiguration extends RuntimeModuleConfiguration {
+public interface RelationshipCountConfiguration extends TxDrivenModuleConfiguration {
 
     /**
      * @return contained caching strategy.

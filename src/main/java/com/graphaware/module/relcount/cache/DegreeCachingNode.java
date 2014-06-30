@@ -2,9 +2,10 @@ package com.graphaware.module.relcount.cache;
 
 import com.graphaware.common.description.relationship.DetachedRelationshipDescription;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
-import com.graphaware.runtime.NeedsInitializationException;
-import org.apache.log4j.Logger;
+import com.graphaware.runtime.module.NeedsInitializationException;
 import org.neo4j.graphdb.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -13,7 +14,7 @@ import java.util.*;
  */
 public class DegreeCachingNode {
 
-    private static final Logger LOG = Logger.getLogger(DegreeCachingNode.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DegreeCachingNode.class);
 
     private final Node node;
     private final String prefix;
@@ -94,7 +95,7 @@ public class DegreeCachingNode {
      *
      * @param description of a relationship.
      * @param delta       by how many to decrement.
-     * @throws com.graphaware.runtime.NeedsInitializationException
+     * @throws com.graphaware.runtime.module.NeedsInitializationException
      *          if the total degree of this node with respect to the given relationships becomes negative.
      */
     public void decrementDegree(DetachedRelationshipDescription description, int delta) {

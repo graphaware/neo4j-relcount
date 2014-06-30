@@ -24,9 +24,12 @@ import com.graphaware.module.relcount.RelationshipCountRuntimeModule;
 import com.graphaware.module.relcount.count.CachedRelationshipCounter;
 import com.graphaware.module.relcount.count.RelationshipCounter;
 import com.graphaware.runtime.BaseGraphAwareRuntime;
-import com.graphaware.runtime.NeedsInitializationException;
-import com.graphaware.runtime.ProductionGraphAwareRuntime;
 import com.graphaware.runtime.config.DefaultRuntimeConfiguration;
+import com.graphaware.runtime.config.RuntimeConfiguration;
+import com.graphaware.runtime.metadata.DefaultTimerDrivenModuleMetadata;
+import com.graphaware.runtime.metadata.DefaultTxDrivenModuleMetadata;
+import com.graphaware.runtime.metadata.ProductionSingleNodeMetadataRepository;
+import com.graphaware.runtime.module.NeedsInitializationException;
 import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
 import com.graphaware.tx.executor.single.TransactionExecutor;
 import com.graphaware.tx.executor.single.VoidReturningCallback;
@@ -403,9 +406,8 @@ public abstract class DegreeCachingNodeIntegrationTest {
 
     private void setUpModuleConfig() {
         try (Transaction tx = database.beginTx()) {
-            Node root = ProductionGraphAwareRuntime.getOrCreateRoot(database);
-            String key = DefaultRuntimeConfiguration.getInstance().createPrefix(BaseGraphAwareRuntime.RUNTIME) + RelationshipCountRuntimeModule.FULL_RELCOUNT_DEFAULT_ID;
-            root.setProperty(key, Serializer.toString(getConfiguration(), BaseGraphAwareRuntime.CONFIG));
+            new ProductionSingleNodeMetadataRepository(database, DefaultRuntimeConfiguration.getInstance(), RuntimeConfiguration.TX_MODULES_PROPERTY_PREFIX)
+            .persistModuleMetadata(RelationshipCountRuntimeModule.FULL_RELCOUNT_DEFAULT_ID, new DefaultTxDrivenModuleMetadata(getConfiguration()));
             tx.success();
         }
     }

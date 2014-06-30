@@ -1,12 +1,11 @@
 package com.graphaware.module.relcount;
 
 import com.graphaware.module.relcount.cache.NodeBasedDegreeCache;
-import com.graphaware.runtime.GraphAwareRuntimeModule;
 import com.graphaware.runtime.config.BaseRuntimeConfigured;
 import com.graphaware.runtime.config.RuntimeConfiguration;
 import com.graphaware.runtime.config.RuntimeConfigured;
-import com.graphaware.runtime.config.RuntimeModuleConfiguration;
-import com.graphaware.runtime.strategy.BatchSupportingGraphAwareRuntimeModule;
+import com.graphaware.runtime.config.TxDrivenModuleConfiguration;
+import com.graphaware.runtime.module.BatchSupportingTxDrivenModule;
 import com.graphaware.tx.event.batch.api.TransactionSimulatingBatchInserter;
 import com.graphaware.tx.event.batch.propertycontainer.inserter.BatchInserterNode;
 import com.graphaware.tx.event.improved.api.Change;
@@ -28,15 +27,15 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 import static org.neo4j.tooling.GlobalGraphOperations.at;
 
 /**
- * {@link com.graphaware.runtime.GraphAwareRuntimeModule} providing caching capabilities for full relationship counting.
+ * {@link com.graphaware.runtime.module.RuntimeModule} providing caching capabilities for full relationship counting.
  * "Full" means it cares about {@link org.neo4j.graphdb.RelationshipType}s, {@link org.neo4j.graphdb.Direction}s,
  * and properties.
  * <p/>
- * Once registered with {@link com.graphaware.runtime.ProductionGraphAwareRuntime}, relationship
+ * Once registered with {@link com.graphaware.runtime.GraphAwareRuntime}, relationship
  * counts will be cached on nodes properties. {@link com.graphaware.module.relcount.count.CachedRelationshipCounter} or {@link com.graphaware.module.relcount.count.FallbackRelationshipCounter} can then be used to
  * count relationships by querying these cached counts.
  */
-public class RelationshipCountRuntimeModule extends BaseRuntimeConfigured implements BatchSupportingGraphAwareRuntimeModule, RuntimeConfigured {
+public class RelationshipCountRuntimeModule extends BaseRuntimeConfigured implements BatchSupportingTxDrivenModule, RuntimeConfigured {
 
     /**
      * Default ID of this module used to identify metadata written by this module.
@@ -49,7 +48,7 @@ public class RelationshipCountRuntimeModule extends BaseRuntimeConfigured implem
 
     /**
      * Create a module with default ID and configuration. Use this constructor when you wish to register a single
-     * instance of the module with {@link com.graphaware.runtime.ProductionGraphAwareRuntime} and you are happy with
+     * instance of the module with {@link com.graphaware.runtime.GraphAwareRuntime} and you are happy with
      * the default configuration (see {@link RelationshipCountConfigurationImpl#defaultConfiguration()}).
      */
     public RelationshipCountRuntimeModule() {
@@ -58,7 +57,7 @@ public class RelationshipCountRuntimeModule extends BaseRuntimeConfigured implem
 
     /**
      * Create a module with default ID and custom configuration. Use this constructor when you wish to register a single
-     * instance of the module with {@link com.graphaware.runtime.ProductionGraphAwareRuntime} and you want to provide
+     * instance of the module with {@link com.graphaware.runtime.GraphAwareRuntime} and you want to provide
      * custom {@link RelationshipCountConfiguration}. This could be the case, for instance, when you would like to exclude
      * certain {@link org.neo4j.graphdb.Relationship}s from being counted at all ({@link com.graphaware.common.strategy.RelationshipInclusionStrategy}),
      * certain properties from being considered at all ({@link com.graphaware.common.strategy.RelationshipPropertyInclusionStrategy}),
@@ -71,7 +70,7 @@ public class RelationshipCountRuntimeModule extends BaseRuntimeConfigured implem
 
     /**
      * Create a module with a custom ID and configuration. Use this constructor when you wish to register a multiple
-     * instances of the module with {@link com.graphaware.runtime.ProductionGraphAwareRuntime} and you want to provide
+     * instances of the module with {@link com.graphaware.runtime.GraphAwareRuntime} and you want to provide
      * custom {@link RelationshipCountConfiguration} for each one of them. This could be the case, for instance, when you
      * would like to keep two different kinds of relationships, weighted and unweighted.
      */
@@ -101,7 +100,7 @@ public class RelationshipCountRuntimeModule extends BaseRuntimeConfigured implem
      * {@inheritDoc}
      */
     @Override
-    public RuntimeModuleConfiguration getConfiguration() {
+    public TxDrivenModuleConfiguration getConfiguration() {
         return relationshipCountConfiguration;
     }
 

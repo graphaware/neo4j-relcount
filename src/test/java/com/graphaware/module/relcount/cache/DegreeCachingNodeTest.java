@@ -4,7 +4,7 @@ import com.graphaware.common.description.predicate.Predicates;
 import com.graphaware.common.description.relationship.DetachedRelationshipDescription;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
 import com.graphaware.module.relcount.compact.CompactionStrategy;
-import com.graphaware.runtime.NeedsInitializationException;
+import com.graphaware.runtime.module.NeedsInitializationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;

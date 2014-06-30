@@ -23,10 +23,11 @@ import com.graphaware.common.wrapper.NodeWrapper;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
 import com.graphaware.runtime.config.BaseRuntimeConfigured;
 import com.graphaware.runtime.config.RuntimeConfigured;
-import org.apache.log4j.Logger;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +41,7 @@ import static com.graphaware.common.util.DirectionUtils.resolveDirection;
  */
 public class NodeBasedDegreeCache extends BaseRuntimeConfigured implements DegreeCache, RuntimeConfigured {
 
-    private static final Logger LOG = Logger.getLogger(NodeBasedDegreeCache.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NodeBasedDegreeCache.class);
 
     private static final ThreadLocal<Map<Long, DegreeCachingNode>> nodeCache = new ThreadLocal<>();
 

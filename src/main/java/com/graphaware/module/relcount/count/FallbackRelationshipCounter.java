@@ -17,14 +17,11 @@
 package com.graphaware.module.relcount.count;
 
 import com.graphaware.common.description.relationship.RelationshipDescription;
-import com.graphaware.module.relcount.RelationshipCountConfiguration;
-import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountRuntimeModule;
-import com.graphaware.runtime.config.DefaultRuntimeConfiguration;
-import com.graphaware.runtime.config.RuntimeConfiguration;
-import org.apache.log4j.Logger;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link RelationshipCounter} that counts matching relationships by first trying to use {@link CachedRelationshipCounter}
@@ -44,7 +41,7 @@ import org.neo4j.graphdb.Node;
  */
 public class FallbackRelationshipCounter implements RelationshipCounter {
 
-    private static final Logger LOG = Logger.getLogger(FallbackRelationshipCounter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FallbackRelationshipCounter.class);
 
     private final NaiveRelationshipCounter naiveRelationshipCounter;
     private final CachedRelationshipCounter cachedRelationshipCounter;

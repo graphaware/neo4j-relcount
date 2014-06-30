@@ -8,7 +8,7 @@ import com.graphaware.module.relcount.compact.CompactionStrategy;
 import com.graphaware.module.relcount.compact.ThresholdBasedCompactionStrategy;
 import com.graphaware.module.relcount.count.OneForEach;
 import com.graphaware.module.relcount.count.WeighingStrategy;
-import com.graphaware.runtime.config.BaseRuntimeModuleConfiguration;
+import com.graphaware.runtime.config.BaseTxDrivenModuleConfiguration;
 import com.graphaware.runtime.strategy.IncludeAllBusinessRelationshipProperties;
 import com.graphaware.runtime.strategy.IncludeAllBusinessRelationships;
 
@@ -16,7 +16,7 @@ import com.graphaware.runtime.strategy.IncludeAllBusinessRelationships;
  * {@link RelationshipCountConfiguration}, providing static factory method for a default configuration and "with"
  * methods for fluently overriding these with custom strategies.
  */
-public class RelationshipCountConfigurationImpl extends BaseRuntimeModuleConfiguration<RelationshipCountConfigurationImpl> implements RelationshipCountConfiguration {
+public class RelationshipCountConfigurationImpl extends BaseTxDrivenModuleConfiguration<RelationshipCountConfigurationImpl> implements RelationshipCountConfiguration {
 
     private static final int DEFAULT_COMPACTION_THRESHOLD = 20;
 

@@ -16,27 +16,24 @@
 
 package com.graphaware.module.relcount;
 
-import com.graphaware.test.integration.ServerIntegrationTest;
+import com.graphaware.test.integration.NeoServerIntegrationTest;
 import org.eclipse.jetty.http.HttpStatus;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static com.graphaware.test.util.TestUtils.*;
-import static com.graphaware.test.util.TestUtils.jsonAsString;
 
 /**
- * {@link ServerIntegrationTest} for {@link RelationshipCountRuntimeModule}.
+ * {@link NeoServerIntegrationTest} for {@link RelationshipCountRuntimeModule}.
  */
-public class RelcountIntegrationTest extends ServerIntegrationTest {
+public class RelcountIntegrationTest extends NeoServerIntegrationTest {
 
     @Test
     public void relationshipCountsShouldBeCachedWhenRuntimeAndRelcountAreEnabled() throws InterruptedException, IOException {
         post("http://localhost:7474/db/data/transaction/commit", jsonAsString("create"), HttpStatus.OK_200);
 
         assertJsonEquals(post("http://localhost:7474/db/data/transaction/commit", jsonAsString("query"), HttpStatus.OK_200),
-                "{\"results\":[{\"columns\":[\"one._GA_relcount_\"],\"data\":[{\"row\":[[1,1,43,2,3,1,33,4,18,5,0,12,6,7,82,-79,2,2]]}]}],\"errors\":[]}");
+                "{\"results\":[{\"columns\":[\"one._GA_relcount_\"],\"data\":[{\"row\":[[17,1,1,43,2,3,1,33,4,18,5,0,12,6,7,82,-79,2,2]]}]}],\"errors\":[]}");
     }
 }
