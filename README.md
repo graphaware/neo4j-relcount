@@ -4,7 +4,7 @@ GraphAware Relationship Count Module
 [![Build Status](https://travis-ci.org/graphaware/neo4j-relcount.png)](https://travis-ci.org/graphaware/neo4j-relcount)
 
 **WARNING:** Since the release of Neo4j 2.1 improves the relationship counting performance of the database significantly,
-this module is deprecated and will not be maintained beyond 2.0.3.
+this module is deprecated and will not be maintained beyond 2.1.
 
 In some Neo4j applications, it is useful to know how many relationships of a given type, perhaps with different properties,
 are present on a node. Naive on-demand relationship counting quickly becomes inefficient with large numbers of relationships

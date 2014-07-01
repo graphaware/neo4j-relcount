@@ -21,7 +21,7 @@ public abstract class RelcountPerformanceTest implements PerformanceTest {
     protected static final String PROPS = "props";
 
     protected Node randomNode(GraphDatabaseService database, int noNodes) {
-        return database.getNodeById(RANDOM.nextInt(noNodes) + 1);
+        return database.getNodeById(RANDOM.nextInt(noNodes));
     }
 
     protected Direction randomDirection() {

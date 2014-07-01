@@ -3,10 +3,10 @@ package com.graphaware.module.relcount.perf;
 import com.graphaware.common.description.relationship.DetachedRelationshipDescription;
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountModule;
-import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.module.relcount.cache.NodePropertiesDegreeCachingStrategy;
 import com.graphaware.module.relcount.count.CachedRelationshipCounter;
 import com.graphaware.module.relcount.count.NaiveRelationshipCounter;
+import com.graphaware.module.relcount.count.OptimizedNaiveRelationshipCounter;
 import com.graphaware.module.relcount.count.RelationshipCounter;
 import com.graphaware.runtime.GraphAwareRuntime;
 import com.graphaware.runtime.GraphAwareRuntimeFactory;
@@ -17,6 +17,7 @@ import com.graphaware.tx.executor.batch.UnitOfWork;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -52,6 +53,7 @@ public class CountRelationships extends RelcountPerformanceTest {
     enum RuntimeInvolvement {
         NO_FRAMEWORK,
         NAIVE,
+        NAIVE_OPTIMIZED,
         CACHED
     }
 
@@ -152,6 +154,9 @@ public class CountRelationships extends RelcountPerformanceTest {
                         case NAIVE:
                             countUsingRuntime(database, params, new NaiveRelationshipCounter(database));
                             break;
+                        case NAIVE_OPTIMIZED:
+                            countUsingRuntime(database, params, new OptimizedNaiveRelationshipCounter(database));
+                            break;
                         default:
                             throw new RuntimeException("unknown option");
                     }
@@ -165,27 +170,38 @@ public class CountRelationships extends RelcountPerformanceTest {
     private long countAsIfThereWasNoRuntime(final GraphDatabaseService database, Map<String, Object> params) {
         final AtomicLong result = new AtomicLong(0);
 
-        final Node node = randomNode(database, NO_NODES);
-        for (Relationship r : node.getRelationships(randomType(), randomDirection())) {
-            if (Properties.TWO_PROPS.equals(params.get(PROPS))) {
-                if (RANDOM.nextInt(2) == r.getProperty("rating", null) && RANDOM.nextInt(2) == r.getProperty("another", null)) {
+        try (Transaction tx = database.beginTx()) {
+            final Node node = randomNode(database, NO_NODES);
+            for (Relationship r : node.getRelationships(randomType(), randomDirection())) {
+                if (Properties.TWO_PROPS.equals(params.get(PROPS))) {
+                    if (RANDOM.nextInt(2) == r.getProperty("rating", null) && RANDOM.nextInt(2) == r.getProperty("another", null)) {
+                        result.incrementAndGet();
+                    }
+                } else {
                     result.incrementAndGet();
                 }
-            } else {
-                result.incrementAndGet();
             }
+
+            tx.success();
         }
 
         return result.get();
     }
 
     protected long countUsingRuntime(final GraphDatabaseService database, Map<String, Object> params, RelationshipCounter counter) {
-        final Node node = randomNode(database, NO_NODES);
-        DetachedRelationshipDescription description = wildcard(randomType(), randomDirection());
-        if (Properties.TWO_PROPS.equals(params.get(PROPS))) {
-            description = description.with("rating", equalTo(RANDOM.nextInt(2))).with("another", equalTo(RANDOM.nextInt(2)));
+        int count;
+
+        try (Transaction tx = database.beginTx()) {
+            final Node node = randomNode(database, NO_NODES);
+            DetachedRelationshipDescription description = wildcard(randomType(), randomDirection());
+            if (Properties.TWO_PROPS.equals(params.get(PROPS))) {
+                description = description.with("rating", equalTo(RANDOM.nextInt(2))).with("another", equalTo(RANDOM.nextInt(2)));
+            }
+            count = counter.count(node, description);
+            tx.success();
         }
-        return counter.count(node, description);
+
+        return count;
     }
 
     @Override

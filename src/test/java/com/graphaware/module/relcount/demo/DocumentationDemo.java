@@ -7,7 +7,6 @@ import com.graphaware.common.strategy.RelationshipPropertyInclusionStrategy;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountModule;
-import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.module.relcount.compact.ThresholdBasedCompactionStrategy;
 import com.graphaware.module.relcount.count.*;
 import com.graphaware.runtime.GraphAwareRuntime;
@@ -41,8 +40,6 @@ public class DocumentationDemo extends BaseDocumentationDemo {
         populateDatabase();
 
         RelationshipCounter counter = new CachedRelationshipCounter(database);
-        //alternatively:
-//        RelationshipCounter counter = new CachedRelationshipCounter();
 
         try (Transaction tx = database.beginTx()) {
 
