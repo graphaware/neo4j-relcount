@@ -20,17 +20,17 @@ import com.graphaware.common.description.property.PropertiesDescription;
 import com.graphaware.common.description.relationship.RelationshipDescription;
 import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.runtime.config.RuntimeConfiguration;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 
 import static com.graphaware.common.description.predicate.Predicates.any;
+import static org.neo4j.graphdb.Direction.*;
 
 /**
  * An optimized {@link NaiveRelationshipCounter} that uses that {@link org.neo4j.graphdb.Node#getDegree()} methods,
- * present since Neo4j 2.1, when it can.
- * <p/>
- * <b>WARNING!!! Loops are only counted as 1 towards the total node degree when using this counter. This is how Neo4j
- * implements degree counts. Also, any configured {@link WeighingStrategy} is ignored.</b>
+ * present since Neo4j 2.1, when it can. That is when counting is not done using property values and weighing strategy
+ * is {@link OneForEach}.
  */
 public class OptimizedNaiveRelationshipCounter extends NaiveRelationshipCounter {
 
@@ -45,8 +45,23 @@ public class OptimizedNaiveRelationshipCounter extends NaiveRelationshipCounter 
         super(database, RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID);
     }
 
+    /**
+     * Construct a new relationship counter.
+     *
+     * @param database         on which to count relationships.
+     * @param weighingStrategy strategy for weighing relationships.
+     *                         Only taken into account if there is no {@link RelationshipCountModule} registered with the {@link com.graphaware.runtime.GraphAwareRuntime}. Otherwise the one configured for the module is used.
+     */
+    public OptimizedNaiveRelationshipCounter(GraphDatabaseService database, WeighingStrategy weighingStrategy) {
+        super(database, weighingStrategy);
+    }
+
     protected OptimizedNaiveRelationshipCounter(GraphDatabaseService database, String id) {
-        super(database, id, OneForEach.getInstance());
+        super(database, id);
+    }
+
+    protected OptimizedNaiveRelationshipCounter(GraphDatabaseService database, String id, WeighingStrategy weighingStrategy) {
+        super(database, id, weighingStrategy);
     }
 
     /**
@@ -55,7 +70,12 @@ public class OptimizedNaiveRelationshipCounter extends NaiveRelationshipCounter 
     @Override
     public int count(Node node, RelationshipDescription description) {
         //performance optimization since 2.1
-        if (doesNotCareAboutProperties(description)) {
+        if (doesNotCareAboutProperties(description) && OneForEach.getInstance().equals(relationshipCountConfiguration.getWeighingStrategy())) {
+            if (BOTH.equals(description.getDirection())) {
+                //Neo4j only counts loop as 1
+                return node.getDegree(description.getType(), OUTGOING) + node.getDegree(description.getType(), INCOMING);
+            }
+
             return node.getDegree(description.getType(), description.getDirection());
         }
 

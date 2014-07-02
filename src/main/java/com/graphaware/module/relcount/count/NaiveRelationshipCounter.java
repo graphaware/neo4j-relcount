@@ -16,7 +16,6 @@
 
 package com.graphaware.module.relcount.count;
 
-import com.graphaware.common.description.predicate.Predicates;
 import com.graphaware.common.description.property.LazyPropertiesDescription;
 import com.graphaware.common.description.property.PropertiesDescription;
 import com.graphaware.common.description.relationship.RelationshipDescription;
@@ -31,10 +30,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import static com.graphaware.common.description.predicate.Predicates.*;
 import static org.neo4j.graphdb.Direction.BOTH;
 
 /**
@@ -50,7 +46,7 @@ import static org.neo4j.graphdb.Direction.BOTH;
  */
 public class NaiveRelationshipCounter implements RelationshipCounter {
 
-    private final RelationshipCountConfiguration relationshipCountConfiguration;
+    protected final RelationshipCountConfiguration relationshipCountConfiguration;
 
     /**
      * Construct a new relationship counter with default strategies.
@@ -61,12 +57,8 @@ public class NaiveRelationshipCounter implements RelationshipCounter {
         this(database, RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID);
     }
 
-    protected NaiveRelationshipCounter(GraphDatabaseService database, String id) {
-        this(database, id, OneForEach.getInstance());
-    }
-
     /**
-     * Construct a new relationship counter with default strategies.
+     * Construct a new relationship counter.
      *
      * @param database         on which to count relationships.
      * @param weighingStrategy strategy for weighing relationships.
@@ -74,6 +66,10 @@ public class NaiveRelationshipCounter implements RelationshipCounter {
      */
     public NaiveRelationshipCounter(GraphDatabaseService database, WeighingStrategy weighingStrategy) {
         this(database, RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID, weighingStrategy);
+    }
+
+    protected NaiveRelationshipCounter(GraphDatabaseService database, String id) {
+        this(database, id, OneForEach.getInstance());
     }
 
     /**

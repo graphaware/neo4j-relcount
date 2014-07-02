@@ -17,8 +17,6 @@
 package com.graphaware.module.relcount.count;
 
 import com.graphaware.common.description.relationship.RelationshipDescription;
-import com.graphaware.module.relcount.RelationshipCountModule;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

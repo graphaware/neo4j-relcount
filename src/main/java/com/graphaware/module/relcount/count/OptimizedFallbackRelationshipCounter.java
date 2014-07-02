@@ -21,9 +21,6 @@ import org.neo4j.graphdb.GraphDatabaseService;
 
 /**
  * {@link BaseFallbackRelationshipCounter} using {@link OptimizedNaiveRelationshipCounter}.
- *
- * <b>WARNING!!! Loops are only counted as 1 towards the total node degree when this counter uses its fallback option. This is how Neo4j
- * implements degree counts. Also, any configured {@link WeighingStrategy} is ignored.</b>
  */
 public class OptimizedFallbackRelationshipCounter extends BaseFallbackRelationshipCounter {
 
