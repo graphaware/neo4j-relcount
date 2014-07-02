@@ -3,7 +3,7 @@ __author__ = 'bachmanm'
 import matplotlib.pyplot as plt
 import numpy as np
 
-filename = "countRelationships-fast-pc.txt"
+filename = "countRelationships.txt"
 noParams = 5
 
 resultsAsArray = np.loadtxt(open(filename, "rb"), delimiter=";", dtype=str, skiprows=3)
@@ -18,7 +18,7 @@ def f(arr, value):
 
 def plot(toPlot, color, ls):
     xaxis = toPlot[:, 2].astype(int)
-    data = toPlot[:, 5:].astype(int)
+    data = toPlot[:, noParams:].astype(int)
     plt.plot(xaxis, np.mean(data, 1), c=color, ls=ls, linewidth=2.0)
     # plt.errorbar(xaxis, np.mean(data,1), yerr=(np.std(data, 1)))
 
@@ -30,14 +30,17 @@ storage = "SINGLE_PROP"
 props = "TWO_PROPS"
 
 plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "NO_FRAMEWORK"), "purple", ":")
-# plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "NAIVE"), "purple","-.")
-plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "CACHED"), "purple", "-")
+plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "NAIVE"), "purple","-.")
+plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "NAIVE_OPTIMIZED"), "purple","-")
+plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "CACHED"), "grey", "-")
 plot(f(f(f(f(resultsAsArray, storage), props), "lowcache"), "NO_FRAMEWORK"), "green", ":")
-# plot(f(f(f(f(resultsAsArray, storage), props), "lowcache"), "NAIVE"), "green","-.")
-plot(f(f(f(f(resultsAsArray, storage), props), "lowcache"), "CACHED"), "green", "-")
+plot(f(f(f(f(resultsAsArray, storage), props), "lowcache"), "NAIVE"), "green","-.")
+plot(f(f(f(f(resultsAsArray, storage), props), "lowcache"), "NAIVE_OPTIMIZED"), "green","-")
+plot(f(f(f(f(resultsAsArray, storage), props), "lowcache"), "CACHED"), "black", "-")
 plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "NO_FRAMEWORK"), "blue", ":")
-# plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "NAIVE"), "blue","-.")
-plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "CACHED"), "blue", "-")
+plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "NAIVE"), "blue","-.")
+plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "NAIVE_OPTIMIZED"), "blue","-")
+plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "CACHED"), "red", "-")
 
 plt.xlabel('Relationships per Node')
 plt.ylabel('Time (microseconds)')
