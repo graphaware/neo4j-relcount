@@ -35,7 +35,7 @@ import static org.neo4j.tooling.GlobalGraphOperations.at;
  * counts will be cached on nodes properties. {@link com.graphaware.module.relcount.count.CachedRelationshipCounter} or {@link com.graphaware.module.relcount.count.FallbackRelationshipCounter} can then be used to
  * count relationships by querying these cached counts.
  */
-public class RelationshipCountModule extends BaseRuntimeConfigured implements BatchSupportingTxDrivenModule, RuntimeConfigured {
+public class RelationshipCountModule extends BaseRuntimeConfigured implements BatchSupportingTxDrivenModule<Void>, RuntimeConfigured {
 
     /**
      * Default ID of this module used to identify metadata written by this module.
@@ -142,7 +142,7 @@ public class RelationshipCountModule extends BaseRuntimeConfigured implements Ba
      * {@inheritDoc}
      */
     @Override
-    public void beforeCommit(ImprovedTransactionData transactionData) {
+    public Void beforeCommit(ImprovedTransactionData transactionData) {
         relationshipCountCache.startCaching();
 
         try {
@@ -152,6 +152,16 @@ public class RelationshipCountModule extends BaseRuntimeConfigured implements Ba
         } finally {
             relationshipCountCache.endCaching();
         }
+
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void afterCommit(Void state) {
+        //do nothing
     }
 
     /**
