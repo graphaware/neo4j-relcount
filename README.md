@@ -459,7 +459,7 @@ The following charts present performance testing results on Neo4j 2.1.2:
 
 Not much has changed in terms of write throughput:
 
-![Figure 4](src/test/resources/perf/2_1figure_1.png)
+![Figure 4](src/test/resources/perf/2_1/figure_1.png)
 ![Figure 5](src/test/resources/perf/2_1/figure_2.png)
 ![Figure 6](src/test/resources/perf/2_1/figure_3.png)
 ![Figure 7](src/test/resources/perf/2_1/figure_4.png)
