@@ -3,7 +3,7 @@ __author__ = 'bachmanm'
 import matplotlib.pyplot as plt
 import numpy as np
 
-filename = "createThousandRelationships-fast-pc.txt"
+filename = "createThousandRelationships.txt"
 noParams = 3
 
 resultsAsArray = np.loadtxt(open(filename, "rb"), delimiter=";", dtype=str, skiprows=3)
@@ -22,8 +22,8 @@ def plot(toPlot, color):
 
 # props = "NO_PROPS"
 # props = "TWO_PROPS_NO_COMPACT"
-props = "TWO_PROPS_COMPACT"
-# props = "FOUR_PROPS"
+# props = "TWO_PROPS_COMPACT"
+props = "FOUR_PROPS"
 plot(f(f(resultsAsArray, props), "NO_FRAMEWORK").astype(int), "purple")
 # plot(f(f(resultsAsArray, props), "EMPTY_FRAMEWORK").astype(int), "green")
 # plot(f(f(resultsAsArray, props), "RELCOUNT_NO_PROPS_SINGLE_PROP_STORAGE").astype(int), "red")
@@ -33,7 +33,7 @@ plot(f(f(resultsAsArray, props), "FULL_RELCOUNT_SINGLE_PROP_STORAGE").astype(int
 
 plt.xlabel('Number of Relationships per Transaction')
 plt.ylabel('Time (microseconds)')
-plt.title('Create 1,000 Relationships, 2 Properties per Relationship')
+plt.title('Create 1,000 Relationships, Four Properties per Relationship, With Compaction')
 # plt.legend(("NO_FRAMEWORK", "EMPTY_FRAMEWORK", "RELCOUNT_NO_PROPS_SINGLE_PROP_STORAGE",
 #             "RELCOUNT_NO_PROPS_MULTI_PROP_STORAGE", "FULL_RELCOUNT_SINGLE_PROP_STORAGE",
 #             "FULL_RELCOUNT_MULTI_PROP_STORAGE"), loc=3)

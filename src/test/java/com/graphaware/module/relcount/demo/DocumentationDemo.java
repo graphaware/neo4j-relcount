@@ -128,11 +128,11 @@ public class DocumentationDemo extends BaseDocumentationDemo {
             }
         };
 
-        RelationshipCountConfiguration relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration()
+        RelationshipCountConfiguration config = RelationshipCountConfigurationImpl.defaultConfiguration()
                 .with(new ThresholdBasedCompactionStrategy(7))
                 .with(customWeighingStrategy);
 
-        RelationshipCountModule module = new RelationshipCountModule(relationshipCountConfiguration);
+        RelationshipCountModule module = new RelationshipCountModule(config);
 
         runtime.registerModule(module);
         runtime.start();
@@ -167,10 +167,10 @@ public class DocumentationDemo extends BaseDocumentationDemo {
             }
         };
 
-        RelationshipCountConfiguration relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration()
+        RelationshipCountConfiguration config = RelationshipCountConfigurationImpl.defaultConfiguration()
                 .with(customRelationshipInclusionStrategy);
 
-        RelationshipCountModule module = new RelationshipCountModule(relationshipCountConfiguration);
+        RelationshipCountModule module = new RelationshipCountModule(config);
 
         runtime.registerModule(module);
         runtime.start();
@@ -197,17 +197,17 @@ public class DocumentationDemo extends BaseDocumentationDemo {
     public void demonstrateFullCachedRelationshipCounterWithCustomRelationshipPropertyInclusionStrategy() {
         GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
 
-        RelationshipPropertyInclusionStrategy customRelationshipPropertyInclusionStrategy = new RelationshipPropertyInclusionStrategy() {
+        RelationshipPropertyInclusionStrategy propertyInclusionStrategy = new RelationshipPropertyInclusionStrategy() {
             @Override
             public boolean include(String key, Relationship propertyContainer) {
                 return !"timestamp".equals(key);
             }
         };
 
-        RelationshipCountConfiguration relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration()
-                .with(customRelationshipPropertyInclusionStrategy);
+        RelationshipCountConfiguration config = RelationshipCountConfigurationImpl.defaultConfiguration()
+                .with(propertyInclusionStrategy);
 
-        RelationshipCountModule module = new RelationshipCountModule(relationshipCountConfiguration);
+        RelationshipCountModule module = new RelationshipCountModule(config);
 
         runtime.registerModule(module);
         runtime.start();
@@ -233,8 +233,6 @@ public class DocumentationDemo extends BaseDocumentationDemo {
     @Test
     public void demonstrateFullNaiveRelationshipCounter() {
         populateDatabase();
-
-        RelationshipCountModule module = new RelationshipCountModule();
 
         try (Transaction tx = database.beginTx()) {
 

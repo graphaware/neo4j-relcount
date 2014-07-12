@@ -1,69 +1,72 @@
-GraphAware Relationship Count Module
-------------------------------------
+GraphAware Neo4j Relationship Counter
+=====================================
 
-[![Build Status](https://travis-ci.org/graphaware/neo4j-relcount.png)](https://travis-ci.org/graphaware/neo4j-relcount)
-
-**Note:** Since the release of Neo4j 2.1 improves the relationship counting performance of the database significantly,
-this module is not very useful any more. However, it is still maintained as a reference implementation of GraphAware
-Transaction-Driven Runtime Module.
+[![Build Status](https://travis-ci.org/graphaware/neo4j-relcount.png)](https://travis-ci.org/graphaware/neo4j-relcount) | <a href="http://graphaware.com/downloads/" target="_blank">Downloads</a> | <a href="http://graphaware.com/site/relcount/latest/apidocs/" target="_blank">Javadoc</a> | Latest Release: 2.1.2.9.2
 
 In some Neo4j applications, it is useful to know how many relationships of a given type, perhaps with different properties,
 are present on a node. Naive on-demand relationship counting quickly becomes inefficient with large numbers of relationships
 per node.
 
 The aim of this [GraphAware](https://github.com/graphaware/neo4j-framework) Relationship Count Module is to provide an
-easy-to-use, high-performance relationship counting mechanism.
+easy-to-use, high-performance relationship counting mechanism. For more information on the motivation for this module
+and a bit of maths around it, please refer to [Michal Bachman's MSc Thesis](http://graphaware.com/neo4j/analytics/2013/10/02/bachman-msc-thesis.html).
 
-Download
---------
+**Note:** Since the release of Neo4j 2.1 improves the relationship counting performance of the database significantly,
+this module is less useful than before. However, it is still maintained as a reference implementation of GraphAware
+[Transaction-Driven Runtime Module](https://github.com/graphaware/neo4j-framework/tree/tx-manager/runtime).
 
-Node: In order to use this module, you will also need the [GraphAware Framework](https://github.com/graphaware/neo4j-framework).
+Getting the Software
+--------------------
 
-### Releases
+### Server Mode
 
-Releases are synced to Maven Central repository. To use the latest release, [download it](http://search.maven.org/remotecontent?filepath=com/graphaware/neo4j-relcount/1.9-1.3/neo4j-relcount-1.9-1.3.jar)
-and put it on your classpath. When using Maven, include the following snippet in your pom.xml:
+When using Neo4j in the <a href="http://docs.neo4j.org/chunked/stable/server-installation.html" target="_blank">standalone server</a> mode,
+you will need the <a href="https://github.com/graphaware/neo4j-framework" target="_blank">GraphAware Neo4j Framework</a> and GraphAware Neo4j RelCount .jar files (both of which you can <a href="http://graphaware.com/downloads/" target="_blank">download here</a>) dropped
+into the `plugins` directory of your Neo4j installation.
+
+Finally, add the following to your neo4j.propoerties:
+
+```
+com.graphaware.runtime.enabled=true
+com.graphaware.module.relcount.1=com.graphaware.module.relcount.bootstrap.RelcountModuleBootstrapper
+```
+
+### Embedded Mode / Java Development
+
+Java developers that use Neo4j in <a href="http://docs.neo4j.org/chunked/stable/tutorials-java-embedded.html" target="_blank">embedded mode</a>
+and those developing Neo4j <a href="http://docs.neo4j.org/chunked/stable/server-plugins.html" target="_blank">server plugins</a>,
+<a href="http://docs.neo4j.org/chunked/stable/server-unmanaged-extensions.html" target="_blank">unmanaged extensions</a>,
+GraphAware Runtime Modules, or Spring MVC Controllers can include use the RelCount as a dependency for their Java project.
+
+#### Releases
+
+Releases are synced to <a href="http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22relcount%22" target="_blank">Maven Central repository</a>. When using Maven for dependency management, include the following dependency in your pom.xml.
 
     <dependencies>
         ...
         <dependency>
             <groupId>com.graphaware</groupId>
             <artifactId>neo4j-relcount</artifactId>
-            <version>1.9-1.4</version>
+            <version>2.1.2.9.2</version>
         </dependency>
         ...
     </dependencies>
 
-### Snapshots
+#### Snapshots
 
-To use the latest development version, just clone this repository, run `mvn clean install` and put the produced .jar
-file (found in target) into your classpath. If using Maven for your own development, include the following snippet in
-your pom.xml instead of copying the .jar:
+To use the latest development version, just clone this repository, run `mvn clean install` and change the version in the
+dependency above to 2.1.2.9.3-SNAPSHOT.
 
-    <dependencies>
-        ...
-        <dependency>
-            <groupId>com.graphaware</groupId>
-            <artifactId>neo4j-relcount</artifactId>
-            <version>1.9-1.5-SNAPSHOT</version>
-        </dependency>
-        ...
-    </dependencies>
-
-### Note on Versioning Scheme
+#### Note on Versioning Scheme
 
 The version number has two parts, separated by a dash. The first part indicates compatibility with a Neo4j version.
- The second part is the version of the module. For example, version 1.9-1.2 is a 1.2 version of the module
- compatible with Neo4j 1.9.x.
+ The second part is the version of the module. For example, version 2.1.2.9.3 is version 3 of the module
+ compatible with GraphAware Framework 2.1.2.9 (and thus Neo4j 2.1.2).
 
-### Compatibility
+Usage from Java
+---------------
 
- This module is compatible with Neo4j v. 1.9.4+ and GraphAware Framework v. 1.9-1.8.
-
-Usage
------
-
-Once set up (read below), it is very simple to use the API.
+Once set up, it is very simple to use the API.
 
 ```java
 Node node = ... //find a node somewhere, perhaps in an index
@@ -79,18 +82,18 @@ Relationship counters are capable of counting relationships based on their types
 
 The most efficient counter is the `CachedRelationshipCounter`. As the name suggests, it counts relationships by
 reading them from "cache", i.e. nodes' properties. In order for this caching mechanism to work, you need to be using the
-[GraphAware Framework](https://github.com/graphaware/neo4j-framework) with `RelationshipCountModule` registered.
+[GraphAware Framework](https://github.com/graphaware/neo4j-framework) with [`RelationshipCountModule`](http://graphaware.com/site/relcount/latest/apidocs/com/graphaware/module/relcount/RelationshipCountModule.html) registered.
 
 When using Neo4j in _embedded_ mode, the simplest default setup looks like this:
 
 ```java
-GraphAwareFramework framework = new GraphAwareFramework(database);
-RelationshipCountModule module = new RelationshipCountModule();
-framework.registerModule(module);
-framework.start();
-```
+GraphDatabaseService database = ... //impermanent or embedded database
 
-(For _server_ mode, stay tuned, coming very soon!)
+GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
+RelationshipCountModule module = new RelationshipCountModule();
+runtime.registerModule(module);
+runtime.start();
+```
 
 Now, let's say you have a very simple graph with 10 people and 2 cities. Each person lives in one of the cities (relationship
 type LIVES_IN), and each person follows every other person on Twitter (relationship type FOLLOWS). Furthermore, there
@@ -106,24 +109,9 @@ Node tracy = database.getNodeById(2);
 //Wildcard means we don't care about properties:
 RelationshipDescription followers = RelationshipDescriptionFactory.wildcard(FOLLOWS, INCOMING);
 
-RelationshipCounter counter = module.cachedCounter();
-counter.count(tracy, followers); //returns the count
-```
-Alternatively, if you don't have access to the module object from when you've set things up, you can instantiate the counter
-directly:
-
-```java
-Node tracy = database.getNodeById(2);
-
-//Wildcard means we don't care about properties:
-RelationshipDescription followers = RelationshipDescriptionFactory.wildcard(FOLLOWS, INCOMING);
-
 RelationshipCounter counter = new CachedRelationshipCounter();
 counter.count(tracy, followers);
 ```
-
-The first approach is preferred, however, because it simplifies things when using the module (or the Framework)
-with custom configuration.
 
 If you wanted to know, how many of those followers are very interested in Tracy (strength = 2):
 
@@ -137,7 +125,7 @@ Node tracy = database.getNodeById(2);
 
 RelationshipDescription followers = wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2));
 
-RelationshipCounter counter = module.cachedCounter();
+RelationshipCounter counter = new CachedRelationshipCounter();
 counter.count(tracy, followers); //returns the count
 ```
 
@@ -152,7 +140,7 @@ Node tracy = database.getNodeById(2);
 //Literal means we properties not explicitly mentioned must be undefined:
 RelationshipDescription followers = RelationshipDescriptionFactory.literal(FOLLOWS, INCOMING);
 
-RelationshipCounter counter = module.cachedCounter();
+RelationshipCounter counter = new CachedRelationshipCounter();
 counter.count(tracy, followers);
 ```
 
@@ -160,13 +148,25 @@ For graphs with thousands (or more) relationships per node, this way of counting
 magnitude faster than a naive approach of traversing all relationships and inspecting their properties. See [performance](#performance)
 for more details.
 
-#### How does it work?
+Usage in Server Mode
+--------------------
+
+REST API coming soon...
+
+Note on Loops
+-------------
+
+We have taken the philosophy of counting loops (i.e., relationships of a node with itself) as 2 towards the total degree
+of the node. This is different from the philosophy of Neo4j 2.1, which counts a loop as 1 towards the total degree.
+
+How does it work?
+-----------------
 
 There is no magic. The module inspects all transactions before they are committed to the database and analyzes them for
 any created, deleted, or modified relationships.
 
 It caches the relationship counts for both incoming and outgoing relationships serialized as a property on each node.
-In order not to pollute nodes with meaningless properties, the cached information gets automatically compacted if needed.
+In order not to pollute nodes too much, the cached information gets automatically compacted if needed.
 
 Let's illustrate that on an example. Suppose that a node has no relationships to start with. When you create the first
 outgoing relationship of type `FRIEND_OF` with properties `level` equal to `2` and `timestamp` equal to `1368206683579`,
@@ -254,12 +254,13 @@ away. There are three ways to deal with this problem, either
 * [manually fallback to naive counting](#naive), using a `NaiveRelationshipCounter`, or
 * [use `FallbackRelationshipCounter`](#fallback), which falls back to naive counting approach automatically
 
-### Advanced Usage
+Advanced Usage
+--------------
 
 There are a number of things that can be tweaked here. Let's talk about the compaction threshold first.
 
 <a name="compaction"/>
-#### Compaction Threshold Level
+### Compaction Threshold Level
 
 What should the compaction threshold be set to? That depends entirely on the use-case. Let's use the people/places example
 from earlier with FOLLOWS and LIVES_IN relationships. Each node will have a number of LIVES_IN relationships, but only
@@ -274,19 +275,20 @@ set the threshold to 3. One for the LIVES_IN relationships, and 2 for incoming a
 The threshold can be set when constructing the module by passing in a custom configuration:
 
 ```java
-GraphAwareFramework framework = new GraphAwareFramework(database);
+GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
 
-//compaction threshold to 7
-RelationshipCountStrategies relationshipCountStrategies
-    = RelationshipCountStrategiesImpl.defaultStrategies().withThreshold(7);
+//threshold set to 7
+RelationshipCountConfiguration config = RelationshipCountConfigurationImpl
+    .defaultConfiguration()
+    .with(new ThresholdBasedCompactionStrategy(7));
 
-FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
+RelationshipCountModule module = new RelationshipCountModule(config);
 
-framework.registerModule(module);
-framework.start();
+runtime.registerModule(module);
+runtime.start();
 ```
 
-#### Relationship Weights
+### Relationship Weights
 
 Let's say you would like each relationship to have a different "weight", i.e. some relationships should count for more
 than one. This is entirely possible by implementing a custom `RelationshipWeighingStrategy`.
@@ -295,54 +297,51 @@ Building on the previous example, let's say you would like the FOLLOWS relations
  relationships. The following code would achieve just that:
 
 ```java
-GraphAwareFramework framework = new GraphAwareFramework(database);
+GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
 
-RelationshipWeighingStrategy customWeighingStrategy = new RelationshipWeighingStrategy() {
-   @Override
-   public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
-       return (int) relationship.getProperty(STRENGTH, 1);
-   }
+WeighingStrategy customWeighingStrategy = new WeighingStrategy() {
+    @Override
+    public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
+        return (int) relationship.getProperty(STRENGTH, 1);
+    }
 };
 
-RelationshipCountStrategies relationshipCountStrategies
-    = RelationshipCountStrategiesImpl.defaultStrategies()
-       .withThreshold(7)
-       .with(customWeighingStrategy);
+RelationshipCountConfiguration config = RelationshipCountConfigurationImpl.defaultConfiguration()
+        .with(new ThresholdBasedCompactionStrategy(7))
+        .with(customWeighingStrategy);
 
-FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
+RelationshipCountModule module = new RelationshipCountModule(config);
 
-framework.registerModule(module);
-framework.start();
+runtime.registerModule(module);
+runtime.start();
 ```
 
-#### Excluding Relationships
+### Excluding Relationships
 
 To exclude certain relationships from the count caching process altogether, create a strategy that implements the
 `RelationshipInclusionStrategy`. For example, if you're only interested in FOLLOWS relationship counts and nothing else,
 you could configure the module as follows:
 
 ```java
-GraphAwareFramework framework = new GraphAwareFramework(database);
+GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
 
-RelationshipInclusionStrategy customRelationshipInclusionStrategy
-    = new RelationshipInclusionStrategy() {
-        @Override
-        public boolean include(Relationship relationship) {
-            return relationship.isType(FOLLOWS);
-        }
+RelationshipInclusionStrategy customRelationshipInclusionStrategy = new RelationshipInclusionStrategy() {
+    @Override
+    public boolean include(Relationship relationship) {
+        return relationship.isType(FOLLOWS);
+    }
 };
 
-RelationshipCountStrategies relationshipCountStrategies
-    = RelationshipCountStrategiesImpl.defaultStrategies()
+RelationshipCountConfiguration config = RelationshipCountConfigurationImpl.defaultConfiguration()
         .with(customRelationshipInclusionStrategy);
 
-FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
+RelationshipCountModule module = new RelationshipCountModule(config);
 
-framework.registerModule(module);
-framework.start();
+runtime.registerModule(module);
+runtime.start();
 ```
 
-#### Excluding Relationship Properties
+### Excluding Relationship Properties
 
 Whilst the compaction mechanism eventually excludes frequently changing properties anyway, it might be useful (at least
 for performance reasons) to exclude them explicitly, if you know up front that these properties are not going to be used
@@ -353,24 +352,22 @@ relationship. In that case, you might choose to ignore that property for the pur
 setting up the module in the following fashion:
 
 ```java
-GraphAwareFramework framework = new GraphAwareFramework(database);
+ GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
 
-RelationshipPropertyInclusionStrategy customRelationshipPropertyInclusionStrategy
-    = new RelationshipPropertyInclusionStrategy() {
-        @Override
-        public boolean include(String key, Relationship propertyContainer) {
-            return !"timestamp".equals(key);
-        }
+RelationshipPropertyInclusionStrategy propertyInclusionStrategy = new RelationshipPropertyInclusionStrategy() {
+    @Override
+    public boolean include(String key, Relationship propertyContainer) {
+        return !"timestamp".equals(key);
+    }
 };
 
-RelationshipCountStrategies relationshipCountStrategies
-    = RelationshipCountStrategiesImpl.defaultStrategies()
-        .with(customRelationshipPropertyInclusionStrategy);
+RelationshipCountConfiguration config = RelationshipCountConfigurationImpl.defaultConfiguration()
+        .with(propertyInclusionStrategy);
 
-FullRelationshipCountModule module = new FullRelationshipCountModule(relationshipCountStrategies);
+RelationshipCountModule module = new RelationshipCountModule(config);
 
-framework.registerModule(module);
-framework.start();
+runtime.registerModule(module);
+runtime.start();
 ```
 
 <a name="naive"/>
@@ -380,9 +377,9 @@ It is possible to use the `RelationshipCounter` API without any caching at all. 
 naive approach of traversing through all relationships because you caught an `UnableToCountException`, or maybe you
 simply don't have enough relationships in your system to justify the write-overhead of the caching approach.
 
-It is still advisable to obtain your `RelationshipCounter` from a module, although the module might not need to be
-registered with a running instance of the GraphAware framework. Even when using the naive approach, it is possible to
-use custom strategies explained above.
+Please note that since Neo4j 2.1, the naive approach uses the optimised `Node.getDegree(...)` APIs.
+
+Even when using the naive approach, it is possible to use custom strategies explained above.
 
 The following snippet will count all Tracy's followers by traversing and inspecting all relationships:
 
@@ -391,19 +388,7 @@ Node tracy = database.getNodeById(2);
 
 RelationshipDescription followers = wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2));
 
-RelationshipCounter counter = module.naiveCounter();
-counter.count(tracy, followers); //returns the count
-```
-
-If you're using this just for naive counting (no fallback, no custom config), it is possible to achieve the same thing
-using the following code, although the former approach is preferable.
-
-```java
-Node tracy = database.getNodeById(2);
-
-RelationshipDescription followers = wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2));
-
-RelationshipCounter counter = new NaiveRelationshipCounter();
+RelationshipCounter counter = new NaiveRelationshipCounter(database);
 counter.count(tracy, followers); //returns the count
 ```
 
@@ -417,29 +402,17 @@ counting some kind of relationship has been compacted away.
 The following code snippet illustrates the usage:
 
 ```java
-GraphAwareFramework framework = new GraphAwareFramework(database);
-
-RelationshipCountStrategies relationshipCountStrategies
-    = RelationshipCountStrategiesImpl.defaultStrategies().withThreshold(3);
-
-RelationshipCountModule module = new RelationshipCountModule(relationshipCountStrategies);
-
-framework.registerModule(module);
-framework.start();
-
-populateDatabase();
-
 Node tracy = database.getNodeById(2);
 
-//uses cache:
-module.cachedCounter().count(tracy, wildcard(FOLLOWS, INCOMING));
+RelationshipDescription followers = wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2));
 
-//falls back to naive:
-module.fallbackCounter().count(tracy, wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2)));
+RelationshipCounter counter = new FallbackRelationshipCounter(database);
+counter.count(tracy, followers); //returns the count
 ```
 
 <a name="performance"/>
-### Performance
+Performance (Neo4j 2.0 and below)
+---------------------------------
 
 Let's look at the benefit one can get from deploying this module. The following chart shows how long it takes (in microseconds)
 to read relationship counts of 10 randomly selected nodes based on relationship type, direction, and two properties.
@@ -448,7 +421,7 @@ The x axis shows the average total number of relationships per node. There are 3
 * data in low level cache (files in mapped memory)
 * data in high level cache (objects on the heap)
 
-![Figure 1](src/test/resources/perf/figure1.png)
+![Figure 1](src/test/resources/perf/1_9/figure1.png)
 
 As expected, the performance when reading relationship counts from cache is constant, whist the time taken to count
 relationships by traversing them all increases linearly with the number of relationships. When data is read from disk,
@@ -464,7 +437,7 @@ The next figure shows the time taken to create 1,000 relationships between rando
 The penalty is between 30% and 70% of the write throughput (if all writes were just relationship creates), depending on how
 the writes are batched together (x axis shows the number of created relationships in a single transaction).
 
-![Figure 2](src/test/resources/perf/figure2.png)
+![Figure 2](src/test/resources/perf/1_9/figure2.png)
 
 When compaction takes place, the results can be even worse, so it is best to be avoided by proper configuration. Note, however,
 that compaction only slows writes in the beginning; once the system reaches a "steady-state", it doesn't have any effect.
@@ -472,7 +445,36 @@ The next figure shows the same experiment as above, with 2 properties for every 
 is like a timestamp (changes all the time) and is thus eventually compacted out. These are the first 1,000 relationships,
 thus worst case scenario. Up to 80% of the relationship creation write throughput is taken away by the module.
 
-![Figure 3](src/test/resources/perf/figure3.png)
+![Figure 3](src/test/resources/perf/1_9/figure3.png)
+
+Performance (Neo4j 2.1 and above)
+---------------------------------
+
+When data is in high-level cache, counting relationships based on type and direction is a constant time operation in
+Neo4j 2.1 and above. When properties need to be brought into the picture, each relationship still needs to be inspected.
+
+The following charts present performance testing results on Neo4j 2.1.2:
+
+#### Write Throughput
+
+Not much has changed in terms of write throughput:
+
+![Figure 4](src/test/resources/perf/2_1figure1.png)
+![Figure 5](src/test/resources/perf/2_1/figure2.png)
+![Figure 6](src/test/resources/perf/2_1/figure3.png)
+![Figure 7](src/test/resources/perf/2_1/figure4.png)
+
+#### Read Throughput (Counting Relationships)
+
+It is apparent that when data is in high-level cache, plain Neo4j always performs better for counting relationships where
+we don't care about property values. It is, indeed, a constant time operation.
+
+![Figure 8](src/test/resources/perf/2_1/figure5.png)
+
+However, for all other scenarios, i.e. when data is not in high-level cache, and/or we need to take into account relationship
+ properties, there is a node degree above which GraphAware RelCount always performs better than pure Neo4j:
+
+![Figure 9](src/test/resources/perf/2_1/figure6.png)
 
 ### License
 

@@ -30,24 +30,24 @@ storage = "SINGLE_PROP"
 props = "TWO_PROPS"
 
 plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "NO_FRAMEWORK"), "purple", ":")
-plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "NAIVE"), "purple","-.")
-plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "NAIVE_OPTIMIZED"), "purple","-")
-plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "CACHED"), "grey", "-")
+# plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "NAIVE"), "purple","-.")
+plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "NAIVE_OPTIMIZED"), "purple","-.")
+plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "CACHED"), "purple", "-")
 plot(f(f(f(f(resultsAsArray, storage), props), "lowcache"), "NO_FRAMEWORK"), "green", ":")
-plot(f(f(f(f(resultsAsArray, storage), props), "lowcache"), "NAIVE"), "green","-.")
-plot(f(f(f(f(resultsAsArray, storage), props), "lowcache"), "NAIVE_OPTIMIZED"), "green","-")
-plot(f(f(f(f(resultsAsArray, storage), props), "lowcache"), "CACHED"), "black", "-")
+# plot(f(f(f(f(resultsAsArray, storage), props), "lowcache"), "NAIVE"), "green","-.")
+plot(f(f(f(f(resultsAsArray, storage), props), "lowcache"), "NAIVE_OPTIMIZED"), "green","-.")
+plot(f(f(f(f(resultsAsArray, storage), props), "lowcache"), "CACHED"), "green", "-")
 plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "NO_FRAMEWORK"), "blue", ":")
-plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "NAIVE"), "blue","-.")
-plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "NAIVE_OPTIMIZED"), "blue","-")
-plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "CACHED"), "red", "-")
+# plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "NAIVE"), "blue","-.")
+plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "NAIVE_OPTIMIZED"), "blue","-.")
+plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "CACHED"), "blue", "-")
 
 plt.xlabel('Relationships per Node')
 plt.ylabel('Time (microseconds)')
-plt.title('Counting Relationships for 10 Nodes (2 Properties per Relationship)')
-plt.legend(("Plain Neo4j (disk)", "RelCount Module (disk)", "Plain Neo4j (low level cache)",
-            "RelCount Module (low level cache)", "Plain Neo4j (high level cache)",
-            "RelCount Module (high level cache)"), loc=0)
+plt.title('Counting Relationships for 10 Nodes (Two Properties per Relationship)')
+plt.legend(("Plain Neo4j (disk)", "RelCount Module Naive (disk)", "RelCount Module Cached (disk)",
+            "Plain Neo4j (low level cache)", "RelCount Module Naive (low level cache)", "RelCount Module Cached (low level cache)",
+            "Plain Neo4j (high level cache)","RelCount Module Naive (high level cache)","RelCount Module Cached (high level cache)"), loc=0)
 plt.yscale('log')
 plt.xscale('log')
 plt.show()
