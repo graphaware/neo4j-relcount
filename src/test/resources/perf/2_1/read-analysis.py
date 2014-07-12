@@ -26,8 +26,8 @@ def plot(toPlot, color, ls):
 storage = "SINGLE_PROP"
 # storage = "MULTI_PROP"
 
-# props = "NO_PROPS"
-props = "TWO_PROPS"
+props = "NO_PROPS"
+# props = "TWO_PROPS"
 
 plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "NO_FRAMEWORK"), "purple", ":")
 # plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "NAIVE"), "purple","-.")
