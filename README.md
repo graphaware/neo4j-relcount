@@ -459,22 +459,22 @@ The following charts present performance testing results on Neo4j 2.1.2:
 
 Not much has changed in terms of write throughput:
 
-![Figure 4](src/test/resources/perf/2_1figure1.png)
-![Figure 5](src/test/resources/perf/2_1/figure2.png)
-![Figure 6](src/test/resources/perf/2_1/figure3.png)
-![Figure 7](src/test/resources/perf/2_1/figure4.png)
+![Figure 4](src/test/resources/perf/2_1figure_1.png)
+![Figure 5](src/test/resources/perf/2_1/figure_2.png)
+![Figure 6](src/test/resources/perf/2_1/figure_3.png)
+![Figure 7](src/test/resources/perf/2_1/figure_4.png)
 
 #### Read Throughput (Counting Relationships)
 
 It is apparent that when data is in high-level cache, plain Neo4j always performs better for counting relationships where
 we don't care about property values. It is, indeed, a constant time operation.
 
-![Figure 8](src/test/resources/perf/2_1/figure5.png)
+![Figure 8](src/test/resources/perf/2_1/figure_5.png)
 
 However, for all other scenarios, i.e. when data is not in high-level cache, and/or we need to take into account relationship
  properties, there is a node degree above which GraphAware RelCount always performs better than pure Neo4j:
 
-![Figure 9](src/test/resources/perf/2_1/figure6.png)
+![Figure 9](src/test/resources/perf/2_1/figure_6.png)
 
 ### License
 
