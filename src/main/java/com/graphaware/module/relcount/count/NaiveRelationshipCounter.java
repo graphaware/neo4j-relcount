@@ -16,37 +16,24 @@
 
 package com.graphaware.module.relcount.count;
 
-import com.graphaware.common.description.property.LazyPropertiesDescription;
 import com.graphaware.common.description.property.PropertiesDescription;
 import com.graphaware.common.description.relationship.RelationshipDescription;
-import com.graphaware.module.relcount.RelationshipCountConfiguration;
-import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountModule;
-import com.graphaware.runtime.config.DefaultRuntimeConfiguration;
 import com.graphaware.runtime.config.RuntimeConfiguration;
-import com.graphaware.runtime.metadata.ProductionSingleNodeMetadataRepository;
-import com.graphaware.runtime.metadata.TxDrivenModuleMetadata;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 
-import static org.neo4j.graphdb.Direction.BOTH;
+import static com.graphaware.common.description.predicate.Predicates.any;
+import static org.neo4j.graphdb.Direction.*;
 
 /**
- * A naive {@link RelationshipCounter} that counts matching relationships by inspecting all {@link org.neo4j.graphdb.Node}'s
- * {@link org.neo4j.graphdb.Relationship}s. If possible, i.e. if only {@link org.neo4j.graphdb.RelationshipType} and
- * {@link org.neo4j.graphdb.Direction} (but no property constrains are specified), the {@link org.neo4j.graphdb.Node#getDegree()}
- * and related APIs are used.
- * <p/>
- * Because relationships are counted on the fly (no caching performed), this can be used without the
- * {@link com.graphaware.runtime.GraphAwareRuntime} and/or any {@link com.graphaware.runtime.module.RuntimeModule}s.
- * <p/>
- * This counter always returns a count, never throws {@link UnableToCountException}.
+ * An optimized {@link LegacyNaiveRelationshipCounter} that uses that {@link org.neo4j.graphdb.Node#getDegree()} methods,
+ * present since Neo4j 2.1, when it can. That is when counting is not done using property values and weighing strategy
+ * is {@link OneForEach}.
  */
-public class NaiveRelationshipCounter implements RelationshipCounter {
+public class NaiveRelationshipCounter extends LegacyNaiveRelationshipCounter {
 
-    protected final RelationshipCountConfiguration relationshipCountConfiguration;
+    public static final String TEST_KEY = RuntimeConfiguration.GA_PREFIX + "test";
 
     /**
      * Construct a new relationship counter with default strategies.
@@ -54,7 +41,7 @@ public class NaiveRelationshipCounter implements RelationshipCounter {
      * @param database on which to count relationships.
      */
     public NaiveRelationshipCounter(GraphDatabaseService database) {
-        this(database, RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID);
+        super(database, RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID);
     }
 
     /**
@@ -65,26 +52,15 @@ public class NaiveRelationshipCounter implements RelationshipCounter {
      *                         Only taken into account if there is no {@link RelationshipCountModule} registered with the {@link com.graphaware.runtime.GraphAwareRuntime}. Otherwise the one configured for the module is used.
      */
     public NaiveRelationshipCounter(GraphDatabaseService database, WeighingStrategy weighingStrategy) {
-        this(database, RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID, weighingStrategy);
+        super(database, weighingStrategy);
     }
 
     protected NaiveRelationshipCounter(GraphDatabaseService database, String id) {
-        this(database, id, OneForEach.getInstance());
+        super(database, id);
     }
 
-    /**
-     * Construct a new relationship counter.
-     */
     protected NaiveRelationshipCounter(GraphDatabaseService database, String id, WeighingStrategy weighingStrategy) {
-        try (Transaction tx = database.beginTx()) {
-            TxDrivenModuleMetadata moduleMetadata = new ProductionSingleNodeMetadataRepository(database, DefaultRuntimeConfiguration.getInstance(), RuntimeConfiguration.TX_MODULES_PROPERTY_PREFIX).getModuleMetadata(id);
-            if (moduleMetadata == null || moduleMetadata.getConfig() == null) {
-                this.relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(weighingStrategy);
-            } else {
-                this.relationshipCountConfiguration = (RelationshipCountConfiguration) moduleMetadata.getConfig();
-            }
-            tx.success();
-        }
+        super(database, id, weighingStrategy);
     }
 
     /**
@@ -92,22 +68,32 @@ public class NaiveRelationshipCounter implements RelationshipCounter {
      */
     @Override
     public int count(Node node, RelationshipDescription description) {
-        int result = 0;
+        //performance optimization since 2.1
+        if (doesNotCareAboutProperties(description) && OneForEach.getInstance().equals(relationshipCountConfiguration.getWeighingStrategy())) {
+            if (BOTH.equals(description.getDirection())) {
+                //Neo4j only counts loop as 1
+                return node.getDegree(description.getType(), OUTGOING) + node.getDegree(description.getType(), INCOMING);
+            }
 
-        for (Relationship candidateRelationship : node.getRelationships(description.getDirection(), description.getType())) {
-            PropertiesDescription candidate = new LazyPropertiesDescription(candidateRelationship);
+            return node.getDegree(description.getType(), description.getDirection());
+        }
 
-            if (candidate.isMoreSpecificThan(description.getPropertiesDescription())) {
-                int relationshipWeight = relationshipCountConfiguration.getWeighingStrategy().getRelationshipWeight(candidateRelationship, node);
-                result = result + relationshipWeight;
+        return super.count(node, description);
+    }
 
-                //double count loops if looking for BOTH
-                if (BOTH.equals(description.getDirection()) && candidateRelationship.getStartNode().getId() == candidateRelationship.getEndNode().getId()) {
-                    result = result + relationshipWeight;
-                }
+    private boolean doesNotCareAboutProperties(RelationshipDescription description) {
+        PropertiesDescription propertiesDescription = description.getPropertiesDescription();
+
+        if (!propertiesDescription.getKeys().iterator().hasNext()) {
+            return any().equals(propertiesDescription.get(TEST_KEY));
+        }
+
+        for (String key : propertiesDescription.getKeys()) {
+            if (!any().equals(propertiesDescription.get(key))) {
+                return false;
             }
         }
 
-        return result;
+        return true;
     }
 }

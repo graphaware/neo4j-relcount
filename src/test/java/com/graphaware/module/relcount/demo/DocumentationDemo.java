@@ -266,7 +266,7 @@ public class DocumentationDemo extends BaseDocumentationDemo {
 
             Node tracy = database.getNodeById(2);
 
-            RelationshipCounter counter = new FallbackRelationshipCounter(database);
+            RelationshipCounter counter = new LegacyFallbackRelationshipCounter(database);
 
             assertEquals(9, counter.count(tracy, wildcard(FOLLOWS, INCOMING))); //uses cache
             assertEquals(3, counter.count(tracy, wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2)))); //falls back to naive

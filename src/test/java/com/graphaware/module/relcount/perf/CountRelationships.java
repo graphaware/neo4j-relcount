@@ -5,8 +5,8 @@ import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.module.relcount.cache.NodePropertiesDegreeCachingStrategy;
 import com.graphaware.module.relcount.count.CachedRelationshipCounter;
+import com.graphaware.module.relcount.count.LegacyNaiveRelationshipCounter;
 import com.graphaware.module.relcount.count.NaiveRelationshipCounter;
-import com.graphaware.module.relcount.count.OptimizedNaiveRelationshipCounter;
 import com.graphaware.module.relcount.count.RelationshipCounter;
 import com.graphaware.runtime.GraphAwareRuntime;
 import com.graphaware.runtime.GraphAwareRuntimeFactory;
@@ -52,8 +52,8 @@ public class CountRelationships extends RelcountPerformanceTest {
 
     enum RuntimeInvolvement {
         NO_FRAMEWORK,
+        NAIVE_LEGACY,
         NAIVE,
-        NAIVE_OPTIMIZED,
         CACHED
     }
 
@@ -151,11 +151,11 @@ public class CountRelationships extends RelcountPerformanceTest {
                         case CACHED:
                             countUsingRuntime(database, params, new CachedRelationshipCounter(database));
                             break;
+                        case NAIVE_LEGACY:
+                            countUsingRuntime(database, params, new LegacyNaiveRelationshipCounter(database));
+                            break;
                         case NAIVE:
                             countUsingRuntime(database, params, new NaiveRelationshipCounter(database));
-                            break;
-                        case NAIVE_OPTIMIZED:
-                            countUsingRuntime(database, params, new OptimizedNaiveRelationshipCounter(database));
                             break;
                         default:
                             throw new RuntimeException("unknown option");

@@ -20,9 +20,14 @@ import com.graphaware.module.relcount.RelationshipCountModule;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 /**
- * {@link BaseFallbackRelationshipCounter} using {@link OptimizedNaiveRelationshipCounter}.
+ * {@link BaseFallbackRelationshipCounter} using {@link LegacyNaiveRelationshipCounter}.
+ * <p/>
+ * Note that it is called legacy, because it is superseded by {@link FallbackRelationshipCounter} as of Neo4j 2.1
+ *
+ * @deprecated in favour of {@link FallbackRelationshipCounter}.
  */
-public class OptimizedFallbackRelationshipCounter extends BaseFallbackRelationshipCounter {
+@Deprecated
+public class LegacyFallbackRelationshipCounter extends BaseFallbackRelationshipCounter {
 
     /**
      * Construct a new relationship counter. Use this constructor when
@@ -30,7 +35,7 @@ public class OptimizedFallbackRelationshipCounter extends BaseFallbackRelationsh
      *
      * @param database on which the module is running.
      */
-    public OptimizedFallbackRelationshipCounter(GraphDatabaseService database) {
+    public LegacyFallbackRelationshipCounter(GraphDatabaseService database) {
         this(database, RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID);
     }
 
@@ -42,7 +47,7 @@ public class OptimizedFallbackRelationshipCounter extends BaseFallbackRelationsh
      * @param database on which the module is running.
      * @param id       of the {@link com.graphaware.module.relcount.RelationshipCountModule} used to cache relationship counts.
      */
-    public OptimizedFallbackRelationshipCounter(GraphDatabaseService database, String id) {
-        super(new OptimizedNaiveRelationshipCounter(database, id), new CachedRelationshipCounter(database, id));
+    public LegacyFallbackRelationshipCounter(GraphDatabaseService database, String id) {
+        super(new LegacyNaiveRelationshipCounter(database, id), new CachedRelationshipCounter(database, id));
     }
 }

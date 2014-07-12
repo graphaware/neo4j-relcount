@@ -457,7 +457,7 @@ The following charts present performance testing results on Neo4j 2.1.2:
 
 #### Write Throughput
 
-Not much has changed in terms of write throughput:
+Not much has changed in terms of write throughput. It is clear that caching the relationship counts causes overhead:
 
 ![Figure 4](src/test/resources/perf/2_1/figure_1.png)
 ![Figure 5](src/test/resources/perf/2_1/figure_2.png)

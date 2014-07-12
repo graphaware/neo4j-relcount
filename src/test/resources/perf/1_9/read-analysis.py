@@ -30,13 +30,13 @@ storage = "SINGLE_PROP"
 props = "TWO_PROPS"
 
 plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "NO_FRAMEWORK"), "purple", ":")
-# plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "NAIVE"), "purple","-.")
+# plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "NAIVE_LEGACY"), "purple","-.")
 plot(f(f(f(f(resultsAsArray, storage), props), "nocache"), "CACHED"), "purple", "-")
 plot(f(f(f(f(resultsAsArray, storage), props), "lowcache"), "NO_FRAMEWORK"), "green", ":")
-# plot(f(f(f(f(resultsAsArray, storage), props), "lowcache"), "NAIVE"), "green","-.")
+# plot(f(f(f(f(resultsAsArray, storage), props), "lowcache"), "NAIVE_LEGACY"), "green","-.")
 plot(f(f(f(f(resultsAsArray, storage), props), "lowcache"), "CACHED"), "green", "-")
 plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "NO_FRAMEWORK"), "blue", ":")
-# plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "NAIVE"), "blue","-.")
+# plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "NAIVE_LEGACY"), "blue","-.")
 plot(f(f(f(f(resultsAsArray, storage), props), "highcache"), "CACHED"), "blue", "-")
 
 plt.xlabel('Relationships per Node')

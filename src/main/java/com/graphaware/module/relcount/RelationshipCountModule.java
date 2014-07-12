@@ -32,7 +32,7 @@ import static org.neo4j.tooling.GlobalGraphOperations.at;
  * and properties.
  * <p/>
  * Once registered with {@link com.graphaware.runtime.GraphAwareRuntime}, relationship
- * counts will be cached on nodes properties. {@link com.graphaware.module.relcount.count.CachedRelationshipCounter} or {@link com.graphaware.module.relcount.count.FallbackRelationshipCounter} can then be used to
+ * counts will be cached on nodes properties. {@link com.graphaware.module.relcount.count.CachedRelationshipCounter} or {@link com.graphaware.module.relcount.count.LegacyFallbackRelationshipCounter} can then be used to
  * count relationships by querying these cached counts.
  */
 public class RelationshipCountModule extends BaseRuntimeConfigured implements BatchSupportingTxDrivenModule<Void>, RuntimeConfigured {

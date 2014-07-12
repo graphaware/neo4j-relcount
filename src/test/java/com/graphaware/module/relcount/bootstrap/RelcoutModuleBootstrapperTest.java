@@ -1,11 +1,6 @@
 package com.graphaware.module.relcount.bootstrap;
 
-import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
-import com.graphaware.module.relcount.count.CachedRelationshipCounter;
-import com.graphaware.module.relcount.count.FallbackRelationshipCounter;
-import com.graphaware.module.relcount.count.NaiveRelationshipCounter;
-import com.graphaware.module.relcount.count.RelationshipCounter;
-import com.graphaware.runtime.config.DefaultRuntimeConfiguration;
+import com.graphaware.module.relcount.count.*;
 import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
 import com.graphaware.tx.executor.single.VoidReturningCallback;
 import org.junit.After;
@@ -51,8 +46,10 @@ public class RelcoutModuleBootstrapperTest {
     public void defaultRuntimeOnExistingDatabase() {
         simulateUsage();
 
+        verifyCounts(new LegacyNaiveRelationshipCounter(database));
         verifyCounts(new NaiveRelationshipCounter(database));
         verifyCounts(new CachedRelationshipCounter(database, "relcount"));
+        verifyCounts(new LegacyFallbackRelationshipCounter(database, "relcount"));
         verifyCounts(new FallbackRelationshipCounter(database, "relcount"));
     }
 

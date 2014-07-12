@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * {@link com.graphaware.module.relcount.count.RelationshipCounter} that counts matching relationships by first trying to use {@link com.graphaware.module.relcount.count.CachedRelationshipCounter}
- * and if that fails (i.e., throws a {@link com.graphaware.module.relcount.count.UnableToCountException}), resorts to {@link com.graphaware.module.relcount.count.NaiveRelationshipCounter}.
+ * and if that fails (i.e., throws a {@link com.graphaware.module.relcount.count.UnableToCountException}), resorts to {@link LegacyNaiveRelationshipCounter}.
  * It is designed to be used as a "singleton", i.e., do not create a new instance every time you want to count.
  * <p/>
  * It should be used in conjunction with {@link com.graphaware.module.relcount.RelationshipCountModule}
@@ -41,10 +41,10 @@ public abstract class BaseFallbackRelationshipCounter implements RelationshipCou
 
     private static final Logger LOG = LoggerFactory.getLogger(BaseFallbackRelationshipCounter.class);
 
-    private final NaiveRelationshipCounter naiveRelationshipCounter;
+    private final LegacyNaiveRelationshipCounter naiveRelationshipCounter;
     private final CachedRelationshipCounter cachedRelationshipCounter;
 
-    protected BaseFallbackRelationshipCounter(NaiveRelationshipCounter naiveRelationshipCounter, CachedRelationshipCounter cachedRelationshipCounter) {
+    protected BaseFallbackRelationshipCounter(LegacyNaiveRelationshipCounter naiveRelationshipCounter, CachedRelationshipCounter cachedRelationshipCounter) {
         this.naiveRelationshipCounter = naiveRelationshipCounter;
         this.cachedRelationshipCounter = cachedRelationshipCounter;
     }

@@ -4,7 +4,6 @@ import com.graphaware.common.strategy.RelationshipInclusionStrategy;
 import com.graphaware.common.strategy.RelationshipPropertyInclusionStrategy;
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountModule;
-import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.module.relcount.compact.ThresholdBasedCompactionStrategy;
 import com.graphaware.runtime.GraphAwareRuntime;
 import com.graphaware.runtime.GraphAwareRuntimeFactory;
@@ -12,7 +11,6 @@ import com.graphaware.tx.event.batch.api.TransactionSimulatingBatchInserter;
 import com.graphaware.tx.event.batch.api.TransactionSimulatingBatchInserterImpl;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.neo4j.graphdb.*;
@@ -79,6 +77,7 @@ public class RelationshipCountBatchIntegrationTest {
         simulateInserts();
         startDatabase();
 
+        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
         verifyCounts(1, new NaiveRelationshipCounter(database));
     }
 
@@ -87,6 +86,13 @@ public class RelationshipCountBatchIntegrationTest {
         setUpTwoNodes();
         simulateInserts();
         startDatabase();
+
+        verifyCounts(2, new LegacyNaiveRelationshipCounter(database, new WeighingStrategy() {
+            @Override
+            public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
+                return 2;
+            }
+        }));
 
         verifyCounts(2, new NaiveRelationshipCounter(database, new WeighingStrategy() {
             @Override
@@ -111,6 +117,7 @@ public class RelationshipCountBatchIntegrationTest {
         simulateInserts();
         startDatabase();
 
+        verifyCounts(0, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(0, new FallbackRelationshipCounter(database));
     }
 
@@ -136,8 +143,10 @@ public class RelationshipCountBatchIntegrationTest {
 
         startDatabase();
 
+        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
         verifyCounts(1, new NaiveRelationshipCounter(database));
         verifyCounts(1, new CachedRelationshipCounter(database));
+        verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
     }
 
@@ -152,8 +161,10 @@ public class RelationshipCountBatchIntegrationTest {
         simulateInserts();
         startDatabase();
 
+        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
         verifyCounts(1, new NaiveRelationshipCounter(database));
         verifyCounts(1, new CachedRelationshipCounter(database));
+        verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
     }
 
@@ -168,8 +179,10 @@ public class RelationshipCountBatchIntegrationTest {
         simulateInserts();
         startDatabase();
 
+        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
         verifyCounts(1, new NaiveRelationshipCounter(database));
         verifyCounts(1, new CachedRelationshipCounter(database));
+        verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
 
         database.shutdown();
@@ -183,8 +196,10 @@ public class RelationshipCountBatchIntegrationTest {
 
         startDatabase();
 
+        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
         verifyCounts(1, new NaiveRelationshipCounter(database));
         verifyCompactedCounts(1, new CachedRelationshipCounter(database));
+        verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
 
         database.shutdown();
@@ -198,8 +213,10 @@ public class RelationshipCountBatchIntegrationTest {
 
         startDatabase();
 
+        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
         verifyCounts(1, new NaiveRelationshipCounter(database));
         verifyCounts(1, new CachedRelationshipCounter(database));
+        verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
     }
 
@@ -215,8 +232,10 @@ public class RelationshipCountBatchIntegrationTest {
 
         startDatabase();
 
+        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
         verifyCounts(1, new NaiveRelationshipCounter(database));
         verifyCounts(1, new CachedRelationshipCounter(database));
+        verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
     }
 
@@ -231,8 +250,10 @@ public class RelationshipCountBatchIntegrationTest {
         simulateInserts();
         startDatabase();
 
+        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
         verifyCounts(1, new NaiveRelationshipCounter(database));
         verifyCounts(1, new CachedRelationshipCounter(database));
+        verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
     }
 
@@ -248,8 +269,10 @@ public class RelationshipCountBatchIntegrationTest {
 
         startDatabase();
 
+        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
         verifyCounts(1, new NaiveRelationshipCounter(database));
         verifyCounts(1, new CachedRelationshipCounter(database));
+        verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
     }
 
@@ -273,8 +296,10 @@ public class RelationshipCountBatchIntegrationTest {
         startDatabase();
 
         verifyWeightedCounts(1, new NaiveRelationshipCounter(database));
+        verifyWeightedCounts(1, new LegacyNaiveRelationshipCounter(database));
         verifyWeightedCounts(1, new CachedRelationshipCounter(database));
         verifyWeightedCounts(1, new FallbackRelationshipCounter(database));
+        verifyWeightedCounts(1, new LegacyFallbackRelationshipCounter(database));
     }
 
 
@@ -291,8 +316,10 @@ public class RelationshipCountBatchIntegrationTest {
         simulateInserts();
         startDatabase();
 
+        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
         verifyCounts(1, new NaiveRelationshipCounter(database));
         verifyCompactedCounts(1, new CachedRelationshipCounter(database));
+        verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
     }
 
@@ -310,8 +337,10 @@ public class RelationshipCountBatchIntegrationTest {
         simulateInserts();
         startDatabase();
 
+        verifyCounts(2, new LegacyNaiveRelationshipCounter(database));
         verifyCounts(2, new NaiveRelationshipCounter(database));
         verifyCompactedCounts(2, new CachedRelationshipCounter(database));
+        verifyCounts(2, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(2, new FallbackRelationshipCounter(database));
     }
 
@@ -364,7 +393,9 @@ public class RelationshipCountBatchIntegrationTest {
         simulateInserts();
         startDatabase();
 
+        verifyWeightedCounts(4, new LegacyFallbackRelationshipCounter(database));
         verifyWeightedCounts(4, new FallbackRelationshipCounter(database));
+        verifyWeightedCounts(4, new LegacyNaiveRelationshipCounter(database));
         verifyWeightedCounts(4, new NaiveRelationshipCounter(database));
     }
 
@@ -390,12 +421,16 @@ public class RelationshipCountBatchIntegrationTest {
         simulateInserts();
         startDatabase();
 
+        verifyCounts(2, new LegacyNaiveRelationshipCounter(database, "M1"));
         verifyCounts(2, new NaiveRelationshipCounter(database, "M1"));
         verifyCounts(2, new CachedRelationshipCounter(database, "M1"));
+        verifyCounts(2, new LegacyFallbackRelationshipCounter(database, "M1"));
         verifyCounts(2, new FallbackRelationshipCounter(database, "M1"));
 
+        verifyWeightedCounts(2, new LegacyNaiveRelationshipCounter(database, "M2"));
         verifyWeightedCounts(2, new NaiveRelationshipCounter(database, "M2"));
         verifyWeightedCounts(2, new CachedRelationshipCounter(database, "M2"));
+        verifyWeightedCounts(2, new LegacyFallbackRelationshipCounter(database, "M2"));
         verifyWeightedCounts(2, new FallbackRelationshipCounter(database, "M2"));
     }
 
@@ -422,7 +457,9 @@ public class RelationshipCountBatchIntegrationTest {
         try (Transaction tx = database.beginTx()) {
 
             //naive doesn't care about this strategy
+            assertEquals(2, new LegacyNaiveRelationshipCounter(database).count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
             assertEquals(2, new NaiveRelationshipCounter(database).count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
+            assertEquals(0, new LegacyFallbackRelationshipCounter(database).count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
             assertEquals(0, new FallbackRelationshipCounter(database).count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
             assertEquals(0, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
 
@@ -454,9 +491,13 @@ public class RelationshipCountBatchIntegrationTest {
         try (Transaction tx = database.beginTx()) {
 
             //naive doesn't care about this strategy
+            assertEquals(2, new LegacyNaiveRelationshipCounter(database).count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
             assertEquals(2, new NaiveRelationshipCounter(database).count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+            assertEquals(2, new LegacyNaiveRelationshipCounter(database).count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
             assertEquals(2, new NaiveRelationshipCounter(database).count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+            assertEquals(0, new LegacyFallbackRelationshipCounter(database).count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
             assertEquals(0, new FallbackRelationshipCounter(database).count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+            assertEquals(0, new LegacyFallbackRelationshipCounter(database).count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
             assertEquals(0, new FallbackRelationshipCounter(database).count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
             assertEquals(0, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
             assertEquals(0, new CachedRelationshipCounter(database).count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
@@ -480,8 +521,10 @@ public class RelationshipCountBatchIntegrationTest {
 
         startDatabase();
 
+        verifyCounts(100, new LegacyNaiveRelationshipCounter(database));
         verifyCounts(100, new NaiveRelationshipCounter(database));
         verifyCounts(100, new CachedRelationshipCounter(database));
+        verifyCounts(100, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(100, new FallbackRelationshipCounter(database));
     }
 
@@ -502,12 +545,16 @@ public class RelationshipCountBatchIntegrationTest {
 
         startDatabase();
 
+        verifyCounts(20, new LegacyNaiveRelationshipCounter(database, "M1"));
         verifyCounts(20, new NaiveRelationshipCounter(database, "M1"));
         verifyCompactedCounts(20, new CachedRelationshipCounter(database, "M1"));
+        verifyCounts(20, new LegacyFallbackRelationshipCounter(database, "M1"));
         verifyCounts(20, new FallbackRelationshipCounter(database, "M1"));
 
+        verifyCounts(20, new LegacyNaiveRelationshipCounter(database, "M2"));
         verifyCounts(20, new NaiveRelationshipCounter(database, "M2"));
         verifyCompactedCounts(20, new CachedRelationshipCounter(database, "M2"));
+        verifyCounts(20, new LegacyFallbackRelationshipCounter(database, "M2"));
         verifyCounts(20, new FallbackRelationshipCounter(database, "M2"));
     }
 
