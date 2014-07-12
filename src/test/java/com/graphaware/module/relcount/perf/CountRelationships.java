@@ -172,14 +172,14 @@ public class CountRelationships extends RelcountPerformanceTest {
 
         try (Transaction tx = database.beginTx()) {
             final Node node = randomNode(database, NO_NODES);
-            for (Relationship r : node.getRelationships(randomType(), randomDirection())) {
-                if (Properties.TWO_PROPS.equals(params.get(PROPS))) {
+            if (Properties.TWO_PROPS.equals(params.get(PROPS))) {
+                for (Relationship r : node.getRelationships(randomType(), randomDirection())) {
                     if (RANDOM.nextInt(2) == r.getProperty("rating", null) && RANDOM.nextInt(2) == r.getProperty("another", null)) {
                         result.incrementAndGet();
                     }
-                } else {
-                    result.incrementAndGet();
                 }
+            } else {
+                result.addAndGet(node.getDegree(randomType(), randomDirection()));
             }
 
             tx.success();
