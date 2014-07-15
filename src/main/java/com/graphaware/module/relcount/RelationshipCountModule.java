@@ -84,6 +84,22 @@ public class RelationshipCountModule extends BaseRuntimeConfigured implements Ba
      * {@inheritDoc}
      */
     @Override
+    public void start(TransactionSimulatingBatchInserter batchInserter) {
+        //do nothing
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void start(GraphDatabaseService database) {
+        //do nothing
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void shutdown() {
         //do nothing
     }
@@ -161,6 +177,14 @@ public class RelationshipCountModule extends BaseRuntimeConfigured implements Ba
      */
     @Override
     public void afterCommit(Void state) {
+        //do nothing
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void afterRollback(Void state) {
         //do nothing
     }
 
