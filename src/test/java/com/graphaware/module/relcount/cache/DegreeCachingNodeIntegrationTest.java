@@ -25,7 +25,7 @@ import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.module.relcount.count.CachedRelationshipCounter;
 import com.graphaware.module.relcount.count.RelationshipCounter;
 import com.graphaware.runtime.BaseGraphAwareRuntime;
-import com.graphaware.runtime.config.DefaultRuntimeConfiguration;
+import com.graphaware.runtime.config.FluentRuntimeConfiguration;
 import com.graphaware.runtime.config.RuntimeConfiguration;
 import com.graphaware.runtime.metadata.DefaultTimerDrivenModuleMetadata;
 import com.graphaware.runtime.metadata.DefaultTxDrivenModuleMetadata;
@@ -407,7 +407,7 @@ public abstract class DegreeCachingNodeIntegrationTest {
 
     private void setUpModuleConfig() {
         try (Transaction tx = database.beginTx()) {
-            new ProductionSingleNodeMetadataRepository(database, DefaultRuntimeConfiguration.getInstance(), RuntimeConfiguration.TX_MODULES_PROPERTY_PREFIX)
+            new ProductionSingleNodeMetadataRepository(database, FluentRuntimeConfiguration.defaultConfiguration(), RuntimeConfiguration.TX_MODULES_PROPERTY_PREFIX)
             .persistModuleMetadata(RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID, new DefaultTxDrivenModuleMetadata(getConfiguration()));
             tx.success();
         }

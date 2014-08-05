@@ -20,7 +20,7 @@ import com.graphaware.common.description.relationship.DetachedRelationshipDescri
 import com.graphaware.common.description.relationship.RelationshipDescription;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
 import com.graphaware.module.relcount.cache.DegreeCachingNode;
-import com.graphaware.runtime.config.DefaultRuntimeConfiguration;
+import com.graphaware.runtime.config.FluentRuntimeConfiguration;
 import com.graphaware.runtime.config.RuntimeConfiguration;
 import com.graphaware.runtime.metadata.ModuleMetadataRepository;
 import com.graphaware.runtime.metadata.ProductionSingleNodeMetadataRepository;
@@ -72,7 +72,7 @@ public class CachedRelationshipCounter implements RelationshipCounter {
      */
     public CachedRelationshipCounter(GraphDatabaseService database, String id) {
         this.id = id;
-        this.config = DefaultRuntimeConfiguration.getInstance();
+        this.config = FluentRuntimeConfiguration.defaultConfiguration();
 
         try (Transaction tx = database.beginTx()) {
             ModuleMetadataRepository metadataRepository = new ProductionSingleNodeMetadataRepository(database, config, RuntimeConfiguration.TX_MODULES_PROPERTY_PREFIX);

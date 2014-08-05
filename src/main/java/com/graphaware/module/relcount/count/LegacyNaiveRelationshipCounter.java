@@ -22,7 +22,7 @@ import com.graphaware.common.description.relationship.RelationshipDescription;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountModule;
-import com.graphaware.runtime.config.DefaultRuntimeConfiguration;
+import com.graphaware.runtime.config.FluentRuntimeConfiguration;
 import com.graphaware.runtime.config.RuntimeConfiguration;
 import com.graphaware.runtime.metadata.ProductionSingleNodeMetadataRepository;
 import com.graphaware.runtime.metadata.TxDrivenModuleMetadata;
@@ -82,7 +82,7 @@ public class LegacyNaiveRelationshipCounter implements RelationshipCounter {
      */
     protected LegacyNaiveRelationshipCounter(GraphDatabaseService database, String id, WeighingStrategy weighingStrategy) {
         try (Transaction tx = database.beginTx()) {
-            TxDrivenModuleMetadata moduleMetadata = new ProductionSingleNodeMetadataRepository(database, DefaultRuntimeConfiguration.getInstance(), RuntimeConfiguration.TX_MODULES_PROPERTY_PREFIX).getModuleMetadata(id);
+            TxDrivenModuleMetadata moduleMetadata = new ProductionSingleNodeMetadataRepository(database, FluentRuntimeConfiguration.defaultConfiguration(), RuntimeConfiguration.TX_MODULES_PROPERTY_PREFIX).getModuleMetadata(id);
             if (moduleMetadata == null || moduleMetadata.getConfig() == null) {
                 this.relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(weighingStrategy);
             } else {

@@ -23,7 +23,7 @@ import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.module.relcount.compact.ThresholdBasedCompactionStrategy;
 import com.graphaware.runtime.GraphAwareRuntime;
 import com.graphaware.runtime.GraphAwareRuntimeFactory;
-import com.graphaware.runtime.config.DefaultRuntimeConfiguration;
+import com.graphaware.runtime.config.FluentRuntimeConfiguration;
 import com.graphaware.test.util.TestDataBuilder;
 import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
 import com.graphaware.tx.executor.single.TransactionCallback;
@@ -624,6 +624,6 @@ public class CachedRelationshipCounterTest {
     }
 
     private String serialize(RelationshipDescription description) {
-        return Serializer.toString(description, DefaultRuntimeConfiguration.getInstance().createPrefix(RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID));
+        return Serializer.toString(description, FluentRuntimeConfiguration.defaultConfiguration().createPrefix(RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID));
     }
 }

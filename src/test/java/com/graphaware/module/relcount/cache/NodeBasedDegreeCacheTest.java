@@ -5,7 +5,7 @@ import com.graphaware.common.wrapper.NodeWrapper;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.count.WeighingStrategy;
-import com.graphaware.runtime.config.DefaultRuntimeConfiguration;
+import com.graphaware.runtime.config.FluentRuntimeConfiguration;
 import com.graphaware.runtime.config.RuntimeConfiguration;
 import org.junit.After;
 import org.junit.Before;
@@ -34,7 +34,7 @@ public class NodeBasedDegreeCacheTest {
     @Before
     public void setUp() {
         cache = new TestNodeBasedDegreeCache("TEST_ID", RelationshipCountConfigurationImpl.defaultConfiguration());
-        cache.configurationChanged(DefaultRuntimeConfiguration.getInstance());
+        cache.configurationChanged(FluentRuntimeConfiguration.defaultConfiguration());
 
         mockDegreeCachingNode = mock(DegreeCachingNode.class);
     }
@@ -136,7 +136,7 @@ public class NodeBasedDegreeCacheTest {
                     }
                 }
         ), true);
-        cache.configurationChanged(DefaultRuntimeConfiguration.getInstance());
+        cache.configurationChanged(FluentRuntimeConfiguration.defaultConfiguration());
 
         Node mockStartNode = mock(Node.class);
         when(mockStartNode.getId()).thenReturn(123L);
@@ -204,7 +204,7 @@ public class NodeBasedDegreeCacheTest {
                     }
                 }
         ), true);
-        cache.configurationChanged(DefaultRuntimeConfiguration.getInstance());
+        cache.configurationChanged(FluentRuntimeConfiguration.defaultConfiguration());
 
         Node mockStartNode = mock(Node.class);
         when(mockStartNode.getId()).thenReturn(123L);
