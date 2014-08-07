@@ -22,6 +22,7 @@ import com.graphaware.common.description.relationship.RelationshipDescription;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountModule;
+import com.graphaware.runtime.ProductionRuntime;
 import com.graphaware.runtime.config.FluentRuntimeConfiguration;
 import com.graphaware.runtime.config.RuntimeConfiguration;
 import com.graphaware.runtime.metadata.ProductionSingleNodeMetadataRepository;
@@ -81,14 +82,21 @@ public class LegacyNaiveRelationshipCounter implements RelationshipCounter {
      * Construct a new relationship counter.
      */
     protected LegacyNaiveRelationshipCounter(GraphDatabaseService database, String id, WeighingStrategy weighingStrategy) {
-        try (Transaction tx = database.beginTx()) {
-            TxDrivenModuleMetadata moduleMetadata = new ProductionSingleNodeMetadataRepository(database, FluentRuntimeConfiguration.defaultConfiguration(), RuntimeConfiguration.TX_MODULES_PROPERTY_PREFIX).getModuleMetadata(id);
-            if (moduleMetadata == null || moduleMetadata.getConfig() == null) {
-                this.relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(weighingStrategy);
-            } else {
-                this.relationshipCountConfiguration = (RelationshipCountConfiguration) moduleMetadata.getConfig();
+        ProductionRuntime runtime = ProductionRuntime.getRuntime(database);
+        if (runtime == null) {
+            this.relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(weighingStrategy);
+        } else {
+            runtime.waitUntilStarted();
+
+            try (Transaction tx = database.beginTx()) {
+                TxDrivenModuleMetadata moduleMetadata = new ProductionSingleNodeMetadataRepository(database, FluentRuntimeConfiguration.defaultConfiguration(), RuntimeConfiguration.TX_MODULES_PROPERTY_PREFIX).getModuleMetadata(id);
+                if (moduleMetadata == null || moduleMetadata.getConfig() == null) {
+                    this.relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(weighingStrategy);
+                } else {
+                    this.relationshipCountConfiguration = (RelationshipCountConfiguration) moduleMetadata.getConfig();
+                }
+                tx.success();
             }
-            tx.success();
         }
     }
 

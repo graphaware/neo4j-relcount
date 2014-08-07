@@ -295,6 +295,10 @@ public class RelationshipCountBatchIntegrationTest {
         simulateInserts();
         startDatabase();
 
+        runtime = GraphAwareRuntimeFactory.createRuntime(database);
+        runtime.registerModule(module);
+        runtime.start();
+
         verifyWeightedCounts(1, new NaiveRelationshipCounter(database));
         verifyWeightedCounts(1, new LegacyNaiveRelationshipCounter(database));
         verifyWeightedCounts(1, new CachedRelationshipCounter(database));
