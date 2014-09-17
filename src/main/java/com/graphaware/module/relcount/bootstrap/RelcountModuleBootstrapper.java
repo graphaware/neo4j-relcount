@@ -18,8 +18,9 @@ package com.graphaware.module.relcount.bootstrap;
 
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountModule;
-import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.module.relcount.compact.ThresholdBasedCompactionStrategy;
+import com.graphaware.runtime.config.function.StringToRelationshipInclusionStrategy;
+import com.graphaware.runtime.config.function.StringToRelationshipPropertyInclusionStrategy;
 import com.graphaware.runtime.module.RuntimeModule;
 import com.graphaware.runtime.module.RuntimeModuleBootstrapper;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -32,6 +33,8 @@ import java.util.Map;
 public class RelcountModuleBootstrapper implements RuntimeModuleBootstrapper {
 
     private static final String THRESHOLD = "threshold";
+    private static final String RELATIONSHIP = "relationship";
+    private static final String RELATIONSHIP_PROPERTY = "relationship.property";
 
     /**
      * {@inheritDoc}
@@ -42,6 +45,14 @@ public class RelcountModuleBootstrapper implements RuntimeModuleBootstrapper {
 
         if (config.containsKey(THRESHOLD)) {
             relationshipCountStrategies = relationshipCountStrategies.with(new ThresholdBasedCompactionStrategy(Integer.valueOf(config.get(THRESHOLD))));
+        }
+
+        if (config.containsKey(RELATIONSHIP)) {
+            relationshipCountStrategies = relationshipCountStrategies.with(StringToRelationshipInclusionStrategy.getInstance().apply(config.get(RELATIONSHIP)));
+        }
+
+        if (config.containsKey(RELATIONSHIP_PROPERTY)) {
+            relationshipCountStrategies = relationshipCountStrategies.with(StringToRelationshipPropertyInclusionStrategy.getInstance().apply(config.get(RELATIONSHIP_PROPERTY)));
         }
 
         return new RelationshipCountModule(moduleId, relationshipCountStrategies);

@@ -2,6 +2,8 @@ package com.graphaware.module.relcount;
 
 
 import com.graphaware.common.strategy.*;
+import com.graphaware.common.strategy.none.IncludeNoNodeProperties;
+import com.graphaware.common.strategy.none.IncludeNoNodes;
 import com.graphaware.module.relcount.cache.DegreeCachingStrategy;
 import com.graphaware.module.relcount.cache.SingleNodePropertyDegreeCachingStrategy;
 import com.graphaware.module.relcount.compact.CompactionStrategy;
