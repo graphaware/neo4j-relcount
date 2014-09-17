@@ -29,6 +29,11 @@ Finally, add the following to your neo4j.propoerties:
 ```
 com.graphaware.runtime.enabled=true
 com.graphaware.module.relcount.1=com.graphaware.module.relcount.bootstrap.RelcountModuleBootstrapper
+
+#optional configuration of threshold and relationships / relationship properties to take into account:
+com.graphaware.module.relcount.threshold=10
+com.graphaware.module.relcount.relationship=isType('R1')
+com.graphaware.module.relcount.relationship.property=key != 'timestamp'
 ```
 
 ### Embedded Mode / Java Development
