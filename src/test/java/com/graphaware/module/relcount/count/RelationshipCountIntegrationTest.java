@@ -1,7 +1,7 @@
 package com.graphaware.module.relcount.count;
 
-import com.graphaware.common.strategy.RelationshipInclusionStrategy;
-import com.graphaware.common.strategy.RelationshipPropertyInclusionStrategy;
+import com.graphaware.common.policy.RelationshipInclusionPolicy;
+import com.graphaware.common.policy.RelationshipPropertyInclusionPolicy;
 import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.module.relcount.compact.ThresholdBasedCompactionStrategy;
 import com.graphaware.runtime.GraphAwareRuntime;
@@ -441,11 +441,11 @@ public class RelationshipCountIntegrationTest {
     }
 
     @Test
-    public void customRelationshipInclusionStrategy() {
+    public void customRelationshipInclusionPolicy() {
         GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
         final RelationshipCountModule module = new RelationshipCountModule(
                 defaultConfiguration()
-                        .with(new RelationshipInclusionStrategy() {
+                        .with(new RelationshipInclusionPolicy.Adapter() {
                             @Override
                             public boolean include(Relationship relationship) {
                                 return !relationship.isType(TWO);
@@ -472,11 +472,11 @@ public class RelationshipCountIntegrationTest {
     }
 
     @Test
-    public void customRelationshipPropertiesInclusionStrategy() {
+    public void customRelationshipPropertiesInclusionPolicy() {
         GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
         final RelationshipCountModule module = new RelationshipCountModule(
                 defaultConfiguration()
-                        .with(new RelationshipPropertyInclusionStrategy() {
+                        .with(new RelationshipPropertyInclusionPolicy() {
                             @Override
                             public boolean include(String key, Relationship propertyContainer) {
                                 return !WEIGHT.equals(key);

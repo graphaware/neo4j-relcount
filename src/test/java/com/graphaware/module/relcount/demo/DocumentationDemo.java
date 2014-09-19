@@ -2,8 +2,8 @@ package com.graphaware.module.relcount.demo;
 
 import com.graphaware.common.description.relationship.RelationshipDescription;
 import com.graphaware.common.description.relationship.RelationshipDescriptionFactory;
-import com.graphaware.common.strategy.RelationshipInclusionStrategy;
-import com.graphaware.common.strategy.RelationshipPropertyInclusionStrategy;
+import com.graphaware.common.policy.RelationshipInclusionPolicy;
+import com.graphaware.common.policy.RelationshipPropertyInclusionPolicy;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountModule;
@@ -157,10 +157,10 @@ public class DocumentationDemo extends BaseDocumentationDemo {
     }
 
     @Test
-    public void demonstrateFullCachedRelationshipCounterWithCustomRelationshipInclusionStrategy() {
+    public void demonstrateFullCachedRelationshipCounterWithCustomRelationshipInclusionPolicy() {
         GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
 
-        RelationshipInclusionStrategy customRelationshipInclusionStrategy = new RelationshipInclusionStrategy() {
+        RelationshipInclusionPolicy customRelationshipInclusionPolicy = new RelationshipInclusionPolicy.Adapter() {
             @Override
             public boolean include(Relationship relationship) {
                 return relationship.isType(FOLLOWS);
@@ -168,7 +168,7 @@ public class DocumentationDemo extends BaseDocumentationDemo {
         };
 
         RelationshipCountConfiguration config = RelationshipCountConfigurationImpl.defaultConfiguration()
-                .with(customRelationshipInclusionStrategy);
+                .with(customRelationshipInclusionPolicy);
 
         RelationshipCountModule module = new RelationshipCountModule(config);
 
@@ -194,10 +194,10 @@ public class DocumentationDemo extends BaseDocumentationDemo {
     }
 
     @Test
-    public void demonstrateFullCachedRelationshipCounterWithCustomRelationshipPropertyInclusionStrategy() {
+    public void demonstrateFullCachedRelationshipCounterWithCustomRelationshipPropertyInclusionPolicy() {
         GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
 
-        RelationshipPropertyInclusionStrategy propertyInclusionStrategy = new RelationshipPropertyInclusionStrategy() {
+        RelationshipPropertyInclusionPolicy propertyInclusionPolicy = new RelationshipPropertyInclusionPolicy() {
             @Override
             public boolean include(String key, Relationship propertyContainer) {
                 return !"timestamp".equals(key);
@@ -205,7 +205,7 @@ public class DocumentationDemo extends BaseDocumentationDemo {
         };
 
         RelationshipCountConfiguration config = RelationshipCountConfigurationImpl.defaultConfiguration()
-                .with(propertyInclusionStrategy);
+                .with(propertyInclusionPolicy);
 
         RelationshipCountModule module = new RelationshipCountModule(config);
 

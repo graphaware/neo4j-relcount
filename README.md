@@ -323,14 +323,14 @@ runtime.start();
 
 ### Excluding Relationships
 
-To exclude certain relationships from the count caching process altogether, create a strategy that implements the
-`RelationshipInclusionStrategy`. For example, if you're only interested in FOLLOWS relationship counts and nothing else,
+To exclude certain relationships from the count caching process altogether, create a policy that implements the
+`RelationshipInclusionPolicy`. For example, if you're only interested in FOLLOWS relationship counts and nothing else,
 you could configure the module as follows:
 
 ```java
 GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
 
-RelationshipInclusionStrategy customRelationshipInclusionStrategy = new RelationshipInclusionStrategy() {
+RelationshipInclusionPolicy customRelationshipInclusionPolicy = new RelationshipInclusionPolicy.Adapter() {
     @Override
     public boolean include(Relationship relationship) {
         return relationship.isType(FOLLOWS);
@@ -338,7 +338,7 @@ RelationshipInclusionStrategy customRelationshipInclusionStrategy = new Relation
 };
 
 RelationshipCountConfiguration config = RelationshipCountConfigurationImpl.defaultConfiguration()
-        .with(customRelationshipInclusionStrategy);
+        .with(customRelationshipInclusionPolicy);
 
 RelationshipCountModule module = new RelationshipCountModule(config);
 
@@ -359,7 +359,7 @@ setting up the module in the following fashion:
 ```java
  GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
 
-RelationshipPropertyInclusionStrategy propertyInclusionStrategy = new RelationshipPropertyInclusionStrategy() {
+RelationshipPropertyInclusionPolicy propertyInclusionPolicy = new RelationshipPropertyInclusionPolicy() {
     @Override
     public boolean include(String key, Relationship propertyContainer) {
         return !"timestamp".equals(key);
@@ -367,7 +367,7 @@ RelationshipPropertyInclusionStrategy propertyInclusionStrategy = new Relationsh
 };
 
 RelationshipCountConfiguration config = RelationshipCountConfigurationImpl.defaultConfiguration()
-        .with(propertyInclusionStrategy);
+        .with(propertyInclusionPolicy);
 
 RelationshipCountModule module = new RelationshipCountModule(config);
 

@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * About fallback: Fallback to naive approach only happens if it is detected that compaction has taken place
  * (see {@link com.graphaware.module.relcount.cache.NodeBasedDegreeCache}) and the needed granularity has
  * been compacted out. There is a performance penalty to this fallback.
- * To avoid it, make sure the compaction threshold is set correctly. No fallback happens when a {@link com.graphaware.common.strategy.RelationshipInclusionStrategy} has been used that explicitly excludes
+ * To avoid it, make sure the compaction threshold is set correctly. No fallback happens when a {@link com.graphaware.common.policy.RelationshipInclusionPolicy} has been used that explicitly excludes
  * the relationships being counted (0 is returned). If you prefer an exception to fallback, use {@link com.graphaware.module.relcount.count.CachedRelationshipCounter}.
  */
 public abstract class BaseFallbackRelationshipCounter implements RelationshipCounter {

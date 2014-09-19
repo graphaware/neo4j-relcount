@@ -1,9 +1,8 @@
 package com.graphaware.module.relcount;
 
-
-import com.graphaware.common.strategy.*;
-import com.graphaware.common.strategy.none.IncludeNoNodeProperties;
-import com.graphaware.common.strategy.none.IncludeNoNodes;
+import com.graphaware.common.policy.InclusionPolicies;
+import com.graphaware.common.policy.none.IncludeNoNodeProperties;
+import com.graphaware.common.policy.none.IncludeNoNodes;
 import com.graphaware.module.relcount.cache.DegreeCachingStrategy;
 import com.graphaware.module.relcount.cache.SingleNodePropertyDegreeCachingStrategy;
 import com.graphaware.module.relcount.compact.CompactionStrategy;
@@ -11,8 +10,8 @@ import com.graphaware.module.relcount.compact.ThresholdBasedCompactionStrategy;
 import com.graphaware.module.relcount.count.OneForEach;
 import com.graphaware.module.relcount.count.WeighingStrategy;
 import com.graphaware.runtime.config.BaseTxDrivenModuleConfiguration;
-import com.graphaware.runtime.strategy.IncludeAllBusinessRelationshipProperties;
-import com.graphaware.runtime.strategy.IncludeAllBusinessRelationships;
+import com.graphaware.runtime.policy.all.IncludeAllBusinessRelationshipProperties;
+import com.graphaware.runtime.policy.all.IncludeAllBusinessRelationships;
 
 /**
  * {@link RelationshipCountConfiguration}, providing static factory method for a default configuration and "with"
@@ -33,7 +32,7 @@ public class RelationshipCountConfigurationImpl extends BaseTxDrivenModuleConfig
      */
     public static RelationshipCountConfigurationImpl defaultConfiguration() {
         return new RelationshipCountConfigurationImpl(
-                new InclusionStrategies(
+                new InclusionPolicies(
                         IncludeNoNodes.getInstance(),
                         IncludeNoNodeProperties.getInstance(),
                         IncludeAllBusinessRelationships.getInstance(),
@@ -47,13 +46,13 @@ public class RelationshipCountConfigurationImpl extends BaseTxDrivenModuleConfig
     /**
      * Constructor.
      *
-     * @param inclusionStrategies   strategies for what to include.
+     * @param inclusionPolicies   strategies for what to include.
      * @param degreeCachingStrategy strategy for caching degrees.
      * @param compactionStrategy    strategy for compacting cached counts.
      * @param weighingStrategy      strategy for weighing relationships.
      */
-    protected RelationshipCountConfigurationImpl(InclusionStrategies inclusionStrategies, DegreeCachingStrategy degreeCachingStrategy, CompactionStrategy compactionStrategy, WeighingStrategy weighingStrategy) {
-        super(inclusionStrategies);
+    protected RelationshipCountConfigurationImpl(InclusionPolicies inclusionPolicies, DegreeCachingStrategy degreeCachingStrategy, CompactionStrategy compactionStrategy, WeighingStrategy weighingStrategy) {
+        super(inclusionPolicies);
         this.degreeCachingStrategy = degreeCachingStrategy;
         this.compactionStrategy = compactionStrategy;
         this.weighingStrategy = weighingStrategy;
@@ -63,8 +62,8 @@ public class RelationshipCountConfigurationImpl extends BaseTxDrivenModuleConfig
      * {@inheritDoc}
      */
     @Override
-    protected RelationshipCountConfigurationImpl newInstance(InclusionStrategies inclusionStrategies) {
-        return new RelationshipCountConfigurationImpl(inclusionStrategies, getDegreeCachingStrategy(), getCompactionStrategy(), getWeighingStrategy());
+    protected RelationshipCountConfigurationImpl newInstance(InclusionPolicies inclusionPolicies) {
+        return new RelationshipCountConfigurationImpl(inclusionPolicies, getDegreeCachingStrategy(), getCompactionStrategy(), getWeighingStrategy());
     }
 
     /**
@@ -74,7 +73,7 @@ public class RelationshipCountConfigurationImpl extends BaseTxDrivenModuleConfig
      * @return reconfigured strategies.
      */
     public RelationshipCountConfigurationImpl with(DegreeCachingStrategy degreeCachingStrategy) {
-        return new RelationshipCountConfigurationImpl(getInclusionStrategies(), degreeCachingStrategy, getCompactionStrategy(), getWeighingStrategy());
+        return new RelationshipCountConfigurationImpl(getInclusionPolicies(), degreeCachingStrategy, getCompactionStrategy(), getWeighingStrategy());
     }
 
     /**
@@ -84,7 +83,7 @@ public class RelationshipCountConfigurationImpl extends BaseTxDrivenModuleConfig
      * @return reconfigured strategies.
      */
     public RelationshipCountConfigurationImpl with(CompactionStrategy compactionStrategy) {
-        return new RelationshipCountConfigurationImpl(getInclusionStrategies(), getDegreeCachingStrategy(), compactionStrategy, getWeighingStrategy());
+        return new RelationshipCountConfigurationImpl(getInclusionPolicies(), getDegreeCachingStrategy(), compactionStrategy, getWeighingStrategy());
     }
 
     /**
@@ -94,7 +93,7 @@ public class RelationshipCountConfigurationImpl extends BaseTxDrivenModuleConfig
      * @return reconfigured strategies.
      */
     public RelationshipCountConfigurationImpl withThreshold(int threshold) {
-        return new RelationshipCountConfigurationImpl(getInclusionStrategies(), getDegreeCachingStrategy(), new ThresholdBasedCompactionStrategy(threshold), getWeighingStrategy());
+        return new RelationshipCountConfigurationImpl(getInclusionPolicies(), getDegreeCachingStrategy(), new ThresholdBasedCompactionStrategy(threshold), getWeighingStrategy());
     }
 
     /**
@@ -104,7 +103,7 @@ public class RelationshipCountConfigurationImpl extends BaseTxDrivenModuleConfig
      * @return reconfigured strategies.
      */
     public RelationshipCountConfigurationImpl with(WeighingStrategy weighingStrategy) {
-        return new RelationshipCountConfigurationImpl(getInclusionStrategies(), getDegreeCachingStrategy(), getCompactionStrategy(), weighingStrategy);
+        return new RelationshipCountConfigurationImpl(getInclusionPolicies(), getDegreeCachingStrategy(), getCompactionStrategy(), weighingStrategy);
     }
 
     /**

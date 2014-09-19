@@ -1,6 +1,6 @@
 package com.graphaware.module.relcount.perf;
 
-import com.graphaware.common.strategy.none.IncludeNoRelationshipProperties;
+import com.graphaware.common.policy.none.IncludeNoRelationshipProperties;
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.module.relcount.RelationshipCountModule;

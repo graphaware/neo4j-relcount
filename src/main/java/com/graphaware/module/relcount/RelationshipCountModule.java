@@ -59,8 +59,8 @@ public class RelationshipCountModule extends BaseRuntimeConfigured implements Ba
      * Create a module with default ID and custom configuration. Use this constructor when you wish to register a single
      * instance of the module with {@link com.graphaware.runtime.GraphAwareRuntime} and you want to provide
      * custom {@link RelationshipCountConfiguration}. This could be the case, for instance, when you would like to exclude
-     * certain {@link org.neo4j.graphdb.Relationship}s from being counted at all ({@link com.graphaware.common.strategy.RelationshipInclusionStrategy}),
-     * certain properties from being considered at all ({@link com.graphaware.common.strategy.RelationshipPropertyInclusionStrategy}),
+     * certain {@link org.neo4j.graphdb.Relationship}s from being counted at all ({@link com.graphaware.common.policy.RelationshipInclusionPolicy}),
+     * certain properties from being considered at all ({@link com.graphaware.common.policy.RelationshipPropertyInclusionPolicy}),
      * weigh each relationship differently ({@link com.graphaware.module.relcount.count.WeighingStrategy},
      * or use a custom threshold for compaction.
      */
@@ -300,7 +300,7 @@ public class RelationshipCountModule extends BaseRuntimeConfigured implements Ba
                 new UnitOfWork<Node>() {
                     @Override
                     public void execute(GraphDatabaseService database, Node node, int batchNumber, int stepNumber) {
-                        Node filteredNode = new FilteredNode(node, getConfiguration().getInclusionStrategies());
+                        Node filteredNode = new FilteredNode(node, getConfiguration().getInclusionPolicies());
 
                         buildCachedCounts(filteredNode);
 
@@ -316,7 +316,7 @@ public class RelationshipCountModule extends BaseRuntimeConfigured implements Ba
      */
     private void buildCachedCounts(TransactionSimulatingBatchInserter batchInserter) {
         for (long nodeId : batchInserter.getAllNodes()) {
-            Node filteredNode = new FilteredNode(new BatchInserterNode(nodeId, batchInserter), getConfiguration().getInclusionStrategies());
+            Node filteredNode = new FilteredNode(new BatchInserterNode(nodeId, batchInserter), getConfiguration().getInclusionPolicies());
 
             buildCachedCounts(filteredNode);
         }

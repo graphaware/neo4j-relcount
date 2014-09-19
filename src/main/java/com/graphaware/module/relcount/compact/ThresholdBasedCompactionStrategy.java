@@ -53,7 +53,7 @@ public class ThresholdBasedCompactionStrategy implements CompactionStrategy {
             LOG.warn("The desired threshold (" + compactionThreshold + ") could not be achieved using the current compaction strategy " +
                     "on node " + node.getId() + ". This is potentially due to the fact that there are more than " + compactionThreshold +
                     " distinct relationship type - direction pairs being cached for the node. If that's what's desired," +
-                    " increase the threshold. If not, implement a RelationshipInclusionStrategy and that does not include" +
+                    " increase the threshold. If not, implement a RelationshipInclusionPolicy that does not include" +
                     " the unwanted relationships.");
         }
     }
