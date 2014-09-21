@@ -86,17 +86,7 @@ public class LegacyNaiveRelationshipCounter implements RelationshipCounter {
         if (runtime == null) {
             this.relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(weighingStrategy);
         } else {
-            runtime.waitUntilStarted();
-
-            try (Transaction tx = database.beginTx()) {
-                TxDrivenModuleMetadata moduleMetadata = new ProductionSingleNodeMetadataRepository(database, FluentRuntimeConfiguration.defaultConfiguration(), RuntimeConfiguration.TX_MODULES_PROPERTY_PREFIX).getModuleMetadata(id);
-                if (moduleMetadata == null || moduleMetadata.getConfig() == null) {
-                    this.relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(weighingStrategy);
-                } else {
-                    this.relationshipCountConfiguration = (RelationshipCountConfiguration) moduleMetadata.getConfig();
-                }
-                tx.success();
-            }
+            this.relationshipCountConfiguration = runtime.getModule(id, RelationshipCountModule.class).getConfiguration();
         }
     }
 

@@ -19,17 +19,14 @@ package com.graphaware.module.relcount.count;
 import com.graphaware.common.description.relationship.DetachedRelationshipDescription;
 import com.graphaware.common.description.relationship.RelationshipDescription;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
+import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.module.relcount.cache.DegreeCachingNode;
-import com.graphaware.runtime.config.FluentRuntimeConfiguration;
 import com.graphaware.runtime.config.RuntimeConfiguration;
-import com.graphaware.runtime.metadata.ModuleMetadataRepository;
-import com.graphaware.runtime.metadata.ProductionSingleNodeMetadataRepository;
-import com.graphaware.runtime.metadata.TxDrivenModuleMetadata;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
 
 import static com.graphaware.module.relcount.RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID;
+import static com.graphaware.runtime.ProductionRuntime.getRuntime;
 
 /**
  * {@link RelationshipCounter} that counts matching relationships by looking them up cached in {@link org.neo4j.graphdb.Node}'s properties.
@@ -72,17 +69,8 @@ public class CachedRelationshipCounter implements RelationshipCounter {
      */
     public CachedRelationshipCounter(GraphDatabaseService database, String id) {
         this.id = id;
-        this.config = FluentRuntimeConfiguration.defaultConfiguration();
-
-        try (Transaction tx = database.beginTx()) {
-            ModuleMetadataRepository metadataRepository = new ProductionSingleNodeMetadataRepository(database, config, RuntimeConfiguration.TX_MODULES_PROPERTY_PREFIX);
-            TxDrivenModuleMetadata moduleMetadata = metadataRepository.getModuleMetadata(id);
-            if (moduleMetadata == null) {
-                throw new IllegalStateException("Could not find metadata for the module - is GraphAware Runtime enabled and Relationship Count Module registered with it?");
-            }
-            this.relationshipCountConfiguration = (RelationshipCountConfiguration) moduleMetadata.getConfig();
-            tx.success();
-        }
+        this.config = getRuntime(database).getConfiguration();
+        this.relationshipCountConfiguration = getRuntime(database).getModule(id, RelationshipCountModule.class).getConfiguration();
     }
 
     /**

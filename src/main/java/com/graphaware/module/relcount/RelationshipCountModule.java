@@ -116,7 +116,7 @@ public class RelationshipCountModule extends BaseRuntimeConfigured implements Ba
      * {@inheritDoc}
      */
     @Override
-    public TxDrivenModuleConfiguration getConfiguration() {
+    public RelationshipCountConfiguration getConfiguration() {
         return relationshipCountConfiguration;
     }
 
