@@ -238,7 +238,7 @@ public class DocumentationDemo extends BaseDocumentationDemo {
 
             Node tracy = database.getNodeById(2);
 
-            RelationshipCounter counter = new NaiveRelationshipCounter(database);
+            RelationshipCounter counter = new NaiveRelationshipCounter();
 
             assertEquals(9, counter.count(tracy, wildcard(FOLLOWS, INCOMING)));
             assertEquals(9, counter.count(tracy, wildcard(FOLLOWS, OUTGOING)));

@@ -69,6 +69,11 @@ public class RelationshipCountBatchIntegrationTest {
     private void startDatabase() {
         batchInserter.shutdown();
         database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
+
+        GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
+        RelationshipCountModule module = new RelationshipCountModule();
+        runtime.registerModule(module);
+        runtime.start();
     }
 
     @Test
@@ -77,8 +82,8 @@ public class RelationshipCountBatchIntegrationTest {
         simulateInserts();
         startDatabase();
 
-        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
-        verifyCounts(1, new NaiveRelationshipCounter(database));
+        verifyCounts(1, new LegacyNaiveRelationshipCounter());
+        verifyCounts(1, new NaiveRelationshipCounter());
     }
 
     @Test
@@ -87,14 +92,14 @@ public class RelationshipCountBatchIntegrationTest {
         simulateInserts();
         startDatabase();
 
-        verifyCounts(2, new LegacyNaiveRelationshipCounter(database, new WeighingStrategy() {
+        verifyCounts(2, new LegacyNaiveRelationshipCounter(new WeighingStrategy() {
             @Override
             public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
                 return 2;
             }
         }));
 
-        verifyCounts(2, new NaiveRelationshipCounter(database, new WeighingStrategy() {
+        verifyCounts(2, new NaiveRelationshipCounter(new WeighingStrategy() {
             @Override
             public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
                 return 2;
@@ -106,7 +111,9 @@ public class RelationshipCountBatchIntegrationTest {
     public void cachedCounterShouldNotWorkWithoutRuntime() {
         setUpTwoNodes();
         simulateInserts();
-        startDatabase();
+
+        batchInserter.shutdown();
+        database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
 
         verifyCounts(0, new CachedRelationshipCounter(database));
     }
@@ -115,7 +122,9 @@ public class RelationshipCountBatchIntegrationTest {
     public void fallBackCounterShouldNotWorkWithoutRuntime() {
         setUpTwoNodes();
         simulateInserts();
-        startDatabase();
+
+        batchInserter.shutdown();
+        database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
 
         verifyCounts(0, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(0, new FallbackRelationshipCounter(database));
@@ -143,8 +152,8 @@ public class RelationshipCountBatchIntegrationTest {
 
         startDatabase();
 
-        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
-        verifyCounts(1, new NaiveRelationshipCounter(database));
+        verifyCounts(1, new LegacyNaiveRelationshipCounter());
+        verifyCounts(1, new NaiveRelationshipCounter());
         verifyCounts(1, new CachedRelationshipCounter(database));
         verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
@@ -161,8 +170,8 @@ public class RelationshipCountBatchIntegrationTest {
         simulateInserts();
         startDatabase();
 
-        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
-        verifyCounts(1, new NaiveRelationshipCounter(database));
+        verifyCounts(1, new LegacyNaiveRelationshipCounter());
+        verifyCounts(1, new NaiveRelationshipCounter());
         verifyCounts(1, new CachedRelationshipCounter(database));
         verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
@@ -179,8 +188,8 @@ public class RelationshipCountBatchIntegrationTest {
         simulateInserts();
         startDatabase();
 
-        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
-        verifyCounts(1, new NaiveRelationshipCounter(database));
+        verifyCounts(1, new LegacyNaiveRelationshipCounter());
+        verifyCounts(1, new NaiveRelationshipCounter());
         verifyCounts(1, new CachedRelationshipCounter(database));
         verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
@@ -194,10 +203,16 @@ public class RelationshipCountBatchIntegrationTest {
         runtime.registerModule(module);
         runtime.start();
 
-        startDatabase();
+        batchInserter.shutdown();
+        database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
 
-        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
-        verifyCounts(1, new NaiveRelationshipCounter(database));
+        runtime = GraphAwareRuntimeFactory.createRuntime(database);
+        module = new RelationshipCountModule(RelationshipCountConfigurationImpl.defaultConfiguration().with(new ThresholdBasedCompactionStrategy(4)));
+        runtime.registerModule(module);
+        runtime.start();
+
+        verifyCounts(1, new LegacyNaiveRelationshipCounter());
+        verifyCounts(1, new NaiveRelationshipCounter());
         verifyCompactedCounts(1, new CachedRelationshipCounter(database));
         verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
@@ -213,8 +228,8 @@ public class RelationshipCountBatchIntegrationTest {
 
         startDatabase();
 
-        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
-        verifyCounts(1, new NaiveRelationshipCounter(database));
+        verifyCounts(1, new LegacyNaiveRelationshipCounter());
+        verifyCounts(1, new NaiveRelationshipCounter());
         verifyCounts(1, new CachedRelationshipCounter(database));
         verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
@@ -232,8 +247,8 @@ public class RelationshipCountBatchIntegrationTest {
 
         startDatabase();
 
-        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
-        verifyCounts(1, new NaiveRelationshipCounter(database));
+        verifyCounts(1, new LegacyNaiveRelationshipCounter());
+        verifyCounts(1, new NaiveRelationshipCounter());
         verifyCounts(1, new CachedRelationshipCounter(database));
         verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
@@ -250,8 +265,8 @@ public class RelationshipCountBatchIntegrationTest {
         simulateInserts();
         startDatabase();
 
-        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
-        verifyCounts(1, new NaiveRelationshipCounter(database));
+        verifyCounts(1, new LegacyNaiveRelationshipCounter());
+        verifyCounts(1, new NaiveRelationshipCounter());
         verifyCounts(1, new CachedRelationshipCounter(database));
         verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
@@ -269,8 +284,8 @@ public class RelationshipCountBatchIntegrationTest {
 
         startDatabase();
 
-        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
-        verifyCounts(1, new NaiveRelationshipCounter(database));
+        verifyCounts(1, new LegacyNaiveRelationshipCounter());
+        verifyCounts(1, new NaiveRelationshipCounter());
         verifyCounts(1, new CachedRelationshipCounter(database));
         verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
@@ -279,28 +294,35 @@ public class RelationshipCountBatchIntegrationTest {
     @Test
     public void weightedRelationships() {
         GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(batchInserter);
+        WeighingStrategy weighingStrategy = new WeighingStrategy() {
+            @Override
+            public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
+                return (int) relationship.getProperty(WEIGHT, 1);
+            }
+        };
         final RelationshipCountModule module = new RelationshipCountModule(
                 RelationshipCountConfigurationImpl.defaultConfiguration()
-                        .with(new WeighingStrategy() {
-                            @Override
-                            public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
-                                return (int) relationship.getProperty(WEIGHT, 1);
-                            }
-                        }));
+                        .with(weighingStrategy));
 
         runtime.registerModule(module);
         runtime.start();
 
         setUpTwoNodes();
         simulateInserts();
-        startDatabase();
 
-        runtime = GraphAwareRuntimeFactory.createRuntime(database);
-        runtime.registerModule(module);
-        runtime.start();
+        batchInserter.shutdown();
+        database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
 
-        verifyWeightedCounts(1, new NaiveRelationshipCounter(database));
-        verifyWeightedCounts(1, new LegacyNaiveRelationshipCounter(database));
+        GraphAwareRuntime runtime1 = GraphAwareRuntimeFactory.createRuntime(database);
+        final RelationshipCountModule module1 = new RelationshipCountModule(
+                RelationshipCountConfigurationImpl.defaultConfiguration()
+                        .with(weighingStrategy));
+
+        runtime1.registerModule(module1);
+        runtime1.start();
+
+        verifyWeightedCounts(1, new NaiveRelationshipCounter(weighingStrategy));
+        verifyWeightedCounts(1, new LegacyNaiveRelationshipCounter(weighingStrategy));
         verifyWeightedCounts(1, new CachedRelationshipCounter(database));
         verifyWeightedCounts(1, new FallbackRelationshipCounter(database));
         verifyWeightedCounts(1, new LegacyFallbackRelationshipCounter(database));
@@ -318,10 +340,19 @@ public class RelationshipCountBatchIntegrationTest {
 
         setUpTwoNodes();
         simulateInserts();
-        startDatabase();
 
-        verifyCounts(1, new LegacyNaiveRelationshipCounter(database));
-        verifyCounts(1, new NaiveRelationshipCounter(database));
+        batchInserter.shutdown();
+        database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
+
+        GraphAwareRuntime r = GraphAwareRuntimeFactory.createRuntime(database);
+        final RelationshipCountModule m = new RelationshipCountModule(
+                RelationshipCountConfigurationImpl.defaultConfiguration().with(new ThresholdBasedCompactionStrategy(4))
+        );
+        r.registerModule(m);
+        r.start();
+
+        verifyCounts(1, new LegacyNaiveRelationshipCounter());
+        verifyCounts(1, new NaiveRelationshipCounter());
         verifyCompactedCounts(1, new CachedRelationshipCounter(database));
         verifyCounts(1, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(1, new FallbackRelationshipCounter(database));
@@ -339,10 +370,19 @@ public class RelationshipCountBatchIntegrationTest {
         setUpTwoNodes();
         simulateInserts();
         simulateInserts();
-        startDatabase();
 
-        verifyCounts(2, new LegacyNaiveRelationshipCounter(database));
-        verifyCounts(2, new NaiveRelationshipCounter(database));
+        batchInserter.shutdown();
+        database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
+
+        GraphAwareRuntime r = GraphAwareRuntimeFactory.createRuntime(database);
+        final RelationshipCountModule m = new RelationshipCountModule(
+                RelationshipCountConfigurationImpl.defaultConfiguration().with(new ThresholdBasedCompactionStrategy(4))
+        );
+        r.registerModule(m);
+        r.start();
+
+        verifyCounts(2, new LegacyNaiveRelationshipCounter());
+        verifyCounts(2, new NaiveRelationshipCounter());
         verifyCompactedCounts(2, new CachedRelationshipCounter(database));
         verifyCounts(2, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(2, new FallbackRelationshipCounter(database));
@@ -359,7 +399,16 @@ public class RelationshipCountBatchIntegrationTest {
 
         setUpTwoNodes();
         simulateInserts();
-        startDatabase();
+
+        batchInserter.shutdown();
+        database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
+
+        GraphAwareRuntime runtime1 = GraphAwareRuntimeFactory.createRuntime(database);
+        final RelationshipCountModule module1 = new RelationshipCountModule(
+                RelationshipCountConfigurationImpl.defaultConfiguration().with(new ThresholdBasedCompactionStrategy(3))
+        );
+        runtime1.registerModule(module1);
+        runtime1.start();
 
         try (Transaction tx = database.beginTx()) {
 
@@ -377,14 +426,15 @@ public class RelationshipCountBatchIntegrationTest {
     @Test
     public void weightedRelationshipsWithCompaction() {
         GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(batchInserter);
+        WeighingStrategy weighingStrategy = new WeighingStrategy() {
+            @Override
+            public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
+                return (int) relationship.getProperty(WEIGHT, 1);
+            }
+        };
         final RelationshipCountModule module = new RelationshipCountModule(
                 RelationshipCountConfigurationImpl.defaultConfiguration()
-                        .with(new WeighingStrategy() {
-                            @Override
-                            public int getRelationshipWeight(Relationship relationship, Node pointOfView) {
-                                return (int) relationship.getProperty(WEIGHT, 1);
-                            }
-                        })
+                        .with(weighingStrategy)
                         .with(new ThresholdBasedCompactionStrategy(10)));
 
         runtime.registerModule(module);
@@ -395,16 +445,23 @@ public class RelationshipCountBatchIntegrationTest {
         simulateInserts();
         simulateInserts();
         simulateInserts();
-        startDatabase();
 
-        runtime = GraphAwareRuntimeFactory.createRuntime(database);
-        runtime.registerModule(module);
-        runtime.start();
+        batchInserter.shutdown();
+        database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
+
+        GraphAwareRuntime runtime1 = GraphAwareRuntimeFactory.createRuntime(database);
+        final RelationshipCountModule module1 = new RelationshipCountModule(
+                RelationshipCountConfigurationImpl.defaultConfiguration()
+                        .with(weighingStrategy)
+                        .with(new ThresholdBasedCompactionStrategy(10)));
+
+        runtime1.registerModule(module1);
+        runtime1.start();
 
         verifyWeightedCounts(4, new LegacyFallbackRelationshipCounter(database));
         verifyWeightedCounts(4, new FallbackRelationshipCounter(database));
-        verifyWeightedCounts(4, new LegacyNaiveRelationshipCounter(database));
-        verifyWeightedCounts(4, new NaiveRelationshipCounter(database));
+        verifyWeightedCounts(4, new LegacyNaiveRelationshipCounter(weighingStrategy));
+        verifyWeightedCounts(4, new NaiveRelationshipCounter(weighingStrategy));
     }
 
     @Test
@@ -427,7 +484,9 @@ public class RelationshipCountBatchIntegrationTest {
         setUpTwoNodes();
         simulateInserts();
         simulateInserts();
-        startDatabase();
+
+        batchInserter.shutdown();
+        database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
 
         runtime = GraphAwareRuntimeFactory.createRuntime(database);
         runtime.registerModule(module1);
@@ -465,13 +524,28 @@ public class RelationshipCountBatchIntegrationTest {
         setUpTwoNodes();
         simulateInserts();
         simulateInserts();
-        startDatabase();
+
+        batchInserter.shutdown();
+        database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
+
+        GraphAwareRuntime r = GraphAwareRuntimeFactory.createRuntime(database);
+        final RelationshipCountModule m = new RelationshipCountModule(
+                RelationshipCountConfigurationImpl.defaultConfiguration()
+                        .with(new RelationshipInclusionPolicy.Adapter() {
+                            @Override
+                            public boolean include(Relationship relationship) {
+                                return !relationship.isType(TWO);
+                            }
+                        }));
+
+        r.registerModule(m);
+        r.start();
 
         try (Transaction tx = database.beginTx()) {
 
             //naive doesn't care about this strategy
-            assertEquals(2, new LegacyNaiveRelationshipCounter(database).count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
-            assertEquals(2, new NaiveRelationshipCounter(database).count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
+            assertEquals(2, new LegacyNaiveRelationshipCounter().count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
+            assertEquals(2, new NaiveRelationshipCounter().count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
             assertEquals(0, new LegacyFallbackRelationshipCounter(database).count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
             assertEquals(0, new FallbackRelationshipCounter(database).count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
             assertEquals(0, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
@@ -499,15 +573,29 @@ public class RelationshipCountBatchIntegrationTest {
         setUpTwoNodes();
         simulateInserts();
         simulateInserts();
-        startDatabase();
+
+        batchInserter.shutdown();
+        database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
+
+        runtime = GraphAwareRuntimeFactory.createRuntime(database);
+        final RelationshipCountModule m = new RelationshipCountModule(
+                RelationshipCountConfigurationImpl.defaultConfiguration()
+                        .with(new RelationshipPropertyInclusionPolicy() {
+                            @Override
+                            public boolean include(String key, Relationship propertyContainer) {
+                                return !WEIGHT.equals(key);
+                            }
+                        }));
+        runtime.registerModule(m);
+        runtime.start();
 
         try (Transaction tx = database.beginTx()) {
 
             //naive doesn't care about this strategy
-            assertEquals(2, new LegacyNaiveRelationshipCounter(database).count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
-            assertEquals(2, new NaiveRelationshipCounter(database).count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
-            assertEquals(2, new LegacyNaiveRelationshipCounter(database).count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
-            assertEquals(2, new NaiveRelationshipCounter(database).count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+            assertEquals(2, new LegacyNaiveRelationshipCounter().count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+            assertEquals(2, new NaiveRelationshipCounter().count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+            assertEquals(2, new LegacyNaiveRelationshipCounter().count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+            assertEquals(2, new NaiveRelationshipCounter().count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
             assertEquals(0, new LegacyFallbackRelationshipCounter(database).count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
             assertEquals(0, new FallbackRelationshipCounter(database).count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
             assertEquals(0, new LegacyFallbackRelationshipCounter(database).count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
@@ -534,8 +622,8 @@ public class RelationshipCountBatchIntegrationTest {
 
         startDatabase();
 
-        verifyCounts(100, new LegacyNaiveRelationshipCounter(database));
-        verifyCounts(100, new NaiveRelationshipCounter(database));
+        verifyCounts(100, new LegacyNaiveRelationshipCounter());
+        verifyCounts(100, new NaiveRelationshipCounter());
         verifyCounts(100, new CachedRelationshipCounter(database));
         verifyCounts(100, new LegacyFallbackRelationshipCounter(database));
         verifyCounts(100, new FallbackRelationshipCounter(database));
@@ -556,7 +644,15 @@ public class RelationshipCountBatchIntegrationTest {
             simulateInserts();
         }
 
-        startDatabase();
+        batchInserter.shutdown();
+        database = new GraphDatabaseFactory().newEmbeddedDatabase(temporaryFolder.getRoot().getAbsolutePath());
+
+        GraphAwareRuntime r = GraphAwareRuntimeFactory.createRuntime(database);
+        final RelationshipCountModule m1 = new RelationshipCountModule("M1", RelationshipCountConfigurationImpl.defaultConfiguration().with(new ThresholdBasedCompactionStrategy(4)));
+        final RelationshipCountModule m2 = new RelationshipCountModule("M2", RelationshipCountConfigurationImpl.defaultConfiguration().with(new ThresholdBasedCompactionStrategy(4)));
+        r.registerModule(m1);
+        r.registerModule(m2);
+        r.start();
 
         verifyCounts(20, new LegacyNaiveRelationshipCounter(database, "M1"));
         verifyCounts(20, new NaiveRelationshipCounter(database, "M1"));

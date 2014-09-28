@@ -114,7 +114,7 @@ Node tracy = database.getNodeById(2);
 //Wildcard means we don't care about properties:
 RelationshipDescription followers = RelationshipDescriptionFactory.wildcard(FOLLOWS, INCOMING);
 
-RelationshipCounter counter = new CachedRelationshipCounter();
+RelationshipCounter counter = new CachedRelationshipCounter(database);
 counter.count(tracy, followers);
 ```
 
@@ -130,7 +130,7 @@ Node tracy = database.getNodeById(2);
 
 RelationshipDescription followers = wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2));
 
-RelationshipCounter counter = new CachedRelationshipCounter();
+RelationshipCounter counter = new CachedRelationshipCounter(database);
 counter.count(tracy, followers); //returns the count
 ```
 
@@ -145,7 +145,7 @@ Node tracy = database.getNodeById(2);
 //Literal means we properties not explicitly mentioned must be undefined:
 RelationshipDescription followers = RelationshipDescriptionFactory.literal(FOLLOWS, INCOMING);
 
-RelationshipCounter counter = new CachedRelationshipCounter();
+RelationshipCounter counter = new CachedRelationshipCounter(database);
 counter.count(tracy, followers);
 ```
 
@@ -393,7 +393,7 @@ Node tracy = database.getNodeById(2);
 
 RelationshipDescription followers = wildcard(FOLLOWS, INCOMING).with(STRENGTH, equalTo(2));
 
-RelationshipCounter counter = new NaiveRelationshipCounter(database);
+RelationshipCounter counter = new NaiveRelationshipCounter();
 counter.count(tracy, followers); //returns the count
 ```
 

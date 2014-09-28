@@ -4,7 +4,6 @@ import com.graphaware.module.relcount.count.*;
 import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
 import com.graphaware.tx.executor.single.VoidReturningCallback;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -13,7 +12,6 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.config.Setting;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.test.TestGraphDatabaseFactory;
 
 import static com.graphaware.common.description.relationship.RelationshipDescriptionFactory.wildcard;
 import static com.graphaware.runtime.bootstrap.RuntimeKernelExtension.RUNTIME_ENABLED;
@@ -54,8 +52,8 @@ public class RelcoutModuleBootstrapperTest2 {
                 .setConfig(MODULE_ENABLED, MODULE_ENABLED.getDefaultValue())
                 .newGraphDatabase();
 
-        verifyCounts(new LegacyNaiveRelationshipCounter(database));
-        verifyCounts(new NaiveRelationshipCounter(database));
+        verifyCounts(new NaiveRelationshipCounter());
+        verifyCounts(new NaiveRelationshipCounter(database, "relcount"));
         verifyCounts(new CachedRelationshipCounter(database, "relcount"));
         verifyCounts(new LegacyFallbackRelationshipCounter(database, "relcount"));
         verifyCounts(new FallbackRelationshipCounter(database, "relcount"));

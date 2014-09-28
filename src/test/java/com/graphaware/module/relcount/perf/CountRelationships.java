@@ -151,11 +151,8 @@ public class CountRelationships extends RelcountPerformanceTest {
                         case CACHED:
                             countUsingRuntime(database, params, new CachedRelationshipCounter(database));
                             break;
-                        case NAIVE_LEGACY:
-                            countUsingRuntime(database, params, new LegacyNaiveRelationshipCounter(database));
-                            break;
                         case NAIVE:
-                            countUsingRuntime(database, params, new NaiveRelationshipCounter(database));
+                            countUsingRuntime(database, params, new NaiveRelationshipCounter());
                             break;
                         default:
                             throw new RuntimeException("unknown option");

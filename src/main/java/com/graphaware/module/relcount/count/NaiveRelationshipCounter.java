@@ -36,31 +36,39 @@ public class NaiveRelationshipCounter extends LegacyNaiveRelationshipCounter {
     public static final String TEST_KEY = RuntimeConfiguration.GA_PREFIX + "test";
 
     /**
-     * Construct a new relationship counter with default strategies.
-     *
-     * @param database on which to count relationships.
+     * Construct a new relationship counter. Use when no runtime or relationship count module is present.
      */
-    public NaiveRelationshipCounter(GraphDatabaseService database) {
-        super(database, RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID);
+    public NaiveRelationshipCounter() {
+        super();
     }
 
     /**
-     * Construct a new relationship counter.
+     * Construct a new relationship counter. Use when no runtime or relationship count module is present.
      *
-     * @param database         on which to count relationships.
      * @param weighingStrategy strategy for weighing relationships.
-     *                         Only taken into account if there is no {@link RelationshipCountModule} registered with the {@link com.graphaware.runtime.GraphAwareRuntime}. Otherwise the one configured for the module is used.
      */
-    public NaiveRelationshipCounter(GraphDatabaseService database, WeighingStrategy weighingStrategy) {
-        super(database, weighingStrategy);
+    public NaiveRelationshipCounter(WeighingStrategy weighingStrategy) {
+        super(weighingStrategy);
     }
 
-    protected NaiveRelationshipCounter(GraphDatabaseService database, String id) {
+    /**
+     * Construct a new relationship counter. Use when runtime is started and a relationship count module registered with the default ID.
+     *
+     * @param database with runtime.
+     */
+    public NaiveRelationshipCounter(GraphDatabaseService database) {
+        this(database, RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID);
+    }
+
+    /**
+     * Construct a new relationship counter. Use when runtime is started and a relationship count module registered.
+     *
+     * @param database with runtime.
+     * @param id       of the relationship count module. The module will not be used for this counter, but its configuration
+     *                 (like weighing strategies) will.
+     */
+    public NaiveRelationshipCounter(GraphDatabaseService database, String id) {
         super(database, id);
-    }
-
-    protected NaiveRelationshipCounter(GraphDatabaseService database, String id, WeighingStrategy weighingStrategy) {
-        super(database, id, weighingStrategy);
     }
 
     /**

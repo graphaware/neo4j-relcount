@@ -17,19 +17,12 @@
 package com.graphaware.module.relcount.cache;
 
 import com.graphaware.common.description.relationship.DetachedRelationshipDescription;
-import com.graphaware.common.serialize.Serializer;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
-import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
-import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.module.relcount.count.CachedRelationshipCounter;
 import com.graphaware.module.relcount.count.RelationshipCounter;
-import com.graphaware.runtime.BaseGraphAwareRuntime;
-import com.graphaware.runtime.config.FluentRuntimeConfiguration;
-import com.graphaware.runtime.config.RuntimeConfiguration;
-import com.graphaware.runtime.metadata.DefaultTimerDrivenModuleMetadata;
-import com.graphaware.runtime.metadata.DefaultTxDrivenModuleMetadata;
-import com.graphaware.runtime.metadata.ProductionSingleNodeMetadataRepository;
+import com.graphaware.runtime.GraphAwareRuntime;
+import com.graphaware.runtime.GraphAwareRuntimeFactory;
 import com.graphaware.runtime.module.NeedsInitializationException;
 import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
 import com.graphaware.tx.executor.single.TransactionExecutor;
@@ -38,7 +31,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
@@ -68,7 +60,9 @@ public abstract class DegreeCachingNodeIntegrationTest {
             tx.success();
         }
 
-        setUpModuleConfig();
+        GraphAwareRuntime runtime = GraphAwareRuntimeFactory.createRuntime(database);
+        runtime.registerModule(new RelationshipCountModule(RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID, getConfiguration()));
+        runtime.start();
 
         txExecutor = new SimpleTransactionExecutor(database);
     }
@@ -403,14 +397,6 @@ public abstract class DegreeCachingNodeIntegrationTest {
                 degreeCachingNode.flush();
             }
         });
-    }
-
-    private void setUpModuleConfig() {
-        try (Transaction tx = database.beginTx()) {
-            new ProductionSingleNodeMetadataRepository(database, FluentRuntimeConfiguration.defaultConfiguration(), RuntimeConfiguration.TX_MODULES_PROPERTY_PREFIX)
-            .persistModuleMetadata(RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID, new DefaultTxDrivenModuleMetadata(getConfiguration()));
-            tx.success();
-        }
     }
 
     protected abstract RelationshipCountConfiguration getConfiguration();

@@ -22,16 +22,11 @@ import com.graphaware.common.description.relationship.RelationshipDescription;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountModule;
-import com.graphaware.runtime.ProductionRuntime;
-import com.graphaware.runtime.config.FluentRuntimeConfiguration;
-import com.graphaware.runtime.config.RuntimeConfiguration;
-import com.graphaware.runtime.metadata.ProductionSingleNodeMetadataRepository;
-import com.graphaware.runtime.metadata.TxDrivenModuleMetadata;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 
+import static com.graphaware.runtime.ProductionRuntime.*;
 import static org.neo4j.graphdb.Direction.BOTH;
 
 /**
@@ -55,39 +50,29 @@ public class LegacyNaiveRelationshipCounter implements RelationshipCounter {
     protected final RelationshipCountConfiguration relationshipCountConfiguration;
 
     /**
-     * Construct a new relationship counter with default strategies.
-     *
-     * @param database on which to count relationships.
+     * Construct a new relationship counter. Use when no runtime or relationship count module is present.
      */
-    public LegacyNaiveRelationshipCounter(GraphDatabaseService database) {
-        this(database, RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID);
+    protected LegacyNaiveRelationshipCounter() {
+        this(OneForEach.getInstance());
     }
 
     /**
-     * Construct a new relationship counter.
+     * Construct a new relationship counter. Use when no runtime or relationship count module is present.
      *
-     * @param database         on which to count relationships.
      * @param weighingStrategy strategy for weighing relationships.
-     *                         Only taken into account if there is no {@link RelationshipCountModule} registered with the {@link com.graphaware.runtime.GraphAwareRuntime}. Otherwise the one configured for the module is used.
      */
-    public LegacyNaiveRelationshipCounter(GraphDatabaseService database, WeighingStrategy weighingStrategy) {
-        this(database, RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID, weighingStrategy);
-    }
-
-    protected LegacyNaiveRelationshipCounter(GraphDatabaseService database, String id) {
-        this(database, id, OneForEach.getInstance());
+    protected LegacyNaiveRelationshipCounter(WeighingStrategy weighingStrategy) {
+        this.relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(weighingStrategy);
     }
 
     /**
-     * Construct a new relationship counter.
+     * Construct a new relationship counter. Use when runtime is started and a relationship count module registered.
+     *
+     * @param database with runtime.
+     * @param id       of the relationship count module.
      */
-    protected LegacyNaiveRelationshipCounter(GraphDatabaseService database, String id, WeighingStrategy weighingStrategy) {
-        ProductionRuntime runtime = ProductionRuntime.getRuntime(database);
-        if (runtime == null) {
-            this.relationshipCountConfiguration = RelationshipCountConfigurationImpl.defaultConfiguration().with(weighingStrategy);
-        } else {
-            this.relationshipCountConfiguration = runtime.getModule(id, RelationshipCountModule.class).getConfiguration();
-        }
+    protected LegacyNaiveRelationshipCounter(GraphDatabaseService database, String id) {
+        this.relationshipCountConfiguration = getStartedRuntime(database).getModule(id, RelationshipCountModule.class).getConfiguration();
     }
 
     /**

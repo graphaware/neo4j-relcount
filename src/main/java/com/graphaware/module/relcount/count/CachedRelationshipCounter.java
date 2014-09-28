@@ -26,7 +26,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 
 import static com.graphaware.module.relcount.RelationshipCountModule.FULL_RELCOUNT_DEFAULT_ID;
-import static com.graphaware.runtime.ProductionRuntime.getRuntime;
+import static com.graphaware.runtime.ProductionRuntime.getStartedRuntime;
 
 /**
  * {@link RelationshipCounter} that counts matching relationships by looking them up cached in {@link org.neo4j.graphdb.Node}'s properties.
@@ -69,8 +69,8 @@ public class CachedRelationshipCounter implements RelationshipCounter {
      */
     public CachedRelationshipCounter(GraphDatabaseService database, String id) {
         this.id = id;
-        this.config = getRuntime(database).getConfiguration();
-        this.relationshipCountConfiguration = getRuntime(database).getModule(id, RelationshipCountModule.class).getConfiguration();
+        this.config = getStartedRuntime(database).getConfiguration();
+        this.relationshipCountConfiguration = getStartedRuntime(database).getModule(id, RelationshipCountModule.class).getConfiguration();
     }
 
     /**
