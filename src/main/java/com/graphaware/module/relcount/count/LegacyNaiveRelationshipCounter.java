@@ -26,7 +26,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import static com.graphaware.runtime.ProductionRuntime.*;
+import static com.graphaware.runtime.RuntimeRegistry.getStartedRuntime;
 import static org.neo4j.graphdb.Direction.BOTH;
 
 /**

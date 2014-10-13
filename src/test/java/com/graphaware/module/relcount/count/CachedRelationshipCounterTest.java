@@ -77,6 +77,11 @@ public class CachedRelationshipCounterTest {
 
     @Test
     public void noRelationshipsShouldExistInEmptyDatabase() {
+        try (Transaction tx = database.beginTx()) {
+            database.createNode();
+            tx.success();
+        }
+
         assertEquals(0, count(wildcard("test", OUTGOING), 0));
         assertEquals(0, count(literal("test", OUTGOING), 0));
     }
@@ -105,12 +110,12 @@ public class CachedRelationshipCounterTest {
         createNodes();
         createFirstRelationships();
 
-        assertEquals(1, count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 1));
-        assertEquals(2, count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 1));
-        assertEquals(0, count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 1));
-        assertEquals(4, count(wildcard("test", OUTGOING), 1));
-        assertEquals(1, count(wildcard("test", INCOMING), 1));
-        assertEquals(1, count(wildcard("test", INCOMING).with("key2", equalTo("value1")), 1));
+        assertEquals(1, count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 0));
+        assertEquals(2, count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 0));
+        assertEquals(0, count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 0));
+        assertEquals(4, count(wildcard("test", OUTGOING), 0));
+        assertEquals(1, count(wildcard("test", INCOMING), 0));
+        assertEquals(1, count(wildcard("test", INCOMING).with("key2", equalTo("value1")), 0));
     }
 
     @Test
@@ -120,28 +125,28 @@ public class CachedRelationshipCounterTest {
         createSecondRelationships();
 
         try {
-            count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 1);
+            count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 0);
             fail();
         } catch (UnableToCountException e) {
             //OK
         }
 
         try {
-            count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 1);
+            count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 0);
             fail();
         } catch (UnableToCountException e) {
             //OK
         }
 
         try {
-            count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 1);
+            count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 0);
             fail();
         } catch (UnableToCountException e) {
             //OK
         }
 
-        assertEquals(8, count(wildcard("test", OUTGOING), 1));
-        assertEquals(1, count(wildcard("test", INCOMING), 1));
+        assertEquals(8, count(wildcard("test", OUTGOING), 0));
+        assertEquals(1, count(wildcard("test", INCOMING), 0));
     }
 
     @Test
@@ -152,8 +157,8 @@ public class CachedRelationshipCounterTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                for (Relationship relationship : database.getNodeById(1).getRelationships(withName("test"), OUTGOING)) {
-                    if (relationship.getEndNode().getId() == 2) {
+                for (Relationship relationship : database.getNodeById(0).getRelationships(withName("test"), OUTGOING)) {
+                    if (relationship.getEndNode().getId() == 1) {
                         relationship.delete();
                         break;
                     }
@@ -162,11 +167,11 @@ public class CachedRelationshipCounterTest {
             }
         });
 
-        assertEquals(0, count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 1));
-        assertEquals(2, count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 1));
-        assertEquals(0, count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 1));
-        assertEquals(3, count(wildcard("test", OUTGOING), 1));
-        assertEquals(1, count(wildcard("test", INCOMING), 1));
+        assertEquals(0, count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 0));
+        assertEquals(2, count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 0));
+        assertEquals(0, count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 0));
+        assertEquals(3, count(wildcard("test", OUTGOING), 0));
+        assertEquals(1, count(wildcard("test", INCOMING), 0));
     }
 
     @Test
@@ -178,8 +183,8 @@ public class CachedRelationshipCounterTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                for (Relationship relationship : database.getNodeById(1).getRelationships(withName("test"), OUTGOING)) {
-                    if (relationship.getEndNode().getId() == 2) {
+                for (Relationship relationship : database.getNodeById(0).getRelationships(withName("test"), OUTGOING)) {
+                    if (relationship.getEndNode().getId() == 1) {
                         relationship.delete();
                         break;
                     }
@@ -189,28 +194,28 @@ public class CachedRelationshipCounterTest {
         });
 
         try {
-            count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 1);
+            count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 0);
             fail();
         } catch (UnableToCountException e) {
             //OK
         }
 
         try {
-            count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 1);
+            count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 0);
             fail();
         } catch (UnableToCountException e) {
             //OK
         }
 
         try {
-            count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 1);
+            count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 0);
             fail();
         } catch (UnableToCountException e) {
             //OK
         }
 
-        assertEquals(7, count(wildcard("test", OUTGOING), 1));
-        assertEquals(1, count(wildcard("test", INCOMING), 1));
+        assertEquals(7, count(wildcard("test", OUTGOING), 0));
+        assertEquals(1, count(wildcard("test", INCOMING), 0));
     }
 
     @Test
@@ -221,7 +226,7 @@ public class CachedRelationshipCounterTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                database.getNodeById(1).setProperty(serialize(literal("test", OUTGOING).with("key1", equalTo("value1"))), 0);
+                database.getNodeById(0).setProperty(serialize(literal("test", OUTGOING).with("key1", equalTo("value1"))), 0);
                 return null;
             }
         });
@@ -229,8 +234,8 @@ public class CachedRelationshipCounterTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                for (Relationship relationship : database.getNodeById(1).getRelationships(withName("test"), OUTGOING)) {
-                    if (relationship.getEndNode().getId() == 2) {
+                for (Relationship relationship : database.getNodeById(0).getRelationships(withName("test"), OUTGOING)) {
+                    if (relationship.getEndNode().getId() == 1) {
                         relationship.delete();
                         break;
                     }
@@ -239,11 +244,11 @@ public class CachedRelationshipCounterTest {
             }
         });
 
-        assertEquals(0, count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 1));
-        assertEquals(2, count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 1));
-        assertEquals(0, count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 1));
-        assertEquals(3, count(wildcard("test", OUTGOING), 1));
-        assertEquals(1, count(wildcard("test", INCOMING), 1));
+        assertEquals(0, count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 0));
+        assertEquals(2, count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 0));
+        assertEquals(0, count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 0));
+        assertEquals(3, count(wildcard("test", OUTGOING), 0));
+        assertEquals(1, count(wildcard("test", INCOMING), 0));
     }
 
     @Test
@@ -254,7 +259,7 @@ public class CachedRelationshipCounterTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                database.getNodeById(2).createRelationshipTo(database.getNodeById(10), withName("test2")).setProperty("key1", "value3");
+                database.getNodeById(1).createRelationshipTo(database.getNodeById(9), withName("test2")).setProperty("key1", "value3");
                 return null;
             }
         });
@@ -262,7 +267,7 @@ public class CachedRelationshipCounterTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                database.getNodeById(2).removeProperty(serialize(literal("test2", OUTGOING).with("key1", equalTo("value3"))));
+                database.getNodeById(1).removeProperty(serialize(literal("test2", OUTGOING).with("key1", equalTo("value3"))));
                 return null;
             }
         });
@@ -270,17 +275,17 @@ public class CachedRelationshipCounterTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                database.getNodeById(2).getSingleRelationship(withName("test2"), OUTGOING).delete();
+                database.getNodeById(1).getSingleRelationship(withName("test2"), OUTGOING).delete();
                 return null;
             }
         });
 
-        assertEquals(1, count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 1));
-        assertEquals(2, count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 1));
-        assertEquals(0, count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 1));
-        assertEquals(4, count(wildcard("test", OUTGOING), 1));
-        assertEquals(1, count(wildcard("test", INCOMING), 1));
-        assertEquals(1, count(wildcard("test", INCOMING).with("key2", equalTo("value1")), 1));
+        assertEquals(1, count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 0));
+        assertEquals(2, count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 0));
+        assertEquals(0, count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 0));
+        assertEquals(4, count(wildcard("test", OUTGOING), 0));
+        assertEquals(1, count(wildcard("test", INCOMING), 0));
+        assertEquals(1, count(wildcard("test", INCOMING).with("key2", equalTo("value1")), 0));
     }
 
     @Test
@@ -289,19 +294,19 @@ public class CachedRelationshipCounterTest {
         createFirstRelationships();
         createSecondRelationships();
 
+        assertEquals(1, count(wildcard("test", INCOMING), 1));
         assertEquals(1, count(wildcard("test", INCOMING), 2));
-        assertEquals(1, count(wildcard("test", INCOMING), 3));
 
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                deleteNodeAndRelationships(database.getNodeById(1));
+                deleteNodeAndRelationships(database.getNodeById(0));
                 return null;
             }
         });
 
+        assertEquals(0, count(wildcard("test", INCOMING), 1));
         assertEquals(0, count(wildcard("test", INCOMING), 2));
-        assertEquals(0, count(wildcard("test", INCOMING), 3));
     }
 
     @Test
@@ -312,8 +317,8 @@ public class CachedRelationshipCounterTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                for (Relationship relationship : database.getNodeById(1).getRelationships(withName("test"), OUTGOING)) {
-                    if (relationship.getEndNode().getId() == 3) {
+                for (Relationship relationship : database.getNodeById(0).getRelationships(withName("test"), OUTGOING)) {
+                    if (relationship.getEndNode().getId() == 2) {
                         relationship.setProperty("key1", "value2");
                         break;
                     }
@@ -322,11 +327,11 @@ public class CachedRelationshipCounterTest {
             }
         });
 
-        assertEquals(1, count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 1));
-        assertEquals(2, count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 1));
-        assertEquals(0, count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 1));
-        assertEquals(4, count(wildcard("test", OUTGOING), 1));
-        assertEquals(1, count(wildcard("test", INCOMING), 1));
+        assertEquals(1, count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 0));
+        assertEquals(2, count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 0));
+        assertEquals(0, count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 0));
+        assertEquals(4, count(wildcard("test", OUTGOING), 0));
+        assertEquals(1, count(wildcard("test", INCOMING), 0));
     }
 
     @Test
@@ -337,8 +342,8 @@ public class CachedRelationshipCounterTest {
         txExecutor.executeInTransaction(new VoidReturningCallback() {
             @Override
             public void doInTx(GraphDatabaseService database) {
-                for (Relationship relationship : database.getNodeById(1).getRelationships(withName("test"), OUTGOING)) {
-                    if (relationship.getEndNode().getId() == 3) {
+                for (Relationship relationship : database.getNodeById(0).getRelationships(withName("test"), OUTGOING)) {
+                    if (relationship.getEndNode().getId() == 2) {
                         relationship.setProperty("key1", "value1");
                         break;
                     }
@@ -346,11 +351,11 @@ public class CachedRelationshipCounterTest {
             }
         });
 
-        assertEquals(2, count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 1));
-        assertEquals(1, count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 1));
-        assertEquals(0, count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 1));
-        assertEquals(4, count(wildcard("test", OUTGOING), 1));
-        assertEquals(1, count(wildcard("test", INCOMING), 1));
+        assertEquals(2, count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 0));
+        assertEquals(1, count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 0));
+        assertEquals(0, count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 0));
+        assertEquals(4, count(wildcard("test", OUTGOING), 0));
+        assertEquals(1, count(wildcard("test", INCOMING), 0));
     }
 
     @Test
@@ -362,8 +367,8 @@ public class CachedRelationshipCounterTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                for (Relationship relationship : database.getNodeById(1).getRelationships(withName("test"), OUTGOING)) {
-                    if (relationship.getEndNode().getId() == 3) {
+                for (Relationship relationship : database.getNodeById(0).getRelationships(withName("test"), OUTGOING)) {
+                    if (relationship.getEndNode().getId() == 2) {
                         relationship.setProperty("key1", "value2");
                         break;
                     }
@@ -373,28 +378,28 @@ public class CachedRelationshipCounterTest {
         });
 
         try {
-            count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 1);
+            count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 0);
             fail();
         } catch (UnableToCountException e) {
             //OK
         }
 
         try {
-            count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 1);
+            count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 0);
             fail();
         } catch (UnableToCountException e) {
             //OK
         }
 
         try {
-            count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 1);
+            count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 0);
             fail();
         } catch (UnableToCountException e) {
             //OK
         }
 
-        assertEquals(8, count(wildcard("test", OUTGOING), 1));
-        assertEquals(1, count(wildcard("test", INCOMING), 1));
+        assertEquals(8, count(wildcard("test", OUTGOING), 0));
+        assertEquals(1, count(wildcard("test", INCOMING), 0));
     }
 
     @Test
@@ -406,8 +411,8 @@ public class CachedRelationshipCounterTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                for (Relationship relationship : database.getNodeById(1).getRelationships(withName("test"), OUTGOING)) {
-                    if (relationship.getEndNode().getId() == 3) {
+                for (Relationship relationship : database.getNodeById(0).getRelationships(withName("test"), OUTGOING)) {
+                    if (relationship.getEndNode().getId() == 2) {
                         relationship.setProperty("key1", "value1");
                         break;
                     }
@@ -417,28 +422,28 @@ public class CachedRelationshipCounterTest {
         });
 
         try {
-            count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 1);
+            count(wildcard("test", OUTGOING).with("key1", equalTo("value1")), 0);
             fail();
         } catch (UnableToCountException e) {
             //OK
         }
 
         try {
-            count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 1);
+            count(wildcard("test", OUTGOING).with("key1", equalTo("value2")), 0);
             fail();
         } catch (UnableToCountException e) {
             //OK
         }
 
         try {
-            count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 1);
+            count(wildcard("test", OUTGOING).with("key1", equalTo("value3")), 0);
             fail();
         } catch (UnableToCountException e) {
             //OK
         }
 
-        assertEquals(8, count(wildcard("test", OUTGOING), 1));
-        assertEquals(1, count(wildcard("test", INCOMING), 1));
+        assertEquals(8, count(wildcard("test", OUTGOING), 0));
+        assertEquals(1, count(wildcard("test", INCOMING), 0));
     }
 
     @Test
@@ -496,88 +501,88 @@ public class CachedRelationshipCounterTest {
                 .node().setProp("name", "node8")
                 .node().setProp("name", "node9")
                 .node().setProp("name", "node10")
-                .relationshipTo(1, "FRIEND_OF").setProp("level", "1").setProp("timestamp", valueOf(currentTimeMillis()))
-                .relationshipTo(2, "FRIEND_OF").setProp("level", "2").setProp("timestamp", valueOf(currentTimeMillis()))
-                .relationshipTo(3, "FRIEND_OF").setProp("level", "3").setProp("timestamp", valueOf(currentTimeMillis()))
+                .relationshipTo(0, "FRIEND_OF").setProp("level", "1").setProp("timestamp", valueOf(currentTimeMillis()))
+                .relationshipTo(1, "FRIEND_OF").setProp("level", "2").setProp("timestamp", valueOf(currentTimeMillis()))
+                .relationshipTo(2, "FRIEND_OF").setProp("level", "3").setProp("timestamp", valueOf(currentTimeMillis()))
+                .relationshipTo(3, "FRIEND_OF").setProp("level", "1").setProp("timestamp", valueOf(currentTimeMillis()))
                 .relationshipTo(4, "FRIEND_OF").setProp("level", "1").setProp("timestamp", valueOf(currentTimeMillis()))
                 .relationshipTo(5, "FRIEND_OF").setProp("level", "1").setProp("timestamp", valueOf(currentTimeMillis()))
                 .relationshipTo(6, "FRIEND_OF").setProp("level", "1").setProp("timestamp", valueOf(currentTimeMillis()))
-                .relationshipTo(7, "FRIEND_OF").setProp("level", "1").setProp("timestamp", valueOf(currentTimeMillis()))
-                .relationshipTo(8, "FRIEND_OF").setProp("level", "2").setProp("timestamp", valueOf(currentTimeMillis()))
-                .relationshipTo(9, "FRIEND_OF").setProp("level", "2").setProp("timestamp", valueOf(currentTimeMillis()));
+                .relationshipTo(7, "FRIEND_OF").setProp("level", "2").setProp("timestamp", valueOf(currentTimeMillis()))
+                .relationshipTo(8, "FRIEND_OF").setProp("level", "2").setProp("timestamp", valueOf(currentTimeMillis()));
 
-        assertEquals(5, count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("1")), 10));
-        assertEquals(3, count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("2")), 10));
-        assertEquals(1, count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("3")), 10));
-        assertEquals(9, count(wildcard(withName("FRIEND_OF"), OUTGOING), 10));
+        assertEquals(5, count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("1")), 9));
+        assertEquals(3, count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("2")), 9));
+        assertEquals(1, count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("3")), 9));
+        assertEquals(9, count(wildcard(withName("FRIEND_OF"), OUTGOING), 9));
 
-        builder.relationshipTo(1, "FRIEND_OF").setProp("level", "4").setProp("timestamp", valueOf(currentTimeMillis()));
-        builder.relationshipTo(2, "FRIEND_OF").setProp("level", "5").setProp("timestamp", valueOf(currentTimeMillis()));
-        builder.relationshipTo(3, "FRIEND_OF").setProp("level", "6").setProp("timestamp", valueOf(currentTimeMillis()));
-        builder.relationshipTo(4, "FRIEND_OF").setProp("level", "7").setProp("timestamp", valueOf(currentTimeMillis()));
+        builder.relationshipTo(0, "FRIEND_OF").setProp("level", "4").setProp("timestamp", valueOf(currentTimeMillis()));
+        builder.relationshipTo(1, "FRIEND_OF").setProp("level", "5").setProp("timestamp", valueOf(currentTimeMillis()));
+        builder.relationshipTo(2, "FRIEND_OF").setProp("level", "6").setProp("timestamp", valueOf(currentTimeMillis()));
+        builder.relationshipTo(3, "FRIEND_OF").setProp("level", "7").setProp("timestamp", valueOf(currentTimeMillis()));
 
         try {
-            count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("1")), 10);
+            count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("1")), 9);
             fail();
         } catch (UnableToCountException e) {
             //ok
         }
 
         try {
-            count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("2")), 10);
+            count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("2")), 9);
             fail();
         } catch (UnableToCountException e) {
             //ok
         }
 
         try {
-            count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("3")), 10);
+            count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("3")), 9);
             fail();
         } catch (UnableToCountException e) {
             //ok
         }
 
         try {
-            count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("4")), 10);
+            count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("4")), 9);
             fail();
         } catch (UnableToCountException e) {
             //ok
         }
 
         try {
-            count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("5")), 10);
+            count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("5")), 9);
             fail();
         } catch (UnableToCountException e) {
             //ok
         }
 
         try {
-            count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("6")), 10);
+            count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("6")), 9);
             fail();
         } catch (UnableToCountException e) {
             //ok
         }
 
         try {
-            count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("7")), 10);
+            count(wildcard(withName("FRIEND_OF"), OUTGOING).with("level", equalTo("7")), 9);
             fail();
         } catch (UnableToCountException e) {
             //ok
         }
 
-        assertEquals(13, count(wildcard(withName("FRIEND_OF"), OUTGOING), 10));
+        assertEquals(13, count(wildcard(withName("FRIEND_OF"), OUTGOING), 9));
     }
 
     private void createFirstRelationships() {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                Node node1 = database.getNodeById(1);
-                Node node2 = database.getNodeById(2);
-                Node node3 = database.getNodeById(3);
-                Node node4 = database.getNodeById(4);
-                Node node5 = database.getNodeById(5);
-                Node node6 = database.getNodeById(6);
+                Node node1 = database.getNodeById(0);
+                Node node2 = database.getNodeById(1);
+                Node node3 = database.getNodeById(2);
+                Node node4 = database.getNodeById(3);
+                Node node5 = database.getNodeById(4);
+                Node node6 = database.getNodeById(5);
 
                 node1.createRelationshipTo(node2, withName("test")).setProperty("key1", "value1");
                 node1.createRelationshipTo(node3, withName("test")).setProperty("key1", "value2");
@@ -594,11 +599,11 @@ public class CachedRelationshipCounterTest {
         txExecutor.executeInTransaction(new TransactionCallback<Void>() {
             @Override
             public Void doInTransaction(GraphDatabaseService database) {
-                Node node1 = database.getNodeById(1);
-                Node node7 = database.getNodeById(7);
-                Node node8 = database.getNodeById(8);
-                Node node9 = database.getNodeById(9);
-                Node node10 = database.getNodeById(10);
+                Node node1 = database.getNodeById(0);
+                Node node7 = database.getNodeById(6);
+                Node node8 = database.getNodeById(7);
+                Node node9 = database.getNodeById(8);
+                Node node10 = database.getNodeById(9);
 
                 node1.createRelationshipTo(node7, withName("test")).setProperty("key1", "value3");
                 node1.createRelationshipTo(node8, withName("test")).setProperty("key1", "value4");

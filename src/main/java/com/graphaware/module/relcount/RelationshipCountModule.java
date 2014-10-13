@@ -4,8 +4,7 @@ import com.graphaware.module.relcount.cache.NodeBasedDegreeCache;
 import com.graphaware.runtime.config.BaseRuntimeConfigured;
 import com.graphaware.runtime.config.RuntimeConfiguration;
 import com.graphaware.runtime.config.RuntimeConfigured;
-import com.graphaware.runtime.config.TxDrivenModuleConfiguration;
-import com.graphaware.runtime.module.BatchSupportingTxDrivenModule;
+import com.graphaware.runtime.module.TxDrivenModule;
 import com.graphaware.tx.event.batch.api.TransactionSimulatingBatchInserter;
 import com.graphaware.tx.event.batch.propertycontainer.inserter.BatchInserterNode;
 import com.graphaware.tx.event.improved.api.Change;
@@ -35,7 +34,7 @@ import static org.neo4j.tooling.GlobalGraphOperations.at;
  * counts will be cached on nodes properties. {@link com.graphaware.module.relcount.count.CachedRelationshipCounter} or {@link com.graphaware.module.relcount.count.LegacyFallbackRelationshipCounter} can then be used to
  * count relationships by querying these cached counts.
  */
-public class RelationshipCountModule extends BaseRuntimeConfigured implements BatchSupportingTxDrivenModule<Void>, RuntimeConfigured {
+public class RelationshipCountModule extends BaseRuntimeConfigured implements TxDrivenModule<Void>, RuntimeConfigured {
 
     /**
      * Default ID of this module used to identify metadata written by this module.
@@ -78,14 +77,6 @@ public class RelationshipCountModule extends BaseRuntimeConfigured implements Ba
         this.id = id;
         this.relationshipCountConfiguration = relationshipCountConfiguration;
         this.relationshipCountCache = new NodeBasedDegreeCache(id, relationshipCountConfiguration);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void start(TransactionSimulatingBatchInserter batchInserter) {
-        //do nothing
     }
 
     /**
@@ -135,23 +126,6 @@ public class RelationshipCountModule extends BaseRuntimeConfigured implements Ba
     public void reinitialize(GraphDatabaseService database) {
         clearCachedCounts(database);
         initialize(database);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void initialize(TransactionSimulatingBatchInserter batchInserter) {
-        buildCachedCounts(batchInserter);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void reinitialize(TransactionSimulatingBatchInserter batchInserter) {
-        clearCachedCounts(batchInserter);
-        initialize(batchInserter);
     }
 
     /**

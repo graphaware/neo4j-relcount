@@ -346,7 +346,7 @@ public class RelationshipCountIntegrationTest {
 
         try (Transaction tx = database.beginTx()) {
             try {
-                new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(2)).with(TIMESTAMP, equalTo("123")).with(K1, equalTo("V1")));
+                new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(2)).with(TIMESTAMP, equalTo("123")).with(K1, equalTo("V1")));
                 fail();
             } catch (UnableToCountException e) {
                 //OK
@@ -467,11 +467,11 @@ public class RelationshipCountIntegrationTest {
 
         try (Transaction tx = database.beginTx()) {
             //naive doesn't care about this strategy
-            assertEquals(2, new LegacyNaiveRelationshipCounter().count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
-            assertEquals(2, new NaiveRelationshipCounter().count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
-            assertEquals(0, new LegacyFallbackRelationshipCounter(database).count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
-            assertEquals(0, new FallbackRelationshipCounter(database).count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
-            assertEquals(0, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard(TWO, OUTGOING)));
+            assertEquals(2, new LegacyNaiveRelationshipCounter().count(database.getNodeById(0), wildcard(TWO, OUTGOING)));
+            assertEquals(2, new NaiveRelationshipCounter().count(database.getNodeById(0), wildcard(TWO, OUTGOING)));
+            assertEquals(0, new LegacyFallbackRelationshipCounter(database).count(database.getNodeById(0), wildcard(TWO, OUTGOING)));
+            assertEquals(0, new FallbackRelationshipCounter(database).count(database.getNodeById(0), wildcard(TWO, OUTGOING)));
+            assertEquals(0, new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard(TWO, OUTGOING)));
 
             tx.success();
         }
@@ -498,16 +498,16 @@ public class RelationshipCountIntegrationTest {
 
         try (Transaction tx = database.beginTx()) {
             //naive doesn't care about this strategy
-            assertEquals(2, new LegacyNaiveRelationshipCounter().count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
-            assertEquals(2, new NaiveRelationshipCounter().count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
-            assertEquals(2, new LegacyNaiveRelationshipCounter().count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
-            assertEquals(2, new NaiveRelationshipCounter().count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
-            assertEquals(0, new LegacyFallbackRelationshipCounter(database).count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
-            assertEquals(0, new FallbackRelationshipCounter(database).count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
-            assertEquals(0, new LegacyFallbackRelationshipCounter(database).count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
-            assertEquals(0, new FallbackRelationshipCounter(database).count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
-            assertEquals(0, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
-            assertEquals(0, new CachedRelationshipCounter(database).count(database.getNodeById(1), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+            assertEquals(2, new LegacyNaiveRelationshipCounter().count(database.getNodeById(0), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+            assertEquals(2, new NaiveRelationshipCounter().count(database.getNodeById(0), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+            assertEquals(2, new LegacyNaiveRelationshipCounter().count(database.getNodeById(0), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+            assertEquals(2, new NaiveRelationshipCounter().count(database.getNodeById(0), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+            assertEquals(0, new LegacyFallbackRelationshipCounter(database).count(database.getNodeById(0), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+            assertEquals(0, new FallbackRelationshipCounter(database).count(database.getNodeById(0), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+            assertEquals(0, new LegacyFallbackRelationshipCounter(database).count(database.getNodeById(0), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+            assertEquals(0, new FallbackRelationshipCounter(database).count(database.getNodeById(0), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+            assertEquals(0, new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
+            assertEquals(0, new CachedRelationshipCounter(database).count(database.getNodeById(0), literal(ONE, OUTGOING).with(WEIGHT, equalTo(7))));
 
             tx.success();
         }
@@ -582,8 +582,8 @@ public class RelationshipCountIntegrationTest {
         new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
             @Override
             protected void doInTx(GraphDatabaseService database) {
-                Node one = database.getNodeById(1);
-                Node two = database.getNodeById(2);
+                Node one = database.getNodeById(0);
+                Node two = database.getNodeById(1);
 
                 Relationship r1 = one.createRelationshipTo(two, withName("TEST"));
                 r1.setProperty("a", 2);
@@ -592,9 +592,9 @@ public class RelationshipCountIntegrationTest {
         });
 
         try (Transaction tx = database.beginTx()) {
-            assertEquals(1, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING)));
-            assertEquals(1, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING).with("a", equalTo(2))));
-            assertEquals(1, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING).with("b", equalTo("b"))));
+            assertEquals(1, new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING)));
+            assertEquals(1, new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING).with("a", equalTo(2))));
+            assertEquals(1, new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING).with("b", equalTo("b"))));
 
             tx.success();
         }
@@ -602,8 +602,8 @@ public class RelationshipCountIntegrationTest {
         new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
             @Override
             protected void doInTx(GraphDatabaseService database) {
-                Node one = database.getNodeById(1);
-                Node two = database.getNodeById(2);
+                Node one = database.getNodeById(0);
+                Node two = database.getNodeById(1);
 
                 Relationship r1 = one.createRelationshipTo(two, withName("TEST"));
                 r1.setProperty("a", 1);
@@ -612,11 +612,11 @@ public class RelationshipCountIntegrationTest {
         });
 
         try (Transaction tx = database.beginTx()) {
-            assertEquals(2, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING)));
-            assertEquals(1, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING).with("a", equalTo(1))));
-            assertEquals(1, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING).with("a", equalTo(2))));
-            assertEquals(1, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING).with("b", equalTo("b"))));
-            assertEquals(1, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING).with("b", equalTo("c"))));
+            assertEquals(2, new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING)));
+            assertEquals(1, new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING).with("a", equalTo(1))));
+            assertEquals(1, new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING).with("a", equalTo(2))));
+            assertEquals(1, new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING).with("b", equalTo("b"))));
+            assertEquals(1, new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING).with("b", equalTo("c"))));
 
             tx.success();
         }
@@ -624,8 +624,8 @@ public class RelationshipCountIntegrationTest {
         new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
             @Override
             protected void doInTx(GraphDatabaseService database) {
-                Node one = database.getNodeById(1);
-                Node two = database.getNodeById(2);
+                Node one = database.getNodeById(0);
+                Node two = database.getNodeById(1);
 
                 Relationship r1 = one.createRelationshipTo(two, withName("TEST"));
                 r1.setProperty("a", 3);
@@ -635,16 +635,16 @@ public class RelationshipCountIntegrationTest {
 
         try (Transaction tx = database.beginTx()) {
             //now we should have 2b, *c
-            assertEquals(3, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING)));
-            assertEquals(1, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING).with("b", equalTo("b"))));
-            assertEquals(2, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING).with("b", equalTo("c"))));
+            assertEquals(3, new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING)));
+            assertEquals(1, new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING).with("b", equalTo("b"))));
+            assertEquals(2, new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING).with("b", equalTo("c"))));
 
             tx.success();
         }
 
         try (Transaction tx = database.beginTx()) {
             try {
-                new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING).with("a", equalTo(2)));
+                new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING).with("a", equalTo(2)));
                 fail();
             } catch (UnableToCountException e) {
                 //ok
@@ -656,8 +656,8 @@ public class RelationshipCountIntegrationTest {
         new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
             @Override
             protected void doInTx(GraphDatabaseService database) {
-                Node one = database.getNodeById(1);
-                Node two = database.getNodeById(2);
+                Node one = database.getNodeById(0);
+                Node two = database.getNodeById(1);
 
                 Relationship r1 = one.createRelationshipTo(two, withName("TEST"));
                 r1.setProperty("a", 2);
@@ -669,17 +669,17 @@ public class RelationshipCountIntegrationTest {
 
             //now we should have 2*, *c
 
-            assertEquals(4, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING)));
+            assertEquals(4, new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING)));
 
             try {
-                new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING).with("a", equalTo(2)));
+                new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING).with("a", equalTo(2)));
                 fail();
             } catch (UnableToCountException e) {
                 //ok
             }
 
             try {
-                new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING).with("b", equalTo("c")));
+                new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING).with("b", equalTo("c")));
                 fail();
             } catch (UnableToCountException e) {
                 //ok
@@ -691,8 +691,8 @@ public class RelationshipCountIntegrationTest {
         new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
             @Override
             protected void doInTx(GraphDatabaseService database) {
-                Node one = database.getNodeById(1);
-                Node two = database.getNodeById(2);
+                Node one = database.getNodeById(0);
+                Node two = database.getNodeById(1);
 
                 Relationship r1 = one.createRelationshipTo(two, withName("TEST"));
                 r1.setProperty("a", 2);
@@ -701,18 +701,18 @@ public class RelationshipCountIntegrationTest {
         });
 
         try (Transaction tx = database.beginTx()) {
-            assertEquals(5, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING)));
+            assertEquals(5, new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING)));
 
 
             try {
-                new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING).with("a", equalTo(2)));
+                new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING).with("a", equalTo(2)));
                 fail();
             } catch (UnableToCountException e) {
                 //ok
             }
 
             try {
-                new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING).with("b", equalTo("c")));
+                new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING).with("b", equalTo("c")));
                 fail();
             } catch (UnableToCountException e) {
                 //ok
@@ -725,8 +725,8 @@ public class RelationshipCountIntegrationTest {
         new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
             @Override
             protected void doInTx(GraphDatabaseService database) {
-                Node one = database.getNodeById(1);
-                Node two = database.getNodeById(2);
+                Node one = database.getNodeById(0);
+                Node two = database.getNodeById(1);
 
                 Relationship r1 = one.createRelationshipTo(two, withName("TEST"));
                 r1.setProperty("a", 3);
@@ -735,17 +735,17 @@ public class RelationshipCountIntegrationTest {
         });
 
         try (Transaction tx = database.beginTx()) {
-            assertEquals(6, new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING)));
+            assertEquals(6, new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING)));
 
             try {
-                new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING).with("a", equalTo(2)));
+                new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING).with("a", equalTo(2)));
                 fail();
             } catch (UnableToCountException e) {
                 //ok
             }
 
             try {
-                new CachedRelationshipCounter(database).count(database.getNodeById(1), wildcard("TEST", OUTGOING).with("b", equalTo("c")));
+                new CachedRelationshipCounter(database).count(database.getNodeById(0), wildcard("TEST", OUTGOING).with("b", equalTo("c")));
                 fail();
             } catch (UnableToCountException e) {
                 //ok
@@ -758,8 +758,8 @@ public class RelationshipCountIntegrationTest {
     private void verifyCounts(int factor, RelationshipCounter counter) {
         try (Transaction tx = database.beginTx()) {
 
-            Node one = database.getNodeById(1);
-            Node two = database.getNodeById(2);
+            Node one = database.getNodeById(0);
+            Node two = database.getNodeById(1);
 
             //Node one incoming
 
@@ -1001,8 +1001,8 @@ public class RelationshipCountIntegrationTest {
     private void verifyWeightedCounts(int factor, RelationshipCounter counter) {
         try (Transaction tx = database.beginTx()) {
 
-            Node one = database.getNodeById(1);
-            Node two = database.getNodeById(2);
+            Node one = database.getNodeById(0);
+            Node two = database.getNodeById(1);
 
             //Node one incoming
 
@@ -1245,7 +1245,7 @@ public class RelationshipCountIntegrationTest {
     private void verifyCompactedCounts(int factor, RelationshipCounter counter) {
         try (Transaction tx = database.beginTx()) {
 
-            Node one = database.getNodeById(1);
+            Node one = database.getNodeById(0);
 
             //Node one incoming
 
@@ -1398,8 +1398,8 @@ public class RelationshipCountIntegrationTest {
         new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
             @Override
             protected void doInTx(GraphDatabaseService database) {
-                Node one = database.getNodeById(1);
-                Node two = database.getNodeById(2);
+                Node one = database.getNodeById(0);
+                Node two = database.getNodeById(1);
 
                 Relationship cycle = one.createRelationshipTo(one, ONE);
                 cycle.setProperty(WEIGHT, 2);
@@ -1418,8 +1418,8 @@ public class RelationshipCountIntegrationTest {
         new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
             @Override
             protected void doInTx(GraphDatabaseService database) {
-                Node one = database.getNodeById(1);
-                Node two = database.getNodeById(2);
+                Node one = database.getNodeById(0);
+                Node two = database.getNodeById(1);
 
                 Relationship oneToTwo = one.createRelationshipTo(two, ONE);
                 oneToTwo.setProperty(K1, "V1");
@@ -1442,8 +1442,8 @@ public class RelationshipCountIntegrationTest {
         new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
             @Override
             protected void doInTx(GraphDatabaseService database) {
-                Node one = database.getNodeById(1);
-                Node two = database.getNodeById(2);
+                Node one = database.getNodeById(0);
+                Node two = database.getNodeById(1);
 
                 Relationship twoToOne = two.createRelationshipTo(one, ONE);
                 twoToOne.setProperty(K1, "V1");
@@ -1463,7 +1463,7 @@ public class RelationshipCountIntegrationTest {
         new SimpleTransactionExecutor(database).executeInTransaction(new VoidReturningCallback() {
             @Override
             protected void doInTx(GraphDatabaseService database) {
-                Node one = database.getNodeById(1);
+                Node one = database.getNodeById(0);
 
                 for (Relationship r : one.getRelationships(ONE, INCOMING)) {
                     if (r.getProperty(WEIGHT, 0).equals(3)) {
