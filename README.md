@@ -60,7 +60,7 @@ Releases are synced to <a href="http://search.maven.org/#search%7Cga%7C1%7Ca%3A%
 #### Snapshots
 
 To use the latest development version, just clone this repository, run `mvn clean install` and change the version in the
-dependency above to 2.1.5.25.10-SNAPSHOT.
+dependency above to 2.1.6.26.10-SNAPSHOT.
 
 #### Note on Versioning Scheme
 
