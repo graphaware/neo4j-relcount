@@ -16,7 +16,6 @@
 
 package com.graphaware.module.relcount.cache;
 
-import com.graphaware.runtime.config.RuntimeConfigured;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -29,7 +28,7 @@ import org.neo4j.graphdb.Relationship;
  * When finished handling the event, {@link #endCaching()} must be called, even if the handling methods throw an exception.
  * Implementations can choose to optimize based on the information about started and finished event handling.
  */
-public interface DegreeCache extends RuntimeConfigured {
+public interface DegreeCache {
 
     /**
      * Tell the component that caching has started. {@link #endCaching()} must be called before this method is called again.

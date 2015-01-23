@@ -1,12 +1,8 @@
 package com.graphaware.module.relcount;
 
 import com.graphaware.module.relcount.cache.NodeBasedDegreeCache;
-import com.graphaware.runtime.config.BaseRuntimeConfigured;
-import com.graphaware.runtime.config.RuntimeConfiguration;
-import com.graphaware.runtime.config.RuntimeConfigured;
+import com.graphaware.runtime.RuntimeRegistry;
 import com.graphaware.runtime.module.TxDrivenModule;
-import com.graphaware.tx.event.batch.api.TransactionSimulatingBatchInserter;
-import com.graphaware.tx.event.batch.propertycontainer.inserter.BatchInserterNode;
 import com.graphaware.tx.event.improved.api.Change;
 import com.graphaware.tx.event.improved.api.ImprovedTransactionData;
 import com.graphaware.tx.event.improved.propertycontainer.filtered.FilteredNode;
@@ -34,7 +30,7 @@ import static org.neo4j.tooling.GlobalGraphOperations.at;
  * counts will be cached on nodes properties. {@link com.graphaware.module.relcount.count.CachedRelationshipCounter} or {@link com.graphaware.module.relcount.count.LegacyFallbackRelationshipCounter} can then be used to
  * count relationships by querying these cached counts.
  */
-public class RelationshipCountModule extends BaseRuntimeConfigured implements TxDrivenModule<Void>, RuntimeConfigured {
+public class RelationshipCountModule implements TxDrivenModule<Void> {
 
     /**
      * Default ID of this module used to identify metadata written by this module.
@@ -162,15 +158,6 @@ public class RelationshipCountModule extends BaseRuntimeConfigured implements Tx
         //do nothing
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void configurationChanged(RuntimeConfiguration configuration) {
-        super.configurationChanged(configuration);
-        relationshipCountCache.configurationChanged(configuration);
-    }
-
     private void handleCreatedRelationships(ImprovedTransactionData data) {
         Collection<Relationship> allCreatedRelationships = data.getAllCreatedRelationships();
 
@@ -230,29 +217,13 @@ public class RelationshipCountModule extends BaseRuntimeConfigured implements Tx
                     @Override
                     public void execute(GraphDatabaseService database, Node node, int batchNumber, int stepNumber) {
                         for (String key : node.getPropertyKeys()) {
-                            if (key.startsWith(getConfig().createPrefix(id))) {
+                            if (key.startsWith(RuntimeRegistry.getRuntime(database).getConfiguration().createPrefix(id))) {
                                 node.removeProperty(key);
                             }
                         }
                     }
                 }
         ).execute();
-    }
-
-    /**
-     * Clear all cached counts. NOTE: This is a potentially very expensive operation as it traverses the
-     * entire graph! Use with care.
-     *
-     * @param batchInserter to perform the operation on.
-     */
-    private void clearCachedCounts(TransactionSimulatingBatchInserter batchInserter) {
-        for (long nodeId : batchInserter.getAllNodes()) {
-            for (String key : batchInserter.getNodeProperties(nodeId).keySet()) {
-                if (key.startsWith(getConfig().createPrefix(id))) {
-                    batchInserter.removeNodeProperty(nodeId, key);
-                }
-            }
-        }
     }
 
     /**
@@ -280,20 +251,6 @@ public class RelationshipCountModule extends BaseRuntimeConfigured implements Tx
 
                     }
                 }).execute();
-    }
-
-    /**
-     * Clear and rebuild all cached counts. NOTE: This is a potentially very expensive operation as it traverses the
-     * entire graph! Use with care.
-     *
-     * @param batchInserter to perform the operation on.
-     */
-    private void buildCachedCounts(TransactionSimulatingBatchInserter batchInserter) {
-        for (long nodeId : batchInserter.getAllNodes()) {
-            Node filteredNode = new FilteredNode(new BatchInserterNode(nodeId, batchInserter), getConfiguration().getInclusionPolicies());
-
-            buildCachedCounts(filteredNode);
-        }
     }
 
     /**

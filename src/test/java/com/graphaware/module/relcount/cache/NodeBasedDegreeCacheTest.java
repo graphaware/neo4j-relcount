@@ -5,13 +5,17 @@ import com.graphaware.common.wrapper.NodeWrapper;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.count.WeighingStrategy;
+import com.graphaware.runtime.GraphAwareRuntimeFactory;
+import com.graphaware.runtime.RuntimeRegistry;
 import com.graphaware.runtime.config.FluentRuntimeConfiguration;
 import com.graphaware.runtime.config.RuntimeConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.test.TestGraphDatabaseFactory;
 
 import java.util.Collections;
 
@@ -30,17 +34,19 @@ public class NodeBasedDegreeCacheTest {
 
     private NodeBasedDegreeCache cache; //class under test
     private DegreeCachingNode mockDegreeCachingNode;
+    private GraphDatabaseService database;
 
     @Before
     public void setUp() {
+        database = new TestGraphDatabaseFactory().newImpermanentDatabase();
+        GraphAwareRuntimeFactory.createRuntime(database);
         cache = new TestNodeBasedDegreeCache("TEST_ID", RelationshipCountConfigurationImpl.defaultConfiguration());
-        cache.configurationChanged(FluentRuntimeConfiguration.defaultConfiguration());
-
         mockDegreeCachingNode = mock(DegreeCachingNode.class);
     }
 
     @After
     public void tearDown() {
+        database.shutdown();
         try {
             cache.endCaching();
         } catch (IllegalStateException e) {
@@ -60,9 +66,11 @@ public class NodeBasedDegreeCacheTest {
     public void shouldNotBeAbleToHandleRelationshipsBeforeCachingStarts() {
         Node mockStartNode = mock(Node.class);
         when(mockStartNode.getId()).thenReturn(123L);
+        when(mockStartNode.getGraphDatabase()).thenReturn(database);
 
         Node mockEndNode = mock(Node.class);
         when(mockEndNode.getId()).thenReturn(124L);
+        when(mockEndNode.getGraphDatabase()).thenReturn(database);
 
         NodeWrapper mockNodeWrapper = mock(NodeWrapper.class);
         when(mockNodeWrapper.getId()).thenReturn(123L);
@@ -99,9 +107,11 @@ public class NodeBasedDegreeCacheTest {
     public void handlingCreatedRelationshipShouldResultInDegreeIncrement() {
         Node mockStartNode = mock(Node.class);
         when(mockStartNode.getId()).thenReturn(123L);
+        when(mockStartNode.getGraphDatabase()).thenReturn(database);
 
         Node mockEndNode = mock(Node.class);
         when(mockEndNode.getId()).thenReturn(124L);
+        when(mockEndNode.getGraphDatabase()).thenReturn(database);
 
         NodeWrapper mockNodeWrapper = mock(NodeWrapper.class);
         when(mockNodeWrapper.getId()).thenReturn(123L);
@@ -136,13 +146,14 @@ public class NodeBasedDegreeCacheTest {
                     }
                 }
         ), true);
-        cache.configurationChanged(FluentRuntimeConfiguration.defaultConfiguration());
 
         Node mockStartNode = mock(Node.class);
         when(mockStartNode.getId()).thenReturn(123L);
+        when(mockStartNode.getGraphDatabase()).thenReturn(database);
 
         Node mockEndNode = mock(Node.class);
         when(mockEndNode.getId()).thenReturn(124L);
+        when(mockEndNode.getGraphDatabase()).thenReturn(database);
 
         NodeWrapper mockNodeWrapper = mock(NodeWrapper.class);
         when(mockNodeWrapper.getId()).thenReturn(123L);
@@ -167,9 +178,11 @@ public class NodeBasedDegreeCacheTest {
     public void handlingDeletedRelationshipShouldResultInDegreeDecrement() {
         Node mockStartNode = mock(Node.class);
         when(mockStartNode.getId()).thenReturn(123L);
+        when(mockStartNode.getGraphDatabase()).thenReturn(database);
 
         Node mockEndNode = mock(Node.class);
         when(mockEndNode.getId()).thenReturn(124L);
+        when(mockEndNode.getGraphDatabase()).thenReturn(database);
 
         NodeWrapper mockNodeWrapper = mock(NodeWrapper.class);
         when(mockNodeWrapper.getId()).thenReturn(123L);
@@ -204,13 +217,14 @@ public class NodeBasedDegreeCacheTest {
                     }
                 }
         ), true);
-        cache.configurationChanged(FluentRuntimeConfiguration.defaultConfiguration());
 
         Node mockStartNode = mock(Node.class);
         when(mockStartNode.getId()).thenReturn(123L);
+        when(mockStartNode.getGraphDatabase()).thenReturn(database);
 
         Node mockEndNode = mock(Node.class);
         when(mockEndNode.getId()).thenReturn(124L);
+        when(mockEndNode.getGraphDatabase()).thenReturn(database);
 
         NodeWrapper mockNodeWrapper = mock(NodeWrapper.class);
         when(mockNodeWrapper.getId()).thenReturn(123L);
@@ -235,6 +249,7 @@ public class NodeBasedDegreeCacheTest {
     public void cachedDirectionShouldNeverBeBoth() {
         Node mockNode = mock(Node.class);
         when(mockNode.getId()).thenReturn(123L);
+        when(mockNode.getGraphDatabase()).thenReturn(database);
 
         NodeWrapper mockNodeWrapper = mock(NodeWrapper.class);
         when(mockNodeWrapper.getId()).thenReturn(123L);

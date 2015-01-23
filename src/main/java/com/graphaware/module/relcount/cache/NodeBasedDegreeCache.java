@@ -21,8 +21,7 @@ import com.graphaware.common.description.relationship.DetachedRelationshipDescri
 import com.graphaware.common.description.relationship.DetachedRelationshipDescriptionImpl;
 import com.graphaware.common.wrapper.NodeWrapper;
 import com.graphaware.module.relcount.RelationshipCountConfiguration;
-import com.graphaware.runtime.config.BaseRuntimeConfigured;
-import com.graphaware.runtime.config.RuntimeConfigured;
+import com.graphaware.runtime.RuntimeRegistry;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -39,7 +38,7 @@ import static com.graphaware.common.util.DirectionUtils.resolveDirection;
  * <p/>
  * It has its own "cache" of {@link DegreeCachingNode}s in order to optimize database reads/writes.
  */
-public class NodeBasedDegreeCache extends BaseRuntimeConfigured implements DegreeCache, RuntimeConfigured {
+public class NodeBasedDegreeCache implements DegreeCache {
 
     private static final Logger LOG = LoggerFactory.getLogger(NodeBasedDegreeCache.class);
 
@@ -143,7 +142,7 @@ public class NodeBasedDegreeCache extends BaseRuntimeConfigured implements Degre
         }
 
         if (!nodeCache.containsKey(node.getId())) {
-            nodeCache.put(node.getId(), newDegreeCachingNode(node, getConfig().createPrefix(id), relationshipCountConfiguration));
+            nodeCache.put(node.getId(), newDegreeCachingNode(node, RuntimeRegistry.getRuntime(node.getGraphDatabase()).getConfiguration().createPrefix(id), relationshipCountConfiguration));
         }
 
         return nodeCache.get(node.getId());
