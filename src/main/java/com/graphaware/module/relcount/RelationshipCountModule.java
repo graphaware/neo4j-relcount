@@ -2,6 +2,7 @@ package com.graphaware.module.relcount;
 
 import com.graphaware.module.relcount.cache.NodeBasedDegreeCache;
 import com.graphaware.runtime.RuntimeRegistry;
+import com.graphaware.runtime.metadata.TxDrivenModuleMetadata;
 import com.graphaware.runtime.module.TxDrivenModule;
 import com.graphaware.tx.event.improved.api.Change;
 import com.graphaware.tx.event.improved.api.ImprovedTransactionData;
@@ -119,7 +120,7 @@ public class RelationshipCountModule implements TxDrivenModule<Void> {
      * {@inheritDoc}
      */
     @Override
-    public void reinitialize(GraphDatabaseService database) {
+    public void reinitialize(GraphDatabaseService database, TxDrivenModuleMetadata oldMetadata) {
         clearCachedCounts(database);
         initialize(database);
     }

@@ -127,7 +127,7 @@ public class RelationshipCountIntegrationTest {
         setUpTwoNodes();
         simulateUsage();
 
-        module.reinitialize(database);
+        module.reinitialize(database, null);
 
         verifyCounts(1, new LegacyNaiveRelationshipCounter(database, "FRC"));
         verifyCounts(1, new NaiveRelationshipCounter(database, "FRC"));
