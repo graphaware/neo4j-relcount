@@ -9,8 +9,7 @@ import com.graphaware.tx.event.improved.api.ImprovedTransactionData;
 import com.graphaware.tx.event.improved.propertycontainer.filtered.FilteredNode;
 import com.graphaware.tx.executor.batch.IterableInputBatchTransactionExecutor;
 import com.graphaware.tx.executor.batch.UnitOfWork;
-import com.graphaware.tx.executor.single.SimpleTransactionExecutor;
-import com.graphaware.tx.executor.single.TransactionCallback;
+import com.graphaware.tx.executor.callback.AllNodes;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -20,7 +19,6 @@ import java.util.Collection;
 
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
-import static org.neo4j.tooling.GlobalGraphOperations.at;
 
 /**
  * {@link com.graphaware.runtime.module.RuntimeModule} providing caching capabilities for full relationship counting.
@@ -208,12 +206,7 @@ public class RelationshipCountModule implements TxDrivenModule<Void> {
         new IterableInputBatchTransactionExecutor<>(
                 database,
                 500,
-                new SimpleTransactionExecutor(database).executeInTransaction(new TransactionCallback<Iterable<Node>>() {
-                    @Override
-                    public Iterable<Node> doInTransaction(GraphDatabaseService database) {
-                        return at(database).getAllNodes();
-                    }
-                }),
+                AllNodes.getInstance(),
                 new UnitOfWork<Node>() {
                     @Override
                     public void execute(GraphDatabaseService database, Node node, int batchNumber, int stepNumber) {
@@ -237,12 +230,7 @@ public class RelationshipCountModule implements TxDrivenModule<Void> {
         new IterableInputBatchTransactionExecutor<>(
                 database,
                 100,
-                new SimpleTransactionExecutor(database).executeInTransaction(new TransactionCallback<Iterable<Node>>() {
-                    @Override
-                    public Iterable<Node> doInTransaction(GraphDatabaseService database) {
-                        return at(database).getAllNodes();
-                    }
-                }),
+                AllNodes.getInstance(),
                 new UnitOfWork<Node>() {
                     @Override
                     public void execute(GraphDatabaseService database, Node node, int batchNumber, int stepNumber) {
