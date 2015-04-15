@@ -31,12 +31,12 @@ public class RelcountIntegrationTest extends NeoServerIntegrationTest {
 
     @Test
     public void relationshipCountsShouldBeCachedWhenRuntimeAndRelcountAreEnabled() throws InterruptedException, IOException {
-        post(baseUrl()+"/db/data/transaction/commit", jsonAsString("create"), HttpStatus.OK_200);
+        httpClient.post(baseUrl() + "/db/data/transaction/commit", jsonAsString("create"), HttpStatus.OK_200);
 
-        assertJsonEquals(post(baseUrl() + "/db/data/transaction/commit", jsonAsString("query"), HttpStatus.OK_200),
+        assertJsonEquals(httpClient.post(baseUrl() + "/db/data/transaction/commit", jsonAsString("query"), HttpStatus.OK_200),
                 "{\"results\":[{\"columns\":[\"one._GA_relcount_\"],\"data\":[{\"row\":[[17,1,1,43,2,3,1,33,4,18,5,0,12,6,7,82,-79,2,2]]}]}],\"errors\":[]}");
 
-        assertJsonEquals(post(baseUrl() + "/db/data/transaction/commit", jsonAsString("query2"), HttpStatus.OK_200),
+        assertJsonEquals(httpClient.post(baseUrl() + "/db/data/transaction/commit", jsonAsString("query2"), HttpStatus.OK_200),
                 "{\"results\":[{\"columns\":[\"two._GA_relcount_\"],\"data\":[{\"row\":[[17,1,1,43,2,3,2,33,4,18,5,0,12,6,7,82,-79,2,2]]}]}],\"errors\":[]}");
     }
 }

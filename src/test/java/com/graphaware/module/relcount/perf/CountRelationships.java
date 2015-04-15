@@ -5,7 +5,6 @@ import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.module.relcount.cache.NodePropertiesDegreeCachingStrategy;
 import com.graphaware.module.relcount.count.CachedRelationshipCounter;
-import com.graphaware.module.relcount.count.LegacyNaiveRelationshipCounter;
 import com.graphaware.module.relcount.count.NaiveRelationshipCounter;
 import com.graphaware.module.relcount.count.RelationshipCounter;
 import com.graphaware.runtime.GraphAwareRuntime;
@@ -171,7 +170,7 @@ public class CountRelationships extends RelcountPerformanceTest {
             final Node node = randomNode(database, NO_NODES);
             if (Properties.TWO_PROPS.equals(params.get(PROPS))) {
                 for (Relationship r : node.getRelationships(randomType(), randomDirection())) {
-                    if (RANDOM.nextInt(2) == r.getProperty("rating", null) && RANDOM.nextInt(2) == r.getProperty("another", null)) {
+                    if (RANDOM.nextInt(2) == (int) r.getProperty("rating", null) && RANDOM.nextInt(2) == (int) r.getProperty("another", null)) {
                         result.incrementAndGet();
                     }
                 }
