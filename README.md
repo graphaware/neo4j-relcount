@@ -1,7 +1,7 @@
 GraphAware Neo4j Relationship Counter
 =====================================
 
-[![Build Status](https://travis-ci.org/graphaware/neo4j-relcount.png)](https://travis-ci.org/graphaware/neo4j-relcount) | <a href="http://graphaware.com/downloads/" target="_blank">Downloads</a> | <a href="http://graphaware.com/site/relcount/latest/apidocs/" target="_blank">Javadoc</a> | Latest Release: 2.2.2.30.9
+[![Build Status](https://travis-ci.org/graphaware/neo4j-relcount.png)](https://travis-ci.org/graphaware/neo4j-relcount) | <a href="http://graphaware.com/downloads/" target="_blank">Downloads</a> | <a href="http://graphaware.com/site/relcount/latest/apidocs/" target="_blank">Javadoc</a> | Latest Release: 2.2.2.31.9
 
 In some Neo4j applications, it is useful to know how many relationships of a given type, perhaps with different properties,
 are present on a node. Naive on-demand relationship counting quickly becomes inefficient with large numbers of relationships
