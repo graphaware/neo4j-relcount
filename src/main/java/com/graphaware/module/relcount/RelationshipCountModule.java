@@ -9,7 +9,7 @@ import com.graphaware.tx.event.improved.api.ImprovedTransactionData;
 import com.graphaware.tx.event.improved.propertycontainer.filtered.FilteredNode;
 import com.graphaware.tx.executor.batch.IterableInputBatchTransactionExecutor;
 import com.graphaware.tx.executor.batch.UnitOfWork;
-import com.graphaware.tx.executor.callback.AllNodes;
+import com.graphaware.tx.executor.input.AllNodes;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -206,7 +206,7 @@ public class RelationshipCountModule implements TxDrivenModule<Void> {
         new IterableInputBatchTransactionExecutor<>(
                 database,
                 500,
-                AllNodes.getInstance(),
+                new AllNodes(database, 500),
                 new UnitOfWork<Node>() {
                     @Override
                     public void execute(GraphDatabaseService database, Node node, int batchNumber, int stepNumber) {
@@ -230,7 +230,7 @@ public class RelationshipCountModule implements TxDrivenModule<Void> {
         new IterableInputBatchTransactionExecutor<>(
                 database,
                 100,
-                AllNodes.getInstance(),
+                new AllNodes(database, 100),
                 new UnitOfWork<Node>() {
                     @Override
                     public void execute(GraphDatabaseService database, Node node, int batchNumber, int stepNumber) {
