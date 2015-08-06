@@ -100,7 +100,7 @@ public class CountRelationships extends RelcountPerformanceTest {
     }
 
     @Override
-    public void prepareDatabase(GraphDatabaseService database, Map<String, Object> params) {
+    public void prepare(GraphDatabaseService database, Map<String, Object> params) {
         RelationshipCountConfigurationImpl configuration = RelationshipCountConfigurationImpl.defaultConfiguration();
         if (Serialization.MULTI_PROP.equals(params.get(SERIALIZATION))) {
             configuration = configuration.with(new NodePropertiesDegreeCachingStrategy());

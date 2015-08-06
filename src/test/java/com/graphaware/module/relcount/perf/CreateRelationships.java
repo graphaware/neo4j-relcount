@@ -87,7 +87,7 @@ public class CreateRelationships extends RelcountPerformanceTest {
     }
 
     @Override
-    public void prepareDatabase(GraphDatabaseService database, Map<String, Object> params) {
+    public void prepare(GraphDatabaseService database, Map<String, Object> params) {
         RuntimeInvolvement runtimeInvolvement = (RuntimeInvolvement) params.get(FW);
 
         switch (runtimeInvolvement) {
