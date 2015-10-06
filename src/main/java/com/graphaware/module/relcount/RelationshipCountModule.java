@@ -1,10 +1,10 @@
 package com.graphaware.module.relcount;
 
+import com.graphaware.common.util.Change;
 import com.graphaware.module.relcount.cache.NodeBasedDegreeCache;
 import com.graphaware.runtime.RuntimeRegistry;
 import com.graphaware.runtime.metadata.TxDrivenModuleMetadata;
 import com.graphaware.runtime.module.TxDrivenModule;
-import com.graphaware.tx.event.improved.api.Change;
 import com.graphaware.tx.event.improved.api.ImprovedTransactionData;
 import com.graphaware.tx.event.improved.propertycontainer.filtered.FilteredNode;
 import com.graphaware.tx.executor.batch.IterableInputBatchTransactionExecutor;
