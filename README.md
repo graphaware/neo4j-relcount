@@ -50,7 +50,7 @@ Releases are synced to <a href="http://search.maven.org/#search%7Cga%7C1%7Ca%3A%
     <dependencies>
         ...
         <dependency>
-            <groupId>com.graphaware</groupId>
+            <groupId>com.graphaware.neo4j</groupId>
             <artifactId>neo4j-relcount</artifactId>
             <version>2.3.1.35.9</version>
         </dependency>
