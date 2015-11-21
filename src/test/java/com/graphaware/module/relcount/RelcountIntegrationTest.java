@@ -16,7 +16,6 @@
 
 package com.graphaware.module.relcount;
 
-import com.graphaware.test.integration.CommunityNeoServerIntegrationTest;
 import com.graphaware.test.integration.NeoServerIntegrationTest;
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Test;
@@ -29,7 +28,7 @@ import static com.graphaware.test.util.TestUtils.jsonAsString;
 /**
  * {@link NeoServerIntegrationTest} for {@link RelationshipCountModule}.
  */
-public class RelcountIntegrationTest extends CommunityNeoServerIntegrationTest {
+public class RelcountIntegrationTest extends NeoServerIntegrationTest {
 
     @Test
     public void relationshipCountsShouldBeCachedWhenRuntimeAndRelcountAreEnabled() throws InterruptedException, IOException {
