@@ -19,8 +19,7 @@ package com.graphaware.module.relcount.bootstrap;
 import com.graphaware.module.relcount.RelationshipCountConfigurationImpl;
 import com.graphaware.module.relcount.RelationshipCountModule;
 import com.graphaware.module.relcount.compact.ThresholdBasedCompactionStrategy;
-import com.graphaware.runtime.config.function.StringToRelationshipInclusionPolicy;
-import com.graphaware.runtime.config.function.StringToRelationshipPropertyInclusionPolicy;
+import com.graphaware.runtime.module.BaseRuntimeModuleBootstrapper;
 import com.graphaware.runtime.module.RuntimeModule;
 import com.graphaware.runtime.module.RuntimeModuleBootstrapper;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -30,31 +29,27 @@ import java.util.Map;
 /**
  * {@link RuntimeModuleBootstrapper} for {@link com.graphaware.module.relcount.RelationshipCountModule}.
  */
-public class RelcountModuleBootstrapper implements RuntimeModuleBootstrapper {
+public class RelcountModuleBootstrapper extends BaseRuntimeModuleBootstrapper<RelationshipCountConfigurationImpl> {
 
     private static final String THRESHOLD = "threshold";
-    private static final String RELATIONSHIP = "relationship";
-    private static final String RELATIONSHIP_PROPERTY = "relationship.property";
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public RuntimeModule bootstrapModule(String moduleId, Map<String, String> config, GraphDatabaseService database) {
-        RelationshipCountConfigurationImpl relationshipCountStrategies = RelationshipCountConfigurationImpl.defaultConfiguration();
+    protected RelationshipCountConfigurationImpl defaultConfiguration() {
+        return RelationshipCountConfigurationImpl.defaultConfiguration();
+    }
 
-        if (config.containsKey(THRESHOLD)) {
-            relationshipCountStrategies = relationshipCountStrategies.with(new ThresholdBasedCompactionStrategy(Integer.valueOf(config.get(THRESHOLD))));
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected RuntimeModule doBootstrapModule(String moduleId, Map<String, String> config, GraphDatabaseService database, RelationshipCountConfigurationImpl configuration) {
+        if (configExists(config, THRESHOLD)) {
+            configuration = configuration.with(new ThresholdBasedCompactionStrategy(Integer.valueOf(config.get(THRESHOLD))));
         }
 
-        if (config.containsKey(RELATIONSHIP)) {
-            relationshipCountStrategies = relationshipCountStrategies.with(StringToRelationshipInclusionPolicy.getInstance().apply(config.get(RELATIONSHIP)));
-        }
-
-        if (config.containsKey(RELATIONSHIP_PROPERTY)) {
-            relationshipCountStrategies = relationshipCountStrategies.with(StringToRelationshipPropertyInclusionPolicy.getInstance().apply(config.get(RELATIONSHIP_PROPERTY)));
-        }
-
-        return new RelationshipCountModule(moduleId, relationshipCountStrategies);
+        return new RelationshipCountModule(moduleId, configuration);
     }
 }

@@ -55,20 +55,24 @@ public class RelationshipCountConfigurationImpl extends BaseTxDrivenModuleConfig
                         IncludeAllBusinessRelationshipProperties.getInstance()),
                 new SingleNodePropertyDegreeCachingStrategy(),
                 new ThresholdBasedCompactionStrategy(DEFAULT_COMPACTION_THRESHOLD),
-                OneForEach.getInstance()
+                OneForEach.getInstance(),
+                ALWAYS
         );
     }
 
     /**
      * Constructor.
      *
-     * @param inclusionPolicies   strategies for what to include.
+     * @param inclusionPolicies     strategies for what to include.
      * @param degreeCachingStrategy strategy for caching degrees.
      * @param compactionStrategy    strategy for compacting cached counts.
      * @param weighingStrategy      strategy for weighing relationships.
+     * @param initializeUntil       until what time in ms since epoch it is ok to re(initialize) the entire module in case the configuration
+     *                              has changed since the last time the module was started, or if it is the first time the module was registered.
+     *                              {@link #NEVER} for never, {@link #ALWAYS} for always.
      */
-    protected RelationshipCountConfigurationImpl(InclusionPolicies inclusionPolicies, DegreeCachingStrategy degreeCachingStrategy, CompactionStrategy compactionStrategy, WeighingStrategy weighingStrategy) {
-        super(inclusionPolicies);
+    protected RelationshipCountConfigurationImpl(InclusionPolicies inclusionPolicies, DegreeCachingStrategy degreeCachingStrategy, CompactionStrategy compactionStrategy, WeighingStrategy weighingStrategy, long initializeUntil) {
+        super(inclusionPolicies, initializeUntil);
         this.degreeCachingStrategy = degreeCachingStrategy;
         this.compactionStrategy = compactionStrategy;
         this.weighingStrategy = weighingStrategy;
@@ -78,8 +82,8 @@ public class RelationshipCountConfigurationImpl extends BaseTxDrivenModuleConfig
      * {@inheritDoc}
      */
     @Override
-    protected RelationshipCountConfigurationImpl newInstance(InclusionPolicies inclusionPolicies) {
-        return new RelationshipCountConfigurationImpl(inclusionPolicies, getDegreeCachingStrategy(), getCompactionStrategy(), getWeighingStrategy());
+    protected RelationshipCountConfigurationImpl newInstance(InclusionPolicies inclusionPolicies, long initializeUntil) {
+        return new RelationshipCountConfigurationImpl(inclusionPolicies, getDegreeCachingStrategy(), getCompactionStrategy(), getWeighingStrategy(), initializeUntil);
     }
 
     /**
@@ -89,7 +93,7 @@ public class RelationshipCountConfigurationImpl extends BaseTxDrivenModuleConfig
      * @return reconfigured strategies.
      */
     public RelationshipCountConfigurationImpl with(DegreeCachingStrategy degreeCachingStrategy) {
-        return new RelationshipCountConfigurationImpl(getInclusionPolicies(), degreeCachingStrategy, getCompactionStrategy(), getWeighingStrategy());
+        return new RelationshipCountConfigurationImpl(getInclusionPolicies(), degreeCachingStrategy, getCompactionStrategy(), getWeighingStrategy(), initializeUntil());
     }
 
     /**
@@ -99,7 +103,7 @@ public class RelationshipCountConfigurationImpl extends BaseTxDrivenModuleConfig
      * @return reconfigured strategies.
      */
     public RelationshipCountConfigurationImpl with(CompactionStrategy compactionStrategy) {
-        return new RelationshipCountConfigurationImpl(getInclusionPolicies(), getDegreeCachingStrategy(), compactionStrategy, getWeighingStrategy());
+        return new RelationshipCountConfigurationImpl(getInclusionPolicies(), getDegreeCachingStrategy(), compactionStrategy, getWeighingStrategy(), initializeUntil());
     }
 
     /**
@@ -109,7 +113,7 @@ public class RelationshipCountConfigurationImpl extends BaseTxDrivenModuleConfig
      * @return reconfigured strategies.
      */
     public RelationshipCountConfigurationImpl withThreshold(int threshold) {
-        return new RelationshipCountConfigurationImpl(getInclusionPolicies(), getDegreeCachingStrategy(), new ThresholdBasedCompactionStrategy(threshold), getWeighingStrategy());
+        return new RelationshipCountConfigurationImpl(getInclusionPolicies(), getDegreeCachingStrategy(), new ThresholdBasedCompactionStrategy(threshold), getWeighingStrategy(), initializeUntil());
     }
 
     /**
@@ -119,7 +123,7 @@ public class RelationshipCountConfigurationImpl extends BaseTxDrivenModuleConfig
      * @return reconfigured strategies.
      */
     public RelationshipCountConfigurationImpl with(WeighingStrategy weighingStrategy) {
-        return new RelationshipCountConfigurationImpl(getInclusionPolicies(), getDegreeCachingStrategy(), getCompactionStrategy(), weighingStrategy);
+        return new RelationshipCountConfigurationImpl(getInclusionPolicies(), getDegreeCachingStrategy(), getCompactionStrategy(), weighingStrategy, initializeUntil());
     }
 
     /**
@@ -151,15 +155,27 @@ public class RelationshipCountConfigurationImpl extends BaseTxDrivenModuleConfig
      */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         RelationshipCountConfigurationImpl that = (RelationshipCountConfigurationImpl) o;
 
-        if (!compactionStrategy.equals(that.compactionStrategy)) return false;
-        if (!degreeCachingStrategy.equals(that.degreeCachingStrategy)) return false;
-        if (!weighingStrategy.equals(that.weighingStrategy)) return false;
+        if (!compactionStrategy.equals(that.compactionStrategy)) {
+            return false;
+        }
+        if (!degreeCachingStrategy.equals(that.degreeCachingStrategy)) {
+            return false;
+        }
+        if (!weighingStrategy.equals(that.weighingStrategy)) {
+            return false;
+        }
 
         return true;
     }
