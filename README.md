@@ -1,5 +1,20 @@
-GraphAware Neo4j Relationship Counter
-=====================================
+GraphAware Neo4j Relationship Counter - RETIRED
+===============================================
+
+RelCount Has Been Retired
+-------------------------
+
+As of March 26th 2016, this module is retiring. This means it will no longer be maintained and released together with
+new versions of the GraphAware Framework and Neo4j. The last compatible Neo4j version is 2.3.2.
+
+RelCount was the very first module of the GraphAware Framework, initially built in 2013 as part of <a href="http://graphaware.com/assets/bachman-msc-thesis.pdf" target="_blank">Michal's MSc Thesis</a>.
+Unlike many other GraphAware modules, nobody is using RelCount in production, to the best of our knowledge.
+
+This repository will remain public. Please get in touch if you've been using RelCount and would like us to maintain it
+going forward, we will reconsider the decision.
+
+Introduction
+------------
 
 [![Build Status](https://travis-ci.org/graphaware/neo4j-relcount.png)](https://travis-ci.org/graphaware/neo4j-relcount) | <a href="http://graphaware.com/downloads/" target="_blank">Downloads</a> | <a href="http://graphaware.com/site/relcount/latest/apidocs/" target="_blank">Javadoc</a> | Latest Release: 2.3.2.37.9
 
