@@ -10,7 +10,7 @@ new versions of the GraphAware Framework and Neo4j. The last compatible Neo4j ve
 RelCount was the very first module of the GraphAware Framework, initially built in 2013 as part of <a href="http://graphaware.com/assets/bachman-msc-thesis.pdf" target="_blank">Michal's MSc Thesis</a>.
 Unlike many other GraphAware modules, nobody is using RelCount in production, to the best of our knowledge.
 
-This repository will remain public. Please get in touch if you've been using RelCount and would like us to maintain it
+This repository will remain public. Please <a href="http://graphaware.com/contact/">get in touch</a> if you've been using RelCount and would like us to maintain it
 going forward, we will reconsider the decision.
 
 Introduction
